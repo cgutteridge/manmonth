@@ -20,15 +20,34 @@ class Document extends Model
         $rev->save();
     }
 
+    // This is a major workhorse function. It copies all the relevant data into a new revision. 
+    // Rows get a new ID but maintain their 'sid' value and this is used for relationships.
     public function newDraftRevision()
     {
         // if there's already a draft throw an exception
         $draft = $this->draftRevision();
         if( $draft ) { throw new Exception( "Already a draft, can't make another one." ); }
-       
-        $draft = $this->currentRevision()->replicate();
+
+        $current = $this->currentRevision();      
+ 
+        $draft = $current->replicate();
         $draft->status = "draft";
         $draft->save();
+       
+        $partLists = array( 
+            $current->records,
+            $current->recordTypes,
+            $current->links,
+            $current->linkTypes,
+            $current->rules );
+      
+        foreach( $partLists as $partList ) {
+            foreach( $partList as $part ) {
+                $newPart = $part->replicate(); 
+                $newPart->documentRevision()->associate( $draft );
+                $newPart->save();
+            }
+        }
  
         return $draft;
     }

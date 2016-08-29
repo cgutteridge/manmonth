@@ -16,6 +16,7 @@ class CreateRecordsTable extends Migration
             $table->increments('id');
             $table->integer('sid')->unsigned();
             $table->integer('document_revision_id')->unsigned();
+            $table->index(array('document_revision_id', 'sid'));
 
             $table->integer('record_type_sid')->unsigned();
             $table->text('data');
