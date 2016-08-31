@@ -37,6 +37,8 @@ class DocumentRevision extends Model
         return $this->hasMany('App\Rule');
     }
 
+
+
     public function publish() 
     {
         // can only publish if this is a draft
@@ -69,47 +71,35 @@ class DocumentRevision extends Model
         RecordType::validateName( $name );
         RecordType::validateData( $data );
 
-        /// all OK, let's do this thing
+        // all OK, let's do this thing
 
         $record_type = new RecordType();
         $record_type->documentRevision()->associate( $this );
         $record_type->name = $name;
         $record_type->data = json_encode( $data );
+
         $record_type->save();
         return $record_type;
     }
 
     public function newLinkType( $name, $domain, $range, $data ) 
     {
-        $nameFormat = new \Structure\StringS();
-        $nameFormat->setLength(2);
+        // these take exception if there's an issue
+        LinkType::validateName( $name );
+        LinkType::validateData( $data );
+ 
+        if( !isset( $data["domain_min"] ) ) { $data["domain_min"]=0; }
+        if( !isset( $data["domain_max"] ) ) { $data["domain_max"]=1; }
+        if( !isset( $data["range_min"] ) ) { $data["range_min"]=0; }
+        if( !isset( $data["range_max"] ) ) { $data["range_max"]=1; }
 
-        $linkTypeDataFormat = new \Structure\ArrayS();
-        $linkTypeDataFormat->setFormat( array(
-            // currently linkTypes have no valid data. Later will have some stuff for export I expect.
-        ));
-        $linkTypeDataFormat->setCountStrict(true); // don't allow stray terms
-
-
-        // validate name
-        if( ! $nameFormat->check( $name, $fail ) ) {
-            throw new Exception( "Error ".json_encode( $fail )." in name passed to newLinkType: ".json_encode( $name ) );
-        }
-
-        // validate data
-        if( ! $linkTypeDataFormat->check( $data, $fail ) ) {
-            throw new Exception( "Error ".json_encode( $fail )." in data passed to newLinkType: ".json_encode( $data ) );
-        }
-
-
-
+        // all OK, let's make this link type
         $record_type = new LinkType();
         $record_type->documentRevision()->associate( $this );
         $record_type->name = $name;
         $record_type->domain_sid = $domain->sid;
         $record_type->range_sid = $range->sid;
         $record_type->data = json_encode( $data );
-
 
         $record_type->save();
         return $record_type;

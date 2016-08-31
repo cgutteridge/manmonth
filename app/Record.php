@@ -4,9 +4,37 @@ namespace App;
 
 use Exception;
 
+
 class Record extends DocumentPart
 {
+    public function recordType()
+    {
+        return $this->hasOne( 'App\RecordType', 'sid', 'record_type_sid' )->where( 'document_revision_id', $this->document_revision_id );
+    }
 
+    public function forwardLinks()
+    {
+        return $this->hasMany( 'App\Link', 'subject_sid', 'sid' )->where( 'document_revision_id', $this->document_revision_id );
+    }
+    public function backLinks()
+    {
+        return $this->hasMany( 'App\Link', 'object_sid', 'sid' )->where( 'document_revision_id', $this->document_revision_id );
+    }
+
+    // return a text representation and all associated records 
+    // following subject->object direction links only.
+    // does not (yet) worry about loops.
+    function dumpText($indent="") {
+        $r = "";
+        $r.= $indent."Record [".$this->recordType->name."] #".$this->sid."\n";
+        $r.= $indent.$this->data."\n";
+        foreach( $this->forwardLinks as $link ) {
+             $r.=$indent."  Link [".$link->linkType->name."] #".$this->sid."\n";
+             $object = $link->objectRecord;
+             $r.=$link->objectRecord->dumpText( $indent."    " );
+        }
+        return $r;
+    }
 }
 
 

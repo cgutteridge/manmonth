@@ -17,25 +17,41 @@ class DatabaseSeeder extends Seeder
         $doc->init(); // create default current revision
        
         $draft = $doc->newDraftRevision();
-        // add some record types  
+
+        // add schema
+
         $actorType = $draft->newRecordType( "actor", array( 
           "fields"=>array( 
-              array( "name"=>"name", "type"=>"string" ),
+              array( "name"=>"name", "type"=>"string", "required"=>true ),
               array( "name"=>"group", "type"=>"string" ),
           )
         ));
         $taskType = $draft->newRecordType( "task", array( 
           "fields"=>array( 
-              array( "name"=>"name", "type"=>"string" ),
-              array( "name"=>"size", "type"=>"integer" ),
+              array( "name"=>"name", "type"=>"string", "required"=>true ),
+              array( "name"=>"size", "type"=>"integer", "required"=>true ),
           )
         ));
         $atType = $draft->newRecordType( "actor_task", array(
           "fields"=>array( 
-              array( "name"=>"type", "type"=>"string" ),
-              array( "name"=>"ratio", "type"=>"decimal", "default"=>1.0 ),
+              array( "name"=>"type", "type"=>"string", "required"=>true ),
+              array( "name"=>"ratio", "type"=>"decimal", "default"=>1.0, ),
           )
         ));
+	$actorToActorTask = $draft->newLinkType( 'actor_to_actor_task', $actorType, $atType, [ 
+		'domain_min'=>1, 
+		'domain_max'=>1, 
+		'range_min'=>1, 
+		'range_max'=>1, 
+        ]);
+	$actorTaskToTask = $draft->newLinkType( 'actor_task_to_task', $atType, $taskType, [ 
+		'domain_min'=>1, 
+		'domain_max'=>1, 
+		'range_min'=>1, 
+		'range_max'=>1, 
+        ]);
+
+        // Add records
 
         $alice = $actorType->newRecord(
             array( "name"=>"Alice Aardvark", "group"=>"badgers" )
@@ -50,11 +66,24 @@ class DatabaseSeeder extends Seeder
             array( "name"=>"Big Job", "size"=>100 )
         );
 
-	$alice_leads_big = $atType->newRecord( array( "type"=>"leads" ) );
-	$alice_leads_small = $atType->newRecord( array( "type"=>"leads" ) );
-        $alice_on_big = $atType->newRecord( array( "type"=>"big" ) );
-        $alice_on_small = $atType->newRecord( array( "type"=>"big", "ratio"=>0.5 ) );
-        $bob_on_small = $atType->newRecord( array( "type"=>"big", "ratio"=>0.5 ) );
+	$aliceLeadsBig = $atType->newRecord( array( "type"=>"leads" ) );
+	$aliceLeadsSmall = $atType->newRecord( array( "type"=>"leads" ) );
+        $aliceOnBig = $atType->newRecord( array( "type"=>"big" ) );
+        $aliceOnSmall = $atType->newRecord( array( "type"=>"big", "ratio"=>0.5 ) );
+        $bobOnSmall = $atType->newRecord( array( "type"=>"big", "ratio"=>0.5 ) );
+
+        // Add links
+        
+        $actorToActorTask->newLink( $alice, $aliceLeadsBig );
+        $actorTaskToTask->newLink( $aliceLeadsBig, $big );
+        $actorToActorTask->newLink( $alice, $aliceLeadsSmall );
+        $actorTaskToTask->newLink( $aliceLeadsSmall, $small );
+        $actorToActorTask->newLink( $alice, $aliceOnBig );
+        $actorTaskToTask->newLink( $aliceOnBig, $big );
+        $actorToActorTask->newLink( $alice, $aliceOnSmall, $small );
+        $actorTaskToTask->newLink( $aliceOnSmall, $small );
+        $actorToActorTask->newLink( $bob, $bobOnSmall, $small );
+        $actorTaskToTask->newLink( $bobOnSmall, $small );
 
         $draft->publish();
 
@@ -64,6 +93,13 @@ class DatabaseSeeder extends Seeder
 
         $draft3 = $doc->newDraftRevision();
 
+#\Event::listen('Illuminate\Database\Events\QueryExecuted', function ($query) { print $query->sql." - ".json_encode( $query->bindings )."\n"; });
+
+        // inspect
+        $actorType = $draft3->recordTypes()->where( 'name', 'actor' )->first();
+        foreach( $actorType->records as $actor ) {
+            print $actor->dumpText();
+        }
         // $this->call(UsersTableSeeder::class);
     }
 }

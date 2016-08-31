@@ -3,12 +3,19 @@
 namespace App;
 
 use Exception;
+use Validator;
 
 class RecordType extends DocumentPart
 {
+    public function records()
+    {
+        return $this->documentRevision->records()->where( "record_type_sid", $this->sid );
+    }
+
     public function newRecord($data=array())
     {
-// TODO validate inputs
+        $this->validateRecordData( $data );
+
         $record = new Record();
         $record->documentRevision()->associate( $this->documentRevision );
         $record->record_type_sid = $this->sid;
@@ -17,100 +24,139 @@ class RecordType extends DocumentPart
         return $record;
     }
 
-    // monad
-    public static $validators;
-    public static function validators() {
-        if( isset( self::$validators ) ) { return self::$validators; }
+    // candidate for a trait or something?
+    var $dataCache;
+    public function data() {
+        if( !$this->dataCache ) { 
+            $this->dataCache = json_decode( $this->data, true );
+        }  
+        return $this->dataCache;
+    }
 
-        self::$validators = array();
-/*
-        self::$validators["name"] = new \Structure\StringS();
-        self::$validators["name"]->setLength(2);
+    var $fieldsCache;
+    public function fields() {
+        if( !$this->fieldsCache ) { 
+            $this->fieldsCache = [];
+            foreach( $this->data()["fields"] as $fieldData ) {
+                $this->fieldsCache []= new Field( $fieldData );
+            }
+        }  
+        return $this->fieldsCache;
+    }
 
-        // currently the only field is, er, fields, but this structure leaves room to grow
-        self::$validators["data"] = new \Structure\ArrayS();
-        self::$validators["data"]->setFormat( array(
-            "fields"=>"array",
-        ));
-        self::$validators["data"]->setCountStrict(true); // don't allow stray terms
+    public function validateRecordData( $data ) {
+        $validationCodes = [];
+        foreach( $this->fields() as $field ) {
+            $validationCodes[$field->data["name"]] = $field->validationCode();
+        }
 
-        // this just checks the type is valid, ignores other properties
-        self::$validators["field"] = new \Structure\ArrayS();
-        self::$validators["field"]->setFormat( array(
-            "type"=>"string{string,integer,decimal,boolean}",
-        ));
-       
-        ////// the following are for each type of field 
+        $validator = Validator::make( $data, $validationCodes );
 
-        // string field
-        self::$validators['string'] = new \Structure\ArrayS();
-        self::$validators['string']->setFormat( array(
-            "name"=>"string",
-            "type"=>"string{string}",
-            "default"=>"null|string", 
-        ));
-        self::$validators['string']->setCountStrict(true); // don't allow stray terms
-
-        // integer field
-        self::$validators['integer'] = new \Structure\ArrayS();
-        self::$validators['integer']->setFormat( array(
-            "name"=>"string",
-            "type"=>"string{integer}",
-            "default"=>"null|integer", 
-            "min"=>"null|integer", 
-            "max"=>"null|integer", 
-        ));
-        self::$validators['integer']->setCountStrict(true); // don't allow stray terms
-
-        // decimal field
-        self::$validators['decimal'] = new \Structure\ArrayS();
-        self::$validators['decimal']->setFormat( array(
-            "name"=>"string",
-            "type"=>"string{decimal}",
-            "default"=>"null|float", 
-            "min"=>"null|float", 
-            "max"=>"null|float", 
-        ));
-        self::$validators['decimal']->setCountStrict(true); // don't allow stray terms
-        
-        // boolean field
-        self::$validators['boolean'] = new \Structure\ArrayS();
-        self::$validators['boolean']->setFormat( array(
-            "name"=>"string",
-            "type"=>"string{boolean}",
-            "default"=>"null|boolean", 
-        ));
-        self::$validators['boolean']->setCountStrict(true); // don't allow stray terms
-*/
-        return self::$validators; 
+        if($validator->fails()) {
+            throw new ValidationException( "Record", "data", $data, $validator->errors() );
+        }
     }
 
     public static function validateName($name) {
-        $validators = self::validators();
-/*
-        if( ! $validators["name"]->check( $name, $fail ) ) {
-            throw new Exception( "Error ".json_encode( $fail )." in name in RecordType: ".json_encode( $name ) );
+
+        $validator = Validator::make(
+        [ 'name' => $name ],
+        [ 'name' => 'required|alpha_dash|min:2|max:255' ]);
+
+        if($validator->fails()) {
+            throw new ValidationException( "RecordType", "name", $name, $validator->errors() );
         }
-*/
+    }
+
+    public static function validateBooleanField($data) {
+
+        $validator = Validator::make(
+          $data,
+          [ 'name' => 'required|alpha_dash|min:2|max:255', 
+            'type' => 'required|in:boolean',
+            'required' => 'boolean',
+            'default' => 'boolean' ]);
+
+        if($validator->fails()) {
+            throw new ValidationException( "RecordType", "data field (boolean)", $data, $validator->errors() );
+        }
+    }
+
+    public static function validateStringField($data) {
+
+        $validator = Validator::make(
+          $data,
+          [ 'name' => 'required|alpha_dash|min:2|max:255', 
+            'type' => 'required|in:string',
+            'required' => 'boolean',
+            'default' => 'string' ]);
+
+        if($validator->fails()) {
+            throw new ValidationException( "RecordType", "data field (string)", $data, $validator->errors() );
+        }
+    }
+
+    public static function validateIntegerField($data) {
+
+        $validator = Validator::make(
+          $data,
+          [ 'name' => 'required|alpha_dash|min:2|max:255', 
+            'type' => 'required|in:integer',
+            'required' => 'boolean',
+            'min' => 'integer', 
+            'max' => 'integer', 
+            'default' => 'integer' ]);
+
+        if($validator->fails()) {
+            throw new ValidationException( "RecordType", "data field (integer)", $data, $validator->errors() );
+        }
+    }
+
+    public static function validateDecimalField($data) {
+
+        $validator = Validator::make(
+          $data,
+          [ 'name' => 'required|alpha_dash|min:2|max:255', 
+            'type' => 'required|in:decimal',
+            'required' => 'boolean',
+            'min' => 'numeric', 
+            'max' => 'numeric', 
+            'default' => 'numeric' ]);
+
+        if($validator->fails()) {
+            throw new ValidationException( "RecordType", "data field (decimal)", $data, $validator->errors() );
+        }
     }
 
     public static function validateData($data) {
-        $validators = self::validators();
-/*
-        if( ! $validators["data"]->check( $data, $fail ) ) {
-            throw new Exception( "Error ".json_encode( $fail )." in data in RecordType: ".json_encode( $data ) );
+
+        $validator = Validator::make(
+          $data,
+          [ 'fields' => 'required|array', 
+            'fields.*.type' => 'required|in:boolean,integer,decimal,string' ]);
+
+        if($validator->fails()) {
+            throw new ValidationException( "RecordType", "data", $data, $validator->errors() );
         }
+
         foreach( $data["fields"] as $field ) {
-            if( ! $validators["field"]->check( $field, $fail ) ) {
-                throw new Exception( "Error ".json_encode( $fail )." in a field in RecordType: ".json_encode( $field ) );
-            }
-            // bit more tricky, check that it's appropriate to the type
-            if( ! $validators[$field['type']]->check( $field, $fail ) ) {
-                throw new Exception( "Error ".json_encode( $fail )." in a '".$field['type']."' field in RecordType: ".json_encode( $field ) );
-            }
-            
+            if( $field["type"] == "boolean" ) {
+                self::validateBooleanField( $field );
+            } 
+            if( $field["type"] == "integer" ) {
+                self::validateIntegerField( $field );
+            } 
+            if( $field["type"] == "decimal" ) {
+                self::validateDecimalField( $field );
+            } 
+            if( $field["type"] == "string" ) {
+                self::validateStringField( $field );
+            } 
+            else {
+                new Exception( "Code should not have reached this point" );
+            } 
         }
-*/
+
     }
 
 }

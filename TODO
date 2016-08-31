@@ -1,0 +1,13 @@
+Front end!
+-- form to add a link which also adds objects required by schema
+
+Update record
+Remove record (including links)
+Remove link (only if many-many)
+
+rules
+parser
+rules validator
+reports
+report viewer
+
