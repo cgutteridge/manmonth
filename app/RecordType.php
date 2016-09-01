@@ -24,7 +24,7 @@ class RecordType extends DocumentPart
     // may supply other links but this is not requred.
     // 1:1 links are not yet supported. 
     // TODO: passing in secondary records could be helpful later
-    public function newRecord($data=[],$forwardLinks=[],$backLinks=[])
+    public function createRecord($data=[],$forwardLinks=[],$backLinks=[])
     {
         // make any single link targets into a list before validation
         foreach( $forwardLinks as $key=>&$value ) {
@@ -49,7 +49,7 @@ class RecordType extends DocumentPart
             $targets = @$forwardLinks[$linkType->name];
             if( $targets ) {
                 foreach( $targets as $target ) {
-                    $linkType->newLink( $record, $target );
+                    $linkType->createLink( $record, $target );
                 }
             }
         }
@@ -57,7 +57,7 @@ class RecordType extends DocumentPart
             $targets = @$backLinks[$linkType->name];
             if( $targets ) {
                 foreach( $targets as $target ) {
-                    $linkType->newLink( $target, $record );
+                    $linkType->createLink( $target, $record );
                 }
             }
         }

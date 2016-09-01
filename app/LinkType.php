@@ -60,17 +60,17 @@ class LinkType extends DocumentPart
 
     public function validateLinkSubject( $subject ) {
         if( $subject->record_type_sid != $this->domain_sid ) {
-            throw new ValidationException( "newLink", "subject", $subject->record_type_sid, [ "subject"=>[ "subject of incorrect type for this linktype (expects ".$this->domain_sid.")" ] ] );
+            throw new ValidationException( "Link", "subject", $subject->record_type_sid, [ "subject"=>[ "subject of incorrect type for this linktype (expects ".$this->domain_sid.")" ] ] );
         }
     }
     
     public function validateLinkObject( $object ) { 
         if( $object->record_type_sid != $this->range_sid ) {
-            throw new ValidationException( "newLink", "object", $object->record_type_sid, [ "object"=>[ "object of incorrect type for this linktype (expexts ".$this->range_sid.")" ] ] );
+            throw new ValidationException( "Link", "object", $object->record_type_sid, [ "object"=>[ "object of incorrect type for this linktype (expexts ".$this->range_sid.")" ] ] );
         }
     }
 
-    public function newLink($subject,$object)
+    public function createLink($subject,$object)
     {
         $this->validateLinkSubject($subject);
         $this->validateLinkObject($object);

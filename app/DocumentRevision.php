@@ -65,7 +65,7 @@ class DocumentRevision extends Model
     }
 
 
-    public function newRecordType( $name, $data ) 
+    public function createRecordType( $name, $data ) 
     {
         // these take exception if there's an issue
         RecordType::validateName( $name );
@@ -82,7 +82,7 @@ class DocumentRevision extends Model
         return $record_type;
     }
 
-    public function newLinkType( $name, $domain, $range, $data ) 
+    public function createLinkType( $name, $domain, $range, $data ) 
     {
         // these take exception if there's an issue
         LinkType::validateName( $name );
@@ -104,7 +104,7 @@ class DocumentRevision extends Model
         return $record_type;
     }
 
-    public function newRule( $data ) {
+    public function createRule( $data ) {
         Rule::validateData( $data );
 
         // all OK, let's make this rule

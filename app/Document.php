@@ -22,7 +22,7 @@ class Document extends Model
 
     // This is a major workhorse function. It copies all the relevant data into a new revision. 
     // Rows get a new ID but maintain their 'sid' value and this is used for relationships.
-    public function newDraftRevision()
+    public function createDraftRevision()
     {
         // if there's already a draft throw an exception
         $draft = $this->draftRevision();
