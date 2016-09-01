@@ -18,7 +18,7 @@ class CreateRulesTable extends Migration
             $table->integer('document_revision_id')->unsigned();
             $table->index(['document_revision_id', 'sid'],'rev_sid');
 
-            $table->string('name');
+            $table->text('order');
             $table->text('data');
         });
     }

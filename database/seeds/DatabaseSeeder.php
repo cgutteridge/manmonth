@@ -24,6 +24,8 @@ class DatabaseSeeder extends Seeder
           "fields"=>array( 
               array( "name"=>"name", "type"=>"string", "required"=>true ),
               array( "name"=>"group", "type"=>"string" ),
+              array( "name"=>"penguins", "type"=>"decimal" ),
+              array( "name"=>"newbie", "type"=>"boolean" ),
           )
         ));
         $taskType = $draft->newRecordType( "task", array( 
@@ -39,52 +41,63 @@ class DatabaseSeeder extends Seeder
           )
         ));
 	$actorToActorTask = $draft->newLinkType( 'actor_to_actor_task', $actorType, $atType, [ 
-		'domain_min'=>1, 
-		'domain_max'=>1, 
 		'range_min'=>1, 
 		'range_max'=>1, 
         ]);
 	$actorTaskToTask = $draft->newLinkType( 'actor_task_to_task', $atType, $taskType, [ 
 		'domain_min'=>1, 
 		'domain_max'=>1, 
-		'range_min'=>1, 
-		'range_max'=>1, 
         ]);
 
         // Add records
 
-        $alice = $actorType->newRecord(
-            array( "name"=>"Alice Aardvark", "group"=>"badgers" )
-        );
-        $bob = $actorType->newRecord(
-            array( "name"=>"Bob Bananas", "group"=>"badgers" )
-        );
-        $small = $taskType->newRecord( 
-            array( "name"=>"Small Job", "size"=>50 )
-        );
-        $big = $taskType->newRecord( 
-            array( "name"=>"Big Job", "size"=>100 )
-        );
+        $alice = $actorType->newRecord( [ "name"=>"Alice Aardvark", "group"=>"badgers", "penguins"=>7 ]);
+        $bobby = $actorType->newRecord( [ "name"=>"Bobby Bananas", "group"=>"wombats", "penguins"=>2 ]);
+        $clara = $actorType->newRecord( [ "name"=>"Clara Crumb", "group"=>"wombats", "penguins"=>0, "newbie"=>true ]);
 
-	$aliceLeadsBig = $atType->newRecord( array( "type"=>"leads" ) );
-	$aliceLeadsSmall = $atType->newRecord( array( "type"=>"leads" ) );
-        $aliceOnBig = $atType->newRecord( array( "type"=>"big" ) );
-        $aliceOnSmall = $atType->newRecord( array( "type"=>"big", "ratio"=>0.5 ) );
-        $bobOnSmall = $atType->newRecord( array( "type"=>"big", "ratio"=>0.5 ) );
+        $small = $taskType->newRecord( [ "name"=>"Small Job", "size"=>50 ]);
+        $big = $taskType->newRecord( [ "name"=>"Big Job", "size"=>100 ]);
+        $misc = $taskType->newRecord( [ "name"=>"Misc Job", "size"=>100 ]);
 
-        // Add links
-        
-        $actorToActorTask->newLink( $alice, $aliceLeadsBig );
-        $actorTaskToTask->newLink( $aliceLeadsBig, $big );
-        $actorToActorTask->newLink( $alice, $aliceLeadsSmall );
-        $actorTaskToTask->newLink( $aliceLeadsSmall, $small );
-        $actorToActorTask->newLink( $alice, $aliceOnBig );
-        $actorTaskToTask->newLink( $aliceOnBig, $big );
-        $actorToActorTask->newLink( $alice, $aliceOnSmall, $small );
-        $actorTaskToTask->newLink( $aliceOnSmall, $small );
-        $actorToActorTask->newLink( $bob, $bobOnSmall, $small );
-        $actorTaskToTask->newLink( $bobOnSmall, $small );
+	$atType->newRecord( [ "type"=>"leads" ], [ 'actor_task_to_task'=>[$big] ],[ 'actor_to_actor_task'=>[$alice] ] );
+	$atType->newRecord( [ "type"=>"works" ], [ 'actor_task_to_task'=>[$big] ],[ 'actor_to_actor_task'=>[$alice] ] );
 
+	$atType->newRecord( [ "type"=>"leads" ], [ 'actor_task_to_task'=>[$small] ],[ 'actor_to_actor_task'=>[$alice] ] );
+	$atType->newRecord( [ "type"=>"works","ratio"=>0.5 ], [ 'actor_task_to_task'=>[$small] ],[ 'actor_to_actor_task'=>[$alice] ] );
+	$atType->newRecord( [ "type"=>"works","ratio"=>0.5 ], [ 'actor_task_to_task'=>[$small] ],[ 'actor_to_actor_task'=>[$bobby] ] );
+
+	$atType->newRecord( [ "type"=>"leads" ], [ 'actor_task_to_task'=>[$misc] ],[ 'actor_to_actor_task'=>[$clara] ] );
+	$atType->newRecord( [ "type"=>"works","ratio"=>0.8 ], [ 'actor_task_to_task'=>[$misc] ],[ 'actor_to_actor_task'=>[$clara] ] );
+	$atType->newRecord( [ "type"=>"works","ratio"=>0.2 ], [ 'actor_task_to_task'=>[$misc] ],[ 'actor_to_actor_task'=>[$bobby] ] );
+
+        // add rules
+ 
+        // people have a basic target load of 100 
+        // people in the wombats group get 100 hours extra load target
+        // people who are newbie have a 50% load target
+        $draft->newRule( [ "action"=>"set-target", "params"=>[ "loading", 100 ]] );
+        $draft->newRule( [ "trigger"=>"actor.group='wombat'", "action"=>"modify-target", "params"=>[ "loading", 100 ]] );
+        $draft->newRule( [ "trigger"=>"actor.newbie", "action"=>"scale-target", "params"=>[ "loading", 0.5 ]] );
+        // people in the badgers group get 10 units load per penguin 
+        // people in the womats group get 3 units load per penguin 
+
+#path to entity (if any)
+#trigger
+#* boolean function
+#action:
+#* set target
+#** target, value
+#* add to target
+#** target, value
+#* multiply target
+#** target, ratio
+#* create loading
+#** value
+#** target
+#** loading category
+#** title
+#params
+#
         $draft->publish();
 
         $draft2 = $doc->newDraftRevision();

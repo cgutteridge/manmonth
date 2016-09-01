@@ -87,11 +87,10 @@ class DocumentRevision extends Model
         // these take exception if there's an issue
         LinkType::validateName( $name );
         LinkType::validateData( $data );
- 
-        if( !isset( $data["domain_min"] ) ) { $data["domain_min"]=0; }
-        if( !isset( $data["domain_max"] ) ) { $data["domain_max"]=1; }
-        if( !isset( $data["range_min"] ) ) { $data["range_min"]=0; }
-        if( !isset( $data["range_max"] ) ) { $data["range_max"]=1; }
+
+        // default minimum is zero. Default maximum is N (max null means unlimited)
+        if( @$data["domain_min"]===null ) { $data["domain_min"]=0; }
+        if( @$data["range_min"]===null ) { $data["range_min"]=0; }
 
         // all OK, let's make this link type
         $record_type = new LinkType();
@@ -99,6 +98,25 @@ class DocumentRevision extends Model
         $record_type->name = $name;
         $record_type->domain_sid = $domain->sid;
         $record_type->range_sid = $range->sid;
+        $record_type->data = json_encode( $data );
+
+        $record_type->save();
+        return $record_type;
+    }
+
+    public function newRule( $data ) {
+        Rule::validateData( $data );
+
+        // all OK, let's make this rule
+        $order = 0;
+        $lastrule = $this->rules()->orderBy( 'order','desc' )->first();
+        if( $lastrule ) { 
+            $order = $lastrule->order + 1 ;
+        }
+
+        $record_type = new Rule();
+        $record_type->documentRevision()->associate( $this );
+        $record_type->order = $order;
         $record_type->data = json_encode( $data );
 
         $record_type->save();

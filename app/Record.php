@@ -26,10 +26,9 @@ class Record extends DocumentPart
     // does not (yet) worry about loops.
     function dumpText($indent="") {
         $r = "";
-        $r.= $indent."Record [".$this->recordType->name."] #".$this->sid."\n";
-        $r.= $indent.$this->data."\n";
+        $r.= $indent."".$this->recordType->name."#".$this->sid." ".$this->data."\n";
         foreach( $this->forwardLinks as $link ) {
-             $r.=$indent."  Link [".$link->linkType->name."] #".$this->sid."\n";
+             $r.=$indent."  ->".$link->linkType->name."->\n";
              $object = $link->objectRecord;
              $r.=$link->objectRecord->dumpText( $indent."    " );
         }

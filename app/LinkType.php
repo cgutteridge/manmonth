@@ -40,8 +40,8 @@ class LinkType extends DocumentPart
             throw new ValidationException( "LinkType", "data", $data, $validator->errors() );
         }
 
-        if( $data["domain_min"]!==null
-         && $data["domain_max"]!==null
+        if( @$data["domain_min"]!==null
+         && @$data["domain_max"]!==null
          && $data["domain_min"] > $data["domain_max"] ) {
             throw new ValidationException( "LinkType", "data", $data, [ "domain_min"=>[ "domain_min can't be greater than domain_max" ] ] );
         }
@@ -50,18 +50,31 @@ class LinkType extends DocumentPart
          && $data["range_min"] > $data["range_max"] ) {
             throw new ValidationException( "LinkType", "data", $data, [ "range_min"=>[ "range_min can't be greater than range_max" ] ] );
         }
+
+        if( @$data["range_min"]==1 && (@$data["range_max"]===null || $data["range_max"]==1 ) 
+         && @$data["domain_min"]==1 && (@$data["domain_max"]===null || $data["domain_max"]==1 ) ) {
+            throw new ValidationException( "LinkType", "data", $data, [ "range_min"=>[ "range and domain can't both be exactly 1." ] ] );
+        }
+          
     }
 
-
-    public function newLink($subject,$object)
-    {
+    public function validateLinkSubject( $subject ) {
         if( $subject->record_type_sid != $this->domain_sid ) {
             throw new ValidationException( "newLink", "subject", $subject->record_type_sid, [ "subject"=>[ "subject of incorrect type for this linktype (expects ".$this->domain_sid.")" ] ] );
         }
+    }
+    
+    public function validateLinkObject( $object ) { 
         if( $object->record_type_sid != $this->range_sid ) {
             throw new ValidationException( "newLink", "object", $object->record_type_sid, [ "object"=>[ "object of incorrect type for this linktype (expexts ".$this->range_sid.")" ] ] );
         }
-   
+    }
+
+    public function newLink($subject,$object)
+    {
+        $this->validateLinkSubject($subject);
+        $this->validateLinkObject($object);
+
         $link = new Link();
         $link->documentRevision()->associate( $this->documentRevision );
         $link->link_type_sid = $this->sid;
