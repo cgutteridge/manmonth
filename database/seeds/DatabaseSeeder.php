@@ -25,26 +25,27 @@ class DatabaseSeeder extends Seeder
               array( "name"=>"name", "type"=>"string", "required"=>true ),
               array( "name"=>"group", "type"=>"string" ),
               array( "name"=>"penguins", "type"=>"decimal" ),
-              array( "name"=>"newbie", "type"=>"boolean" ),
+              array( "name"=>"newbie", "type"=>"boolean", "default"=>false ),
           )
         ));
         $taskType = $draft->createRecordType( "task", array( 
           "fields"=>array( 
               array( "name"=>"name", "type"=>"string", "required"=>true ),
               array( "name"=>"size", "type"=>"integer", "required"=>true ),
+              array( "name"=>"new", "type"=>"boolean", "default"=>false ),
           )
         ));
-        $atType = $draft->createRecordType( "actor_task", array(
+        $atType = $draft->createRecordType( "acttask", array(
           "fields"=>array( 
               array( "name"=>"type", "type"=>"string", "required"=>true ),
               array( "name"=>"ratio", "type"=>"decimal", "default"=>1.0, ),
           )
         ));
-	$actorToActorTask = $draft->createLinkType( 'actor_to_actor_task', $actorType, $atType, [ 
+	$actorToActorTask = $draft->createLinkType( 'actor_to_acttask', $actorType, $atType, [ 
 		'range_min'=>1, 
 		'range_max'=>1, 
         ]);
-	$actorTaskToTask = $draft->createLinkType( 'actor_task_to_task', $atType, $taskType, [ 
+	$actorTaskToTask = $draft->createLinkType( 'acttask_to_task', $atType, $taskType, [ 
 		'domain_min'=>1, 
 		'domain_max'=>1, 
         ]);
@@ -59,25 +60,55 @@ class DatabaseSeeder extends Seeder
         $big = $taskType->createRecord( [ "name"=>"Big Job", "size"=>100 ]);
         $misc = $taskType->createRecord( [ "name"=>"Misc Job", "size"=>100 ]);
 
-	$atType->createRecord( [ "type"=>"leads" ], [ 'actor_task_to_task'=>[$big] ],[ 'actor_to_actor_task'=>[$alice] ] );
-	$atType->createRecord( [ "type"=>"works" ], [ 'actor_task_to_task'=>[$big] ],[ 'actor_to_actor_task'=>[$alice] ] );
+	$atType->createRecord( [ "type"=>"leads" ], [ 'acttask_to_task'=>[$big] ],[ 'actor_to_acttask'=>[$alice] ] );
+	$atType->createRecord( [ "type"=>"works" ], [ 'acttask_to_task'=>[$big] ],[ 'actor_to_acttask'=>[$alice] ] );
 
-	$atType->createRecord( [ "type"=>"leads" ], [ 'actor_task_to_task'=>[$small] ],[ 'actor_to_actor_task'=>[$alice] ] );
-	$atType->createRecord( [ "type"=>"works","ratio"=>0.5 ], [ 'actor_task_to_task'=>[$small] ],[ 'actor_to_actor_task'=>[$alice] ] );
-	$atType->createRecord( [ "type"=>"works","ratio"=>0.5 ], [ 'actor_task_to_task'=>[$small] ],[ 'actor_to_actor_task'=>[$bobby] ] );
+	$atType->createRecord( [ "type"=>"leads" ], [ 'acttask_to_task'=>[$small] ],[ 'actor_to_acttask'=>[$alice] ] );
+	$atType->createRecord( [ "type"=>"works","ratio"=>0.5 ], [ 'acttask_to_task'=>[$small] ],[ 'actor_to_acttask'=>[$alice] ] );
+	$atType->createRecord( [ "type"=>"works","ratio"=>0.5 ], [ 'acttask_to_task'=>[$small] ],[ 'actor_to_acttask'=>[$bobby] ] );
 
-	$atType->createRecord( [ "type"=>"leads" ], [ 'actor_task_to_task'=>[$misc] ],[ 'actor_to_actor_task'=>[$clara] ] );
-	$atType->createRecord( [ "type"=>"works","ratio"=>0.8 ], [ 'actor_task_to_task'=>[$misc] ],[ 'actor_to_actor_task'=>[$clara] ] );
-	$atType->createRecord( [ "type"=>"works","ratio"=>0.2 ], [ 'actor_task_to_task'=>[$misc] ],[ 'actor_to_actor_task'=>[$bobby] ] );
+	$atType->createRecord( [ "type"=>"leads" ], [ 'acttask_to_task'=>[$misc] ],[ 'actor_to_acttask'=>[$clara] ] );
+	$atType->createRecord( [ "type"=>"works","ratio"=>0.8 ], [ 'acttask_to_task'=>[$misc] ],[ 'actor_to_acttask'=>[$clara] ] );
+	$atType->createRecord( [ "type"=>"works","ratio"=>0.2 ], [ 'acttask_to_task'=>[$misc] ],[ 'actor_to_acttask'=>[$bobby] ] );
 
         // add rules
  
         // people have a basic target load of 100 
         // people in the wombats group get 100 hours extra load target
         // people who are newbie have a 50% load target
-        $draft->createRule( [ "action"=>"set-target", "params"=>[ "loading", 100 ]] );
-        $draft->createRule( [ "trigger"=>"actor.group='wombat'", "action"=>"modify-target", "params"=>[ "loading", 100 ]] );
-        $draft->createRule( [ "trigger"=>"actor.newbie", "action"=>"scale-target", "params"=>[ "loading", 0.5 ]] );
+        $draft->createRule( [ 
+            "title"=>"Default loading",  
+            "action"=>"set-target", 
+            "params"=>[ "loading", 100 ]] );
+        $draft->createRule( [ 
+            "title"=>"Wombat group +100 hours",
+            "trigger"=>"actor.group='wombat'", 
+            "action"=>"modify-target", 
+            "params"=>[ "loading", 100 ]] );
+        $draft->createRule( [ 
+            "title"=>"Half loading for newbies",
+            "trigger"=>"actor.newbie", 
+            "action"=>"scale-target", 
+            "params"=>[ "loading", 0.5 ]] );
+        // people not in group baders, on leading new modules get +20 hours  (TODO this should become a loading)
+        $draft->createRule( [ 
+            "title"=>"+20 for non-badger task leaders",
+            "route"=>["actor_to_acttask","acttask_to_task"], 
+            "trigger"=>"acttask.type='leads' & actor.group!='badgers'", 
+            "action"=>"modify-target", 
+            "params"=>[ "loading", 20 ]] );
+        $draft->createRule( [ 
+            "title"=>"Loading from working on task",
+            "route"=>["actor_to_acttask"],
+            "trigger"=>"acttask.type='works'",
+            "action"=>"loading", 
+            "params"=>[ 
+                "'Working on '+acttask->acttask_to_task.name",
+                "loading", 
+                "teaching",
+                "(100 + acttask->acttask_to_task.size * 3) * acttask.ratio"
+             });
+
         // people in the badgers group get 10 units load per penguin 
         // people in the womats group get 3 units load per penguin 
 
