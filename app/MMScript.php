@@ -65,7 +65,6 @@ class MMScript extends DocumentPart
         if( $this->moreTokens() && $this->tokenIs( "OR" ) ) {
             $op = $this->token();
             $this->offset++;
-print "CONSUME OR\n";
             $right = $this->compileOr();
             return new MMRecord\OrOp( $op, $left, $right );
         }
@@ -78,7 +77,6 @@ print "CONSUME OR\n";
         if( $this->moreTokens() && $this->tokenIs( "AND" )) {
             $op = $this->token();
             $this->offset++;
-print "CONSUME AND\n";
             $right = $this->compileAnd();
             return new MMScript\AndOp( $op, $left, $right );
         }
@@ -91,7 +89,6 @@ print "CONSUME AND\n";
         if( $this->moreTokens() && $this->tokenIs([ "EQ","NEQ","LEQ","GEQ","LT","GT" ])) {
             $op = $this->token();
             $this->offset++;
-print "CONSUME CMP\n";
             $right = $this->compileCmp();
             return new MMScript\CmpOp( $op, $left, $right );
         }
@@ -103,7 +100,6 @@ print "CONSUME CMP\n";
         if( $this->tokenIs( "NOT" ) ) {
             $op = $this->token();
             $this->offset++;
-print "CONSUME NOT\n";
             $right = $this->compileNot();
             return new MMScript\NotOp( $op, $right );
         }
@@ -116,7 +112,6 @@ print "CONSUME NOT\n";
         if( $this->moreTokens() && $this->tokenIs([ "PLUS","MIN" ]) ) {
             $op = $this->token();
             $this->offset++;
-print "CONSUME ADD\n";
             $right = $this->compileAdd();
             return new MMScript\AddOp( $op, $left, $right );
         }
@@ -129,7 +124,6 @@ print "CONSUME ADD\n";
         if( $this->moreTokens() && $this->tokenIs([ "MUL","DIV" ]) ) {
             $op = $this->token();
             $this->offset++;
-print "CONSUME MUL\n";
             $right = $this->compileMul();
             return new MMScript\MulOp( $op, $left, $right );
         }
@@ -142,7 +136,6 @@ print "CONSUME MUL\n";
         if( $this->moreTokens() && $this->tokenIs([ "POW" ]) ) {
             $op = $this->token();
             $this->offset++;
-print "CONSUME ^\n";
             $right = $this->compilePow();
             return new MMScript\PowOp( $op, $left, $right );
         }
@@ -153,13 +146,11 @@ print "CONSUME ^\n";
     public function compileBra() {
         if( $this->tokenIs([ "OBR" ]) ) {
             $this->offset++; // consume open bracket
-print "CONSUME (\n";
             $exp = $this->compileExp();
             if( ! $this->tokenIs([ "CBR" ]) ) {
                 throw new ParseException( "Expected close bracket", $this->text, $this->token()[0] );
             }
             $this->offset++; // consume close bracket
-print "CONSUME )\n";
             return $exp;
         }
 
@@ -181,7 +172,6 @@ print "CONSUME )\n";
         if( $this->tokenIs([ "DEC","INT","BOOL","STR" ]) ){
             $op = $this->token();
             $this->offset++;
-print "CONSUME lit\n";
             return new MMScript\Literal( $op );
         }
 
@@ -191,13 +181,11 @@ print "CONSUME lit\n";
                 throw new ParseException( "Expected dot (.) name got ".$this->token()[1], $this->text, $this->token()[0] );
             }
             $this->offset++;  // consume DOT
-print "CONSUME dot\n";
             if( ! $this->tokenIs([ "NAME" ]) ) {
                 throw new ParseException( "Expected field name got ".$this->token()[1], $this->text, $this->token()[0] );
             }
-            $r = new MMScript\FieldOf( $this->token(), $object );
+            $r = new MMScript\FieldOf( $this->token(), $object, new MMScript\Name( $this->token() ) );
             $this->offset++;  // consume FIELD NAME
-print "CONSUME field name§\n";
             return $r;
         }
          
@@ -210,19 +198,16 @@ print "CONSUME field name§\n";
         }
         $op = $this->token();
         $this->offset++;  // consume NAME
-print "CONSUME object name§\n";
         $r = new MMScript\Record( $op );
         while( $this->tokenIs([ "FWD","BACK" ]) ) {
             $op = $this->token();
             $this->offset++; // consume FWD/BACK
-print "CONSUME arrow§\n";
             if( ! $this->tokenIs([ "NAME" ]) ) {
                 throw new ParseException( "Expected link name got ".$this->token()[1], $this->text, $this->token()[0] );
             }
             $link = $this->token();
             $this->offset++; // consume LINK NAME
-print "CONSUME link name§\n";
-            $r = new MMScript\Link( $op, $r, $link );
+            $r = new MMScript\Link( $op, $r, new MMScript\Name( $link ) );
         }
         return $r;
     }

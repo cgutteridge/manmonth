@@ -10,7 +10,7 @@ abstract class UnaryOp extends Op
         parent::__construct($op);
     }
     public function treeText( $prefix = "" ) {
-        $r = $prefix.get_class( $this )." :: ".$op[1]."\n".$param->treeText($prefix."  ");
+        $r = $prefix.get_class( $this )." :: ".$op[1]." [".@$this->type."]\n".$param->treeText($prefix."  ");
         return $r;
     }
 }
