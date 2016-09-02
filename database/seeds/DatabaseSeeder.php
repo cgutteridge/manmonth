@@ -94,7 +94,7 @@ class DatabaseSeeder extends Seeder
         $draft->createRule( [ 
             "title"=>"+20 for non-badger task leaders",
             "route"=>["actor_to_acttask","acttask_to_task"], 
-            "trigger"=>"acttask.type='leads' & actor.group!='badgers'", 
+            "trigger"=>"acttask.type='leads' & actor.group<>'badgers'", 
             "action"=>"modify-target", 
             "params"=>[ "loading", 20 ]] );
         $draft->createRule( [ 
@@ -107,7 +107,7 @@ class DatabaseSeeder extends Seeder
                 "loading", 
                 "teaching",
                 "(100 + acttask->acttask_to_task.size * 3) * acttask.ratio"
-             });
+             ]]);
 
         // people in the badgers group get 10 units load per penguin 
         // people in the womats group get 3 units load per penguin 

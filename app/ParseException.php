@@ -4,7 +4,7 @@ namespace App;
 
 use Exception;
 
-class ParseException extends Exception
+class ParseException extends ScriptException
 {
     public $message;
     public $script;

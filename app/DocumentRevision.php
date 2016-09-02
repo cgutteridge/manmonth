@@ -36,8 +36,69 @@ class DocumentRevision extends Model
     {
         return $this->hasMany('App\Rule');
     }
+  
+    public function recordTypeByName( $name ) {
+        return $this->recordTypes->where( 'name', $name )->first();
+    }
 
+    public function linkTypeByName( $name ) {
+        return $this->linkTypes->where( 'name', $name )->first();
+    }
 
+    // hard wired 'anchor' record type that everything else links to
+    public function baseRecordType() {
+        return $this->recordTypeByName( 'actor' );
+    }
+
+    public function getContext( $route ) {
+        $context = [];
+        $baseRecordType = $this->baseRecordType();
+        $context[$baseRecordType->name] = $baseRecordType;
+        // add all the other objects in the route
+        $iterativeRecordType = $baseRecordType;
+        foreach( $route as $linkName ) {
+            $fwd = true;
+            if( substr( $linkName, 0, 1 ) == "^" ) {
+                $linkName = substr( $linkName, 1 );
+                $fwd = false;
+            }
+            $link = $this->linkTypeByName( $linkName );
+            if( !$link ) {
+                // not sure what type of exception to make this (Script?)
+                throw new Exeception( "Unknown linkname in context '$linkName'" );
+            }
+            
+            if( $fwd ) {
+                // check the domain of this link is the right recordtype
+                if( $link->domain_sid != $iterativeRecordType->sid ) {
+                    throw new Exeception( "Domain of $linkname is not ".$iterativeRecordType->name );
+                } 
+                $iterativeRecordType = $link->range;
+            } else {
+                // backlink, so check range, set type to domain
+                if( $link->range_sid != $iterativeRecordType->sid ) {
+                    throw new Exeception( "Range of $linkname is not ".$iterativeRecordType->name );
+                } 
+                $iterativeRecordType = $link->domain;
+            }
+ 
+            $name = $iterativeRecordType->name;
+
+            // in case we meet the same class twice, will fallback
+            // to class, class2, class3, etc.
+            $i=2;
+            while( array_key_exists( $name, $context ) ) {
+                $name = $link->name."$i";
+                $i++;
+            }
+            $context[ $name ] = $iterativeRecordType;
+           
+        }
+
+        return $context;
+    }
+
+    // actions 
 
     public function publish() 
     {
@@ -105,7 +166,7 @@ class DocumentRevision extends Model
     }
 
     public function createRule( $data ) {
-        Rule::validateData( $data );
+        Rule::validateData( $this, $data ); // rules need access to the schema to validate
 
         // all OK, let's make this rule
         $order = 0;

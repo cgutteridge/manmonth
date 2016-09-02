@@ -4,13 +4,21 @@ namespace App\MMScript;
 
 abstract class Op 
 {
-    var $op;
+    var $offset;
+    var $opCode;
+    var $value;
+    var $script;
     var $type;
-    public function __construct( $op ) {
-        $this->op = $op;
+
+    public function __construct( $script,$op ) {
+        $this->script = $script;
+        $this->offset = $op[0];
+        $this->opCode = $op[1];
+        $this->value = @$op[2];
     }
+
     public function treeText( $prefix = "" ) {
-        $r = $prefix.get_class( $this )." :: ".$this->op[1]." -> ".@$this->op[2]." [".@$this->type."]\n";
+        $r = $prefix.get_class( $this )." :: ".$this->opCode." -> ".@$this->opValue." [".@$this->type."]\n";
         return $r;
-    }
+    } 
 }

@@ -84,6 +84,15 @@ class RecordType extends DocumentPart
         }  
         return $this->fieldsCache;
     }
+    
+    public function field( $name ) {
+        foreach( $this->fields() as $field ) {
+            if( $field->data["name"] == $name ) {
+                return $field;
+            }
+        }
+        return null; // no such field
+    }
 
     // validate forward links to be added to a record of this type
     // must be relevant links and a legal number

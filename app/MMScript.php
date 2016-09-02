@@ -6,21 +6,30 @@ use Exception;
 
 // this class handles the incline scripting compilation and execution
 
-class MMScript extends DocumentPart
+class MMScript 
 {
     var $text; // the raw text of the script
     var $expression; // the compiled script
+    var $documentRevision; // the compiled script
     protected $tokens; // a list of all the tokens as [ charoffset, codestring, value]
     protected $offset; // the offset through the tokens while compiling
+    protected $baseRecordType; // the type at which the route starts
+    protected $route; // the links to follow
+    var $context; // the types of named objects available to the script
+    var $type; // the resulting type of this expression
 
-    public function __construct( $text ) {
+    public function __construct( $text, $docRev, $context ) {
         $this->text = $text;
+        $this->documentRevision = $docRev;
+        $this->context = $context;
+
         $this->tokens = self::tokenise( $text );
         $this->offset = 0;
         $this->expression = $this->compileExp();
         if( $this->moreTokens() ) {
             throw new ParseException( "Expected additional symbols after end of expression", $this->text, $this->token()[0] );
         }
+        $this->type = $this->expression->type( $context );
     }
 
     function textTree() {
@@ -66,7 +75,7 @@ class MMScript extends DocumentPart
             $op = $this->token();
             $this->offset++;
             $right = $this->compileOr();
-            return new MMRecord\OrOp( $op, $left, $right );
+            return new MMRecord\OrOp( $this, $op, $left, $right );
         }
         return $left;
     }
@@ -78,7 +87,7 @@ class MMScript extends DocumentPart
             $op = $this->token();
             $this->offset++;
             $right = $this->compileAnd();
-            return new MMScript\AndOp( $op, $left, $right );
+            return new MMScript\AndOp( $this, $op, $left, $right );
         }
         return $left;
     }
@@ -90,7 +99,7 @@ class MMScript extends DocumentPart
             $op = $this->token();
             $this->offset++;
             $right = $this->compileCmp();
-            return new MMScript\CmpOp( $op, $left, $right );
+            return new MMScript\CmpOp( $this, $op, $left, $right );
         }
         return $left;
     }
@@ -101,7 +110,7 @@ class MMScript extends DocumentPart
             $op = $this->token();
             $this->offset++;
             $right = $this->compileNot();
-            return new MMScript\NotOp( $op, $right );
+            return new MMScript\NotOp( $this, $op, $right );
         }
         return $this->compileAdd();
     }
@@ -113,7 +122,7 @@ class MMScript extends DocumentPart
             $op = $this->token();
             $this->offset++;
             $right = $this->compileAdd();
-            return new MMScript\AddOp( $op, $left, $right );
+            return new MMScript\AddOp( $this, $op, $left, $right );
         }
         return $left;
     }
@@ -125,7 +134,7 @@ class MMScript extends DocumentPart
             $op = $this->token();
             $this->offset++;
             $right = $this->compileMul();
-            return new MMScript\MulOp( $op, $left, $right );
+            return new MMScript\MulOp( $this, $op, $left, $right );
         }
         return $left;
     }
@@ -137,7 +146,7 @@ class MMScript extends DocumentPart
             $op = $this->token();
             $this->offset++;
             $right = $this->compilePow();
-            return new MMScript\PowOp( $op, $left, $right );
+            return new MMScript\PowOp( $this, $op, $left, $right );
         }
         return $left;
     }
@@ -172,7 +181,7 @@ class MMScript extends DocumentPart
         if( $this->tokenIs([ "DEC","INT","BOOL","STR" ]) ){
             $op = $this->token();
             $this->offset++;
-            return new MMScript\Literal( $op );
+            return new MMScript\Literal( $this, $op );
         }
 
         if( $this->tokenIs( "NAME" ) ) {
@@ -184,7 +193,7 @@ class MMScript extends DocumentPart
             if( ! $this->tokenIs([ "NAME" ]) ) {
                 throw new ParseException( "Expected field name got ".$this->token()[1], $this->text, $this->token()[0] );
             }
-            $r = new MMScript\FieldOf( $this->token(), $object, new MMScript\Name( $this->token() ) );
+            $r = new MMScript\FieldOf( $this, $this->token(), $object, new MMScript\Name( $this, $this->token() ) );
             $this->offset++;  // consume FIELD NAME
             return $r;
         }
@@ -198,7 +207,7 @@ class MMScript extends DocumentPart
         }
         $op = $this->token();
         $this->offset++;  // consume NAME
-        $r = new MMScript\Record( $op );
+        $r = new MMScript\Record( $this, $op );
         while( $this->tokenIs([ "FWD","BACK" ]) ) {
             $op = $this->token();
             $this->offset++; // consume FWD/BACK
@@ -207,7 +216,7 @@ class MMScript extends DocumentPart
             }
             $link = $this->token();
             $this->offset++; // consume LINK NAME
-            $r = new MMScript\Link( $op, $r, new MMScript\Name( $link ) );
+            $r = new MMScript\Link( $this, $op, $r, new MMScript\Name( $this, $link ) );
         }
         return $r;
     }

@@ -7,6 +7,15 @@ use Validator;
 
 class LinkType extends DocumentPart
 {
+    public function domain() {
+        return $this->hasOne( 'App\RecordType', 'sid', 'domain_sid' )->where( 'document_revision_id', $this->document_revision_id );
+    }
+
+    public function range() {
+        return $this->hasOne( 'App\RecordType', 'sid', 'range_sid' )->where( 'document_revision_id', $this->document_revision_id );
+    }
+
+
     // candidate for a trait or something?
     var $dataCache;
     public function data() {
