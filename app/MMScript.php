@@ -19,9 +19,12 @@ class MMScript extends DocumentPart
         $this->offset = 0;
         $this->expression = $this->compileExp();
         if( $this->moreTokens() ) {
-            throw new ParseException( "Expected additional symbols after end of expression", $text, $this->token()[0] );
+            throw new ParseException( "Expected additional symbols after end of expression", $this->text, $this->token()[0] );
         }
-     
+    }
+
+    function textTree() {
+        return $this->expression->treeText();
     }
 
     ///////////////////////////////////////////////// 
@@ -39,9 +42,13 @@ class MMScript extends DocumentPart
     protected function tokenIs( $ids ) {
         if( !$this->moreTokens() ) { return false; }
         if( !is_array( $ids ) ) { $ids = [$ids]; }
-print "".count($this->tokens)."<<SIZE OFF>>".$this->offset."\n";
+#print "".sizeof($this->tokens)."<<SIZE OFF>>".$this->offset."\n";
+#print_r( $this->tokens[ $this->offset ] );
+        $code = $this->tokens[ $this->offset ][1];
+#print "(($code))\n";
+        
         foreach( $ids as $id ) {
-            if( $id == $this->tokens[ $this->offset ] ) { return true; }
+            if( $id == $code ) { return true; }
         }
         return false;
     }
@@ -58,8 +65,9 @@ print "".count($this->tokens)."<<SIZE OFF>>".$this->offset."\n";
         if( $this->moreTokens() && $this->tokenIs( "OR" ) ) {
             $op = $this->token();
             $this->offset++;
-            $right = $this->comileOr();
-            return new MMScript\OrOp( $op, $left, $right );
+print "CONSUME OR\n";
+            $right = $this->compileOr();
+            return new MMRecord\OrOp( $op, $left, $right );
         }
         return $left;
     }
@@ -70,7 +78,8 @@ print "".count($this->tokens)."<<SIZE OFF>>".$this->offset."\n";
         if( $this->moreTokens() && $this->tokenIs( "AND" )) {
             $op = $this->token();
             $this->offset++;
-            $right = $this->comileAnd();
+print "CONSUME AND\n";
+            $right = $this->compileAnd();
             return new MMScript\AndOp( $op, $left, $right );
         }
         return $left;
@@ -82,7 +91,8 @@ print "".count($this->tokens)."<<SIZE OFF>>".$this->offset."\n";
         if( $this->moreTokens() && $this->tokenIs([ "EQ","NEQ","LEQ","GEQ","LT","GT" ])) {
             $op = $this->token();
             $this->offset++;
-            $right = $this->comileCmp();
+print "CONSUME CMP\n";
+            $right = $this->compileCmp();
             return new MMScript\CmpOp( $op, $left, $right );
         }
         return $left;
@@ -93,7 +103,8 @@ print "".count($this->tokens)."<<SIZE OFF>>".$this->offset."\n";
         if( $this->tokenIs( "NOT" ) ) {
             $op = $this->token();
             $this->offset++;
-            $right = $this->comileNot();
+print "CONSUME NOT\n";
+            $right = $this->compileNot();
             return new MMScript\NotOp( $op, $right );
         }
         return $this->compileAdd();
@@ -105,7 +116,8 @@ print "".count($this->tokens)."<<SIZE OFF>>".$this->offset."\n";
         if( $this->moreTokens() && $this->tokenIs([ "PLUS","MIN" ]) ) {
             $op = $this->token();
             $this->offset++;
-            $right = $this->comileAdd();
+print "CONSUME ADD\n";
+            $right = $this->compileAdd();
             return new MMScript\AddOp( $op, $left, $right );
         }
         return $left;
@@ -117,7 +129,8 @@ print "".count($this->tokens)."<<SIZE OFF>>".$this->offset."\n";
         if( $this->moreTokens() && $this->tokenIs([ "MUL","DIV" ]) ) {
             $op = $this->token();
             $this->offset++;
-            $right = $this->comileMul();
+print "CONSUME MUL\n";
+            $right = $this->compileMul();
             return new MMScript\MulOp( $op, $left, $right );
         }
         return $left;
@@ -129,7 +142,8 @@ print "".count($this->tokens)."<<SIZE OFF>>".$this->offset."\n";
         if( $this->moreTokens() && $this->tokenIs([ "POW" ]) ) {
             $op = $this->token();
             $this->offset++;
-            $right = $this->comilePow();
+print "CONSUME ^\n";
+            $right = $this->compilePow();
             return new MMScript\PowOp( $op, $left, $right );
         }
         return $left;
@@ -139,11 +153,13 @@ print "".count($this->tokens)."<<SIZE OFF>>".$this->offset."\n";
     public function compileBra() {
         if( $this->tokenIs([ "OBR" ]) ) {
             $this->offset++; // consume open bracket
+print "CONSUME (\n";
             $exp = $this->compileExp();
             if( ! $this->tokenIs([ "CBR" ]) ) {
-                throw new ParseException( "Expected close bracket", $text, $this->token()[0] );
+                throw new ParseException( "Expected close bracket", $this->text, $this->token()[0] );
             }
             $this->offset++; // consume close bracket
+print "CONSUME )\n";
             return $exp;
         }
 
@@ -152,38 +168,65 @@ print "".count($this->tokens)."<<SIZE OFF>>".$this->offset."\n";
 
     # <VALUE> = <LITERAL> | <VAR>
     # <VAR>   = <OBJECT> "." <FIELD>
-    # <OBJECT>= <OBJECTNAME> [ ( "->"|"<-" ) <LINK> ]*
+    # <OBJECT>= <OBJECTNAME> ( ("->"|"<-") <LINK> )*
     # <LINK>  = <NAME>
     # <OBJECTAME> = <NAME>
+
+
+    # <> = <OBJECTNAME> <LINKLIST>
+    # <LINKLIST> = ( "->"|"<-" ) <LINK> <LINKLIST> | ""
 
     public function compileValue() {
         # <LITERAL> = "true" | "false" | [1-9][0-9]* | [0-9]+ "." [0-9]+ | "'" [^']* "'"
         if( $this->tokenIs([ "DEC","INT","BOOL","STR" ]) ){
             $op = $this->token();
             $this->offset++;
+print "CONSUME lit\n";
             return new MMScript\Literal( $op );
         }
 
         if( $this->tokenIs( "NAME" ) ) {
-            $op = $this->token();
-            $this->offset++;  // consume NAME
-            $r = new MMScript\MMObject( $op );
-            while( $this->token([ "FWD","BACK" ]) ) {
-                $op = $this->token();
-                $this->offset++; // consume FWD/BACK
-                if( ! $this->tokenIs([ "NAME" ]) ) {
-                    throw new ParseException( "Expected link name", $text, $this->token()[0] );
-                }
-                $link = $this->token();
-                $this->offset++; // consume LINK NAME
-                $r = new MMScript\MMLink( $op, $r, $link );
+            $object = $this->compileObject();
+            if( ! $this->tokenIs([ "DOT" ]) ) {
+                throw new ParseException( "Expected dot (.) name got ".$this->token()[1], $this->text, $this->token()[0] );
             }
+            $this->offset++;  // consume DOT
+print "CONSUME dot\n";
+            if( ! $this->tokenIs([ "NAME" ]) ) {
+                throw new ParseException( "Expected field name got ".$this->token()[1], $this->text, $this->token()[0] );
+            }
+            $r = new MMScript\FieldOf( $this->token(), $object );
+            $this->offset++;  // consume FIELD NAME
+print "CONSUME field name§\n";
             return $r;
         }
-                
-        throw new ParseException( "Unexpected stuff", $text, $this->token()[0] );
+         
+        throw new ParseException( "Unexpected stuff", $this->text, $this->token()[0] );
     }
             
+    public function compileObject() {  
+        if( ! $this->tokenIs([ "NAME" ]) ) {
+            throw new ParseException( "Expected object name got ".$this->token()[1], $this->text, $this->token()[0] );
+        }
+        $op = $this->token();
+        $this->offset++;  // consume NAME
+print "CONSUME object name§\n";
+        $r = new MMScript\Record( $op );
+        while( $this->tokenIs([ "FWD","BACK" ]) ) {
+            $op = $this->token();
+            $this->offset++; // consume FWD/BACK
+print "CONSUME arrow§\n";
+            if( ! $this->tokenIs([ "NAME" ]) ) {
+                throw new ParseException( "Expected link name got ".$this->token()[1], $this->text, $this->token()[0] );
+            }
+            $link = $this->token();
+            $this->offset++; // consume LINK NAME
+print "CONSUME link name§\n";
+            $r = new MMScript\Link( $op, $r, $link );
+        }
+        return $r;
+    }
+                
 
 
 
@@ -284,18 +327,18 @@ print "".count($this->tokens)."<<SIZE OFF>>".$this->offset."\n";
 
             // need to look ahead one to work out -> vs - etc.
             $c2 = substr( $text,$offset, 2);
-            if( $c2=="->" ) { $offset+=2; $tokens []= [ "FWD" ]; continue; }
-            if( $c2=="<-" ) { $offset+=2; $tokens []= [ "BACK" ]; continue; }
-            if( $c2=="<>" ) { $offset+=2; $tokens []= [ "NEQ" ]; continue; }
-            if( $c2=="<=" ) { $offset+=2; $tokens []= [ "LEQ" ]; continue; }
-            if( $c2==">=" ) { $offset+=2; $tokens []= [ "GEQ" ]; continue; }
-            if( $c=="-" ) { $offset++; $tokens []= [ "MIN" ]; continue; }
-            if( $c=="<" ) { $offset++; $tokens []= [ "LT" ]; continue; }
-            if( $c==">" ) { $offset++; $tokens []= [ "GT" ]; continue; }
+            if( $c2=="->" ) { $offset+=2; $tokens []= [ $toff, "FWD" ]; continue; }
+            if( $c2=="<-" ) { $offset+=2; $tokens []= [ $toff, "BACK" ]; continue; }
+            if( $c2=="<>" ) { $offset+=2; $tokens []= [ $toff, "NEQ" ]; continue; }
+            if( $c2=="<=" ) { $offset+=2; $tokens []= [ $toff, "LEQ" ]; continue; }
+            if( $c2==">=" ) { $offset+=2; $tokens []= [ $toff, "GEQ" ]; continue; }
+            if( $c=="-" ) { $offset++; $tokens []= [ $toff, "MIN" ]; continue; }
+            if( $c=="<" ) { $offset++; $tokens []= [ $toff, "LT" ]; continue; }
+            if( $c==">" ) { $offset++; $tokens []= [ $toff, "GT" ]; continue; }
 
             throw new ParseException( "Unexpected character", $text, $toff );
         } 
-        return [ "text"=>$text, "tokens"=>$tokens ];
+        return $tokens;
     }
 }
 

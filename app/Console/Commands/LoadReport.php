@@ -30,7 +30,10 @@ class LoadReport extends Command
     public function handle()
     {
 
-new MMScript( "(100 + acttask->acttask_to_task.size * 3) * acttask.ratio" );
+$cmd ="(100 + acttask->acttask_to_task.size * 3) * acttask.ratio" ;
+$exp = new MMScript( $cmd );
+print "$cmd\n";
+print $exp->textTree();
 
 
         $rev = DocumentRevision::query()->orderBy( 'id','desc' )->first();
