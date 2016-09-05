@@ -99,7 +99,7 @@ class RecordType extends DocumentPart
     // $links are of the format [ link_name=>[ $records,... ]]
     public function validateRecordForwardLinks( $links ) {
         $linkTypes = $this->forwardLinkTypes;
-        $unknownLinks = $links; // we'll reduce this
+        $unknownLinks = $links; // we'll reduce this list to actually unknown items
         $issues = [];
         foreach( $linkTypes as $linkType ) {
             // check domain restrictions
@@ -136,7 +136,7 @@ class RecordType extends DocumentPart
     // $links are of the format [ link_name=>[ $records,... ]]
     public function validateRecordBackLinks( $links ) {
         $linkTypes = $this->backLinkTypes;
-        $unknownLinks = $links; // we'll reduce this
+        $unknownLinks = $links; // we'll reduce this list to actually unknown items
         $issues = [];
         foreach( $linkTypes as $linkType ) {
             // check range restrictions

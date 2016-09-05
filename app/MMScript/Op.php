@@ -18,7 +18,7 @@ abstract class Op
     }
 
     public function treeText( $prefix = "" ) {
-        $r = $prefix.get_class( $this )." :: ".$this->opCode." -> ".@$this->opValue." [".@$this->type."]\n";
+        $r = $prefix.get_class( $this )." :: ".$this->opCode." -> ".@$this->value." [".@$this->type."]\n";
         return $r;
     } 
 }

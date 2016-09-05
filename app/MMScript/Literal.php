@@ -2,10 +2,12 @@
 
 namespace App\MMScript;
 
+use App\ScriptException;
+
 class Literal extends Op
 {
     public function treeText( $prefix = "" ) {
-        $r = $prefix.get_class( $this )." :: ".$this->opCode." -> ".$this->opValue." [".@$this->type."]\n";
+        $r = $prefix.get_class( $this )." :: ".$this->opCode." -> ".$this->value." [".@$this->type."]\n";
         return $r;
     }
 

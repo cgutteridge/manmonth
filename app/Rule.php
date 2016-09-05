@@ -6,7 +6,6 @@ use Exception;
 use Validator;
 
 
-# TODO get a list of valid objects for a context
 # TODO get a list of valid terms for an object (fields)
 # TODO validate syntax
 # TODO validate context
@@ -31,7 +30,6 @@ class Rule extends DocumentPart
 
         $actions = array( "set-target", "modify-target", "scale-target", "loading" );
 
-# TODO route
         $validator = Validator::make(
           $data,
           [ 'action' => 'required|string|in:'.join( ",", $actions ), 
@@ -42,16 +40,20 @@ class Rule extends DocumentPart
             throw new ValidationException( "Rule", "data", $data, $validator->errors() );
         }
 
-
         // context is the types this is to operate on, not the specific instances
         // contains all the named record types
-        // can throw exception is the contect is invalid, which we're cool with
+        // can throw exception is the contect is invalid, an we're happy to throw that exception
         if( !@$data["route"] ) { $data["route"] = []; }
-        $context = $docRev->getContext( $data["route"] );
+        $context = $docRev->getAbstractContext( $data["route"] );
 
         if( @$data["trigger"] ) {
             $trigger = new MMScript( $data["trigger"], $docRev, $context );
-            // TODO check it's boolean
+            $type = $trigger->type();
+            dd( "TYPE",$type );
+            if( $type != "#type" ) {
+                // TODO better class of exception?
+                throw new Exception( "Trigger must either be unset or evaluate to true/false. Currently evaluates to #type" );
+            }
         }
         # TODO  validate params for action in context
         # TODO  validate trigger in context

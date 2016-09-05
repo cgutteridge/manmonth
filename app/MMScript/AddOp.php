@@ -2,6 +2,8 @@
 
 namespace App\MMScript;
 
+use App\ScriptException;
+
 class AddOp extends BinaryOp
 {
     function type() {

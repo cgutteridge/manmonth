@@ -2,6 +2,8 @@
 
 namespace App\MMScript;
 
+use App\ScriptException;
+
 class OrOp extends BinaryOp
 {
     function type() {

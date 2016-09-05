@@ -2,8 +2,6 @@
 
 namespace App;
 
-use Exception;
-
 // this class handles the incline scripting compilation and execution
 
 class MMScript 
@@ -34,6 +32,10 @@ class MMScript
 
     function textTree() {
         return $this->expression->treeText();
+    }
+
+    function type() {
+        return $this->expression->type();
     }
 
     ///////////////////////////////////////////////// 

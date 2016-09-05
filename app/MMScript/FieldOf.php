@@ -2,6 +2,8 @@
 
 namespace App\MMScript;
 
+use App\ScriptException;
+
 class FieldOf extends BinaryOp
 {
     // this type is a biggy... gotta work out the actual type from the schema!
@@ -15,6 +17,7 @@ class FieldOf extends BinaryOp
         if( !$field ) {
             throw new ScriptException( "Records of type ".$recordType->name." do not have a field named '$fieldname'" );
         }
-        return "#".$field->data["type"];
+        $this->type = "#".$field->data["type"];
+        return $this->type;
     }
 }

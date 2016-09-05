@@ -50,7 +50,9 @@ class DocumentRevision extends Model
         return $this->recordTypeByName( 'actor' );
     }
 
-    public function getContext( $route ) {
+    // get the absract context for the route. Returns record & link types,
+    // not specific records and links
+    public function getAbstractContext( $route ) {
         $context = [];
         $baseRecordType = $this->baseRecordType();
         $context[$baseRecordType->name] = $baseRecordType;

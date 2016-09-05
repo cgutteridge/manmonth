@@ -2,6 +2,8 @@
 
 namespace App\MMScript;
 
+use App\ScriptException;
+
 class PowOp extends BinaryOp
 {
     function type() {

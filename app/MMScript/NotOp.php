@@ -2,6 +2,8 @@
 
 namespace App\MMScript;
 
+use App\ScriptException;
+
 class NotOf extends UnaryOp
 {
     function type() {
