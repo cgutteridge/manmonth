@@ -12,14 +12,14 @@ class MulOp extends BinaryOp
         $rt = $this->right->type();
 
         // multiply remains int but divide doesn't
-        if( $this->opCode=="MUL" && $lt == '#integer'&&$rt == '#integer' ) {
-            $this->type = '#integer'; 
+        if( $this->opCode=="MUL" && $lt == 'integer'&&$rt == 'integer' ) {
+            $this->type = 'integer'; 
             return $this->type;
         }
 
-        if( ($lt == '#integer'||$lt == '#decimal' )  
-         && ($rt == '#integer'||$rt == '#decimal' ) ) {
-            $this->type = '#decimal';
+        if( ($lt == 'integer'||$lt == 'decimal' )  
+         && ($rt == 'integer'||$rt == 'decimal' ) ) {
+            $this->type = 'decimal';
             return $this->type;
         }
 

@@ -11,8 +11,8 @@ class AndOp extends BinaryOp
         $lt = $this->left->type();
         $rt = $this->right->type();
 
-        if( ($lt == '#boolean'&&$rt == '#boolean' ) ) {
-            $this->type = '#boolean';
+        if( ($lt == 'boolean'&&$rt == 'boolean' ) ) {
+            $this->type = 'boolean';
             return $this->type;
         }
 

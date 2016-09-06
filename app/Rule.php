@@ -13,26 +13,38 @@ use Validator;
 
 class Rule extends DocumentPart
 {
-    #    $draft->createRule( [ "action"=>"set-target", "params"=>[ "loading", 100 ]] );
-    #    $draft->createRule( [ "trigger"=>"actor.group='wombat'", "action"=>"modify-target", "params"=>[ "loading", 100 ]] );
-    #    $draft->createRule( [ "trigger"=>"actor.newbie", "action"=>"scale-target", "params"=>[ "loading", 0.5 ]] );
-    #    $draft->createRule( [ "route"=>[ "actor_to_actor_task"=>"actor_task", "actor_task_to_task"=>"task" ] )
-    #    $draft->createRule( [ "route"=>[ "mentor"=>"mentor" ] )// mentor is an actor
 
-    protected $actions = [
-    #     Commands\Inspire::class,
-    #     Commands\DropTables::class,
-    #     Commands\LoadReport::class,
+    // there's probably a cleverer laravel way of doing this...
+    static protected $actions = [
+          MMAction\SetTarget::class,
+          MMAction\AlterTarget::class,
+          MMAction\ScaleTarget::class,
+          MMAction\AssignLoad::class,
+          MMAction\Debug::class,
     ];
 
+    static protected $actionCache;
+    public static function actions() {
+        if( self::$actionCache ) { return self::$actionCache; }
+        self::$actionCache = [];
+        foreach( self::$actions as $class ) {
+            $action = new $class();
+            self::$actionCache[$action->name] = $action;
+        }
+        return self::$actionCache; 
+    }
+    public static function action( $actionName ) {
+        $actions = $this->actions();
+        return $actions[$actionName];
+    }    
 
     public static function validateData($docRev,$data) {
 
-        $actions = array( "set-target", "modify-target", "scale-target", "loading" );
+        $actions = Rule::actions();
 
         $validator = Validator::make(
           $data,
-          [ 'action' => 'required|string|in:'.join( ",", $actions ), 
+          [ 'action' => 'required|string|in:'.join( ",", array_keys($actions) ), 
             'trigger' => 'string',  
             'params' => 'array' ] );
 
@@ -49,14 +61,14 @@ class Rule extends DocumentPart
         if( @$data["trigger"] ) {
             $trigger = new MMScript( $data["trigger"], $docRev, $context );
             $type = $trigger->type();
-            dd( "TYPE",$type );
             if( $type != "#type" ) {
                 // TODO better class of exception?
-                throw new Exception( "Trigger must either be unset or evaluate to true/false. Currently evaluates to #type" );
+                throw new Exception( "Trigger must either be unset or evaluate to true/false. Currently evaluates to $type" );
             }
         }
+      
+        dd( "TODO: validated params" );  
         # TODO  validate params for action in context
-        # TODO  validate trigger in context
     }
 }
 

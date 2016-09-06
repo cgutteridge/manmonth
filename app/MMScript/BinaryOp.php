@@ -16,7 +16,7 @@ abstract class BinaryOp extends Op
     }
 
     public function treeText( $prefix = "" ) {
-        $r = $prefix.get_class( $this )." :: ".$this->opCode." [".@$this->type."]\n".$this->left->treeText($prefix."  ").$this->right->treeText($prefix."  ");
+        $r = $prefix.get_class( $this )." :: ".$this->opCode." [".@$this->type()."]\n".$this->left->treeText($prefix."  ").$this->right->treeText($prefix."  ");
         return $r;
     }
 }

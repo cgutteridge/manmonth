@@ -78,30 +78,30 @@ class DatabaseSeeder extends Seeder
         // people who are newbie have a 50% load target
         $draft->createRule( [ 
             "title"=>"Default loading",  
-            "action"=>"set-target", 
+            "action"=>"set_target", 
             "params"=>[ "loading", 100 ]] );
         $draft->createRule( [ 
             "title"=>"Wombat group +100 hours",
             "trigger"=>"actor.group='wombat'", 
-            "action"=>"modify-target", 
+            "action"=>"modify_target", 
             "params"=>[ "loading", 100 ]] );
         $draft->createRule( [ 
             "title"=>"Half loading for newbies",
             "trigger"=>"actor.newbie", 
-            "action"=>"scale-target", 
+            "action"=>"scale_target", 
             "params"=>[ "loading", 0.5 ]] );
         // people not in group baders, on leading new modules get +20 hours  (TODO this should become a loading)
         $draft->createRule( [ 
             "title"=>"+20 for non-badger task leaders",
             "route"=>["actor_to_acttask","acttask_to_task"], 
             "trigger"=>"acttask.type='leads' & actor.group<>'badgers'", 
-            "action"=>"modify-target", 
+            "action"=>"modify_target", 
             "params"=>[ "loading", 20 ]] );
         $draft->createRule( [ 
             "title"=>"Loading from working on task",
             "route"=>["actor_to_acttask"],
             "trigger"=>"acttask.type='works'",
-            "action"=>"loading", 
+            "action"=>"assign_load", 
             "params"=>[ 
                 "'Working on '+acttask->acttask_to_task.name",
                 "loading", 

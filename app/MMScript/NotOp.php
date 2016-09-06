@@ -10,8 +10,8 @@ class NotOf extends UnaryOp
         if( @$this->type ) { return $this->type; }
         $lt = $this->param->type();
 
-        if( ($lt == '#boolean' ) ) {
-            $this->type = '#boolean';
+        if( ($lt == 'boolean' ) ) {
+            $this->type = 'boolean';
             return $this->type;
         }
 

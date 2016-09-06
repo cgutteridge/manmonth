@@ -8,7 +8,7 @@ class Record extends Op
 {
     function type() {
         if( @$this->type ) { return $this->type; }
-        $this->recordType(); // sets type as a sideEffect
+        $this->type = "record";
         return $this->type;
     }
 

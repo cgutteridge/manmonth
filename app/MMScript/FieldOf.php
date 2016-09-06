@@ -17,7 +17,7 @@ class FieldOf extends BinaryOp
         if( !$field ) {
             throw new ScriptException( "Records of type ".$recordType->name." do not have a field named '$fieldname'" );
         }
-        $this->type = "#".$field->data["type"];
+        $this->type = $field->data["type"];
         return $this->type;
     }
 }

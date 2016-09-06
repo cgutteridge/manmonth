@@ -8,7 +8,7 @@ abstract class Op
     var $opCode;
     var $value;
     var $script;
-    var $type;
+    protected $type;
 
     public function __construct( $script,$op ) {
         $this->script = $script;
@@ -18,7 +18,7 @@ abstract class Op
     }
 
     public function treeText( $prefix = "" ) {
-        $r = $prefix.get_class( $this )." :: ".$this->opCode." -> ".@$this->value." [".@$this->type."]\n";
+        $r = $prefix.get_class( $this )." :: ".$this->opCode." -> ".@$this->value." [".@$this->type()."]\n";
         return $r;
     } 
 }

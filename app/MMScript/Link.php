@@ -6,18 +6,21 @@ use App\ScriptException;
 
 class Link extends BinaryOp
 {
-    // another complex one -- needs to follow the link to find out the new type
     function type() {
         if( @$this->type ) { return $this->type; }
-        $this->recordType(); // sets type as a sideEffect
+        $this->type = "record";
         return $this->type;
     }
 
+    // another complex one -- needs to follow the link to find out the new type
     var $recordType;
     function recordType() {
         if( @$this->recordType ) { return $this->recordType; }
-        if( $this->right->type() != "#name" ) {
-            throw new ScriptException( "Right-value of a ".$this->opCode." must be #name not ".$this->right->type() );
+        if( $this->left->type() != "record" ) {
+            throw new ScriptException( "Left-value of a ".$this->opCode." must be record not ".$this->right->type() );
+        }
+        if( $this->right->type() != "name" ) {
+            throw new ScriptException( "Right-value of a ".$this->opCode." must be name not ".$this->right->type() );
         }
 
 	$leftType = $this->left->recordType();
