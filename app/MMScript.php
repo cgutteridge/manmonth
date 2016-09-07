@@ -23,7 +23,7 @@ class MMScript
 
         $this->tokens = self::tokenise( $text );
         $this->offset = 0;
-        $this->expression = $this->compileExp();
+        $this->expression = $this->compileExpression();
         if( $this->moreTokens() ) {
             throw new ParseException( "Expected additional symbols after end of expression", $this->text, $this->token()[0] );
         }
@@ -53,10 +53,18 @@ class MMScript
     protected function tokenIs( $ids ) {
         if( !$this->moreTokens() ) { return false; }
         if( !is_array( $ids ) ) { $ids = [$ids]; }
-#print "".sizeof($this->tokens)."<<SIZE OFF>>".$this->offset."\n";
-#print_r( $this->tokens[ $this->offset ] );
         $code = $this->tokens[ $this->offset ][1];
-#print "(($code))\n";
+        
+        foreach( $ids as $id ) {
+            if( $id == $code ) { return true; }
+        }
+        return false;
+    }
+    protected function nextTokenIs( $ids ) {
+        // only maybe return true if there's another token after the current one 
+        if( $this->offset+1 >= sizeof( $this->tokens ) ) { return false; } 
+        if( !is_array( $ids ) ) { $ids = [$ids]; }
+        $code = $this->tokens[ $this->offset+1 ][1];
         
         foreach( $ids as $id ) {
             if( $id == $code ) { return true; }
@@ -66,7 +74,7 @@ class MMScript
 
 
     # <EXP>   = <OROP>
-    public function compileExp() {
+    public function compileExpression() {
         return $this->compileOr();
     }
 
@@ -143,7 +151,7 @@ class MMScript
 
     # <POWOP> = <BRAOP> [ "^" <POPOP> ]
     public function compilePow() {
-        $left = $this->compileBra();
+        $left = $this->compileBracket();
         if( $this->moreTokens() && $this->tokenIs([ "POW" ]) ) {
             $op = $this->token();
             $this->offset++;
@@ -154,10 +162,10 @@ class MMScript
     }
 
     # <BRAOP> = "(" <EXP> ")" | <VALUE>
-    public function compileBra() {
+    public function compileBracket() {
         if( $this->tokenIs([ "OBR" ]) ) {
             $this->offset++; // consume open bracket
-            $exp = $this->compileExp();
+            $exp = $this->compileExpression();
             if( ! $this->tokenIs([ "CBR" ]) ) {
                 throw new ParseException( "Expected close bracket", $this->text, $this->token()[0] );
             }
@@ -168,15 +176,8 @@ class MMScript
         return $this->compileValue();
     }
 
-    # <VALUE> = <LITERAL> | <VAR>
-    # <VAR>   = <OBJECT> "." <FIELD>
-    # <OBJECT>= <OBJECTNAME> ( ("->"|"<-") <LINK> )*
-    # <LINK>  = <NAME>
-    # <OBJECTAME> = <NAME>
+    # <VALUE> = <LITERAL> | <VAR> | <FNNAME>
 
-
-    # <> = <OBJECTNAME> <LINKLIST>
-    # <LINKLIST> = ( "->"|"<-" ) <LINK> <LINKLIST> | ""
 
     public function compileValue() {
         # <LITERAL> = "true" | "false" | [1-9][0-9]* | [0-9]+ "." [0-9]+ | "'" [^']* "'"
@@ -186,22 +187,35 @@ class MMScript
             return new MMScript\Literal( $this, $op );
         }
 
+        # look ahead one token to see if this is a function call, if not treat as a varibable
         if( $this->tokenIs( "NAME" ) ) {
-            $object = $this->compileObject();
-            if( ! $this->tokenIs([ "DOT" ]) ) {
-                throw new ParseException( "Expected dot (.) name got ".$this->token()[1], $this->text, $this->token()[0] );
-            }
-            $this->offset++;  // consume DOT
-            if( ! $this->tokenIs([ "NAME" ]) ) {
-                throw new ParseException( "Expected field name got ".$this->token()[1], $this->text, $this->token()[0] );
-            }
-            $r = new MMScript\FieldOf( $this, $this->token(), $object, new MMScript\Name( $this, $this->token() ) );
-            $this->offset++;  // consume FIELD NAME
-            return $r;
+            if( $this->nextTokenIs( "OBR" ) ) { # open bracket
+                return $this->compileFunction();
+            } 
+            return $this->compileVar();
         }
-         
+ 
         throw new ParseException( "Unexpected stuff", $this->text, $this->token()[0] );
     }
+
+    # <VAR>   = <OBJECT> "." <FIELD>
+    # <OBJECT>= <OBJECTNAME> ( ("->"|"<-") <LINK> )*
+    # <LINK>  = <NAME>
+    # <OBJECTAME> = <NAME>
+    public function compileVar() {
+        $object = $this->compileObject();
+        if( ! $this->tokenIs([ "DOT" ]) ) {
+            throw new ParseException( "Expected dot but got ".$this->token()[1], $this->text, $this->token()[0] );
+        }
+        $this->offset++;  // consume DOT
+        if( ! $this->tokenIs([ "NAME" ]) ) {
+            throw new ParseException( "Expected field name got ".$this->token()[1], $this->text, $this->token()[0] );
+        }
+        $r = new MMScript\FieldOf( $this, $this->token(), $object, new MMScript\Name( $this, $this->token() ) );
+        $this->offset++;  // consume FIELD NAME
+        return $r;
+    }
+         
             
     public function compileObject() {  
         if( ! $this->tokenIs([ "NAME" ]) ) {
@@ -222,8 +236,49 @@ class MMScript
         }
         return $r;
     }
-                
+    
+            
+# <FNCALL>= <FNNAME> "(" <LIST> ")"
+# <FNNAME>= <NAME>
+# <LIST>  = <EXP> [ "," <LIST> ]
 
+    public function compileFunction() {
+        if( ! $this->tokenIs([ "NAME" ]) ) {
+            throw new ParseException( "Expected object name got ".$this->token()[1], $this->text, $this->token()[0] );
+        }
+        $op = $this->token();
+        $this->offset++;  // consume NAME
+  
+        if( !$this->tokenIs([ "OBR" ]) ) {
+            throw new ParseException( "Expected open bracket", $this->text, $this->token()[0] );
+        }
+        $this->offset++; // consume open bracket
+
+        $list = $this->compileList();
+
+        if( ! $this->tokenIs([ "CBR" ]) ) {
+            throw new ParseException( "Expected close bracket", $this->text, $this->token()[0] );
+        }
+        $this->offset++; // consume close bracket
+
+        return new MMScript\Call( $this, $op, new MMScript\Name( $this, $op ), $list );
+
+        return $this->compileValue();
+    }
+ 
+    # <LIST> = <EXP> [ "," <LIST> ]
+    public function compileList() {
+        $op = $this->token();
+        $exp = $this->compileExpression();
+        $list = [ $exp ];
+        while( $this->moreTokens() && $this->tokenIs("COMMA")) {
+            $this->offset++; // consume comma
+            $exp = $this->compileExpression();
+            $list []= $exp;
+        }
+
+	return new MMScript\ExpList( $this, $op, $list );
+    }
 
 
     ///////////////////////////////////////////////// 
@@ -246,6 +301,7 @@ class MMScript
             if( $c=="(" ) { $offset++; $tokens []= [ $toff, "OBR" ]; continue; }
             if( $c==")" ) { $offset++; $tokens []= [ $toff, "CBR" ]; continue; }
             if( $c=="." ) { $offset++; $tokens []= [ $toff, "DOT" ]; continue; }
+            if( $c=="," ) { $offset++; $tokens []= [ $toff, "COMMA" ]; continue; }
             if( $c>="0" && $c<="9" ) {
                 $n = $c;
                 $offset++;
@@ -366,11 +422,14 @@ class MMScript
 # <MULOP> = <POWOP> [ ("*"|"/") <MULOP> ]
 # <POWOP> = <BRAOP> [ "^" <POPOP> ]
 # <BRAOP> = "(" <EXP> ")" | <VALUE>
-# <VALUE> = <LITERAL> | <VAR>
+# <VALUE> = <LITERAL> | <VAR> | <FNCALL>
 # <VAR>   = <OBJECT> "." <FIELD>
 # <OBJECT>= <OBJECTNAME> [ ( "->"|"<-" ) <LINK> ]*
 # <LINK>  = <NAME>
 # <OBJECTAME> = <NAME>
 # <LITERAL> = "true" | "false" | [1-9][0-9]* | [0-9]+ "." [0-9]+ | "'" [^']* "'"
+# <FNCALL>= <FNNAME> "(" <LIST> ")"
+# <FNNAME>= <NAME>
+# <LIST>  = <EXP> [ "," <LIST> ]
 
-#  
+

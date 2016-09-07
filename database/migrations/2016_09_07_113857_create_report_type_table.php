@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRulesTable extends Migration
+class CreateReportTypeTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,15 +12,14 @@ class CreateRulesTable extends Migration
      */
     public function up()
     {
-        Schema::create('rules', function (Blueprint $table) {
+        Schema::create('report_types', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('sid')->unsigned();
             $table->integer('document_revision_id')->unsigned();
             $table->index(['document_revision_id', 'sid'],'rev_sid');
 
-            $table->integer('report_type_sid')->unsigned();
-            $table->index(['document_revision_id', 'report_type_sid'],'report_type_rev_sid');
-            $table->text('rank');
+            $table->integer('base_record_type_sid')->unsigned();
+            $table->index(['document_revision_id', 'base_record_type_sid'],'base_record_type_rev_sid');
             $table->text('data');
         });
     }
@@ -32,6 +31,6 @@ class CreateRulesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('rules');
+        Schema::drop('report_types');
     }
 }

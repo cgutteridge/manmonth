@@ -4,7 +4,7 @@ namespace App\MMScript;
 
 use App\ScriptException;
 
-class NotOf extends UnaryOp
+class NotOp extends UnaryOp
 {
     function type() {
         if( @$this->type ) { return $this->type; }

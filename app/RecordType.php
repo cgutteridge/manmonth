@@ -192,66 +192,6 @@ class RecordType extends DocumentPart
         }
     }
 
-    public static function validateBooleanField($data) {
-
-        $validator = Validator::make(
-          $data,
-          [ 'name' => 'required|alpha_dash|min:2|max:255', 
-            'type' => 'required|in:boolean',
-            'required' => 'boolean',
-            'default' => 'boolean' ]);
-
-        if($validator->fails()) {
-            throw new ValidationException( "RecordType", "data field (boolean)", $data, $validator->errors() );
-        }
-    }
-
-    public static function validateStringField($data) {
-
-        $validator = Validator::make(
-          $data,
-          [ 'name' => 'required|alpha_dash|min:2|max:255', 
-            'type' => 'required|in:string',
-            'required' => 'boolean',
-            'default' => 'string' ]);
-
-        if($validator->fails()) {
-            throw new ValidationException( "RecordType", "data field (string)", $data, $validator->errors() );
-        }
-    }
-
-    public static function validateIntegerField($data) {
-
-        $validator = Validator::make(
-          $data,
-          [ 'name' => 'required|alpha_dash|min:2|max:255', 
-            'type' => 'required|in:integer',
-            'required' => 'boolean',
-            'min' => 'integer', 
-            'max' => 'integer', 
-            'default' => 'integer' ]);
-
-        if($validator->fails()) {
-            throw new ValidationException( "RecordType", "data field (integer)", $data, $validator->errors() );
-        }
-    }
-
-    public static function validateDecimalField($data) {
-
-        $validator = Validator::make(
-          $data,
-          [ 'name' => 'required|alpha_dash|min:2|max:255', 
-            'type' => 'required|in:decimal',
-            'required' => 'boolean',
-            'min' => 'numeric', 
-            'max' => 'numeric', 
-            'default' => 'numeric' ]);
-
-        if($validator->fails()) {
-            throw new ValidationException( "RecordType", "data field (decimal)", $data, $validator->errors() );
-        }
-    }
-
     public static function validateData($data) {
 
         $validator = Validator::make(
@@ -263,22 +203,8 @@ class RecordType extends DocumentPart
             throw new ValidationException( "RecordType", "data", $data, $validator->errors() );
         }
 
-        foreach( $data["fields"] as $field ) {
-            if( $field["type"] == "boolean" ) {
-                self::validateBooleanField( $field );
-            } 
-            if( $field["type"] == "integer" ) {
-                self::validateIntegerField( $field );
-            } 
-            if( $field["type"] == "decimal" ) {
-                self::validateDecimalField( $field );
-            } 
-            if( $field["type"] == "string" ) {
-                self::validateStringField( $field );
-            } 
-            else {
-                new Exception( "Code should not have reached this point" );
-            } 
+        foreach( $data["fields"] as $fieldData ) {
+            Field::validateData( $fieldData );
         }
 
     }

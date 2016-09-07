@@ -17,4 +17,13 @@ abstract class MMAction
     // readable title etc.
     public $params;
 
+    // this will be generated from params
+    public $fields;
+        
+    public function __construct() {
+        $this->fields = []; 
+        foreach( $this->params as $param ) {
+            $this->fields[ $param["name"] ]= new Field( $param );
+        }
+    }        
 }

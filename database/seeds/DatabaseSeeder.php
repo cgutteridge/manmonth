@@ -72,32 +72,34 @@ class DatabaseSeeder extends Seeder
 	$atType->createRecord( [ "type"=>"works","ratio"=>0.2 ], [ 'acttask_to_task'=>[$misc] ],[ 'actor_to_acttask'=>[$bobby] ] );
 
         // add rules
- 
+
+
+        $loadingReportType = $draft->createReportType( $actorType,['title'=>'Loadings Report' ] );
         // people have a basic target load of 100 
         // people in the wombats group get 100 hours extra load target
         // people who are newbie have a 50% load target
-        $draft->createRule( [ 
+        $loadingReportType->createRule( [ 
             "title"=>"Default loading",  
             "action"=>"set_target", 
             "params"=>[ "loading", 100 ]] );
-        $draft->createRule( [ 
+        $loadingReportType->createRule( [ 
             "title"=>"Wombat group +100 hours",
             "trigger"=>"actor.group='wombat'", 
-            "action"=>"modify_target", 
+            "action"=>"alter_target", 
             "params"=>[ "loading", 100 ]] );
-        $draft->createRule( [ 
+        $loadingReportType->createRule( [ 
             "title"=>"Half loading for newbies",
             "trigger"=>"actor.newbie", 
             "action"=>"scale_target", 
             "params"=>[ "loading", 0.5 ]] );
         // people not in group baders, on leading new modules get +20 hours  (TODO this should become a loading)
-        $draft->createRule( [ 
-            "title"=>"+20 for non-badger task leaders",
+        $loadingReportType->createRule( [ 
+            "title"=>"20 load for non-badger task leaders",
             "route"=>["actor_to_acttask","acttask_to_task"], 
             "trigger"=>"acttask.type='leads' & actor.group<>'badgers'", 
-            "action"=>"modify_target", 
+            "action"=>"assign_load", 
             "params"=>[ "loading", 20 ]] );
-        $draft->createRule( [ 
+        $loadingReportType->createRule( [ 
             "title"=>"Loading from working on task",
             "route"=>["actor_to_acttask"],
             "trigger"=>"acttask.type='works'",

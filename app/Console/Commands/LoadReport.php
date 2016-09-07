@@ -33,7 +33,6 @@ class LoadReport extends Command
 
 \Event::listen('Illuminate\Database\Events\QueryExecuted', function ($query) { print $query->sql." - ".json_encode( $query->bindings )."\n"; });
         
-$cmd ="(100 + acttask->acttask_to_task.size * 3) * acttask.ratio" ;
 $baseType = $docRev->recordTypeByName( 'actor' );
 $context = $docRev->getAbstractContext( ['actor_to_acttask'] );
 $exp = new MMScript( $cmd, $docRev, $context );
