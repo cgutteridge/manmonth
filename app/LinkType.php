@@ -4,6 +4,7 @@ namespace App;
 
 use Exception;
 use Validator;
+use App\Exceptions\ValidationException;
 
 class LinkType extends DocumentPart
 {

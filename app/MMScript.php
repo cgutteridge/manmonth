@@ -3,6 +3,7 @@
 namespace App;
 
 // this class handles the incline scripting compilation and execution
+use App\Exceptions\ParseExceptions;
 
 class MMScript 
 {

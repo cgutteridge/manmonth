@@ -2,7 +2,7 @@
 
 namespace App\MMScript;
 
-use App\ScriptException;
+use App\Exceptions\ScriptException;
 
 // op with left & right param
 abstract class BinaryOp extends Op

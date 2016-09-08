@@ -2,7 +2,7 @@
 
 namespace App\MMScript\Func;
 
-use App\CallException;
+use App\Exceptions\CallException;
 
 class Max
 {

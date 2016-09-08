@@ -2,7 +2,7 @@
 
 namespace App\MMScript;
 
-use App\ScriptException;
+use App\Exceptions\ScriptException;
 
 // This provides an extensible functions feature
 // possibly normal Op functions should all be calls, or vice versa?
