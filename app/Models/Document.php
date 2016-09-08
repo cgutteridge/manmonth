@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Exception;
@@ -72,6 +72,6 @@ class Document extends Model
 
     public function revisions()
     {
-        return $this->hasMany('App\DocumentRevision');
+        return $this->hasMany('App\Models\DocumentRevision');
     }
 }

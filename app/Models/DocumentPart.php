@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,7 +10,7 @@ abstract class DocumentPart extends Model
 
     public function documentRevision()
     {
-        return $this->belongsTo('App\DocumentRevision');
+        return $this->belongsTo('App\Models\DocumentRevision');
     }
 
     public function save(array $options = [])

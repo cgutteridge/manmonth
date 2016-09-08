@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Exception;
 use Validator;
@@ -9,11 +9,11 @@ use App\Exceptions\ValidationException;
 class LinkType extends DocumentPart
 {
     public function domain() {
-        return $this->hasOne( 'App\RecordType', 'sid', 'domain_sid' )->where( 'document_revision_id', $this->document_revision_id );
+        return $this->hasOne( 'App\Models\RecordType', 'sid', 'domain_sid' )->where( 'document_revision_id', $this->document_revision_id );
     }
 
     public function range() {
-        return $this->hasOne( 'App\RecordType', 'sid', 'range_sid' )->where( 'document_revision_id', $this->document_revision_id );
+        return $this->hasOne( 'App\Models\RecordType', 'sid', 'range_sid' )->where( 'document_revision_id', $this->document_revision_id );
     }
 
 

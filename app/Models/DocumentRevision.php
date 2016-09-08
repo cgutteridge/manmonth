@@ -1,26 +1,26 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Exception;
 
 class DocumentRevision extends Model
 {
-    public function document() { return $this->belongsTo('App\Document'); }
+    public function document() { return $this->belongsTo('App\Models\Document'); }
 
-    public function recordTypes() { return $this->hasMany('App\RecordType'); }
+    public function recordTypes() { return $this->hasMany('App\Models\RecordType'); }
 
-    public function records() { return $this->hasMany('App\Record'); }
+    public function records() { return $this->hasMany('App\Models\Record'); }
 
-    public function linkTypes() { return $this->hasMany('App\LinkType'); }
+    public function linkTypes() { return $this->hasMany('App\Models\LinkType'); }
 
-    public function links() { return $this->hasMany('App\Link'); }
+    public function links() { return $this->hasMany('App\Models\Link'); }
 
     // rules are generally ordered by rank 
-    public function rules() { return $this->hasMany('App\Rule')->orderBy( 'rank' ); }
+    public function rules() { return $this->hasMany('App\Models\Rule')->orderBy( 'rank' ); }
 
-    public function reportTypes() { return $this->hasMany('App\ReportType'); }
+    public function reportTypes() { return $this->hasMany('App\Models\ReportType'); }
   
     public function reportTypeByName( $name ) {
         return $this->reportTypes()->where( 'name', $name )->first();

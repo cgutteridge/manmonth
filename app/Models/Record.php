@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Exception;
 
@@ -9,16 +9,16 @@ class Record extends DocumentPart
 {
     public function recordType()
     {
-        return $this->hasOne( 'App\RecordType', 'sid', 'record_type_sid' )->where( 'document_revision_id', $this->document_revision_id );
+        return $this->hasOne( 'App\Models\RecordType', 'sid', 'record_type_sid' )->where( 'document_revision_id', $this->document_revision_id );
     }
 
     public function forwardLinks()
     {
-        return $this->hasMany( 'App\Link', 'subject_sid', 'sid' )->where( 'document_revision_id', $this->document_revision_id );
+        return $this->hasMany( 'App\Models\Link', 'subject_sid', 'sid' )->where( 'document_revision_id', $this->document_revision_id );
     }
     public function backLinks()
     {
-        return $this->hasMany( 'App\Link', 'object_sid', 'sid' )->where( 'document_revision_id', $this->document_revision_id );
+        return $this->hasMany( 'App\Models\Link', 'object_sid', 'sid' )->where( 'document_revision_id', $this->document_revision_id );
     }
 
     // return a text representation and all associated records 

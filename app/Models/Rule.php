@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Exception;
 use Validator;
@@ -12,7 +12,7 @@ class Rule extends DocumentPart
 {
     public function reportType()
     {
-        return $this->hasOne( 'App\RecordType', 'sid', 'report_type_sid' )->where( 'document_revision_id', $this->document_revision_id );
+        return $this->hasOne( 'App\Models\RecordType', 'sid', 'report_type_sid' )->where( 'document_revision_id', $this->document_revision_id );
     }
 
     // there's probably a cleverer laravel way of doing this...

@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\DocumentRevision;
+use App\Models\DocumentRevision;
 use App\MMScript;
 
 class LoadReport extends Command
