@@ -15,7 +15,7 @@ class ParseException extends ScriptException
         $this->script = $script; 
         $this->offset = $offset; 
      
-        $message = "$message near ";
+        $message = "$message near: ";
 	$message .= substr( $script,0,$offset );
 	$message .= "<HERE>";
 	$message .= substr( $script,$offset );

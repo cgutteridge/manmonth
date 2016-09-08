@@ -20,6 +20,7 @@ class CreateReportTypeTable extends Migration
 
             $table->integer('base_record_type_sid')->unsigned();
             $table->index(['document_revision_id', 'base_record_type_sid'],'base_record_type_rev_sid');
+            $table->string('name');
             $table->text('data');
         });
     }

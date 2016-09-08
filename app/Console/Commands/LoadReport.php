@@ -33,15 +33,9 @@ class LoadReport extends Command
 
 \Event::listen('Illuminate\Database\Events\QueryExecuted', function ($query) { print $query->sql." - ".json_encode( $query->bindings )."\n"; });
         
-$baseType = $docRev->recordTypeByName( 'actor' );
-$context = $docRev->getAbstractContext( ['actor_to_acttask'] );
-$exp = new MMScript( $cmd, $docRev, $context );
-print "$cmd\n";
-print $exp->textTree();
+        $loadingReport = $docRev->reportTypeByName( 'loading' );
 
-dd("todo");
-        $report = $docRev->report();
+        $report = $loadingReport->report();
         dd($report);
-        $this->comment("pip pip" );
     }
 }

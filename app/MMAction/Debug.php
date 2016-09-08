@@ -21,6 +21,7 @@ class Debug extends \App\MMAction
         [ 
             "name"=>"message",
             "type"=>"string",
+            "required"=>true,
         ],
         [ 
             "name"=>"count",

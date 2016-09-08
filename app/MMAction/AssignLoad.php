@@ -21,6 +21,7 @@ class AssignLoad extends \App\MMAction
         [ 
             "name"=>"target",
             "type"=>"string",
+            "required"=>true,
         ],
         [ 
             "name"=>"category",
@@ -29,6 +30,7 @@ class AssignLoad extends \App\MMAction
         [ 
             "name"=>"load",
             "type"=>"decimal",
+            "required"=>true,
         ],
         [ 
             "name"=>"description",

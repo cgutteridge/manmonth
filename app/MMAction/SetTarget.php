@@ -21,10 +21,12 @@ class SetTarget extends \App\MMAction
         [ 
             "name"=>"target",
             "type"=>"string",
+            "required"=>true,
         ],
         [ 
             "name"=>"value",
             "type"=>"decimal",
+            "required"=>true,
         ],
         [ 
             "name"=>"description",

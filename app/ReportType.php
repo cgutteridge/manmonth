@@ -90,15 +90,26 @@ class ReportType extends DocumentPart
             $rank = $lastrule->rank + 1 ;
         }
 
-        $record_type = new Rule();
-        $record_type->documentRevision()->associate( $this );
-        $record_type->rank = $rank;
-        $record_type->data = json_encode( $data );
+        $rule = new Rule();
+        $rule->documentRevision()->associate( $this->documentRevision );
+        $rule->rank = $rank;
+        $rule->report_type_sid = $this->sid;
+        $rule->data = json_encode( $data );
 
-        $record_type->save();
-        return $record_type;
+        $rule->save();
+        return $rule;
     }
 
+    public static function validateName($name) {
+
+        $validator = Validator::make(
+        [ 'name' => $name ],
+        [ 'name' => 'required|alpha_dash|min:2|max:255' ]);
+
+        if($validator->fails()) {
+            throw new ValidationException( "RecordType", "name", $name, $validator->errors() );
+        }
+    }
 
     public function validateRuleData($data) {
 
@@ -128,7 +139,6 @@ class ReportType extends DocumentPart
                 throw new Exception( "Trigger must either be unset or evaluate to true/false. Currently evaluates to $type" );
             }
         }
-     
         $action = Rule::action( $data["action"] );
         foreach( $action->fields as $field ) {
             if( !array_key_exists( $field->data["name"], $data["params"] ) ) {
@@ -138,14 +148,42 @@ class ReportType extends DocumentPart
                 continue;
             }
             $script = new MMScript( $data["params"][ $field->data["name"] ], $this->documentRevision, $context );
-            $type = $trigger->type();
-            if( $type != $field->data["type"] ) {
+            $type = $script->type();
+print $script->textTree();
+        
+            // not doing full autocasting but doing a special case to let decimal fields accpet integers
+            $typeMatch = false; 
+            if( $type == $field->data["type"] ) { $typeMatch = true; }
+            if( $type == "integer" && $field->data["type"] == "decimal" ) { $typeMatch = true; }
+
+            if( !$typeMatch ) {
                 throw new Exception( "Action ".$action->name." param '".$field->data["name"]."' requires a value of type '".$field->data["type"]."' but got given '$type'" );
             }
         }
     }
 
+    /////
+  
+    // run this report type on the current document revision and produce a report object
+    function report($options = []) {
+        $records = $this->baseRecordType()->records;
+        $report = []; // will be an object when I know what shape it is!
+        foreach( $records as $record ) {
+            $report["records"][$record->sid] = $this->recordReport( $record );
+        }
+        dd(242);
+    }
 
+    function recordReport( $record ) {
+        $rreport = [ "data"=>$record->data, "targets"=>[], "loads"=>[] ];
+        // for each rule get all possible contexts based on this record and the rule type 'route' 
+        // then apply the rule 
+dd( $this->rules );
+        foreach( $this->rules as $rule ) {
+            print "Applying ".json_encode( $rule )." to ".json_encode( $record->data )."\n";
+        }
+        return $rreport;
+    }
 
 
 

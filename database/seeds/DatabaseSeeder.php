@@ -74,41 +74,41 @@ class DatabaseSeeder extends Seeder
         // add rules
 
 
-        $loadingReportType = $draft->createReportType( $actorType,['title'=>'Loadings Report' ] );
+        $loadingReportType = $draft->createReportType( 'loading', $actorType, ['title'=>'Loadings Report' ] );
         // people have a basic target load of 100 
         // people in the wombats group get 100 hours extra load target
         // people who are newbie have a 50% load target
         $loadingReportType->createRule( [ 
             "title"=>"Default loading",  
             "action"=>"set_target", 
-            "params"=>[ "loading", 100 ]] );
+            "params"=>[ "target"=>"'loading'", "value"=>100 ]] );
         $loadingReportType->createRule( [ 
             "title"=>"Wombat group +100 hours",
             "trigger"=>"actor.group='wombat'", 
             "action"=>"alter_target", 
-            "params"=>[ "loading", 100 ]] );
+            "params"=>[ "target"=>"'loading'", "change"=>100 ]] );
         $loadingReportType->createRule( [ 
             "title"=>"Half loading for newbies",
             "trigger"=>"actor.newbie", 
             "action"=>"scale_target", 
-            "params"=>[ "loading", 0.5 ]] );
+            "params"=>[ "target"=>"'loading'", "factor"=>0.5 ]] );
         // people not in group baders, on leading new modules get +20 hours  (TODO this should become a loading)
         $loadingReportType->createRule( [ 
             "title"=>"20 load for non-badger task leaders",
             "route"=>["actor_to_acttask","acttask_to_task"], 
             "trigger"=>"acttask.type='leads' & actor.group<>'badgers'", 
             "action"=>"assign_load", 
-            "params"=>[ "loading", 20 ]] );
+            "params"=>[ "target"=>"'loading'", "load"=>20 ]] );
         $loadingReportType->createRule( [ 
             "title"=>"Loading from working on task",
             "route"=>["actor_to_acttask"],
             "trigger"=>"acttask.type='works'",
             "action"=>"assign_load", 
             "params"=>[ 
-                "'Working on '+acttask->acttask_to_task.name",
-                "loading", 
-                "teaching",
-                "(100 + acttask->acttask_to_task.size * 3) * acttask.ratio"
+                "title"=>'\'Working on \'+acttask->acttask_to_task.name',
+                "target"=>"'loading'", 
+                "category"=>"'teaching'",
+                "load"=>'(100 + acttask->acttask_to_task.size * 3) * acttask.ratio'
              ]]);
 
         // people in the badgers group get 10 units load per penguin 

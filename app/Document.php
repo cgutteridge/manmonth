@@ -35,6 +35,7 @@ class Document extends Model
         $draft->save();
        
         $partLists = array( 
+            $current->reportTypes,
             $current->records,
             $current->recordTypes,
             $current->links,

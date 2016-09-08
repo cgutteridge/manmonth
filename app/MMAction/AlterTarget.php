@@ -21,10 +21,12 @@ class AlterTarget extends \App\MMAction
         [ 
             "name"=>"target",
             "type"=>"string",
+            "required"=>true,
         ],
         [ 
             "name"=>"change",
             "type"=>"decimal",
+            "required"=>true,
         ],
         [ 
             "name"=>"description",

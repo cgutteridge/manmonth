@@ -21,10 +21,12 @@ class ScaleTarget extends \App\MMAction
         [ 
             "name"=>"target",
             "type"=>"string",
+            "required"=>true,
         ],
         [ 
             "name"=>"factor",
             "type"=>"decimal",
+            "required"=>true,
         ],
         [ 
             "name"=>"description",

@@ -43,6 +43,7 @@ class MMScript
     ///////////////////////////////////////////////// 
 
     protected function token() {
+        if( ! $this->moreTokens() ) { return [ strlen( $this->text ),"END" ]; }
         return $this->tokens[ $this->offset ]; 
     }
 

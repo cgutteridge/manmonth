@@ -22,12 +22,16 @@ class DocumentRevision extends Model
 
     public function reportTypes() { return $this->hasMany('App\ReportType'); }
   
+    public function reportTypeByName( $name ) {
+        return $this->reportTypes()->where( 'name', $name )->first();
+    }
+
     public function recordTypeByName( $name ) {
-        return $this->recordTypes->where( 'name', $name )->first();
+        return $this->recordTypes()->where( 'name', $name )->first();
     }
 
     public function linkTypeByName( $name ) {
-        return $this->linkTypes->where( 'name', $name )->first();
+        return $this->linkTypes()->where( 'name', $name )->first();
     }
 
 
@@ -59,9 +63,10 @@ class DocumentRevision extends Model
     }
 
 
-    public function createReportType( $baseRecordType, $data )
+    public function createReportType( $name, $baseRecordType, $data )
     {
         // these take exception if there's an issue
+        ReportType::validateName( $name );
         // does this need to know the baseRecordType?
         ReportType::validateData( $data );
 
@@ -70,6 +75,7 @@ class DocumentRevision extends Model
         $report_type = new ReportType();
         $report_type->documentRevision()->associate( $this );
         $report_type->base_record_type_sid = $baseRecordType->sid;
+        $report_type->name = $name;
         $report_type->data = json_encode( $data );
 
         $report_type->save();
