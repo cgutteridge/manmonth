@@ -4,18 +4,26 @@ namespace App\Models;
 
 use Exception;
 use Validator;
+use DB;
 
-
-# TODO execute every last one of them
-
+/**
+ * Class Rule
+ * @package App\Models
+ */
 class Rule extends DocumentPart
 {
+    /**
+     * @return App\Models\ReportType
+     */
     public function reportType()
     {
         return $this->hasOne( 'App\Models\ReportType', 'sid', 'report_type_sid' )->where( 'document_revision_id', $this->document_revision_id );
     }
 
     // there's probably a cleverer laravel way of doing this...
+    /**
+     * @var array
+     */
     static protected $actions = [
           \App\MMAction\SetTarget::class,
           \App\MMAction\AlterTarget::class,
@@ -24,7 +32,14 @@ class Rule extends DocumentPart
           \App\MMAction\Debug::class,
     ];
 
+    /**
+     * @var
+     */
     static protected $actionCache;
+
+    /**
+     * @return array
+     */
     public static function actions() {
         if( self::$actionCache ) { return self::$actionCache; }
         self::$actionCache = [];
@@ -34,13 +49,25 @@ class Rule extends DocumentPart
         }
         return self::$actionCache; 
     }
-    public static function action( $actionName ) {
+
+    /**
+     * @param $actionName
+     * @return array
+     */
+    public static function action($actionName ) {
         $actions = self::actions();
         return $actions[$actionName];
     }    
 
     // candidate for a trait or something?
+    /**
+     * @var
+     */
     var $dataCache;
+
+    /**
+     * @return array
+     */
     public function data() {
         if( !$this->dataCache ) { 
             $this->dataCache = json_decode( $this->data, true );
@@ -48,15 +75,21 @@ class Rule extends DocumentPart
         return $this->dataCache;
     }
 
+    /**
+     * @throws DataStructValidationException,Exception
+     */
     public function validateData() {
 
         $actions = Rule::actions();
 
         $validator = Validator::make(
           $this->data(),
-          [ 'action' => 'required|string|in:'.join( ",", array_keys($actions) ), 
-            'trigger' => 'string',  
-            'params' => 'array' ] );
+          [
+              'action' => 'required|string|in:'.join( ",", array_keys($actions) ),
+              'trigger' => 'string',
+              'title' => 'string',
+              'route' => 'array',
+              'params' => 'array' ] );
 
         if($validator->fails()) {
             throw new DataStructValidationException( "Rule", "data", $this->data(), $validator->errors() );
@@ -66,10 +99,9 @@ class Rule extends DocumentPart
         // contains all the named record types
         // can throw exception is the contect is invalid, an we're happy to throw that exception
         if( !@$this->data()["route"] ) { $this->data()["route"] = []; }
-        $context = $this->getAbstractContext();
 
         if( @$this->data()["trigger"] ) {
-            $trigger = new \App\MMScript( $this->data()["trigger"], $this->documentRevision, $context );
+            $trigger = $this->script( $this->data()["trigger"] );
             $type = $trigger->type();
             if( $type != "boolean" ) {
                 // TODO better class of exception?
@@ -84,7 +116,7 @@ class Rule extends DocumentPart
                 }
                 continue;
             }
-            $script = new \App\MMScript( $this->data()["params"][ $field->data["name"] ], $this->documentRevision, $context );
+            $script = $this->script( $this->data()["params"][ $field->data["name"] ] );
             $type = $script->type();
 print $script->textTree();
         
@@ -99,18 +131,31 @@ print $script->textTree();
         }
     }
 
+    protected $scripts=[];
+    function script( $scriptText ) {
+        if( isset( $this->scripts[$scriptText] ) ) { return $this->scripts[$scriptText]; }
+        $this->scripts[$scriptText] = new \App\MMScript( $scriptText, $this->documentRevision, $this->abstractContext() );
+        return $this->scripts[$scriptText];
+    }
+
+    protected $abstractContext;
     // get the absract context for this rule. Returns record & link types,
     // not specific records and links
-    public function getAbstractContext() {
-        $context = [];
+    /**
+     * @return array
+     */
+    public function abstractContext() {
+        if( isset($this->abstractContext)) { return $this->abstractContext; }
+
+        $this->abstractContext= [];
 
         $baseRecordType = $this->reportType->baseRecordType();
-        $context[$baseRecordType->name] = $baseRecordType;
+        $this->abstractContext[$baseRecordType->name] = $baseRecordType;
         // add all the other objects in the route
         $iterativeRecordType = $baseRecordType;
 
         // simple case
-        if( !isset($this->data()['route']) ) { return $context; }
+        if( !isset($this->data()['route']) ) { return $this->abstractContext; }
         
         foreach( $this->data()['route'] as $linkName ) {
             $fwd = true;
@@ -118,24 +163,24 @@ print $script->textTree();
                 $linkName = substr( $linkName, 1 );
                 $fwd = false;
             }
-            $link = $this->documentRevision->linkTypeByName( $linkName );
-            if( !$link ) {
+            $linkType = $this->documentRevision->linkTypeByName( $linkName );
+            if( !$linkType ) {
                 // not sure what type of exception to make this (Script?)
                 throw new Exeception( "Unknown linkName in context '$linkName'" );
             }
             
             if( $fwd ) {
                 // check the domain of this link is the right recordtype
-                if( $link->domain_sid != $iterativeRecordType->sid ) {
+                if( $linkType->domain_sid != $iterativeRecordType->sid ) {
                     throw new Exeception( "Domain of $linkName is not ".$iterativeRecordType->name );
                 } 
-                $iterativeRecordType = $link->range;
+                $iterativeRecordType = $linkType->range;
             } else {
                 // backlink, so check range, set type to domain
-                if( $link->range_sid != $iterativeRecordType->sid ) {
+                if( $linkType->range_sid != $iterativeRecordType->sid ) {
                     throw new Exeception( "Range of $linkName is not ".$iterativeRecordType->name );
                 } 
-                $iterativeRecordType = $link->domain;
+                $iterativeRecordType = $linkType->domain;
             }
  
             $name = $iterativeRecordType->name;
@@ -143,15 +188,102 @@ print $script->textTree();
             // in case we meet the same class twice, will fallback
             // to class, class2, class3, etc.
             $i=2;
-            while( array_key_exists( $name, $context ) ) {
-                $name = $link->name."$i";
+            while( array_key_exists( $name, $this->abstractContext ) ) {
+                $name = $linkType->name."$i";
                 $i++;
             }
-            $context[ $name ] = $iterativeRecordType;
+            $this->abstractContext[ $name ] = $iterativeRecordType;
            
         }
 
-        return $context;
+        return $this->abstractContext;
     }
 
+    /**
+     * @param $record
+     * @param $rreport
+     */
+    public function apply($record, &$rreport ) {
+        $context = [];
+        $baseRecordType = $this->reportType->baseRecordType();
+        $context[$baseRecordType->name] = $record;
+        $route = [];
+        if( isset($this->data()['route']) ) { $route = $this->data()['route']; }
+        $this->applyToRoute( $record, $rreport, $context, $route, $record );
+    }
+
+    // recursive function used to apply this rule to the record for every context possible with the given route
+
+    /**
+     * @param App\Models\Record $record - the record on which we are making a report
+     * @param mixed[] $rreport - the report to write to for this record
+     * @param array $context - the context of the route followed so far
+     * @param array $route - the remaining route to follow to complete the context
+     * @param App\Models\Record $focusObject - the object to which the remaining route applies
+     */
+    private function applyToRoute($record, &$rreport, $context, $route, $focusObject ) {
+        if( sizeof($route) == 0 ) {
+            print "RUNNING RULE: ".$this->sid."\n";
+            foreach( $context as $key=>$value ) {
+                print "  | CONTEXT[$key] = ".$value->id."\n";
+            }
+            if( isset($this->data()["trigger"]) ) {
+                $trigger = $this->script($this->data()["trigger"]);
+                print "   * TODO trigger: ".$this->data()["trigger"]."\n";
+            }
+            return;
+        }
+
+        // follow the top link on the route
+        $linkName = array_shift( $route );
+        print json_encode( $focusObject->data )."\n";
+        dump($linkName);
+
+        $fwd = true;
+        if( substr( $linkName, 0, 1 ) == "^" ) {
+            $linkName = substr( $linkName, 1 );
+            $fwd = false;
+        }
+        $linkType = $this->documentRevision->linkTypeByName( $linkName );
+        if( !$linkType ) {
+            // not sure what type of exception to make this (Script?)
+            throw new Exeception( "Unknown linkName in context '$linkName'" );
+        }
+
+        $nextFocusObjectsIds = [];
+        if( $fwd ) {
+            // get ids of records of instances of this link for which the focus object is the subject
+            $nextFocusObjectsIds= DB::table('links')
+                ->where("links.document_revision_id", "=", $this->documentRevision->id )
+                ->where("links.subject_sid", '=', $focusObject->sid)
+                ->where("links.link_type_sid", '=', $linkType->sid)
+                ->pluck("links.object_sid");
+        } else {
+            // get ids of records of instances of this link for which the focus object is the object
+            $nextFocusObjectsIds= DB::table('links')
+                ->where("links.document_revision_id", "=", $this->documentRevision->id )
+                ->where("links.object_sid", '=', $focusObject->sid)
+                ->where("links.link_type_sid", '=', $linkType->sid)
+                ->pluck("links.subject_sid");
+        }
+
+        if( count( $nextFocusObjectsIds) == 0) {
+            return; // this route doesn't resolve to any contexts to run the rule in
+        }
+
+        $baseNextTypeName = Record::find( $nextFocusObjectsIds[0] )->recordType->name;
+        $nextTypeName = $baseNextTypeName;
+        // in case we meet the same class twice, will fallback
+        // to class, class2, class3, etc.
+        $i=2;
+        while( array_key_exists( $nextTypeName, $context ) ) {
+            $nextTypeName = $baseNextTypeName.$i;
+            $i++;
+        }
+        foreach( $nextFocusObjectsIds as $id ) {
+            $nextFocusObject = Record::find( $id );
+            $context[$nextTypeName] = $nextFocusObject;
+            $this->applyToRoute($record, $rreport, $context, $route, $nextFocusObject );
+        }
+    }
 }

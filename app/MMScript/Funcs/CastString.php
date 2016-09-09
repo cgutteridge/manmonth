@@ -5,7 +5,7 @@ namespace App\MMScript\Funcs;
 use App\Exceptions\CallException;
 
 // cast a value to string
-class String
+class CastString
 {
     var $name = "string";
 

@@ -5,7 +5,7 @@ namespace App\MMScript\Funcs;
 use App\Exceptions\CallException;
 
 // cast a value to integer
-class Decimal
+class CastDecimal
 {
     var $name = "decimal";
 

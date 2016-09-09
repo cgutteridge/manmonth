@@ -62,6 +62,7 @@ class DropTables extends Command
 
         $this->comment(PHP_EOL."If no errors showed up, all tables were dropped".PHP_EOL);
 
+        return;
     }
 }
 

@@ -37,5 +37,6 @@ class LoadReport extends Command
 
         $report = $loadingReport->report();
         dd($report);
+        return;
     }
 }

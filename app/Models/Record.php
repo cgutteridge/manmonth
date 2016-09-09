@@ -39,7 +39,6 @@ class Record extends DocumentPart
         $r.= $indent."".$this->recordType->name."#".$this->sid." ".$this->data."\n";
         foreach( $this->forwardLinks as $link ) {
              $r.=$indent."  ->".$link->linkType->name."->\n";
-             $object = $link->objectRecord;
              $r.=$link->objectRecord->dumpText( $indent."    " );
         }
         return $r;

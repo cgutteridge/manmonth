@@ -16,6 +16,9 @@ class LinkType extends DocumentPart
         return $this->hasOne( 'App\Models\RecordType', 'sid', 'range_sid' )->where( 'document_revision_id', $this->document_revision_id );
     }
 
+    public function links() {
+        return $this->documentRevision->records()->where( "link_type_sid", $this->sid );
+    }
 
     // candidate for a trait or something?
     var $dataCache;

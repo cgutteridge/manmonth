@@ -64,7 +64,7 @@ class ReportType extends DocumentPart
         $rule->report_type_sid = $this->sid;
         $rule->data = json_encode( $data );
 
-        $rule->validateData( $data ); 
+        $rule->validateData();
         $rule->save();
 
         return $rule;
@@ -88,9 +88,10 @@ class ReportType extends DocumentPart
         $rreport = [ "data"=>$record->data, "targets"=>[], "loads"=>[] ];
         // for each rule get all possible contexts based on this record and the rule type 'route' 
         // then apply the rule 
-dd( $this->rules );
         foreach( $this->rules as $rule ) {
+            // apply this rule to every possible context based on the route
             print "Applying ".json_encode( $rule )." to ".json_encode( $record->data )."\n";
+            $rule->apply( $record, $rreport );
         }
         return $rreport;
     }
