@@ -23,7 +23,7 @@ class Link extends BinaryOp
             throw new ScriptException( "Right-value of a ".$this->opCode." must be name not ".$this->right->type() );
         }
 
-	$leftType = $this->left->recordType();
+	    $leftType = $this->left->recordType();
 
         $linkName = $this->right->value;
         $link = $this->script->documentRevision->linkTypeByName( $linkName );
@@ -35,13 +35,13 @@ class Link extends BinaryOp
         if( $this->opCode == "FWD" ) {
             // check the domain of this link is the right recordtype
             if( $link->domain_sid != $leftType->sid ) {
-                throw new ScriptExeception( "Domain of $linkName is not ".$leftType->name );
+                throw new ScriptException( "Domain of $linkName is not ".$leftType->name );
             } 
             $this->recordType = $link->range;
         } else {
             // backlink, so check range, set type to domain
             if( $link->range_sid != $leftType->sid ) {
-                throw new ScriptExeception( "Range of $linkName is not ".$leftType->name );
+                throw new ScriptException( "Range of $linkName is not ".$leftType->name );
             } 
             $this->recordType = $link->domain;
         }
