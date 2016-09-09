@@ -75,7 +75,7 @@ class Compiler
             $op = $this->token();
             $this->offset++;
             $right = $this->compileOr();
-            return new Ops\OrOp( $this-script, $op, $left, $right );
+            return new Ops\OrOp( $this->script, $op, $left, $right );
         }
         return $left;
     }
