@@ -1,6 +1,6 @@
 <?php
 
-namespace App\MMScript;
+namespace App\MMScript\Ops;
 
 use App\Exceptions\ScriptException;
 
@@ -12,7 +12,7 @@ abstract class UnaryOp extends Op
         parent::__construct($script, $op);
     }
     public function treeText( $prefix = "" ) {
-        $r = $prefix.get_class( $this )." :: ".$this->opCode." [".@$this->type()."]\n".$param->treeText($prefix."  ");
+        $r = $prefix.get_class( $this )." :: ".$this->opCode." [".@$this->type()."]\n".$this->param->treeText($prefix."  ");
         return $r;
     }
 }

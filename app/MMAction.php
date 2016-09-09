@@ -23,7 +23,7 @@ abstract class MMAction
     public function __construct() {
         $this->fields = []; 
         foreach( $this->params as $param ) {
-            $this->fields[ $param["name"] ]= new Field( $param );
+            $this->fields[ $param["name"] ]= \App\Fields\Field::createFromData( $param );
         }
     }        
 }

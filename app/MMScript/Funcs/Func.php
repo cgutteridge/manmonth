@@ -1,6 +1,6 @@
 <?php
 
-namespace App\MMScript\Func;
+namespace App\MMScript\Funcs;
 
 // a function just takes zero or more typed values and returns a typed value
 

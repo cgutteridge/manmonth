@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Exception;
 use Validator;
-use App\Exceptions\ValidationException;
+use App\Exceptions\DataStructValidationException;
 
 class LinkType extends DocumentPart
 {
@@ -26,57 +26,57 @@ class LinkType extends DocumentPart
         return $this->dataCache;
     }
 
-    public static function validateName($name) {
+    public function validateName() {
 
         $validator = Validator::make(
-        [ 'name' => $name ],
+        [ 'name' => $this->name ],
         [ 'name' => 'required|alpha_dash|min:2|max:255' ]);
 
         if($validator->fails()) {
-            throw new ValidationException( "LinkType", "name", $name, $validator->errors() );
+            throw new DataStructValidationException( "LinkType", "name", $this->name, $validator->errors() );
         }
     }
 
-    public static function validateData($data) {
+    public function validateData() {
 
         $validator = Validator::make(
-          $data,
+          $this->data(),
           [ 'domain_min' => 'min:0,integer', 
             'domain_max' => 'min:1,integer',
             'range_min' => 'min:0,integer',
             'range_max' => 'min:1,integer' ] );
 
         if($validator->fails()) {
-            throw new ValidationException( "LinkType", "data", $data, $validator->errors() );
+            throw new DataStructValidationException( "LinkType", "data", $this->data(), $validator->errors() );
         }
 
-        if( @$data["domain_min"]!==null
-         && @$data["domain_max"]!==null
-         && $data["domain_min"] > $data["domain_max"] ) {
-            throw new ValidationException( "LinkType", "data", $data, [ "domain_min"=>[ "domain_min can't be greater than domain_max" ] ] );
+        if( @$this->data()["domain_min"]!==null
+         && @$this->data()["domain_max"]!==null
+         && $this->data()["domain_min"] > $this->data()["domain_max"] ) {
+            throw new DataStructValidationException( "LinkType", "data", $this->data(), [ "domain_min"=>[ "domain_min can't be greater than domain_max" ] ] );
         }
-        if( @$data["range_min"]!==null
-         && @$data["range_max"]!==null
-         && $data["range_min"] > $data["range_max"] ) {
-            throw new ValidationException( "LinkType", "data", $data, [ "range_min"=>[ "range_min can't be greater than range_max" ] ] );
+        if( @$this->data()["range_min"]!==null
+         && @$this->data()["range_max"]!==null
+         && $this->data()["range_min"] > $this->data()["range_max"] ) {
+            throw new DataStructValidationException( "LinkType", "data", $this->data(), [ "range_min"=>[ "range_min can't be greater than range_max" ] ] );
         }
 
-        if( @$data["range_min"]==1 && (@$data["range_max"]===null || $data["range_max"]==1 ) 
-         && @$data["domain_min"]==1 && (@$data["domain_max"]===null || $data["domain_max"]==1 ) ) {
-            throw new ValidationException( "LinkType", "data", $data, [ "range_min"=>[ "range and domain can't both be exactly 1." ] ] );
+        if( @$this->data()["range_min"]==1 && (@$this->data()["range_max"]===null || $this->data()["range_max"]==1 ) 
+         && @$this->data()["domain_min"]==1 && (@$this->data()["domain_max"]===null || $this->data()["domain_max"]==1 ) ) {
+            throw new DataStructValidationException( "LinkType", "data", $this->data(), [ "range_min"=>[ "range and domain can't both be exactly 1." ] ] );
         }
           
     }
 
     public function validateLinkSubject( $subject ) {
         if( $subject->record_type_sid != $this->domain_sid ) {
-            throw new ValidationException( "Link", "subject", $subject->record_type_sid, [ "subject"=>[ "subject of incorrect type for this linktype (expects ".$this->domain_sid.")" ] ] );
+            throw new DataStructValidationException( "Link", "subject", $subject->record_type_sid, [ "subject"=>[ "subject of incorrect type for this linktype (expects ".$this->domain_sid.")" ] ] );
         }
     }
     
     public function validateLinkObject( $object ) { 
         if( $object->record_type_sid != $this->range_sid ) {
-            throw new ValidationException( "Link", "object", $object->record_type_sid, [ "object"=>[ "object of incorrect type for this linktype (expexts ".$this->range_sid.")" ] ] );
+            throw new DataStructValidationException( "Link", "object", $object->record_type_sid, [ "object"=>[ "object of incorrect type for this linktype (expexts ".$this->range_sid.")" ] ] );
         }
     }
 

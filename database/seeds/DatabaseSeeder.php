@@ -11,11 +11,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $doc = new App\Document();
+        $doc = new App\Models\Document();
         $doc->name = "Department of Studies Staff Loadings, 2015-16";
         $doc->save();
         $doc->init(); // create default current revision
-       
         $draft = $doc->createDraftRevision();
 
         // add schema
@@ -140,7 +139,6 @@ class DatabaseSeeder extends Seeder
         $draft3 = $doc->createDraftRevision();
 
 #\Event::listen('Illuminate\Database\Events\QueryExecuted', function ($query) { print $query->sql." - ".json_encode( $query->bindings )."\n"; });
-
         // inspect
         $actorType = $draft3->recordTypes()->where( 'name', 'actor' )->first();
         foreach( $actorType->records as $actor ) {

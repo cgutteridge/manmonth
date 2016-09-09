@@ -21,8 +21,8 @@ class MMScript
         $this->text = $text;
         $this->documentRevision = $docRev;
         $this->context = $context;
-
-        $this->tokens = self::tokenise( $text );
+        $tokeniser = new \App\MMScript\Tokeniser();
+        $this->tokens = $tokeniser->tokenise( $text );
         $this->offset = 0;
         $this->expression = $this->compileExpression();
         if( $this->moreTokens() ) {
@@ -87,7 +87,7 @@ class MMScript
             $op = $this->token();
             $this->offset++;
             $right = $this->compileOr();
-            return new MMRecord\OrOp( $this, $op, $left, $right );
+            return new MMScript\Ops\OrOp( $this, $op, $left, $right );
         }
         return $left;
     }
@@ -99,7 +99,7 @@ class MMScript
             $op = $this->token();
             $this->offset++;
             $right = $this->compileAnd();
-            return new MMScript\AndOp( $this, $op, $left, $right );
+            return new MMScript\Ops\AndOp( $this, $op, $left, $right );
         }
         return $left;
     }
@@ -111,7 +111,7 @@ class MMScript
             $op = $this->token();
             $this->offset++;
             $right = $this->compileCmp();
-            return new MMScript\CmpOp( $this, $op, $left, $right );
+            return new MMScript\Ops\CmpOp( $this, $op, $left, $right );
         }
         return $left;
     }
@@ -122,7 +122,7 @@ class MMScript
             $op = $this->token();
             $this->offset++;
             $right = $this->compileNot();
-            return new MMScript\NotOp( $this, $op, $right );
+            return new MMScript\Ops\NotOp( $this, $op, $right );
         }
         return $this->compileAdd();
     }
@@ -134,7 +134,7 @@ class MMScript
             $op = $this->token();
             $this->offset++;
             $right = $this->compileAdd();
-            return new MMScript\AddOp( $this, $op, $left, $right );
+            return new MMScript\Ops\AddOp( $this, $op, $left, $right );
         }
         return $left;
     }
@@ -146,7 +146,7 @@ class MMScript
             $op = $this->token();
             $this->offset++;
             $right = $this->compileMul();
-            return new MMScript\MulOp( $this, $op, $left, $right );
+            return new MMScript\Ops\MulOp( $this, $op, $left, $right );
         }
         return $left;
     }
@@ -158,7 +158,7 @@ class MMScript
             $op = $this->token();
             $this->offset++;
             $right = $this->compilePow();
-            return new MMScript\PowOp( $this, $op, $left, $right );
+            return new MMScript\Ops\PowOp( $this, $op, $left, $right );
         }
         return $left;
     }
@@ -186,7 +186,7 @@ class MMScript
         if( $this->tokenIs([ "DEC","INT","BOOL","STR" ]) ){
             $op = $this->token();
             $this->offset++;
-            return new MMScript\Literal( $this, $op );
+            return new MMScript\Ops\Literal( $this, $op );
         }
 
         # look ahead one token to see if this is a function call, if not treat as a varibable
@@ -213,7 +213,7 @@ class MMScript
         if( ! $this->tokenIs([ "NAME" ]) ) {
             throw new ParseException( "Expected field name got ".$this->token()[1], $this->text, $this->token()[0] );
         }
-        $r = new MMScript\FieldOf( $this, $this->token(), $object, new MMScript\Name( $this, $this->token() ) );
+        $r = new MMScript\Ops\FieldOf( $this, $this->token(), $object, new MMScript\Ops\Name( $this, $this->token() ) );
         $this->offset++;  // consume FIELD NAME
         return $r;
     }
@@ -225,7 +225,7 @@ class MMScript
         }
         $op = $this->token();
         $this->offset++;  // consume NAME
-        $r = new MMScript\Record( $this, $op );
+        $r = new MMScript\Ops\Record( $this, $op );
         while( $this->tokenIs([ "FWD","BACK" ]) ) {
             $op = $this->token();
             $this->offset++; // consume FWD/BACK
@@ -234,7 +234,7 @@ class MMScript
             }
             $link = $this->token();
             $this->offset++; // consume LINK NAME
-            $r = new MMScript\Link( $this, $op, $r, new MMScript\Name( $this, $link ) );
+            $r = new MMScript\Ops\Link( $this, $op, $r, new MMScript\Ops\Name( $this, $link ) );
         }
         return $r;
     }
@@ -263,7 +263,7 @@ class MMScript
         }
         $this->offset++; // consume close bracket
 
-        return new MMScript\Call( $this, $op, new MMScript\Name( $this, $op ), $list );
+        return new MMScript\Ops\Call( $this, $op, new MMScript\Ops\Name( $this, $op ), $list );
 
         return $this->compileValue();
     }
@@ -279,121 +279,12 @@ class MMScript
             $list []= $exp;
         }
 
-	return new MMScript\ExpList( $this, $op, $list );
+	return new MMScript\Ops\ExpList( $this, $op, $list );
     }
 
 
     ///////////////////////////////////////////////// 
 
-    public static function tokenise( $text ) {
-        $offset = 0;
-        $tokens = [];
-        $len = strlen($text);
-        while( $offset < $len ) {  
-            $toff = $offset; # the offset of the start of the token
-            $c = substr( $text,$offset, 1);
-            if( $c==" " || $c=="\n" || $c=="\t" ) { $offset++; continue; }
-            if( $c=="|" ) { $offset++; $tokens []= [ $toff, "OR" ]; continue; }
-            if( $c=="&" ) { $offset++; $tokens []= [ $toff, "AND" ]; continue; }
-            if( $c=="+" ) { $offset++; $tokens []= [ $toff, "PLUS" ]; continue; }
-            if( $c=="=" ) { $offset++; $tokens []= [ $toff, "EQ" ]; continue; }
-            if( $c=="^" ) { $offset++; $tokens []= [ $toff, "POW" ]; continue; }
-            if( $c=="*" ) { $offset++; $tokens []= [ $toff, "MUL" ]; continue; }
-            if( $c=="/" ) { $offset++; $tokens []= [ $toff, "DIV" ]; continue; }
-            if( $c=="(" ) { $offset++; $tokens []= [ $toff, "OBR" ]; continue; }
-            if( $c==")" ) { $offset++; $tokens []= [ $toff, "CBR" ]; continue; }
-            if( $c=="." ) { $offset++; $tokens []= [ $toff, "DOT" ]; continue; }
-            if( $c=="," ) { $offset++; $tokens []= [ $toff, "COMMA" ]; continue; }
-            if( $c>="0" && $c<="9" ) {
-                $n = $c;
-                $offset++;
-                $c = substr( $text,$offset,1 );
-                while( $c>="0" && $c<="9" && $offset<$len ) {
-                    $n.=$c;
-                    $offset++;
-                    $c = substr( $text,$offset,1 );
-                }
-                if( $c != "." ) {
-                    $tokens []= [ $toff, "INT", $n ]; 
-                    continue;
-                }
-                # OK it's decimal 
-                $offset++;
-                $c = substr( $text,$offset,1 );
-                $n2 = ""; 
-                while( $c>="0" && $c<="9" && $offset<$len) {
-                    $n2.=$c;
-                    $offset++;
-                    $c = substr( $text,$offset,1 );
-                }
-                if( $n2 == "" ) { 
-                    throw new ParseException( "Expected more numbers after the dot", $text, $toff );
-                }
-                $tokens []= [ $toff, "DEC", $n.".".$n2 ]; 
-                continue;
-            }
-            if( $c=="'" ) {
-                $s = "";
-                $offset++; // consume leading quote
-                $c = substr( $text,$offset,1 );
-                while( $c!="'" && $offset<$len ) {
-                    if( $c=="\\" ) { 
-                        // consume the backslash and char after it
-                        $offset++;
-                        $c = substr( $text,$offset,1 );
-                        $s.= $c; // whatever is after the backslash
-                        $offset++;
-                        $c = substr( $text,$offset,1 );
-                        continue; 
-                    }
-                    $s.=$c;
-                    $offset++;
-                    $c = substr( $text,$offset,1 );
-                }
-                if( $c != "'" ) {
-                    throw new ParseException( "Unterminated string literal", $text, $toff );
-                }
-                $tokens []= [ $toff, "STR", $s ];
-                $offset++; // consume ending quote
-                continue;
-            }
-            # first char must be alpha or underscore, others may include numbers
-            if( preg_match( "/^[a-zA-Z_]$/", $c )) {
-                $s = "";
-                while( preg_match( "/^[a-zA-Z0-9_]$/",$c) && $offset<$len ) {
-                    $s.=$c;
-                    $offset++;
-                    $c = substr( $text,$offset,1 );
-                }
-                // reserved words
-                if( $s == "true" ) { 
-                    $tokens []= [ $toff, "BOOL", 1 ];
-                    continue;
-                }
-                if( $s == "false" ) { 
-                    $tokens []= [ $toff, "BOOL", 0 ];
-                    continue;
-                }
-                // some other term
-                $tokens []= [ $toff, "NAME", $s ];
-                continue;
-            }
-
-            // need to look ahead one to work out -> vs - etc.
-            $c2 = substr( $text,$offset, 2);
-            if( $c2=="->" ) { $offset+=2; $tokens []= [ $toff, "FWD" ]; continue; }
-            if( $c2=="<-" ) { $offset+=2; $tokens []= [ $toff, "BACK" ]; continue; }
-            if( $c2=="<>" ) { $offset+=2; $tokens []= [ $toff, "NEQ" ]; continue; }
-            if( $c2=="<=" ) { $offset+=2; $tokens []= [ $toff, "LEQ" ]; continue; }
-            if( $c2==">=" ) { $offset+=2; $tokens []= [ $toff, "GEQ" ]; continue; }
-            if( $c=="-" ) { $offset++; $tokens []= [ $toff, "MIN" ]; continue; }
-            if( $c=="<" ) { $offset++; $tokens []= [ $toff, "LT" ]; continue; }
-            if( $c==">" ) { $offset++; $tokens []= [ $toff, "GT" ]; continue; }
-
-            throw new ParseException( "Unexpected character", $text, $toff );
-        } 
-        return $tokens;
-    }
 }
 
 # operators:

@@ -31,7 +31,7 @@ class LoadReport extends Command
     {
         $docRev = DocumentRevision::query()->orderBy( 'id','desc' )->first();
 
-\Event::listen('Illuminate\Database\Events\QueryExecuted', function ($query) { print $query->sql." - ".json_encode( $query->bindings )."\n"; });
+\Event::listen('Illuminate\Database\Events\QueryExecuted', function ($query) {$i=0;print preg_replace_callback( "/\?/", function($x) use ($query,&$i) { return $query->bindings[$i++]; }, $query->sql )."\n"; });
         
         $loadingReport = $docRev->reportTypeByName( 'loading' );
 

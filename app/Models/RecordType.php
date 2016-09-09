@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Exception;
 use Validator;
-use App\Exceptions\ValidationException;
+use App\Field;
+use App\Exceptions\DataStructValidationException;
 
 class RecordType extends DocumentPart
 {
@@ -35,7 +36,10 @@ class RecordType extends DocumentPart
             if( !is_array( $value ) ) { $value = [$value]; }
         }
     
-        $this->validateRecordData( $data );
+
+        // these need to be checked before we create the record
+        // there is a good argument for making this validation much
+        // smarter and looking and both existing and new links
         $this->validateRecordForwardLinks( $forwardLinks );
         $this->validateRecordBackLinks( $backLinks );
 
@@ -43,6 +47,7 @@ class RecordType extends DocumentPart
         $record->documentRevision()->associate( $this->documentRevision );
         $record->record_type_sid = $this->sid;
         $record->data = json_encode( $data );
+        $record->validateData();
         $record->save();
 
         // we've been through validation so assume this is all OK
@@ -80,7 +85,7 @@ class RecordType extends DocumentPart
         if( !$this->fieldsCache ) { 
             $this->fieldsCache = [];
             foreach( $this->data()["fields"] as $fieldData ) {
-                $this->fieldsCache []= new Field( $fieldData );
+                $this->fieldsCache []= \App\Fields\Field::createFromData( $fieldData );
             }
         }  
         return $this->fieldsCache;
@@ -128,7 +133,7 @@ class RecordType extends DocumentPart
             }
         } 
         if( count($issues ) ) {
-            throw new ValidationException( "Record", "forwardLinks", "", ["forwardLinks"=>$issues] );
+            throw new DataStructValidationException( "Record", "forwardLinks", "", ["forwardLinks"=>$issues] );
         }
     }
 
@@ -164,48 +169,33 @@ class RecordType extends DocumentPart
             }
         } 
         if( count($issues ) ) {
-            throw new ValidationException( "Record", "backLinks", "", ["backLinks"=>$issues] );
+            throw new DataStructValidationException( "Record", "backLinks", "", ["backLinks"=>$issues] );
         }
     }
 
-    // validate data to be passed to a record of this type
-    public function validateRecordData( $data ) {
-        $validationCodes = [];
-        foreach( $this->fields() as $field ) {
-            $validationCodes[$field->data["name"]] = $field->validationCode();
-        }
-
-        $validator = Validator::make( $data, $validationCodes );
-
-        if($validator->fails()) {
-            throw new ValidationException( "Record", "data", $data, $validator->errors() );
-        }
-    }
-
-    public static function validateName($name) {
+    public function validateName() {
 
         $validator = Validator::make(
-        [ 'name' => $name ],
+        [ 'name' => $this->name ],
         [ 'name' => 'required|alpha_dash|min:2|max:255' ]);
 
         if($validator->fails()) {
-            throw new ValidationException( "RecordType", "name", $name, $validator->errors() );
+            throw new DataStructValidationException( "RecordType", "name", $this->name, $validator->errors() );
         }
     }
 
-    public static function validateData($data) {
+    public function validateData() {
 
         $validator = Validator::make(
-          $data,
+          $this->data(),
           [ 'fields' => 'required|array', 
             'fields.*.type' => 'required|in:boolean,integer,decimal,string' ]);
 
         if($validator->fails()) {
-            throw new ValidationException( "RecordType", "data", $data, $validator->errors() );
+            throw new DataStructValidationException( "RecordType", "data", $this->data(), $validator->errors() );
         }
-
-        foreach( $data["fields"] as $fieldData ) {
-            Field::validateData( $fieldData );
+        foreach( $this->fields() as $field ) {
+            $field->validate();
         }
 
     }

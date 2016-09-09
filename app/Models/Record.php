@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use Exception;
+use App\Exceptions\ValidationException;
+use Validator;
 
 
 class Record extends DocumentPart
@@ -21,6 +22,15 @@ class Record extends DocumentPart
         return $this->hasMany( 'App\Models\Link', 'object_sid', 'sid' )->where( 'document_revision_id', $this->document_revision_id );
     }
 
+    // candidate for a trait or something?
+    var $dataCache;
+    public function data() {
+        if( !$this->dataCache ) { 
+            $this->dataCache = json_decode( $this->data, true );
+        }  
+        return $this->dataCache;
+    }
+
     // return a text representation and all associated records 
     // following subject->object direction links only.
     // does not (yet) worry about loops.
@@ -34,6 +44,20 @@ class Record extends DocumentPart
         }
         return $r;
     }
+
+    public function validateData() {
+        $validationCodes = [];
+        foreach( $this->recordType->fields() as $field ) {
+            $validationCodes[$field->data["name"]] = $field->valueValidationCode();
+        }
+
+        $validator = Validator::make( $this->data(), $validationCodes );
+
+        if($validator->fails()) {
+            throw new DataStructValidationException( "Record", "data", $this->data(), $validator->errors() );
+        }
+    }
+
 }
 
 

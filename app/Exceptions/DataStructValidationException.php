@@ -4,7 +4,7 @@ namespace App\Exceptions;
 
 use Exception;
 
-class ValidationException extends Exception
+class DataStructValidationException extends Exception
 {
     protected $classname;
     public $field;

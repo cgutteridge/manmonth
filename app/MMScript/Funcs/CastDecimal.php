@@ -1,6 +1,6 @@
 <?php
 
-namespace App\MMScript\Func;
+namespace App\MMScript\Funcs;
 
 use App\Exceptions\CallException;
 

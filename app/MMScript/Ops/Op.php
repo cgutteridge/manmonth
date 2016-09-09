@@ -1,6 +1,6 @@
 <?php
 
-namespace App\MMScript;
+namespace App\MMScript\Ops;
 
 abstract class Op 
 {
