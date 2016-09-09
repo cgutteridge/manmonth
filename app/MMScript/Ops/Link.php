@@ -29,19 +29,19 @@ class Link extends BinaryOp
         $link = $this->script->documentRevision->linkTypeByName( $linkName );
         if( !$link ) {
             // not sure what type of exception to make this (Script?)
-            throw new ScriptExeception( "Unknown linkname '$linkName'" );
+            throw new ScriptException( "Unknown linkName '$linkName'" );
         }
         
         if( $this->opCode == "FWD" ) {
             // check the domain of this link is the right recordtype
             if( $link->domain_sid != $leftType->sid ) {
-                throw new ScriptExeception( "Domain of $linkname is not ".$leftType->name );
+                throw new ScriptExeception( "Domain of $linkName is not ".$leftType->name );
             } 
             $this->recordType = $link->range;
         } else {
             // backlink, so check range, set type to domain
             if( $link->range_sid != $leftType->sid ) {
-                throw new ScriptExeception( "Range of $linkname is not ".$leftType->name );
+                throw new ScriptExeception( "Range of $linkName is not ".$leftType->name );
             } 
             $this->recordType = $link->domain;
         }

@@ -34,14 +34,21 @@ class Call extends BinaryOp
         return $funcs[$funcName];
     }    
 
+    protected $func;
+    function func() {
+        if( @$this->func ) { return $this->func; }
+         
+        $funcName = $this->left->value;
+        $this->func = self::func( $funcName );
+        if( !$this->func ) {
+            throw new ScriptException( "Unknown function call: $funcName" );
+        }
+        return $this->func;
+    }
     function type() {
         if( @$this->type ) { return $this->type; }
 
-        $funcName = $this->left->value;
-        $func = self::func( $funcName );
-        if( !$func ) {
-            throw new ScriptException( "Unknown function call: $funcName" );
-        }
+        $func = $this->func();
         if( $this->right->type() != "list" ) {
             throw new ScriptException( "$funcName was not passed a list but rather a ".$this->right->type() );
         }
@@ -60,6 +67,7 @@ class Call extends BinaryOp
     // might be needed if a function returns type 'record' later?
     function recordType() {
         if( !$this->type() == "record" ) { return null; }
+        $func = $this->func();
         return $func->recordType( $this->paramTypes() );
     }
 }

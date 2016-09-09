@@ -121,19 +121,19 @@ print $script->textTree();
             $link = $this->documentRevision->linkTypeByName( $linkName );
             if( !$link ) {
                 // not sure what type of exception to make this (Script?)
-                throw new Exeception( "Unknown linkname in context '$linkName'" );
+                throw new Exeception( "Unknown linkName in context '$linkName'" );
             }
             
             if( $fwd ) {
                 // check the domain of this link is the right recordtype
                 if( $link->domain_sid != $iterativeRecordType->sid ) {
-                    throw new Exeception( "Domain of $linkname is not ".$iterativeRecordType->name );
+                    throw new Exeception( "Domain of $linkName is not ".$iterativeRecordType->name );
                 } 
                 $iterativeRecordType = $link->range;
             } else {
                 // backlink, so check range, set type to domain
                 if( $link->range_sid != $iterativeRecordType->sid ) {
-                    throw new Exeception( "Range of $linkname is not ".$iterativeRecordType->name );
+                    throw new Exeception( "Range of $linkName is not ".$iterativeRecordType->name );
                 } 
                 $iterativeRecordType = $link->domain;
             }

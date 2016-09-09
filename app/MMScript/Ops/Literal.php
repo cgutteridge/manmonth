@@ -12,7 +12,7 @@ class Literal extends Op
     }
 
     public function type() {
-        if( @$self->type ) { return $self->type; }
+        if( @$this->type ) { return $this->type; }
         $map = ['STR'=>'string','DEC'=>'decimal','INT'=>'integer','BOOL'=>'boolean'];
         $this->type = $map[ $this->opCode ];
         return $this->type;

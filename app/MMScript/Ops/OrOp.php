@@ -19,4 +19,3 @@ class OrOp extends BinaryOp
         throw new ScriptException( "Can't OR $lt and $rt" );
     }
 }
-}

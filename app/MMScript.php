@@ -264,8 +264,6 @@ class MMScript
         $this->offset++; // consume close bracket
 
         return new MMScript\Ops\Call( $this, $op, new MMScript\Ops\Name( $this, $op ), $list );
-
-        return $this->compileValue();
     }
  
     # <LIST> = <EXP> [ "," <LIST> ]

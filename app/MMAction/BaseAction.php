@@ -1,11 +1,11 @@
 <?php
 
-namespace App;
+namespace App\MMAction;
 
 // these classes represent the actions that can be performed as a result of
 // a Rule.
 
-abstract class MMAction
+abstract class BaseAction
 {
     // has a name, to use in the rules
     public $name;

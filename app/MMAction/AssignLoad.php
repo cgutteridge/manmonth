@@ -5,7 +5,7 @@ namespace App\MMAction;
 // these classes represent the actions that can be performed as a result of
 // a Rule.
 
-class AssignLoad extends \App\MMAction
+class AssignLoad extends \App\MMAction\BaseAction
 {
     // has a name, to use in the rules
     public $name = 'assign_load';
