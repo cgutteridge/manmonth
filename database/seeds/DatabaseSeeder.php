@@ -109,27 +109,10 @@ class DatabaseSeeder extends Seeder
                 "category"=>"'teaching'",
                 "load"=>'(100 + acttask->acttask_to_task.size * 3) * acttask.ratio'
              ]]);
-
+        // set column name, to actor.name
         // people in the badgers group get 10 units load per penguin 
         // people in the womats group get 3 units load per penguin 
 
-#path to entity (if any)
-#trigger
-#* boolean function
-#action:
-#* set target
-#** target, value
-#* add to target
-#** target, value
-#* multiply target
-#** target, ratio
-#* create loading
-#** value
-#** target
-#** loading category
-#** title
-#params
-#
         $draft->publish();
 
         $draft2 = $doc->createDraftRevision();

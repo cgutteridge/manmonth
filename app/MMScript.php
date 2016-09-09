@@ -19,7 +19,7 @@ class MMScript
         $this->context = $context;
         $compiler = new MMScript\Compiler($this);
         $this->expression = $compiler->compile();
-        $this->type = $this->expression->type($context);
+        $this->type = $this->expression->type();
     }
 
     function textTree()
@@ -32,4 +32,7 @@ class MMScript
         return $this->expression->type();
     }
 
+    function execute($context) {
+        return $this->expression->execute( $context );
+    }
 }

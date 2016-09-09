@@ -10,13 +10,13 @@ class Call extends BinaryOp
 {
     // there's probably a cleverer laravel way of doing this...
     static protected $funcs = [
-          Func\Round::class,
-          Func\Floor::class,
-          Func\Ceil::class,
-          Func\Decimal::class,
-          Func\String::class,
-          Func\Min::class,
-          Func\Max::class,
+        \App\MMScript\Funcs\Round::class,
+        \App\MMScript\Funcs\Floor::class,
+        \App\MMScript\Funcs\Ceil::class,
+        \App\MMScript\Funcs\CastDecimal::class,
+        \App\MMScript\Funcs\CastString::class,
+        \App\MMScript\Funcs\Min::class,
+        \App\MMScript\Funcs\Max::class,
     ];
 
     static protected $funcCache;
@@ -29,7 +29,7 @@ class Call extends BinaryOp
         }
         return self::$funcCache; 
     }
-    public static function func( $funcName ) {
+    public static function funcFactory( $funcName ) {
         $funcs = self::funcs();
         return $funcs[$funcName];
     }    
@@ -39,7 +39,7 @@ class Call extends BinaryOp
         if( @$this->func ) { return $this->func; }
          
         $funcName = $this->left->value;
-        $this->func = self::func( $funcName );
+        $this->func = self::funcFactory( $funcName );
         if( !$this->func ) {
             throw new ScriptException( "Unknown function call: $funcName" );
         }
@@ -69,5 +69,14 @@ class Call extends BinaryOp
         if( !$this->type() == "record" ) { return null; }
         $func = $this->func();
         return $func->recordType( $this->paramTypes() );
+    }
+
+    function execute( $context ) {
+        $params = [];
+        foreach( $this->right->param as $op ) {
+            $params []= $op->execute($context);
+        }
+
+        return $this->func()->execute( $params );
     }
 }

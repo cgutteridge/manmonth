@@ -2,7 +2,11 @@
 
 namespace App\MMScript\Ops;
 
-use App\Exceptions\ScriptException;
+use App\Exceptions\MMScriptRuntimeException;
+use App\MMScript\Values\BooleanValue;
+use App\MMScript\Values\DecimalValue;
+use App\MMScript\Values\IntegerValue;
+use App\MMScript\Values\StringValue;
 
 class Literal extends Op
 {
@@ -16,5 +20,20 @@ class Literal extends Op
         $map = ['STR'=>'string','DEC'=>'decimal','INT'=>'integer','BOOL'=>'boolean'];
         $this->type = $map[ $this->opCode ];
         return $this->type;
+    }
+
+    function execute($context)
+    {
+        switch( $this->type() ) {
+            case "integer":
+                return new IntegerValue($this->value);
+            case "decimal":
+                return new DecimalValue($this->value);
+            case "boolean":
+                return new BooleanValue($this->value);
+            case "string":
+                return new StringValue($this->value);
+        }
+        throw new MMScriptRuntimeException( "Literal of literally unknown type: ".$this->type());
     }
 }

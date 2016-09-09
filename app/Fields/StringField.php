@@ -2,6 +2,9 @@
 
 namespace App\Fields;
 
+use App\MMScript\Values\StringValue;
+use App\MMScript\Values\NullValue;
+
 class StringField extends Field
 {
     // return the laravel validate code to validate a value for this field
@@ -17,6 +20,14 @@ class StringField extends Field
         ]);
     }
 
-
+    public function makeValue( $value ) {
+        if( !isset( $value )) {
+            if( isset( $this->data["default"])) {
+                return new StringValue( $this->data["default"] );
+            }
+            return new NullValue();
+        }
+        return new StringValue( $value );
+    }
 }
 

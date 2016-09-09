@@ -3,6 +3,7 @@
 namespace App\MMScript\Ops;
 
 use App\Exceptions\ScriptException;
+use App\MMScript\Values\RecordValue;
 
 class Link extends BinaryOp
 {
@@ -48,5 +49,23 @@ class Link extends BinaryOp
 
         $this->type = $this->recordType->name;
         return $this->recordType;
+    }
+
+    function execute($context)
+    {
+        // okay what to do?
+        // get the model which is at the other end of a forward/back link
+        // of the given type
+        // assuming there's only one
+        // so...
+        $record = $this->left->execute($context)->value;
+        $linkName = $this->right->execute($context)->value;
+        // hopefully there's one and only one...
+        if( $this->opCode == "FWD" ) {
+            $linkedRecords = $record->forwardLinkedRecords($linkName);
+        } else {
+            $linkedRecords = $record->backLinkedRecords($linkName);
+        }
+        return new RecordValue( $linkedRecords[0] );
     }
 }

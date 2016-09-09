@@ -3,6 +3,7 @@
 namespace App\MMScript\Ops;
 
 use App\Exceptions\ScriptException;
+use App\MMScript\Values\BooleanValue;
 
 class AndOp extends BinaryOp
 {
@@ -17,5 +18,13 @@ class AndOp extends BinaryOp
         }
 
         throw new ScriptException( "Can't AND $lt and $rt" );
+    }
+
+    function execute( $context )
+    {
+        $leftValue = $this->left->execute($context)->value;
+        $rightValue = $this->right->execute($context)->value;
+
+        return new BooleanValue( $leftValue && $rightValue );
     }
 }

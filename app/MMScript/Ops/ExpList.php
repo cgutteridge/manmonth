@@ -3,6 +3,7 @@
 namespace App\MMScript\Ops;
 
 use App\Exceptions\ScriptException;
+use App\Exceptions\MMScriptRuntimeException;
 
 # list of expressions
 class ExpList extends UnaryOp
@@ -18,4 +19,10 @@ class ExpList extends UnaryOp
     # hard wired type
     var $type = "list";
     public function type() { return "list"; }
+
+    function execute( $context ) {
+        throw new MMScriptRuntimeException( "ExpList should not be executed");
+        // maybe later we can do something smart with lists as their own type
+    }
+
 }

@@ -17,8 +17,12 @@ abstract class Op
         $this->value = @$op[2];
     }
 
+    public abstract function type();
+
     public function treeText( $prefix = "" ) {
         $r = $prefix.get_class( $this )." :: ".$this->opCode." -> ".@$this->value." [".@$this->type()."]\n";
         return $r;
-    } 
+    }
+
+    public abstract function execute( $context );
 }

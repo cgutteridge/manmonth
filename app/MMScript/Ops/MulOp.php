@@ -3,6 +3,8 @@
 namespace App\MMScript\Ops;
 
 use App\Exceptions\ScriptException;
+use App\MMScript\Values\DecimalValue;
+use App\MMScript\Values\IntegerValue;
 
 class MulOp extends BinaryOp
 {
@@ -24,5 +26,21 @@ class MulOp extends BinaryOp
         }
 
         throw new ScriptException( "Can't ".$this->opCode." $lt and $rt" );
+    }
+
+    function execute( $context )
+    {
+        $leftValue = $this->left->execute($context)->value;
+        $rightValue = $this->right->execute($context)->value;
+
+        if( $this->opCode == 'MUL') {
+            $newValue = $leftValue * $rightValue;
+        } else {
+            $newValue = $leftValue / $rightValue;
+        }
+        if( $this->type() == 'decimal') {
+            return new DecimalValue( $newValue );
+        }
+        return new IntegerValue( $newValue );
     }
 }

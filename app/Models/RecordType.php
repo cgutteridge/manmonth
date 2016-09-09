@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use Exception;
-use Validator;
-use App\Field;
+use /** @noinspection PhpUndefinedClassInspection */
+    Validator;
 use App\Exceptions\DataStructValidationException;
 
 class RecordType extends DocumentPart

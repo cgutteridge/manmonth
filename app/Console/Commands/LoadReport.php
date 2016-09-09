@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\DocumentRevision;
-use App\MMScript;
 
 class LoadReport extends Command
 {
@@ -31,7 +30,7 @@ class LoadReport extends Command
     {
         $docRev = DocumentRevision::query()->orderBy( 'id','desc' )->first();
 
-\Event::listen('Illuminate\Database\Events\QueryExecuted', function ($query) {$i=0;print preg_replace_callback( "/\?/", function($x) use ($query,&$i) { return $query->bindings[$i++]; }, $query->sql )."\n"; });
+# \Event::listen('Illuminate\Database\Events\QueryExecuted', function ($query) {$i=0;print preg_replace_callback( "/\?/", function($x) use ($query,&$i) { return $query->bindings[$i++]; }, $query->sql )."\n"; });
         
         $loadingReport = $docRev->reportTypeByName( 'loading' );
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Exception;
+use App\Exceptions\DataStructValidationException;
 use Validator;
 
 class ReportType extends DocumentPart
@@ -71,9 +72,6 @@ class ReportType extends DocumentPart
     }
 
 
-
-    /////
-  
     // run this report type on the current document revision and produce a report object
     function report($options = []) {
         $records = $this->baseRecordType()->records;
@@ -85,19 +83,20 @@ class ReportType extends DocumentPart
     }
 
     function recordReport( $record ) {
-        $rreport = [ "data"=>$record->data, "targets"=>[], "loads"=>[] ];
+        $rreport = [
+            "data"=>$record->data,
+            "targets"=>[],
+            "loads"=>[],
+            "columns"=>[],
+        ];
         // for each rule get all possible contexts based on this record and the rule type 'route' 
         // then apply the rule 
         foreach( $this->rules as $rule ) {
             // apply this rule to every possible context based on the route
-            print "Applying ".json_encode( $rule )." to ".json_encode( $record->data )."\n";
             $rule->apply( $record, $rreport );
         }
         return $rreport;
     }
-
-
-
 
 }
 

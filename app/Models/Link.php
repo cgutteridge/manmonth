@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use Exception;
-
 class Link extends DocumentPart
 {
     public function linkType()

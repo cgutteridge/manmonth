@@ -2,6 +2,9 @@
 
 namespace App\Fields;
 
+use App\MMScript\Values\DecimalValue;
+use App\MMScript\Values\NullValue;
+
 class DecimalField extends Field
 {
     // return the laravel validate code to validate a value for this field
@@ -20,7 +23,16 @@ class DecimalField extends Field
           'default' => 'numeric',
         ]);
     }
+    public function makeValue( $value ) {
+        if (!isset($value)) {
 
+            if( isset( $this->data["default"])) {
+            return new DecimalValue( $this->data["default"] );
+        }
+        return new NullValue();
+    }
+        return new DecimalValue( $value );
+    }
 
 }
 

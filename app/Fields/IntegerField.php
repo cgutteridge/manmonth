@@ -2,6 +2,9 @@
 
 namespace App\Fields;
 
+use App\MMScript\Values\IntegerValue;
+use App\MMScript\Values\NullValue;
+
 class IntegerField extends Field
 {
     // return the laravel validate code to validate a value for this field
@@ -21,6 +24,14 @@ class IntegerField extends Field
         ]);
     }
 
-
+    public function makeValue( $value ) {
+        if (!isset($value)) {
+            if( isset( $this->data["default"])) {
+            return new IntegerValue( $this->data["default"] );
+          }
+          return new NullValue();
+        }
+        return new IntegerValue( $value );
+    }
 }
 

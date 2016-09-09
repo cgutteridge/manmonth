@@ -3,6 +3,8 @@
 namespace App\MMScript\Ops;
 
 use App\Exceptions\ScriptException;
+use App\Exceptions\MMScriptRuntimeException;
+use App\MMScript\Values\NameValue;
 
 class Name extends Op
 {
@@ -14,4 +16,9 @@ class Name extends Op
     # hard wired type
     var $type = "name";
     public function type() { return "name"; }
+
+    function execute( $context )
+    {
+        return new NameValue( $this->value );
+    }
 }

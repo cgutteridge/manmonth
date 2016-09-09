@@ -3,6 +3,8 @@
 namespace App\MMScript\Ops;
 
 use App\Exceptions\ScriptException;
+use App\MMScript\Values\DecimalValue;
+use App\MMScript\Values\IntegerValue;
 
 class PowOp extends BinaryOp
 {
@@ -24,4 +26,17 @@ class PowOp extends BinaryOp
 
         throw new ScriptException( "Can't POW $lt and $rt" );
     }
+
+    function execute( $context )
+    {
+        $leftValue = $this->left->execute($context)->value;
+        $rightValue = $this->right->execute($context)->value;
+        $newValue = $leftValue ^ $rightValue;
+        if( $this->type() == 'decimal') {
+            return new DecimalValue( $newValue );
+        }
+        return new IntegerValue( $newValue );
+
+    }
+
 }
