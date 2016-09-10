@@ -79,7 +79,7 @@ class ReportType extends DocumentPart
         foreach( $records as $record ) {
             $report["records"][$record->sid] = $this->recordReport( $record );
         }
-        dd(242);
+        return $report;
     }
 
     function recordReport( $record ) {
@@ -87,6 +87,8 @@ class ReportType extends DocumentPart
             "data"=>$record->data,
             "targets"=>[],
             "loads"=>[],
+            "totals"=>[],
+            "log"=>[],
             "columns"=>[],
         ];
         // for each rule get all possible contexts based on this record and the rule type 'route' 

@@ -1,42 +1,46 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: cjg
+ * Date: 10/09/2016
+ * Time: 19:53
+ */
 
 namespace App\MMAction;
 
 // these classes represent the actions that can be performed as a result of
 // a Rule.
 
-use App\Exceptions\ReportingException;
-
-class AlterTarget extends AbstractAction
+class SetDecimalColumn extends AbstractAction
 {
     // has a name, to use in the rules
-    public $name = 'alter_target';
+    public $name = 'set_decimal_column';
 
     // has some parameters with an ordered name & type and human
     // readable title etc.
     public $params = [
-        [ 
-            "name"=>"target",
+        [
+            "name"=>"column",
             "type"=>"string",
             "required"=>true,
         ],
-        [ 
-            "name"=>"change",
+        [
+            "name"=>"value",
             "type"=>"decimal",
             "required"=>true,
         ],
-        [ 
+        [
             "name"=>"description",
             "type"=>"string",
         ],
     ];
 
-
-    public function execute( &$rreport, $params ) {
-        if( !isset($rreport["targets"][$params["target"]])) {
-            throw new ReportingException( "Attempt to scale uninitialised target '".$params["target"]."'");
-        }
-        $rreport["targets"][$params["target"]] += $params["change"];
+    /**
+     * @param array $rreport
+     * @param $params
+     */
+    public function execute(&$rreport, $params ) {
+        $rreport["columns"][$params["column"]] = $params["value"];
         $this->recordLog( $rreport, $params );
     }
 }

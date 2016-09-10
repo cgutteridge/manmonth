@@ -22,6 +22,10 @@ class Document extends Model
 
     // This is a major workhorse function. It copies all the relevant data into a new revision. 
     // Rows get a new ID but maintain their 'sid' value and this is used for relationships.
+    /**
+     * @return DocumentRevision
+     * @throws Exception
+     */
     public function createDraftRevision()
     {
         // if there's already a draft throw an exception
@@ -41,6 +45,7 @@ class Document extends Model
             $current->links,
             $current->linkTypes,
             $current->rules );
+        // reports are a document part but belong to a single revision
       
         foreach( $partLists as $partList ) {
             foreach( $partList as $part ) {

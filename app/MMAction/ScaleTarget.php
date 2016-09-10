@@ -5,6 +5,8 @@ namespace App\MMAction;
 // these classes represent the actions that can be performed as a result of
 // a Rule.
 
+use App\Exceptions\ReportingException;
+
 class ScaleTarget extends AbstractAction
 {
     // has a name, to use in the rules
@@ -30,6 +32,10 @@ class ScaleTarget extends AbstractAction
     ];
 
     public function execute( &$rreport, $params ) {
-        die( "Todo4" );
+        if( !isset($rreport["targets"][$params["target"]])) {
+            throw new ReportingException( "Attempt to scale uninitialised target '".$params["target"]."'");
+        }
+        $rreport["targets"][$params["target"]] *= $params["factor"];
+        $this->recordLog( $rreport, $params );
     }
 }

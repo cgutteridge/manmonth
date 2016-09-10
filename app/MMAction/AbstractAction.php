@@ -47,6 +47,13 @@ abstract class AbstractAction
         }
     }
 
-
+    /**
+     * @param $rreport - report to write log to
+     * @param $params - params for the action to be logged
+     */
+    protected function recordLog(&$rreport, $params)
+    {
+        $rreport["log"][] = [ "action"=>$this->name, "params"=>$params ];
+    }
 
 }

@@ -33,6 +33,8 @@ class Rule extends DocumentPart
         \App\MMAction\ScaleTarget::class,
         \App\MMAction\AssignLoad::class,
         \App\MMAction\Debug::class,
+        \App\MMAction\SetStringColumn::class,
+        \App\MMAction\SetDecimalColumn::class,
     ];
 
     /**
@@ -333,7 +335,7 @@ class Rule extends DocumentPart
             $paramCode = @$this->data()["params"][$fieldName];
             if( !isset($paramCode) ) { continue; }
             $script = $this->script( $paramCode );
-            $params[ $fieldName ] = $script->execute( $context );
+            $params[ $fieldName ] = $script->execute( $context )->value;
         }
         $action->execute( $rreport, $params );
     }

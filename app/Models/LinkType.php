@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
-use Exception;
 use Validator;
 use App\Exceptions\DataStructValidationException;
 
+/**
+ * @property DocumentRevision documentRevision
+ */
 class LinkType extends DocumentPart
 {
     public function domain() {

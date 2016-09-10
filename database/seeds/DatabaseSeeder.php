@@ -19,34 +19,34 @@ class DatabaseSeeder extends Seeder
 
         // add schema
 
-        $actorType = $draft->createRecordType( "actor", array( 
-          "fields"=>array( 
-              array( "name"=>"name", "type"=>"string", "required"=>true ),
-              array( "name"=>"group", "type"=>"string" ),
-              array( "name"=>"penguins", "type"=>"decimal" ),
-              array( "name"=>"newbie", "type"=>"boolean", "default"=>false ),
-          )
-        ));
-        $taskType = $draft->createRecordType( "task", array( 
-          "fields"=>array( 
-              array( "name"=>"name", "type"=>"string", "required"=>true ),
-              array( "name"=>"size", "type"=>"integer", "required"=>true ),
-              array( "name"=>"new", "type"=>"boolean", "default"=>false ),
-          )
-        ));
-        $atType = $draft->createRecordType( "acttask", array(
-          "fields"=>array( 
-              array( "name"=>"type", "type"=>"string", "required"=>true ),
-              array( "name"=>"ratio", "type"=>"decimal", "default"=>1.0, ),
-          )
-        ));
-	$actorToActorTask = $draft->createLinkType( 'actor_to_acttask', $actorType, $atType, [ 
-		'range_min'=>1, 
-		'range_max'=>1, 
+        $actorType = $draft->createRecordType( "actor", [
+          "fields"=> [
+              ["name"=>"name", "type"=>"string", "required"=>true],
+              ["name"=>"group", "type"=>"string"],
+              ["name"=>"penguins", "type"=>"decimal"],
+              ["name"=>"newbie", "type"=>"boolean", "default"=>false],
+          ]
         ]);
-	$actorTaskToTask = $draft->createLinkType( 'acttask_to_task', $atType, $taskType, [ 
-		'domain_min'=>1, 
-		'domain_max'=>1, 
+        $taskType = $draft->createRecordType( "task", [
+          "fields"=> [
+              ["name"=>"name", "type"=>"string", "required"=>true],
+              ["name"=>"size", "type"=>"integer", "required"=>true],
+              ["name"=>"new", "type"=>"boolean", "default"=>false],
+          ]
+        ]);
+        $atType = $draft->createRecordType( "acttask", [
+          "fields"=> [
+              ["name"=>"type", "type"=>"string", "required"=>true],
+              ["name"=>"ratio", "type"=>"decimal", "default"=>1.0,],
+          ]
+        ]);
+	    $draft->createLinkType( 'actor_to_acttask', $actorType, $atType, [
+	    	'range_min'=>1,
+	    	'range_max'=>1,
+        ]);
+	    $draft->createLinkType( 'acttask_to_task', $atType, $taskType, [
+	    	'domain_min'=>1,
+	    	'domain_max'=>1,
         ]);
 
         // Add records
@@ -59,16 +59,16 @@ class DatabaseSeeder extends Seeder
         $big = $taskType->createRecord( [ "name"=>"Big Job", "size"=>100 ]);
         $misc = $taskType->createRecord( [ "name"=>"Misc Job", "size"=>100 ]);
 
-	$atType->createRecord( [ "type"=>"leads" ], [ 'acttask_to_task'=>[$big] ],[ 'actor_to_acttask'=>[$alice] ] );
-	$atType->createRecord( [ "type"=>"works" ], [ 'acttask_to_task'=>[$big] ],[ 'actor_to_acttask'=>[$alice] ] );
+        $atType->createRecord( [ "type"=>"leads" ], [ 'acttask_to_task'=>[$big] ],[ 'actor_to_acttask'=>[$alice] ] );
+        $atType->createRecord( [ "type"=>"works" ], [ 'acttask_to_task'=>[$big] ],[ 'actor_to_acttask'=>[$alice] ] );
 
-	$atType->createRecord( [ "type"=>"leads" ], [ 'acttask_to_task'=>[$small] ],[ 'actor_to_acttask'=>[$alice] ] );
-	$atType->createRecord( [ "type"=>"works","ratio"=>0.5 ], [ 'acttask_to_task'=>[$small] ],[ 'actor_to_acttask'=>[$alice] ] );
-	$atType->createRecord( [ "type"=>"works","ratio"=>0.5 ], [ 'acttask_to_task'=>[$small] ],[ 'actor_to_acttask'=>[$bobby] ] );
+        $atType->createRecord( [ "type"=>"leads" ], [ 'acttask_to_task'=>[$small] ],[ 'actor_to_acttask'=>[$alice] ] );
+        $atType->createRecord( [ "type"=>"works","ratio"=>0.5 ], [ 'acttask_to_task'=>[$small] ],[ 'actor_to_acttask'=>[$alice] ] );
+        $atType->createRecord( [ "type"=>"works","ratio"=>0.5 ], [ 'acttask_to_task'=>[$small] ],[ 'actor_to_acttask'=>[$bobby] ] );
 
-	$atType->createRecord( [ "type"=>"leads" ], [ 'acttask_to_task'=>[$misc] ],[ 'actor_to_acttask'=>[$clara] ] );
-	$atType->createRecord( [ "type"=>"works","ratio"=>0.8 ], [ 'acttask_to_task'=>[$misc] ],[ 'actor_to_acttask'=>[$clara] ] );
-	$atType->createRecord( [ "type"=>"works","ratio"=>0.2 ], [ 'acttask_to_task'=>[$misc] ],[ 'actor_to_acttask'=>[$bobby] ] );
+        $atType->createRecord( [ "type"=>"leads" ], [ 'acttask_to_task'=>[$misc] ],[ 'actor_to_acttask'=>[$clara] ] );
+        $atType->createRecord( [ "type"=>"works","ratio"=>0.8 ], [ 'acttask_to_task'=>[$misc] ],[ 'actor_to_acttask'=>[$clara] ] );
+        $atType->createRecord( [ "type"=>"works","ratio"=>0.2 ], [ 'acttask_to_task'=>[$misc] ],[ 'actor_to_acttask'=>[$bobby] ] );
 
         // add rules
 
@@ -104,14 +104,53 @@ class DatabaseSeeder extends Seeder
             "trigger"=>"acttask.type='works'",
             "action"=>"assign_load", 
             "params"=>[ 
-                "title"=>'\'Working on \'+acttask->acttask_to_task.name',
+                "description"=>'\'Working on \'+acttask->acttask_to_task.name',
                 "target"=>"'loading'", 
                 "category"=>"'teaching'",
                 "load"=>'(100 + acttask->acttask_to_task.size * 3) * acttask.ratio'
              ]]);
-        // set column name, to actor.name
-        // people in the badgers group get 10 units load per penguin 
-        // people in the womats group get 3 units load per penguin 
+
+        // people in the badgers group get 10 units load per penguin
+        $loadingReportType->createRule( [
+            "title"=>"Penguin load for badgers",
+            "trigger"=>"actor.group='badgers'",
+            "action"=>"assign_load",
+            "params"=>[
+                "description"=>"'Penguin load for badgers'",
+                "target"=>"'loading'",
+                "category"=>"'penguin'",
+                "load"=>'10 * actor.penguins'
+            ]]);
+
+        // people in the womats group get 3 units load per penguin
+        $loadingReportType->createRule( [
+            "title"=>"Penguin load for wombats",
+            "trigger"=>"actor.group='wombats'",
+            "action"=>"assign_load",
+            "params"=>[
+                "description"=>"'Penguin load for wombats'",
+                "target"=>"'loading'",
+                "category"=>"'penguin'",
+                "load"=>'3 * actor.penguins'
+            ]]);
+
+        // set column 'name', to actor.name
+        $loadingReportType->createRule( [
+            "title"=>"Set name column",
+            "action"=>"set_string_column",
+            "params"=>[
+                "column"=>"'name'",
+                "value"=>'actor.name'
+            ]]);
+        // set column 'group', to actor.group
+        $loadingReportType->createRule( [
+            "title"=>"Set name column",
+            "action"=>"set_string_column",
+            "params"=>[
+                "column"=>"'group'",
+                "value"=>'actor.group'
+            ]]);
+
 
         $draft->publish();
 

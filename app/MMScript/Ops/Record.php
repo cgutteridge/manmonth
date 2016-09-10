@@ -20,7 +20,7 @@ class Record extends Op
     function recordType() {
         if( @$this->recordType ) { return $this->recordType; }
         if( !@$this->script->context[ $this->value ] ) {
-            throw new ScriptException( "Can't see record type reference '".$this->value."' in script context. Valid terms are ".join( ", ", array_keys( $this->script->context ) )."." );
+            throw new ScriptException( "Reference to non-existant item '".$this->value."' in the context of this script. Valid names are: ".join( ", ", array_keys( $this->script->context ) ).". ".$this->script->text );
         }
         $this->recordType = $this->script->context[ $this->value ];
         return $this->recordType;

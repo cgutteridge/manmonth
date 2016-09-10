@@ -34,7 +34,16 @@ class AssignLoad extends AbstractAction
     ];
 
 
-    public function execute( &$rreport, $params ) {
-        die( "Todo12" );
+    /**
+     * @param array $rreport
+     * @param $params
+     */
+    public function execute(&$rreport, $params ) {
+        $rreport["loads"][] = $params;
+        if( !isset($rreport["totals"][$params["target"]])) {
+            $rreport["totals"][$params["target"]] = 0;
+        }
+        $rreport["totals"][$params["target"]] += $params["load"];
+        $this->recordLog( $rreport, $params );
     }
 }
