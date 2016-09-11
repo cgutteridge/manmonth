@@ -8,6 +8,8 @@
 
 namespace App\MMAction;
 
+use App\RecordReport;
+
 // these classes represent the actions that can be performed as a result of
 // a Rule.
 
@@ -36,11 +38,11 @@ class SetStringColumn extends AbstractAction
     ];
 
     /**
-     * @param array $rreport
+     * @param RecordReport $recordReport
      * @param $params
      */
-    public function execute(&$rreport, $params ) {
-        $rreport["columns"][$params["column"]] = $params["value"];
-        $this->recordLog( $rreport, $params );
+    public function execute($recordReport, $params ) {
+        $recordReport->setColumn( $params["column"], $params["value"] );
+        $this->recordLog( $recordReport, $params );
     }
 }

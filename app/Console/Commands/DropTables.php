@@ -1,6 +1,6 @@
 <?php namespace App\Console\Commands;
 
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
 
 class DropTables extends Command
@@ -44,7 +44,7 @@ class DropTables extends Command
         $colname = 'Tables_in_' . env('DB_DATABASE');
 
         $tables = DB::select('SHOW TABLES');
-
+        $droplist = [];
         foreach($tables as $table) {
 
             $droplist[] = $table->$colname;

@@ -3,20 +3,35 @@
 namespace App\Models;
 
 use App\Exceptions\DataStructValidationException;
+use App\Fields\Field;
 use App\MMAction\AbstractAction;
+use App\MMAction\AlterTarget;
+use App\MMAction\AssignLoad;
+use App\MMAction\ScaleTarget;
+use App\MMAction\SetDecimalColumn;
+use App\MMAction\SetStringColumn;
+use App\MMAction\SetTarget;
+use App\MMScript;
+use App\RecordReport;
 use Exception;
-use Validator;
-use DB;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 /**
  * Class Rule
  * @property DocumentRevision documentRevision
+ * @property int rank
+ * @property ReportType reportType
+ * @property int report_type_sid
+ * @property array data
+ * @property int document_revision_id
  * @package App\Models
  */
 class Rule extends DocumentPart
 {
     /**
-     * @return \App\Models\ReportType
+     * Relationship
+     * @return ReportType
      */
     public function reportType()
     {
@@ -28,13 +43,12 @@ class Rule extends DocumentPart
      * @var array
      */
     static protected $actions = [
-        \App\MMAction\SetTarget::class,
-        \App\MMAction\AlterTarget::class,
-        \App\MMAction\ScaleTarget::class,
-        \App\MMAction\AssignLoad::class,
-        \App\MMAction\Debug::class,
-        \App\MMAction\SetStringColumn::class,
-        \App\MMAction\SetDecimalColumn::class,
+        SetTarget::class,
+        AlterTarget::class,
+        ScaleTarget::class,
+        AssignLoad::class,
+        SetStringColumn::class,
+        SetDecimalColumn::class,
     ];
 
     /**
@@ -59,8 +73,8 @@ class Rule extends DocumentPart
     }
 
     /**
-     * @param $actionName
-     * @return array
+     * @param string $actionName
+     * @return \App\MMAction\AbstractAction
      */
     public static function actionFactory($actionName)
     {
@@ -70,7 +84,7 @@ class Rule extends DocumentPart
 
     // candidate for a trait or something?
     /**
-     * @var
+     * @var array;
      */
     var $dataCache;
 
@@ -122,6 +136,7 @@ class Rule extends DocumentPart
             }
         }
         $action = $this->getAction();
+        /** @var Field $field */
         foreach ($action->fields as $field) {
             if (!array_key_exists($field->data["name"], $this->data()["params"])) {
                 if ($field->required()) {
@@ -158,9 +173,14 @@ class Rule extends DocumentPart
     }
 
     protected $scripts=[];
-    function script( $scriptText ) {
+
+    /**
+     * @param string $scriptText
+     * @return MMScript
+     */
+    function script($scriptText ) {
         if( isset( $this->scripts[$scriptText] ) ) { return $this->scripts[$scriptText]; }
-        $this->scripts[$scriptText] = new \App\MMScript( $scriptText, $this->documentRevision, $this->abstractContext() );
+        $this->scripts[$scriptText] = new MMScript( $scriptText, $this->documentRevision, $this->abstractContext() );
         return $this->scripts[$scriptText];
     }
 
@@ -169,6 +189,7 @@ class Rule extends DocumentPart
     // not specific records and links
     /**
      * @return array
+     * @throws Exception
      */
     public function abstractContext() {
         if( isset($this->abstractContext)) { return $this->abstractContext; }
@@ -226,31 +247,30 @@ class Rule extends DocumentPart
     }
 
     /**
-     * @param $record
-     * @param $rreport
+     * @param Record $record
+     * @param RecordReport $recordReport
      */
-    public function apply($record, &$rreport ) {
+    public function apply($record, $recordReport ) {
         $context = [];
         $baseRecordType = $this->reportType->baseRecordType();
         $context[$baseRecordType->name] = $record;
         $route = [];
         if( isset($this->data()['route']) ) { $route = $this->data()['route']; }
-        $this->applyToRoute( $record, $rreport, $context, $route, $record );
+        $this->applyToRoute( $recordReport, $context, $route, $record );
     }
 
     // recursive function used to apply this rule to the record for every context possible with the given route
 
     /**
-     * @param \App\Models\Record $record - the record on which we are making a report
-     * @param mixed[] $rreport - the report to write to for this record
+     * @param RecordReport $recordReport - the report to write to for this record
      * @param array $context - the context of the route followed so far
      * @param array $route - the remaining route to follow to complete the context
-     * @param \App\Models\Record $focusObject - the object to which the remaining route applies
+     * @param Record $focusObject - the object to which the remaining route applies
      * @throws Exception
      */
-    private function applyToRoute($record, &$rreport, $context, $route, $focusObject ) {
+    private function applyToRoute($recordReport, $context, $route, $focusObject ) {
         if( sizeof($route) == 0 ) {
-            $this->applyToContext($record, $rreport, $context);
+            $this->applyToContext($recordReport, $context);
             return;
         }
 
@@ -301,32 +321,32 @@ class Rule extends DocumentPart
             $nextFocusObject = $this->documentRevision->records()->where( 'sid','=', $sid )->first();
 
             $context[$nextTypeName] = $nextFocusObject;
-            $this->applyToRoute($record, $rreport, $context, $route, $nextFocusObject );
+            $this->applyToRoute( $recordReport, $context, $route, $nextFocusObject );
         }
     }
 
     /**
-     * @param $record
-     * @param $rreport
-     * @param $context
+     * @param RecordReport $recordReport
+     * @param array $context
      */
-    private function applyToContext($record, &$rreport, $context)
+    private function applyToContext($recordReport, $context)
     {
+        /*
         print "RUNNING RULE: ".$this->sid."\n";
         foreach( $context as $key=>$value ) {
             print "  | CONTEXT[$key] = ".$value->id."\n";
         }
+        */
         if( isset($this->data()["trigger"]) ) {
             $trigger = $this->script($this->data()["trigger"]);
-            print "   * testing trigger: ".$this->data()["trigger"]."\n";
+   //         print "   * testing trigger: ".$this->data()["trigger"]."\n";
             $result = $trigger->execute( $context );
             if( !$result->value ) {
-                print "   / FALSE? well onwards!\n";
+     //           print "   / FALSE? well onwards!\n";
                 return;
             }
         }
-        print "   + TRUE or no test... time for action!\n";
-
+   //     print "   + TRUE or no test... time for action!\n";
 
         $action = $this->getAction();
         $params = [];
@@ -337,7 +357,7 @@ class Rule extends DocumentPart
             $script = $this->script( $paramCode );
             $params[ $fieldName ] = $script->execute( $context )->value;
         }
-        $action->execute( $rreport, $params );
+        $action->execute( $recordReport, $params );
     }
 
 }

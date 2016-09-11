@@ -2,18 +2,33 @@
 
 namespace App\Models;
 
-use Exception;
 use App\Exceptions\DataStructValidationException;
-use Validator;
+use Illuminate\Support\Facades\Validator;
+use App\RecordReport;
 
+/**
+ * @property int base_record_type_sid
+ * @property DocumentRevision documentRevision
+ * @property string name
+ * @property int sid
+ * @property array data
+ */
 class ReportType extends DocumentPart
 {
-    public function rules()
-    {
-        return $this->documentRevision->rules()->where( "report_type_sid", $this->sid );
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function rules() {
+        return $this->documentRevision->rules()->getQuery()
+            ->where( "report_type_sid", $this->sid )
+            ->orderBy( 'rank')
+            ->get();
     }
 
     // note that this is NOT a laravel relation
+    /**
+     * @return RecordType
+     */
     public function baseRecordType()
     {
         return $this->documentRevision->recordTypes()->where( "sid", $this->base_record_type_sid )->first();
@@ -21,6 +36,10 @@ class ReportType extends DocumentPart
 
     // candidate for a trait or something?
     var $dataCache;
+
+    /**
+     * @return array
+     */
     public function data() {
         if( !$this->dataCache ) { 
             $this->dataCache = json_decode( $this->data, true );
@@ -28,6 +47,9 @@ class ReportType extends DocumentPart
         return $this->dataCache;
     }
 
+    /**
+     * @throws DataStructValidationException
+     */
     public function validateName() {
 
         $validator = Validator::make(
@@ -38,6 +60,10 @@ class ReportType extends DocumentPart
             throw new DataStructValidationException( "RecordType", "name", $this->name, $validator->errors() );
         }
     }
+
+    /**
+     * @throws DataStructValidationException
+     */
     public function validateData() {
 
         $validator = Validator::make(
@@ -50,11 +76,15 @@ class ReportType extends DocumentPart
         }
     }
 
-    public function createRule( $data ) {
+    /**
+     * @param array $data
+     * @return Rule
+     */
+    public function createRule($data ) {
 
         // all OK, let's make this rule
         $rank = 0;
-        $lastrule = $this->rules()->orderBy( 'rank','desc' )->first();
+        $lastrule = $this->rules()->sortByDesc( 'id' )->first();
         if( $lastrule ) { 
             $rank = $lastrule->rank + 1 ;
         }
@@ -73,31 +103,34 @@ class ReportType extends DocumentPart
 
 
     // run this report type on the current document revision and produce a report object
+    /**
+     * @param array $options
+     * @return Report
+     */
     function report($options = []) {
         $records = $this->baseRecordType()->records;
-        $report = []; // will be an object when I know what shape it is!
+        $report = $this->documentRevision->makeReport(); // will be an object when I know what shape it is!
         foreach( $records as $record ) {
-            $report["records"][$record->sid] = $this->recordReport( $record );
+            $report->recordReports[$record->sid] = $this->recordReport( $record );
         }
         return $report;
     }
 
-    function recordReport( $record ) {
-        $rreport = [
-            "data"=>$record->data,
-            "targets"=>[],
-            "loads"=>[],
-            "totals"=>[],
-            "log"=>[],
-            "columns"=>[],
-        ];
-        // for each rule get all possible contexts based on this record and the rule type 'route' 
-        // then apply the rule 
-        foreach( $this->rules as $rule ) {
+
+    /**
+     * @param Record $record
+     * @return RecordReport
+     */
+    function recordReport($record ) {
+        // for each rule get all possible contexts based on this record and the rule type 'route'
+        // then apply the rule
+        $recordReport = new RecordReport();
+
+        foreach( $this->rules() as $rule ) {
             // apply this rule to every possible context based on the route
-            $rule->apply( $record, $rreport );
+            $rule->apply( $record, $recordReport );
         }
-        return $rreport;
+        return $recordReport;
     }
 
 }

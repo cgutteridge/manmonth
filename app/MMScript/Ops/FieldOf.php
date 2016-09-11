@@ -8,6 +8,8 @@ use App\Exceptions\ScriptException;
 /**
  * Class FieldOf
  * @package App\MMScript\Ops
+ * @param Op left
+ * @param Name right
  */
 class FieldOf extends BinaryOp
 {

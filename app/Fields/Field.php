@@ -3,7 +3,7 @@
 namespace App\Fields;
 
 use Exception;
-use Validator;
+use Illuminate\Support\Facades\Validator;
 use App\Exceptions\DataStructValidationException;
 
 abstract class Field
@@ -11,15 +11,15 @@ abstract class Field
     // need to make this non static? Maybe by making a fieldFactory singleton
     public static function createFromData( $fieldData ) {
         if( $fieldData["type"]=="string" ) {
-            return new \App\Fields\StringField( $fieldData );
+            return new StringField( $fieldData );
         } elseif( $fieldData["type"]=="decimal" ) {
-            return new \App\Fields\DecimalField( $fieldData );
+            return new DecimalField( $fieldData );
         } elseif( $fieldData["type"]=="integer" ) {
-            return new \App\Fields\IntegerField( $fieldData );
+            return new IntegerField( $fieldData );
         } elseif( $fieldData["type"]=="boolean" ) {
-            return new \App\Fields\BooleanField( $fieldData );
+            return new BooleanField( $fieldData );
         } else {
-            throw Exception( "Unknown field type: '".$fieldData["type"]."'" );
+            throw new Exception( "Unknown field type: '".$fieldData["type"]."'" );
         }
     }
 

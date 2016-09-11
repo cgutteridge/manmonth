@@ -4,13 +4,27 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Exception;
+use PhpParser\Comment\Doc;
 
+/**
+ * @property int id
+ */
 class Document extends Model
 {
+    /**
+     * The relationship to the revisions of this document.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function revisions()
+    {
+        return $this->hasMany('App\Models\DocumentRevision');
+    }
 
-    // create an empty current revision. Documents must always have a current revision.
-    // document must be saved before calling
-    public function init() 
+    /**
+     * Create an empty current revision. Documents must always have a current revision.
+     * @throws Exception
+     */
+    public function init()
     {
         if( !$this->id ) { throw new Exception( "Save document before calling init()" ); }
 
@@ -20,9 +34,10 @@ class Document extends Model
         $rev->save();
     }
 
-    // This is a major workhorse function. It copies all the relevant data into a new revision. 
-    // Rows get a new ID but maintain their 'sid' value and this is used for relationships.
+
     /**
+     * This is a major workhorse function. It copies all the relevant data into a new revision.
+     * Rows get a new ID but maintain their 'sid' value and this is used for relationships.
      * @return DocumentRevision
      * @throws Exception
      */
@@ -32,8 +47,10 @@ class Document extends Model
         $draft = $this->draftRevision();
         if( $draft ) { throw new Exception( "Already a draft, can't make another one." ); }
 
-        $current = $this->currentRevision();      
- 
+        /** @var DocumentRevision $current */
+        $current = $this->currentRevision();
+
+        /** @var DocumentRevision $draft */
         $draft = $current->replicate();
         $draft->status = "draft";
         $draft->save();
@@ -48,8 +65,10 @@ class Document extends Model
         // reports are a document part but belong to a single revision
       
         foreach( $partLists as $partList ) {
-            foreach( $partList as $part ) {
-                $newPart = $part->replicate(); 
+            /** @var DocumentPart $part */
+            foreach($partList as $part ) {
+                /** @var DocumentPart $newPart */
+                $newPart = $part->replicate();
                 $newPart->documentRevision()->associate( $draft );
                 $newPart->save();
             }
@@ -58,11 +77,18 @@ class Document extends Model
         return $draft;
     }
 
+    /**
+     * @return DocumentRevision
+     */
     public function draftRevision()
     {
         return $this->revisions()->where( 'status', 'draft' )->first();
     }
 
+    /**
+     * @return DocumentRevision
+     * @throws Exception
+     */
     public function currentRevision()
     {
         // there must always be exactly one current revision so if there isn't
@@ -75,8 +101,5 @@ class Document extends Model
         return $first;
     }
 
-    public function revisions()
-    {
-        return $this->hasMany('App\Models\DocumentRevision');
-    }
+
 }

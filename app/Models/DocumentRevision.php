@@ -2,42 +2,93 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Exception;
 
+/**
+ * @property string status
+ * @property Document document
+ * @property Collection reportTypes
+ * @property Collection records
+ * @property int id
+ */
 class DocumentRevision extends Model
 {
+    /**
+     * The relationship to the document this is a revision of.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function document() { return $this->belongsTo('App\Models\Document'); }
 
+    /**
+     * The relationship to the record types in this revision.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function recordTypes() { return $this->hasMany('App\Models\RecordType'); }
 
+    /**
+     * The relationship to the records in this revision.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function records() { return $this->hasMany('App\Models\Record'); }
 
+    /**
+     * The relationship to the link types in this revision.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function linkTypes() { return $this->hasMany('App\Models\LinkType'); }
 
+    /**
+     * The relationship to the links in this revision.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function links() { return $this->hasMany('App\Models\Link'); }
 
-    // rules are generally ordered by rank 
-    public function rules() { return $this->hasMany('App\Models\Rule')->orderBy( 'rank' ); }
+    /**
+     * Kinda the relationship but with order added.
+     * Needs more thought.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function rules() { return $this->hasMany('App\Models\Rule');  }
 
+    /**
+     * The relationship to the report types in this revision.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function reportTypes() { return $this->hasMany('App\Models\ReportType'); }
-  
-    public function reportTypeByName( $name ) {
+
+    /**
+     * @param string $name
+     * @return ReportType
+     */
+    public function reportTypeByName($name ) {
         return $this->reportTypes()->where( 'name', $name )->first();
     }
 
-    public function recordTypeByName( $name ) {
+    /**
+     * @param string $name
+     * @return RecordType
+     */
+    public function recordTypeByName($name ) {
         return $this->recordTypes()->where( 'name', $name )->first();
     }
 
-    public function linkTypeByName( $name ) {
+    /**
+     * @param string $name
+     * @return LinkType
+     */
+    public function linkTypeByName($name ) {
         return $this->linkTypes()->where( 'name', $name )->first();
     }
 
 
     // actions 
 
-    public function publish() 
+    /**
+     * @throws Exception
+     */
+    public function publish()
     {
         // can only publish if this is a draft
         if( $this->status != "draft" )
@@ -51,7 +102,10 @@ class DocumentRevision extends Model
         $this->save();    
     }
 
-    public function scrap() 
+    /**
+     * @throws Exception
+     */
+    public function scrap()
     {
         // can only publish if this is a draft
         if( $this->status != "draft" )
@@ -63,7 +117,13 @@ class DocumentRevision extends Model
     }
 
 
-    public function createReportType( $name, $baseRecordType, $data )
+    /**
+     * @param string $name
+     * @param RecordType $baseRecordType
+     * @param array $data
+     * @return ReportType
+     */
+    public function createReportType($name, $baseRecordType, $data )
     {
         // these take exception if there's an issue
 
@@ -80,7 +140,12 @@ class DocumentRevision extends Model
         return $report_type;
     }
 
-    public function createRecordType( $name, $data ) 
+    /**
+     * @param string $name
+     * @param array $data
+     * @return RecordType
+     */
+    public function createRecordType($name, $data )
     {
         $record_type = new RecordType();
         $record_type->documentRevision()->associate( $this );
@@ -94,7 +159,28 @@ class DocumentRevision extends Model
         return $record_type;
     }
 
-    public function createLinkType( $name, $domain, $range, $data ) 
+    /**
+     * Make a report but don't save it to the database.
+     *
+     * @return Report
+     */
+    public function makeReport()
+    {
+        $report = new Report();
+        $report->documentRevision()->associate( $this );
+        $report->data = [ "records"=>[] ];
+
+        return $report;
+    }
+
+    /**
+     * @param string $name
+     * @param RecordType $domain
+     * @param RecordType $range
+     * @param array $data
+     * @return LinkType
+     */
+    public function createLinkType($name, $domain, $range, $data )
     {
         // default minimum is zero. Default maximum is N (max null means unlimited)
         if( @$data["domain_min"]===null ) { $data["domain_min"]=0; }

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\RecordReport;
 use Illuminate\Console\Command;
 use App\Models\DocumentRevision;
 
@@ -30,12 +31,24 @@ class LoadReport extends Command
     {
         $docRev = DocumentRevision::query()->orderBy( 'id','desc' )->first();
 
-# \Event::listen('Illuminate\Database\Events\QueryExecuted', function ($query) {$i=0;print preg_replace_callback( "/\?/", function($x) use ($query,&$i) { return $query->bindings[$i++]; }, $query->sql )."\n"; });
-        
-        $loadingReport = $docRev->reportTypeByName( 'loading' );
+        $loadingReportType = $docRev->reportTypeByName( 'loading' );
 
-        $report = $loadingReport->report();
-        dd($report);
+        $report = $loadingReportType->report();
+        /** @var RecordReport $recordReport */
+        foreach($report->recordReports as $recordReport) {
+            foreach( $recordReport->getColumns() as $key=>$value ) {
+                print "$key: $value\n";
+            }
+            foreach( $recordReport->getLoadingTargets() as $key=>$value ) {
+                print "$key .. Target($value) .. Value(".$recordReport->getLoadingTotal($key).")\n";
+            }
+            print "Loadings:\n";
+            foreach( $recordReport->getLoadings() as $loading ){
+                print $loading['load']." (".$loading['target'].".".@$loading['category'].") ".@$loading["description"]."\n";
+            }
+            // dump($recordReport);
+            print "\n\n";
+        }
         return;
     }
 }

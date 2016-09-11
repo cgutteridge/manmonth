@@ -52,8 +52,8 @@ class DatabaseSeeder extends Seeder
         // Add records
 
         $alice = $actorType->createRecord( [ "name"=>"Alice Aardvark", "group"=>"badgers", "penguins"=>7 ]);
-        $bobby = $actorType->createRecord( [ "name"=>"Bobby Bananas", "group"=>"wombats", "penguins"=>2 ]);
-        $clara = $actorType->createRecord( [ "name"=>"Clara Crumb", "group"=>"wombats", "penguins"=>0, "newbie"=>true ]);
+        $bobby = $actorType->createRecord( [ "name"=>"Bobby Bananas", "group"=>"wombats", "penguins"=>2, "newbie"=>true ]);
+        $clara = $actorType->createRecord( [ "name"=>"Clara Crumb", "group"=>"wombats", "penguins"=>0 ]);
 
         $small = $taskType->createRecord( [ "name"=>"Small Job", "size"=>50 ]);
         $big = $taskType->createRecord( [ "name"=>"Big Job", "size"=>100 ]);
@@ -80,7 +80,7 @@ class DatabaseSeeder extends Seeder
         $loadingReportType->createRule( [ 
             "title"=>"Default loading",  
             "action"=>"set_target", 
-            "params"=>[ "target"=>"'loading'", "value"=>100 ]] );
+            "params"=>[ "target"=>"'loading'", "value"=>500 ]] );
         $loadingReportType->createRule( [ 
             "title"=>"Wombat group +100 hours",
             "trigger"=>"actor.group='wombat'", 
@@ -92,13 +92,18 @@ class DatabaseSeeder extends Seeder
             "action"=>"scale_target", 
             "params"=>[ "target"=>"'loading'", "factor"=>0.5 ]] );
         // people not in group baders, on leading new modules get +20 hours  (TODO this should become a loading)
-        $loadingReportType->createRule( [ 
-            "title"=>"20 load for non-badger task leaders",
-            "route"=>["actor_to_acttask","acttask_to_task"], 
-            "trigger"=>"acttask.type='leads' & actor.group<>'badgers'", 
-            "action"=>"assign_load", 
-            "params"=>[ "target"=>"'loading'", "load"=>20 ]] );
-        $loadingReportType->createRule( [ 
+        $loadingReportType->createRule( [
+            "title"=>"Loading for task leadership",
+            "route"=>["actor_to_acttask","acttask_to_task"],
+            "trigger"=>"acttask.type='leads'",
+            "action"=>"assign_load",
+            "params"=>[
+                "target"=>"'loading'",
+                "category"=>"'teaching'",
+                "load"=>"20*acttask.ratio",
+                "description"=>"'Loading for leading '+task.name"
+            ]] );
+        $loadingReportType->createRule( [
             "title"=>"Loading from working on task",
             "route"=>["actor_to_acttask"],
             "trigger"=>"acttask.type='works'",

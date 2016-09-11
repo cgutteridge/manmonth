@@ -2,6 +2,8 @@
 
 namespace App\MMAction;
 
+use App\RecordReport;
+
 // these classes represent the actions that can be performed as a result of
 // a Rule.
 
@@ -30,11 +32,11 @@ class SetTarget extends AbstractAction
     ];
 
     /**
-     * @param array $rreport
+     * @param RecordReport $recordReport
      * @param $params
      */
-    public function execute(&$rreport, $params ) {
-        $rreport["targets"][$params["target"]] = $params["value"];
-        $this->recordLog( $rreport, $params );
+    public function execute($recordReport, $params ) {
+        $recordReport->setLoadingTarget( $params["target"], $params["value"] );
+        $this->recordLog( $recordReport, $params );
     }
 }

@@ -2,8 +2,7 @@
 
 namespace App\MMAction;
 
-// these classes represent the actions that can be performed as a result of
-// a Rule.
+use App\RecordReport;
 
 class AssignLoad extends AbstractAction
 {
@@ -33,17 +32,17 @@ class AssignLoad extends AbstractAction
         ],
     ];
 
-
     /**
-     * @param array $rreport
+     * @param RecordReport $recordReport
      * @param $params
      */
-    public function execute(&$rreport, $params ) {
-        $rreport["loads"][] = $params;
-        if( !isset($rreport["totals"][$params["target"]])) {
-            $rreport["totals"][$params["target"]] = 0;
+    public function execute($recordReport, $params ) {
+        if( $params["load"] != 0 ) {
+            $total = $recordReport->getLoadingTotal($params["target"]);
+            $recordReport->setLoadingTotal($params["target"], $total + $params["load"]);
+            $recordReport->appendLoading($params);
         }
-        $rreport["totals"][$params["target"]] += $params["load"];
-        $this->recordLog( $rreport, $params );
+        // always log that we got this far if we passed the trigger rule
+        $this->recordLog( $recordReport, $params );
     }
 }

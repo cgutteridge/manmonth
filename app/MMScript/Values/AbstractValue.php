@@ -11,8 +11,10 @@ namespace App\MMScript\Values;
 abstract class AbstractValue {
 
     public $value;
+
     /**
      * AbstractValue constructor.
+     * @param mixed $value
      */
     public function __construct($value)
     {

@@ -2,8 +2,6 @@
 
 namespace App\MMScript\Ops;
 
-use App\Exceptions\ScriptException;
-use App\Exceptions\MMScriptRuntimeException;
 use App\MMScript\Values\NameValue;
 
 class Name extends Op

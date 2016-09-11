@@ -3,10 +3,21 @@
 namespace App\Models;
 
 use App\Exceptions\DataStructValidationException;
-use Validator;
-use DB;
+use App\MMScript\Values\AbstractValue;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 
+/**
+ * @property DocumentRevision documentRevision
+ * @property int sid
+ * @property RecordType recordType
+ * @property int document_revision_id
+ * @property array data
+ * @property Collection forwardLinks
+ * @property int record_type_sid
+ */
 class Record extends DocumentPart
 {
     public function recordType()
@@ -54,7 +65,7 @@ class Record extends DocumentPart
             ->pluck("links.subject_sid");
         $records = [];
         foreach( $recordIds as $recordId ) {
-            $records []= $this->documentRevision->records()->where( 'sid','=', $recordSid )->first();
+            $records []= $this->documentRevision->records()->where( 'sid','=', $recordId )->first();
         }
         return $records;
     }
@@ -69,12 +80,20 @@ class Record extends DocumentPart
     }
 
     // get the typed value from a field or null
+    /**
+     * @param string $fieldName
+     * @return AbstractValue
+     */
     public function getValue($fieldName) {
         return $this->recordType->field( $fieldName )->makeValue( @$this->data()[$fieldName] );
     }
     // return a text representation and all associated records 
     // following subject->object direction links only.
     // does not (yet) worry about loops.
+    /**
+     * @param string $indent
+     * @return string
+     */
     function dumpText($indent="") {
         $r = "";
         $r.= $indent."".$this->recordType->name."#".$this->sid." ".$this->data."\n";
@@ -85,6 +104,9 @@ class Record extends DocumentPart
         return $r;
     }
 
+    /**
+     * @throws DataStructValidationException
+     */
     public function validateData() {
         $validationCodes = [];
         foreach( $this->recordType->fields() as $field ) {

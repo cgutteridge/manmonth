@@ -2,10 +2,19 @@
 
 namespace App\Models;
 
-use /** @noinspection PhpUndefinedClassInspection */
-    Validator;
 use App\Exceptions\DataStructValidationException;
+use App\Fields\Field;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Validator;
 
+/**
+ * @property string name
+ * @property array data
+ * @property DocumentRevision documentRevision
+ * @property Collection forwardLinkTypes
+ * @property Collection backLinkTypes
+ * @property Collection records
+ */
 class RecordType extends DocumentPart
 {
     public function forwardLinkTypes()
@@ -84,7 +93,7 @@ class RecordType extends DocumentPart
         if( !$this->fieldsCache ) { 
             $this->fieldsCache = [];
             foreach( $this->data()["fields"] as $fieldData ) {
-                $this->fieldsCache []= \App\Fields\Field::createFromData( $fieldData );
+                $this->fieldsCache []= Field::createFromData( $fieldData );
             }
         }  
         return $this->fieldsCache;

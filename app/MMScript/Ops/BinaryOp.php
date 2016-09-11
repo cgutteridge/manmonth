@@ -2,13 +2,15 @@
 
 namespace App\MMScript\Ops;
 
-use App\Exceptions\ScriptException;
-
-// op with left & right param
+/**
+ * @property Op left
+ * @property Op right
+ */
 abstract class BinaryOp extends Op
 {
-    var $left;
-    var $right;
+    public $left;
+    public $right;
+
     public function __construct( $script, $op, $left, $right ) {
         $this->left = $left;
         $this->right = $right;

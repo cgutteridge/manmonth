@@ -2,7 +2,6 @@
 
 namespace App\MMScript\Ops;
 
-use App\Exceptions\ScriptException;
 use App\Exceptions\MMScriptRuntimeException;
 
 # list of expressions
@@ -10,7 +9,8 @@ class ExpList extends UnaryOp
 {
     public function treeText( $prefix = "" ) {
         $r = $prefix.get_class( $this )." [".@$this->type()."]\n";
-        foreach( $this->param as $item ) {
+        /** @var Op $item */
+        foreach($this->param as $item ) {
             $r.= $item->treeText($prefix."  ");
         }
         return $r;

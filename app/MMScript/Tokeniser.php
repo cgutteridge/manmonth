@@ -3,7 +3,7 @@
 namespace App\MMScript;
 
 // this class handles the incline scripting compilation and execution
-use App\Exceptions\ParseExceptions;
+use App\Exceptions\ParseException;
 
 class Tokeniser {
 

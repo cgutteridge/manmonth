@@ -11,6 +11,8 @@ namespace App\MMAction;
 // these classes represent the actions that can be performed as a result of
 // a Rule.
 
+use App\RecordReport;
+
 class SetDecimalColumn extends AbstractAction
 {
     // has a name, to use in the rules
@@ -36,11 +38,11 @@ class SetDecimalColumn extends AbstractAction
     ];
 
     /**
-     * @param array $rreport
+     * @param RecordReport $recordReport
      * @param $params
      */
-    public function execute(&$rreport, $params ) {
-        $rreport["columns"][$params["column"]] = $params["value"];
-        $this->recordLog( $rreport, $params );
+    public function execute( $recordReport, $params ) {
+        $recordReport->setColumn( $params["column"], $params["value"] );
+        $this->recordLog( $recordReport, $params );
     }
 }

@@ -3,6 +3,13 @@
 namespace App\MMScript\Ops;
 
 use App\Exceptions\ScriptException;
+use App\MMScript\Funcs\CastDecimal;
+use App\MMScript\Funcs\CastString;
+use App\MMScript\Funcs\Ceil;
+use App\MMScript\Funcs\Floor;
+use App\MMScript\Funcs\Max;
+use App\MMScript\Funcs\Min;
+use App\MMScript\Funcs\Round;
 
 // This provides an extensible functions feature
 // possibly normal Op functions should all be calls, or vice versa?
@@ -10,13 +17,13 @@ class Call extends BinaryOp
 {
     // there's probably a cleverer laravel way of doing this...
     static protected $funcs = [
-        \App\MMScript\Funcs\Round::class,
-        \App\MMScript\Funcs\Floor::class,
-        \App\MMScript\Funcs\Ceil::class,
-        \App\MMScript\Funcs\CastDecimal::class,
-        \App\MMScript\Funcs\CastString::class,
-        \App\MMScript\Funcs\Min::class,
-        \App\MMScript\Funcs\Max::class,
+        Round::class,
+        Floor::class,
+        Ceil::class,
+        CastDecimal::class,
+        CastString::class,
+        Min::class,
+        Max::class,
     ];
 
     static protected $funcCache;
@@ -45,12 +52,13 @@ class Call extends BinaryOp
         }
         return $this->func;
     }
+
     function type() {
         if( @$this->type ) { return $this->type; }
 
         $func = $this->func();
         if( $this->right->type() != "list" ) {
-            throw new ScriptException( "$funcName was not passed a list but rather a ".$this->right->type() );
+            throw new ScriptException( "Function ".$func->name." was not passed a list but rather a ".$this->right->type() );
         }
      
         $this->type = $func->type( $this->paramTypes() );   

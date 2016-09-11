@@ -7,9 +7,16 @@ use App\Exceptions\ScriptException;
 use App\MMScript\Values\DecimalValue;
 use App\MMScript\Values\StringValue;
 use App\MMScript\Values\IntegerValue;
-
+/*
+ * @property Record left
+ * @property Name right
+ */
 class AddOp extends BinaryOp
 {
+    /**
+     * @return string
+     * @throws ScriptException
+     */
     function type() {
         if( @$this->type ) { return $this->type; }
         $lt = $this->left->type();

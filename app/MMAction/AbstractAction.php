@@ -2,8 +2,8 @@
 
 namespace App\MMAction;
 
-// these classes represent the actions that can be performed as a result of
-// a Rule.
+use App\Fields\Field;
+use App\RecordReport;
 
 /**
  * Class AbstractAction
@@ -19,10 +19,10 @@ abstract class AbstractAction
 
     // has a payload
     /**
-     * @param array $rreport
-     * @param array[AbstractValue] $params
+     * @param RecordReport $recordReport
+     * @param array $params
      */
-    public abstract function execute(&$rreport, $params );
+    public abstract function execute($recordReport, $params );
 
     // has some parameters with an ordered name & type and human
     // readable title etc.
@@ -43,17 +43,20 @@ abstract class AbstractAction
     public function __construct() {
         $this->fields = []; 
         foreach( $this->params as $param ) {
-            $this->fields[ $param["name"] ]= \App\Fields\Field::createFromData( $param );
+            $this->fields[ $param["name"] ]= Field::createFromData( $param );
         }
     }
 
     /**
-     * @param $rreport - report to write log to
+     * @param \App\RecordReport $recordReport
      * @param $params - params for the action to be logged
+     * @internal param $rreport - report to write log to
      */
-    protected function recordLog(&$rreport, $params)
+    protected function recordLog( $recordReport, $params)
     {
-        $rreport["log"][] = [ "action"=>$this->name, "params"=>$params ];
+        $recordReport->appendLog(
+            [ "action"=>$this->name, "params"=>$params ]
+        );
     }
 
 }

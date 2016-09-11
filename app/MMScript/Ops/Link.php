@@ -4,7 +4,10 @@ namespace App\MMScript\Ops;
 
 use App\Exceptions\ScriptException;
 use App\MMScript\Values\RecordValue;
-
+/**
+ * @property Record left
+ * @property Name right
+ */
 class Link extends BinaryOp
 {
     function type() {

@@ -2,10 +2,9 @@
 
 namespace App\MMAction;
 
-// these classes represent the actions that can be performed as a result of
-// a Rule.
-
 use App\Exceptions\ReportingException;
+
+use App\RecordReport;
 
 class AlterTarget extends AbstractAction
 {
@@ -32,11 +31,17 @@ class AlterTarget extends AbstractAction
     ];
 
 
-    public function execute( &$rreport, $params ) {
-        if( !isset($rreport["targets"][$params["target"]])) {
-            throw new ReportingException( "Attempt to scale uninitialised target '".$params["target"]."'");
+    /**
+     * @param RecordReport $recordReport
+     * @param $params
+     * @throws ReportingException
+     */
+    public function execute($recordReport, $params ) {
+        if( !$recordReport->hasLoadingTarget( $params["target"] )) {
+            throw new ReportingException( "Attempt to alter uninitialised target '".$params["target"]."'");
         }
-        $rreport["targets"][$params["target"]] += $params["change"];
-        $this->recordLog( $rreport, $params );
+        $value = $recordReport->getLoadingTarget( $params["value"] ) + $params["factor"];
+        $recordReport->setLoadingTarget( $params["target"], $value );
+        $this->recordLog( $recordReport, $params );
     }
 }

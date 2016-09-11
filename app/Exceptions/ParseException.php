@@ -2,8 +2,6 @@
 
 namespace App\Exceptions;
 
-use Exception;
-
 class ParseException extends ScriptException
 {
     public $message;

@@ -2,11 +2,17 @@
 
 namespace App\Models;
 
-use Validator;
+use Illuminate\Support\Facades\Validator;
 use App\Exceptions\DataStructValidationException;
 
 /**
  * @property DocumentRevision documentRevision
+ * @property int document_revision_id
+ * @property array data
+ * @property string name
+ * @property int sid
+ * @property int domain_sid
+ * @property int range_sid
  */
 class LinkType extends DocumentPart
 {

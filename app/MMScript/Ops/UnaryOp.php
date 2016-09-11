@@ -2,8 +2,6 @@
 
 namespace App\MMScript\Ops;
 
-use App\Exceptions\ScriptException;
-
 abstract class UnaryOp extends Op
 {
     var $param;
