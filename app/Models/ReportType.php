@@ -102,16 +102,17 @@ class ReportType extends DocumentPart
     }
 
 
-    // run this report type on the current document revision and produce a report object
     /**
+     * Run this report type on the current document revision and produce a report object.
+     * Doesn't save the object.
      * @param array $options
      * @return Report
      */
-    function report($options = []) {
+    function makeReport($options = []) {
         $records = $this->baseRecordType()->records;
         $report = $this->documentRevision->makeReport(); // will be an object when I know what shape it is!
         foreach( $records as $record ) {
-            $report->recordReports[$record->sid] = $this->recordReport( $record );
+            $report->setRecordReport( $record->sid, $this->recordReport( $record ) );
         }
         return $report;
     }

@@ -19,6 +19,40 @@ class RecordReport {
     private $loadings = [];
     private $log = [];
 
+    public function __construct( $data = null)
+    {
+        if (isset($data)) {
+            $this->columns = $data["columns"];
+            $this->loading_targets = $data["loading_targets"];
+            $this->loading_totals = $data["loading_totals"];
+            $this->loadings = $data["loadings"];
+            $this->log = $data["log"];
+        }
+    }
+
+    /**
+     * Turn this object into a structure to be serialised as JSON
+     * as part of the report object.
+     * @return array
+     */
+    public function toData()
+    {
+        return [
+            "columns" => $this->columns,
+            "loading_targets" => $this->loading_targets,
+            "loading_totals" => $this->loading_totals,
+            "loadings" => $this->loadings,
+            "log" => $this->log];
+    }
+
+    /**
+     * Return the list of loadings this report has a target or total for.
+     * @return array[string]
+     */
+    public function getLoadingTypes() {
+        return array_unique(array_merge( array_keys( $this->loading_targets ), array_keys( $this->loading_totals )), SORT_REGULAR);
+    }
+
     /**
      * @return array
      */
@@ -168,18 +202,5 @@ class RecordReport {
     }
 
 
-    /**
-     * Turn this object into a structure to be serialised as JSON
-     * as part of the report object.
-     * @return array
-     */
-    public function toData()
-    {
-        return [
-            "columns" => $this->columns,
-            "loading_targets" => $this->loading_targets,
-            "loading_totals" => $this->loading_totals,
-            "loadings" => $this->loadings,
-            "log" => $this->log];
-    }
+
 }

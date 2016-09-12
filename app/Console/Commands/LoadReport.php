@@ -29,11 +29,12 @@ class LoadReport extends Command
      */
     public function handle()
     {
+        /** @var DocumentRevision $docRev */
         $docRev = DocumentRevision::query()->orderBy( 'id','desc' )->first();
 
         $loadingReportType = $docRev->reportTypeByName( 'loading' );
-
-        $report = $loadingReportType->report();
+        $report = $loadingReportType->makeReport();
+        $report->save();
         /** @var RecordReport $recordReport */
         foreach($report->recordReports as $recordReport) {
             foreach( $recordReport->getColumns() as $key=>$value ) {

@@ -91,7 +91,7 @@ class DatabaseSeeder extends Seeder
             "trigger"=>"actor.newbie", 
             "action"=>"scale_target", 
             "params"=>[ "target"=>"'loading'", "factor"=>0.5 ]] );
-        // people not in group baders, on leading new modules get +20 hours  (TODO this should become a loading)
+        // people not in group baders, on leading new modules get +20 hours
         $loadingReportType->createRule( [
             "title"=>"Loading for task leadership",
             "route"=>["actor_to_acttask","acttask_to_task"],

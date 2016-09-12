@@ -1,0 +1,82 @@
+.mm_loading_bar {
+    height: 60px;
+}
+.mm_loading:first-child {
+    border-left: solid 1px black;
+}
+.mm_loading {
+    overflow: hidden;
+    background-color: lightgray;
+
+    border-right: solid 1px black;
+    border-top: solid 1px black;
+    border-bottom: solid 1px black;
+    float:left;
+    margin: 0;
+}
+.mm_loading_inner {
+    height: 60px;
+    white-space: nowrap;
+    display: inline-block;
+    padding: 4px;
+}
+.mm_cat_teaching {
+    background-color: #8697a4;
+}
+.mm_cat_penguin {
+    background-color: #a48971;
+}
+.mm_target_bar {
+    height: 30px;
+    overflow: hidden;
+
+}
+.mm_target {
+    overflow: hidden;
+    background-color: green;
+    float: left;
+
+    margin: 0;
+}
+.mm_target_alloc {
+    background-color: #83de7a;
+}
+.mm_target_free {
+    background-color: #d3de60;
+}
+
+.mm_target_over {
+    background-color: #de5b64;
+}
+.mm_target:first-child {
+}
+.mm_target_inner {
+    white-space: nowrap;
+    display: inline-block;
+    padding: 4px;
+    height: 34px;
+}
+.mm_record_report {
+    clear: both;
+    margin-top: 1em;
+}
+body {
+    margin-bottom: 5em;
+}
+
+.mm_datatable {
+    border-collapse: collapse;
+}
+.mm_datatable th {
+    text-align: right;
+    vertical-align: top;
+    background-color: #ccc;
+    padding: 3px;
+    border: solid 1px #999;
+}
+.mm_datatable td {
+    vertical-align: top;
+    padding: 3px;
+    border: solid 1px #999;
+
+}
