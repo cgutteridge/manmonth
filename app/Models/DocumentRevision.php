@@ -168,7 +168,6 @@ class DocumentRevision extends Model
     {
         $report = new Report();
         $report->documentRevision()->associate( $this );
-        $report->recordReports = [];
         return $report;
     }
 

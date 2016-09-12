@@ -36,7 +36,7 @@ class LoadReport extends Command
         $report = $loadingReportType->makeReport();
         $report->save();
         /** @var RecordReport $recordReport */
-        foreach($report->recordReports as $recordReport) {
+        foreach($report->recordReports() as $recordReport) {
             foreach( $recordReport->getColumns() as $key=>$value ) {
                 print "$key: $value\n";
             }

@@ -19,7 +19,7 @@ class Report extends Model
     public $timestamps = false;
 
     protected $casts = [
-        'data' => 'array',
+        "data"=>"array"
     ];
 
     public function documentRevision()
@@ -30,21 +30,21 @@ class Report extends Model
     public function save(array $options = [])
     {
         $data = [ "records"=>[] ];
-        foreach( $this->recordReportsCache as $id=>$report ) {
+        foreach( $this->recordReports() as $id=>$report ) {
             $data["records"][$id] = $report->toData();
         }
         $this->data = $data;
         return parent::save($options);
     }
 
-    private $loadingTypesCache;
+    private $loadingTypesCache=null;
     /*
      * Return the list of loadings this report has a target or total for.
      * @return array[string]
      */
     public function loadingTypes()
     {
-        if (!isset($this->loadingTypesCache)) {
+        if ($this->loadingTypesCache==null) {
             $list = [];
             foreach ($this->recordReports() as $recordReport) {
                 $list = array_merge($list, $recordReport->getLoadingTypes());
@@ -54,15 +54,15 @@ class Report extends Model
         return $this->loadingTypesCache;
     }
 
-    protected $maxTargetsCache;
+    protected $maxTargetsCache=null;
     /*
      * Return the maximum target loading for each loading category.
      * @return array[float]
      */
     public function maxTargets()
     {
-        if (!isset($this->maxTargetsCache)) {
-            $cache = [];
+        if($this->maxTargetsCache == null) {
+            $this->maxTargetsCache = [];
             foreach($this->loadingTypes() as $loadingType ) {
                 $this->maxTargetsCache[$loadingType]=0;
             }
@@ -85,14 +85,14 @@ class Report extends Model
         return $this->maxTargets()[$loadingType];
     }
 
-    private $maxLoadingsCache;
+    private $maxLoadingsCache=null;
     /*
      * Return the maximum loading for each loading category.
      * @return array[float]
      */
     public function maxLoadings()
     {
-        if (!isset($this->maxLoadingsCache)) {
+        if ($this->maxLoadingsCache==null) {
             $cache = [];
             foreach($this->loadingTypes() as $loadingType ) {
                 $cache[$loadingType]=0;
@@ -118,14 +118,14 @@ class Report extends Model
     }
 
 
-    private $maxLoadingRatiosCache;
+    private $maxLoadingRatiosCache = null;
     /*
      * Return the maximum loading ratio for each loading category.
      * @return array[float]
      */
     public function maxLoadingRatios()
     {
-        if (!isset($this->maxLoadingRatiosCache)) {
+        if ($this->maxLoadingRatiosCache == null) {
             $this->maxLoadingRatiosCache = [];
             foreach($this->loadingTypes() as $loadingType ) {
                 $this->maxLoadingRatiosCache[$loadingType]=0;
@@ -154,17 +154,19 @@ class Report extends Model
         return $this->maxLoadingRatios()[$loadingType];
     }
 
-    private $recordReportsCache;
+    protected $recordReportsCache = null;
 
     /**
      * @return array[RecordReport]
      */
     public function recordReports() {
-        if( !isset( $this->recordReportsCache )) {
+        if( $this->recordReportsCache == null ) {
             $this->recordReportsCache = [];
-            foreach( $this->data["records"] as $sid=>$recordReportData ) {
-                $recordReport = new RecordReport($recordReportData);
-                $this->recordReportsCache[$sid] = $recordReport;
+            if( $this->data !== null ) {
+                foreach ($this->data["records"] as $sid => $recordReportData) {
+                    $recordReport = new RecordReport($recordReportData);
+                    $this->recordReportsCache[$sid] = $recordReport;
+                }
             }
         }
         return $this->recordReportsCache;
@@ -178,9 +180,9 @@ class Report extends Model
     {
         $this->recordReportsCache[$recordSid] = $recordReport;
         // force cached values to decache
-        unset( $this->loadingTypesCache );
-        unset( $this->maxLoadingsCache );
-        unset( $this->maxLoadingsRatio );
+        $this->loadingTypesCache = null;
+        $this->maxLoadingsCache = null;
+        $this->maxLoadingRatiosCache = null;
     }
 }
 
