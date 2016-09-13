@@ -130,4 +130,65 @@
         </div>
     </div>
 
+    <script type='text/javascript'>
+        var hovernote;
+        jQuery(document).ready( function() {
+            if( !hovernote )
+            {
+                hovernote = jQuery("<div id='hovernote' style='display:none'></div>").appendTo('body');
+                hovernote.mouseleave( function(event) { jQuery('#hovernote').hide(); } );
+            }
+            var ua = navigator.userAgent;
+            var mobile = ua.match(/(iPhone|iPod|iPad|BlackBerry|Android)/);
+            if( mobile ) { jQuery('.programme_event').css( 'border','solid 1px green'); }
+            jQuery('.mm_loading').map( function( i,x ) {
+                var cell = jQuery(x);
+
+                var shownote_fn = function(event) {
+                    hovernote.html( cell.find( ".hover").html() );
+                    var tPosX = event.pageX - 190;
+                    var tPosY = event.pageY - 10;
+                    jQuery('#hovernote').css( {
+                        'position': 'absolute',
+                        'width': '300px',
+                        'white-space': 'normal',
+                        'min-height': '20px',
+                        'top': tPosY+'px',
+                        'left': tPosX+'px',
+                        'display': 'block' } );
+
+                    var BOTTOM_MARGIN = 15;
+                    var RIGHT_MARGIN = 15;
+                    // check to see if box would be off right hand side and if so
+                    // shunt it back a bit
+                    if( tPosX+jQuery('#hovernote').width() > jQuery(window).innerWidth()+jQuery(window).scrollLeft()-RIGHT_MARGIN )
+                    {
+                        tPosX=jQuery(window).innerWidth()+jQuery(window).scrollLeft()-jQuery('#hovernote').width()-RIGHT_MARGIN;
+                        jQuery('#hovernote').css('left', tPosX+'px' );
+                    }
+                    // and the left
+                    if( tPosX < jQuery(window).scrollLeft()+RIGHT_MARGIN )
+                    {
+                        tPosX=jQuery(window).scrollLeft()+RIGHT_MARGIN;
+                        jQuery('#hovernote').css('left', tPosX+'px' );
+                    }
+                    // check to see if box would be off the bottom of the window and if so
+                    // shunt it up a bit
+                    if( tPosY+jQuery('#hovernote').height() > jQuery(window).innerHeight()+jQuery(window).scrollTop()-BOTTOM_MARGIN )
+                    {
+                        tPosY=jQuery(window).innerHeight()+jQuery(window).scrollTop()-jQuery('#hovernote').height()-BOTTOM_MARGIN;
+
+                        jQuery('#hovernote').css('top', tPosY+'px' );
+                    }
+                };
+                if( !mobile )
+                {
+                    cell.mouseenter( shownote_fn );
+                }
+
+            } );
+        } );
+    </script>
+
+
 @endsection
