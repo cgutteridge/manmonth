@@ -1,5 +1,5 @@
 .mm_loading_bar {
-    height: 60px;
+    height: 40px;
 }
 .mm_loading:first-child {
     border-left: solid 1px black;
@@ -13,9 +13,13 @@
     border-bottom: solid 1px black;
     float:left;
     margin: 0;
+    height:50px;
+
 }
+
 .mm_loading_inner {
-    height: 60px;
+    height:36px;
+    font-size: 15px;
     white-space: nowrap;
     display: inline-block;
     padding: 4px;
@@ -29,7 +33,13 @@
 .mm_target_bar {
     overflow: hidden;
     clear: both;
+    height: 30px;
 }
+.mm_target_indicator_bar {
+    overflow: hidden;
+    clear: both;
+}
+
 .mm_target_indicator {
     text-align: right;
     overflow: hidden;
@@ -43,7 +53,6 @@
     overflow: hidden;
     background-color: green;
     float: left;
-
     margin: 0;
 }
 .mm_target_alloc {

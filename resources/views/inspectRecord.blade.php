@@ -1,7 +1,7 @@
 <table class="mm_inspect_record">
 <tr>
     <td class="mm_inspect_record_record">
-
+        <div style="color:#ccc">{{ $record->recordType->name }}</div>
         @include( 'dataTable', ['data'=>$record->data() ])
     </td>
     <td>

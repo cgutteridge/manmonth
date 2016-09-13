@@ -19,7 +19,7 @@
     </div>
 
     @if( $showTarget )
-        <div class="mm_target_bar">
+        <div class="mm_target_indicator_bar">
             <div class="mm_target_indicator" style="width: {{ 100*$target*$scale }}%">
                 Target {{ $target }}
             </div>
@@ -67,7 +67,7 @@
         @endif
     </div>
     @if( $showTarget )
-    <div class="mm_target_bar">
+    <div class="mm_target_indicator_bar">
         <div class="mm_target_indicator" style="width: {{ 100*$target*$scale }}%">
             Target {{ $target }}
         </div>
