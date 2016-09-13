@@ -2,6 +2,7 @@
 
 namespace App\Fields;
 
+use App\MMScript\Values\AbstractValue;
 use Exception;
 use Illuminate\Support\Facades\Validator;
 use App\Exceptions\DataStructValidationException;
@@ -9,7 +10,12 @@ use App\Exceptions\DataStructValidationException;
 abstract class Field
 {
     // need to make this non static? Maybe by making a fieldFactory singleton
-    public static function createFromData( $fieldData ) {
+    /**
+     * @param array $fieldData
+     * @return Field
+     * @throws Exception
+     */
+    public static function createFromData($fieldData ) {
         if( $fieldData["type"]=="string" ) {
             return new StringField( $fieldData );
         } elseif( $fieldData["type"]=="decimal" ) {
@@ -28,28 +34,37 @@ abstract class Field
 
     // this isn't written to the db so don't bother making data a json_encoded
     // param... but this is inconsistant with DocumentPart models.
-    public function __construct( $data ) {
+    /**
+     * Field constructor.
+     * @param $data
+     */
+    public function __construct($data) {
         $this->data = $data; 
     }
 
-    // return the laravel validate code to validate a value for this field
+    /**
+     * Return the laravel validate code to validate a value for this field
+     * Subclassed by non abstract versions of Field
+     * @return string
+     */
     public function valueValidationCode() {
         $parts = [];
         if( @$this->data["required"] ) { $parts []= "required"; }
-
-        if( $this->data["type"]=='string' ) { $parts []= "string"; }
-        if( $this->data["type"]=='integer' ) { $parts []= "integer"; }
-        if( $this->data["type"]=='decimal' ) { $parts []= "numeric"; }
-        if( $this->data["type"]=='boolean' ) { $parts []= "boolean"; }
-
         return join( "|", $parts );
     }
 
-    public function required() { 
+    /**
+     * Is this a required field?
+     * @return bool
+     */
+    public function required() {
         return( true == @$this->data["required"] );
     }
 
-    // return the laravel validate code array to validate this field type
+    /**
+     * Return the laravel validate array to validate data for this field
+     * @return array
+     */
     public function fieldValidationArray() {
         return [ 
           'name' => 'required|alpha_dash|min:2|max:255', 
@@ -57,13 +72,23 @@ abstract class Field
         ];
     }
 
+    /**
+     * Check this field is valid
+     * @throws DataStructValidationException
+     */
     public function validate() {
         $validator = Validator::make( $this->data, $this->fieldValidationArray() );
         if($validator->fails()) {
-//throw new \Exception("z0FISH");
-            throw new DataStructValidationException( "RecordType", "data field", $this->data, $validator->errors() );
+            throw new DataStructValidationException( "Field", "data field", $this->data, $validator->errors() );
         }
     }
+
+    /**
+     * Makes a MMScript value of this field type.
+     * @param $value
+     * @return AbstractValue
+     */
+    public abstract function makeValue($value );
 
 }
 

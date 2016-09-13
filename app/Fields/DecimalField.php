@@ -7,7 +7,9 @@ use App\MMScript\Values\NullValue;
 
 class DecimalField extends Field
 {
-    // return the laravel validate code to validate a value for this field
+    /**
+     * @return string
+     */
     public function valueValidationCode() {
         $code = parent::valueValidationCode();
         $code.= "|numeric";
@@ -16,21 +18,27 @@ class DecimalField extends Field
         return $code;
     }
 
-    // return the laravel validate code array to validate this field type
+    /**
+     * @return array
+     */
     public function fieldValidationArray() {
         return array_merge( parent::fieldValidationArray(), [
           'type' => 'required|in:decimal',
           'default' => 'numeric',
         ]);
     }
-    public function makeValue( $value ) {
-        if (!isset($value)) {
 
+    /**
+     * @param float $value
+     * @return DecimalValue|NullValue
+     */
+    public function makeValue($value ) {
+        if (!isset($value)) {
             if( isset( $this->data["default"])) {
-            return new DecimalValue( $this->data["default"] );
+                return new DecimalValue( $this->data["default"] );
+            }
+            return new NullValue();
         }
-        return new NullValue();
-    }
         return new DecimalValue( $value );
     }
 

@@ -7,7 +7,9 @@ use App\MMScript\Values\NullValue;
 
 class IntegerField extends Field
 {
-    // return the laravel validate code to validate a value for this field
+    /**
+     * @return string
+     */
     public function valueValidationCode() {
         $code = parent::valueValidationCode();
         $code.= "|integer";
@@ -16,7 +18,9 @@ class IntegerField extends Field
         return $code;
     }
 
-    // return the laravel validate code array to validate this field type
+    /**
+     * @return array
+     */
     public function fieldValidationArray() {
         return array_merge( parent::fieldValidationArray(), [
           'type' => 'required|in:integer',
@@ -24,7 +28,11 @@ class IntegerField extends Field
         ]);
     }
 
-    public function makeValue( $value ) {
+    /**
+     * @param int $value
+     * @return IntegerValue|NullValue
+     */
+    public function makeValue($value ) {
         if (!isset($value)) {
             if( isset( $this->data["default"])) {
             return new IntegerValue( $this->data["default"] );

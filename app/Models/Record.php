@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
  * @property int sid
  * @property RecordType recordType
  * @property int document_revision_id
- * @property array data
+ * @property string data
  * @property Collection forwardLinks
  * @property int record_type_sid
  */
@@ -110,13 +110,13 @@ class Record extends DocumentPart
     public function validateData() {
         $validationCodes = [];
         foreach( $this->recordType->fields() as $field ) {
-            $validationCodes[$field->data["name"]] = $field->valueValidationCode();
+            $validationCodes[$field->data("name")] = $field->valueValidationCode();
         }
 
-        $validator = Validator::make( $this->data(), $validationCodes );
+        $validator = Validator::make( $this->data, $validationCodes );
 
         if($validator->fails()) {
-            throw new DataStructValidationException( "Record", "data", $this->data(), $validator->errors() );
+            throw new DataStructValidationException( "Record", "data", $this->data, $validator->errors() );
         }
     }
 
