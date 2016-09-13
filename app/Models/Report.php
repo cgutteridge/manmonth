@@ -16,17 +16,34 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Report extends Model
 {
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
+    /**
+     * @var array
+     */
     protected $casts = [
         "data"=>"array"
     ];
 
+    /**
+     * Relation to DocumentRevision
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function documentRevision()
     {
         return $this->belongsTo('App\Models\DocumentRevision');
     }
 
+    /**
+     * Overrides the DocumentPart save method to turn all the document reports
+     * into a datastructure and assigning it the the data field which casts
+     * it into encoded json.
+     * @param array $options
+     * @return bool
+     */
     public function save(array $options = [])
     {
         $data = [ "records"=>[] ];
@@ -37,7 +54,10 @@ class Report extends Model
         return parent::save($options);
     }
 
-    private $loadingTypesCache=null;
+    /**
+     * @var array
+     */
+    private $loadingTypesCache;
     /*
      * Return the list of loadings this report has a target or total for.
      * @return array[string]
@@ -54,7 +74,10 @@ class Report extends Model
         return $this->loadingTypesCache;
     }
 
-    protected $maxTargetsCache=null;
+    /**
+     * @var array
+     */
+    protected $maxTargetsCache;
     /*
      * Return the maximum target loading for each loading category.
      * @return array[float]
@@ -85,6 +108,9 @@ class Report extends Model
         return $this->maxTargets()[$loadingType];
     }
 
+    /**
+     * @var array[float]
+     */
     private $maxLoadingsCache=null;
     /*
      * Return the maximum loading for each loading category.
@@ -118,10 +144,16 @@ class Report extends Model
     }
 
 
+    /**
+     * @var float[]
+     */
     private $maxLoadingRatiosCache = null;
     /*
      * Return the maximum loading ratio for each loading category.
      * @return array[float]
+     */
+    /**
+     * @return float[]
      */
     public function maxLoadingRatios()
     {
@@ -154,10 +186,13 @@ class Report extends Model
         return $this->maxLoadingRatios()[$loadingType];
     }
 
+    /**
+     * @var null
+     */
     protected $recordReportsCache = null;
 
     /**
-     * @return array[RecordReport]
+     * @return RecordReport[]
      */
     public function recordReports() {
         if( $this->recordReportsCache == null ) {

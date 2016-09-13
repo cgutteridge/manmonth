@@ -2,15 +2,37 @@
 
 namespace App\MMScript\Ops;
 
+use App\MMScript;
+
+/**
+ * Class UnaryOp
+ * @package App\MMScript\Ops
+ */
 abstract class UnaryOp extends Op
 {
+    /**
+     * @var Op
+     */
     var $param;
-    public function __construct( $script, $op, $param ) {
+
+    /**
+     * UnaryOp constructor.
+     * @param MMScript $script
+     * @param array $token
+     * @param Op $param
+     */
+    public function __construct($script, $token, $param ) {
         $this->param = $param;
-        parent::__construct($script, $op);
+        parent::__construct($script, $token);
     }
-    public function treeText( $prefix = "" ) {
-        $r = $prefix.get_class( $this )." :: ".$this->opCode." [".@$this->type()."]\n".$this->param->treeText($prefix."  ");
+
+    /**
+     * @param string $prefix
+     * @return string
+     */
+    public function treeText($prefix = "" ) {
+        $r = $prefix.get_class( $this )." :: ".$this->opCode." [".@$this->type()."]\n";
+        $r.= $this->param->treeText($prefix."  ");
         return $r;
     }
 }

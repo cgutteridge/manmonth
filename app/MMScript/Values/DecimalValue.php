@@ -9,6 +9,6 @@
 
 namespace App\MMScript\Values;
 
-class DecimalValue extends AbstractValue
+class DecimalValue extends Value
 {
 }

@@ -5,9 +5,23 @@ namespace App\MMScript;
 // this class handles the incline scripting compilation and execution
 use App\Exceptions\ParseException;
 
+/**
+ * Class Tokeniser
+ * @package App\MMScript
+ */
 class Tokeniser {
 
-    public function tokenise( $text ) {
+    /**
+     * Takes a string of MMScript and returns an array of tokens
+     * Tokens are an array of
+     * 0: Character offset of token in string (int)
+     * 1: Code for token (string)
+     * 2: An optional value for names and literal tokens
+     * @param string $text
+     * @return array
+     * @throws ParseException
+     */
+    public function tokenise($text ) {
         $offset = 0;
         $tokens = [];
         $len = strlen($text);

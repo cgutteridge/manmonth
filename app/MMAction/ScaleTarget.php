@@ -8,7 +8,7 @@ namespace App\MMAction;
 use App\Exceptions\ReportingException;
 use App\RecordReport;
 
-class ScaleTarget extends AbstractAction
+class ScaleTarget extends Action
 {
     // has a name, to use in the rules
     public $name = 'scale_target';

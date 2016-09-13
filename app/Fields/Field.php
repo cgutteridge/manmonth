@@ -2,7 +2,7 @@
 
 namespace App\Fields;
 
-use App\MMScript\Values\AbstractValue;
+use App\MMScript\Values\Value;
 use Exception;
 use Illuminate\Support\Facades\Validator;
 use App\Exceptions\DataStructValidationException;
@@ -79,14 +79,14 @@ abstract class Field
     public function validate() {
         $validator = Validator::make( $this->data, $this->fieldValidationArray() );
         if($validator->fails()) {
-            throw new DataStructValidationException( "Field", "data field", $this->data, $validator->errors() );
+            throw new DataStructValidationException( "Validation fail in field: ".join( ", ", $validator->errors() ));
         }
     }
 
     /**
      * Makes a MMScript value of this field type.
      * @param $value
-     * @return AbstractValue
+     * @return Value
      */
     public abstract function makeValue($value );
 

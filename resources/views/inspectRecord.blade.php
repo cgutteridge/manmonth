@@ -2,7 +2,7 @@
 <tr>
     <td class="mm_inspect_record_record">
         <div style="color:#ccc">{{ $record->recordType->name }}</div>
-        @include( 'dataTable', ['data'=>$record->data() ])
+        @include( 'dataTable', ['data'=>$record->data ])
     </td>
     <td>
         <table class="mm_inspect_links">

@@ -5,8 +5,16 @@ namespace App\MMScript\Ops;
 use App\Exceptions\ScriptException;
 use App\MMScript\Values\BooleanValue;
 
+/**
+ * Class NotOp
+ * @package App\MMScript\Ops
+ */
 class NotOp extends UnaryOp
 {
+    /**
+     * @return string
+     * @throws ScriptException
+     */
     function type() {
         if( @$this->type ) { return $this->type; }
         $lt = $this->param->type();
@@ -19,7 +27,11 @@ class NotOp extends UnaryOp
         throw new ScriptException( "Can't NOT $lt" );
     }
 
-    function execute( $context )
+    /**
+     * @param array $context
+     * @return BooleanValue
+     */
+    function execute($context )
     {
         return new BooleanValue( !$this->param->execute($context)->value );
     }

@@ -9,30 +9,22 @@ use App\RecordReport;
  * Class AbstractAction
  * @package App\MMAction
  */
-abstract class AbstractAction
+abstract class Action
 {
-    // has a name, to use in the rules
     /**
      * @var
      */
     public $name;
 
-    // has a payload
     /**
-     * @param RecordReport $recordReport
-     * @param array $params
-     */
-    public abstract function execute($recordReport, $params );
-
-    // has some parameters with an ordered name & type and human
-    // readable title etc.
-    /**
+     * Has some parameters with an ordered name & type and human readable title etc.
      * @var array
      */
     public $params;
 
-    // this will be generated from params
+
     /**
+     * This will be generated from params
      * @var array[\App\Fields\Field]
      */
     public $fields;
@@ -58,5 +50,11 @@ abstract class AbstractAction
             [ "action"=>$this->name, "params"=>$params ]
         );
     }
+
+    /**
+     * @param RecordReport $recordReport
+     * @param array $params
+     */
+    public abstract function execute($recordReport, $params );
 
 }

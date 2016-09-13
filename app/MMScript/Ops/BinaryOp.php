@@ -11,10 +11,10 @@ abstract class BinaryOp extends Op
     public $left;
     public $right;
 
-    public function __construct( $script, $op, $left, $right ) {
+    public function __construct($script, $token, $left, $right ) {
         $this->left = $left;
         $this->right = $right;
-        parent::__construct($script,$op);
+        parent::__construct($script,$token);
     }
 
     public function treeText( $prefix = "" ) {

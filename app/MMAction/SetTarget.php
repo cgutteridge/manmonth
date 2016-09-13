@@ -7,7 +7,7 @@ use App\RecordReport;
 // these classes represent the actions that can be performed as a result of
 // a Rule.
 
-class SetTarget extends AbstractAction
+class SetTarget extends Action
 {
     // has a name, to use in the rules
     public $name = 'set_target';

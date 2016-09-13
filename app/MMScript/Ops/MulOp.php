@@ -6,8 +6,16 @@ use App\Exceptions\ScriptException;
 use App\MMScript\Values\DecimalValue;
 use App\MMScript\Values\IntegerValue;
 
+/**
+ * Class MulOp
+ * @package App\MMScript\Ops
+ */
 class MulOp extends BinaryOp
 {
+    /**
+     * @return string
+     * @throws ScriptException
+     */
     function type() {
         if( @$this->type ) { return $this->type; }
         $lt = $this->left->type();
@@ -28,7 +36,11 @@ class MulOp extends BinaryOp
         throw new ScriptException( "Can't ".$this->opCode." $lt and $rt" );
     }
 
-    function execute( $context )
+    /**
+     * @param array $context
+     * @return DecimalValue|IntegerValue
+     */
+    function execute($context )
     {
         $leftValue = $this->left->execute($context)->value;
         $rightValue = $this->right->execute($context)->value;

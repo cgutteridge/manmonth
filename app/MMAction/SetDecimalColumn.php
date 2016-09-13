@@ -13,7 +13,7 @@ namespace App\MMAction;
 
 use App\RecordReport;
 
-class SetDecimalColumn extends AbstractAction
+class SetDecimalColumn extends Action
 {
     // has a name, to use in the rules
     public $name = 'set_decimal_column';

@@ -16,35 +16,24 @@ use App\RecordReport;
 class ReportType extends DocumentPart
 {
     /**
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return array[Rule]
      */
     public function rules() {
-        return $this->documentRevision->rules()->getQuery()
+        return $this->documentRevision->rules()
             ->where( "report_type_sid", $this->sid )
             ->orderBy( 'rank')
             ->get();
     }
 
-    // note that this is NOT a laravel relation
     /**
+     * note that this is NOT a laravel relation
      * @return RecordType
      */
     public function baseRecordType()
     {
-        return $this->documentRevision->recordTypes()->where( "sid", $this->base_record_type_sid )->first();
-    }
-
-    // candidate for a trait or something?
-    var $dataCache;
-
-    /**
-     * @return array
-     */
-    public function data() {
-        if( !$this->dataCache ) { 
-            $this->dataCache = json_decode( $this->data, true );
-        }  
-        return $this->dataCache;
+        return $this->documentRevision->recordTypes()
+            ->where( "sid", $this->base_record_type_sid )
+            ->first();
     }
 
     /**
@@ -57,7 +46,7 @@ class ReportType extends DocumentPart
         [ 'name' => 'required|alpha_dash|min:2|max:255' ]);
 
         if($validator->fails()) {
-            throw new DataStructValidationException( "RecordType", "name", $this->name, $validator->errors() );
+            throw new DataStructValidationException( "Validation fail in reportType.name: ".join( ", ", $validator->errors() ));
         }
     }
 
@@ -67,12 +56,12 @@ class ReportType extends DocumentPart
     public function validateData() {
 
         $validator = Validator::make(
-          $this->data(),
+          $this->data,
           [ 'title' => 'required' ]
         );
 
         if($validator->fails()) {
-            throw new DataStructValidationException( "ReportType", "data", $this->data(), $validator->errors() );
+            throw new DataStructValidationException( "Validation fail in reportType.data: ".join( ", ", $validator->errors() ));
         }
     }
 
@@ -93,7 +82,7 @@ class ReportType extends DocumentPart
         $rule->documentRevision()->associate( $this->documentRevision );
         $rule->rank = $rank;
         $rule->report_type_sid = $this->sid;
-        $rule->data = json_encode( $data );
+        $rule->data = $data;
 
         $rule->validateData();
         $rule->save();
@@ -105,10 +94,9 @@ class ReportType extends DocumentPart
     /**
      * Run this report type on the current document revision and produce a report object.
      * Doesn't save the object.
-     * @param array $options
      * @return Report
      */
-    function makeReport($options = []) {
+    function makeReport() {
         $records = $this->baseRecordType()->records;
         $report = $this->documentRevision->makeReport(); // will be an object when I know what shape it is!
         foreach( $records as $record ) {
@@ -118,13 +106,14 @@ class ReportType extends DocumentPart
     }
 
 
-    /**
+    /*
+     * for each rule get all possible contexts based on this record and the rule type 'route'
+     * then apply the rule.
      * @param Record $record
      * @return RecordReport
      */
     function recordReport($record ) {
-        // for each rule get all possible contexts based on this record and the rule type 'route'
-        // then apply the rule
+
         $recordReport = new RecordReport();
 
         foreach( $this->rules() as $rule ) {

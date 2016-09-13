@@ -6,7 +6,7 @@ use App\Exceptions\ReportingException;
 
 use App\RecordReport;
 
-class AlterTarget extends AbstractAction
+class AlterTarget extends Action
 {
     // has a name, to use in the rules
     public $name = 'alter_target';

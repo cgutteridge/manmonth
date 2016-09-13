@@ -5,18 +5,30 @@ namespace App\MMScript\Ops;
 use App\Exceptions\ScriptException;
 use App\Exceptions\MMScriptRuntimeException;
 use App\MMScript\Values\RecordValue;
+use App\Models\RecordType;
 
 
-
+/**
+ * Class Record
+ * @package App\MMScript\Ops
+ */
 class Record extends Op
 {
+    private $recordType;
+
+    /**
+     * @return string
+     */
     function type() {
         if( @$this->type ) { return $this->type; }
         $this->type = "record";
         return $this->type;
     }
 
-    var $recordType;
+    /**
+     * @return RecordType
+     * @throws ScriptException
+     */
     function recordType() {
         if( @$this->recordType ) { return $this->recordType; }
         if( !@$this->script->context[ $this->value ] ) {
@@ -26,7 +38,12 @@ class Record extends Op
         return $this->recordType;
     }
 
-    function execute( $context )
+    /**
+     * @param $context
+     * @return RecordValue
+     * @throws MMScriptRuntimeException
+     */
+    function execute($context )
     {
         if( !isset($context[$this->value])) {
             throw new MMScriptRuntimeException( "Context does not contain ".$this->value.". Context has: [".join( ", ", array_keys( $context )));

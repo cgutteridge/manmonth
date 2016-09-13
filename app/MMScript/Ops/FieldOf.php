@@ -3,19 +3,16 @@
 namespace App\MMScript\Ops;
 
 use App\Exceptions\ScriptException;
-
+use App\MMScript\Values\Value;
 
 /**
  * Class FieldOf
  * @package App\MMScript\Ops
- * @param Op left
- * @param Name right
  */
 class FieldOf extends BinaryOp
 {
-    // this type is a biggy... gotta work out the actual type from the schema!
     /**
-     * @return mixed
+     * @return string
      * @throws ScriptException
      */
     function type() {
@@ -34,7 +31,7 @@ class FieldOf extends BinaryOp
 
     /**
      * @param $context
-     * @return mixed
+     * @return Value
      */
     function execute($context )
     {

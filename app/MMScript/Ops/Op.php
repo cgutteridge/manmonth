@@ -1,28 +1,73 @@
 <?php
 
 namespace App\MMScript\Ops;
+use App\MMScript\Values\Value;
+use App\Models\RecordType;
 
-abstract class Op 
+/**
+ * Class Op
+ * @package App\MMScript\Ops
+ */
+abstract class Op
 {
+    /**
+     * @var int the offset into the script
+     */
     var $offset;
+    /**
+     * @var
+     */
     var $opCode;
+    /**
+     * @var
+     */
     var $value;
+    /**
+     * @var
+     */
     var $script;
+    /**
+     * @var
+     */
     protected $type;
 
-    public function __construct( $script,$op ) {
+    /**
+     * Op constructor.
+     * @param $script
+     * @param $token
+     */
+    public function __construct($script, $token ) {
         $this->script = $script;
-        $this->offset = $op[0];
-        $this->opCode = $op[1];
-        $this->value = @$op[2];
+        $this->offset = $token[0];
+        $this->opCode = $token[1];
+        $this->value = @$token[2];
     }
 
+    /**
+     * @return string
+     */
     public abstract function type();
 
-    public function treeText( $prefix = "" ) {
+    /**
+     * @param string $prefix
+     * @return string
+     */
+    public function treeText($prefix = "" ) {
         $r = $prefix.get_class( $this )." :: ".$this->opCode." -> ".@$this->value." [".@$this->type()."]\n";
         return $r;
     }
 
-    public abstract function execute( $context );
+    // might be needed if a function returns type 'record' later?
+    /**
+     * @return null|RecordType
+     */
+    function recordType() {
+        return null;
+    }
+
+    /**
+     * @param $context
+     * @return Value
+     */
+    public abstract function execute($context );
 }

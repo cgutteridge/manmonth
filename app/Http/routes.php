@@ -31,6 +31,7 @@ Route::get('revision/{id}', function ($id) {
 });
 
 Route::get('report-type/{id}', function ($id) {
+    /** @var ReportType $reportType */
     $reportType = ReportType::find( $id );
     $report = $reportType->makeReport();
     return view('reportType', ["reportType"=>$reportType, "report"=>$report] );

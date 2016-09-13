@@ -12,6 +12,10 @@ use Exception;
  * @property Collection reportTypes
  * @property Collection records
  * @property int id
+ * @property RecordType[] recordTypes
+ * @property Link[] links
+ * @property LinkType[] linkTypes
+ * @property Rule[] rules
  */
 class DocumentRevision extends Model
 {
@@ -131,7 +135,7 @@ class DocumentRevision extends Model
         $report_type->documentRevision()->associate( $this );
         $report_type->base_record_type_sid = $baseRecordType->sid;
         $report_type->name = $name;
-        $report_type->data = json_encode( $data );
+        $report_type->data = $data;
 
         $report_type->validateName();
         $report_type->validateData();
@@ -150,7 +154,7 @@ class DocumentRevision extends Model
         $record_type = new RecordType();
         $record_type->documentRevision()->associate( $this );
         $record_type->name = $name;
-        $record_type->data = json_encode( $data );
+        $record_type->data = $data;
 
         $record_type->validateName();
         $record_type->validateData();
@@ -190,7 +194,7 @@ class DocumentRevision extends Model
         $link_type->name = $name;
         $link_type->domain_sid = $domain->sid;
         $link_type->range_sid = $range->sid;
-        $link_type->data = json_encode( $data );
+        $link_type->data = $data;
 
         // these take exception if there's an issue
         $link_type->validateName();

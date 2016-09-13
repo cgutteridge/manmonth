@@ -3,7 +3,8 @@
 namespace App\Models;
 
 use App\Exceptions\DataStructValidationException;
-use App\MMScript\Values\AbstractValue;
+use App\Fields\Field;
+use App\MMScript\Values\Value;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -14,24 +15,40 @@ use Illuminate\Support\Facades\DB;
  * @property int sid
  * @property RecordType recordType
  * @property int document_revision_id
- * @property string data
+ * @property string array
  * @property Collection forwardLinks
+ * @property Collection backLinks
  * @property int record_type_sid
+ * @property array data
  */
 class Record extends DocumentPart
 {
+
+    /**
+     * @return RecordType
+     */
     public function recordType()
     {
-        return $this->hasOne( 'App\Models\RecordType', 'sid', 'record_type_sid' )->where( 'document_revision_id', $this->document_revision_id );
+        return $this->hasOne( 'App\Models\RecordType', 'sid', 'record_type_sid' )
+            ->where( 'document_revision_id', $this->document_revision_id );
     }
 
+    /**
+     * @return Collection (list of Link)
+     */
     public function forwardLinks()
     {
-        return $this->hasMany( 'App\Models\Link', 'subject_sid', 'sid' )->where( 'document_revision_id', $this->document_revision_id );
+        return $this->hasMany( 'App\Models\Link', 'subject_sid', 'sid' )
+            ->where( 'document_revision_id', $this->document_revision_id );
     }
+
+    /**
+     * @return Collection (list of Link)
+     */
     public function backLinks()
     {
-        return $this->hasMany( 'App\Models\Link', 'object_sid', 'sid' )->where( 'document_revision_id', $this->document_revision_id );
+        return $this->hasMany( 'App\Models\Link', 'object_sid', 'sid' )
+            ->where( 'document_revision_id', $this->document_revision_id );
     }
 
     /**
@@ -47,7 +64,9 @@ class Record extends DocumentPart
             ->pluck("links.object_sid");
         $records = [];
         foreach( $recordIds as $recordSid ) {
-            $records []= $this->documentRevision->records()->where( 'sid','=', $recordSid )->first();
+            $records []= $this->documentRevision->records()->getQuery()
+                ->where( 'sid','=', $recordSid )
+                ->first();
         }
         return $records;
     }
@@ -70,23 +89,16 @@ class Record extends DocumentPart
         return $records;
     }
 
-    // candidate for a trait or something?
-    var $dataCache;
-    public function data() {
-        if( !$this->dataCache ) { 
-            $this->dataCache = json_decode( $this->data, true );
-        }  
-        return $this->dataCache;
-    }
-
-    // get the typed value from a field or null
+    //
     /**
+     * Get the typed value (or null value object) from a field
      * @param string $fieldName
-     * @return AbstractValue
+     * @return Value
      */
     public function getValue($fieldName) {
-        return $this->recordType->field( $fieldName )->makeValue( @$this->data()[$fieldName] );
+        return $this->recordType->field( $fieldName )->makeValue( @$this->data[$fieldName] );
     }
+
     // return a text representation and all associated records 
     // following subject->object direction links only.
     // does not (yet) worry about loops.
@@ -96,7 +108,7 @@ class Record extends DocumentPart
      */
     function dumpText($indent="") {
         $r = "";
-        $r.= $indent."".$this->recordType->name."#".$this->sid." ".$this->data."\n";
+        $r.= $indent."".$this->recordType->name."#".$this->sid." ".json_encode($this->data)."\n";
         foreach( $this->forwardLinks as $link ) {
              $r.=$indent."  ->".$link->linkType->name."->\n";
              $r.=$link->objectRecord->dumpText( $indent."    " );
@@ -110,13 +122,14 @@ class Record extends DocumentPart
     public function validateData() {
         $validationCodes = [];
         foreach( $this->recordType->fields() as $field ) {
-            $validationCodes[$field->data("name")] = $field->valueValidationCode();
+            /** @var Field $field */
+            $validationCodes[$field->data["name"]] = $field->valueValidationCode();
         }
 
         $validator = Validator::make( $this->data, $validationCodes );
 
         if($validator->fails()) {
-            throw new DataStructValidationException( "Record", "data", $this->data, $validator->errors() );
+            throw new DataStructValidationException( "Validation fail in record.data: ".join( ", ", $validator->errors ));
         }
     }
 

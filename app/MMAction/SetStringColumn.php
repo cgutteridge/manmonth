@@ -13,7 +13,7 @@ use App\RecordReport;
 // these classes represent the actions that can be performed as a result of
 // a Rule.
 
-class SetStringColumn extends AbstractAction
+class SetStringColumn extends Action
 {
     // has a name, to use in the rules
     public $name = 'set_string_column';

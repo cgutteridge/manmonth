@@ -8,6 +8,6 @@
 
 namespace App\MMScript\Values;
 
-class StringValue extends AbstractValue
+class StringValue extends Value
 {
 }

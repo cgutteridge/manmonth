@@ -17,24 +17,44 @@ use Illuminate\Support\Facades\Validator;
  */
 class RecordType extends DocumentPart
 {
+    /**
+     * @return LinkType[]
+     */
     public function forwardLinkTypes()
     {
-        return $this->documentRevision->linkTypes()->where( "domain_sid", $this->sid );
-    }
-    public function backLinkTypes()
-    {
-        return $this->documentRevision->linkTypes()->where( "range_sid", $this->sid );
-    }
-    public function records()
-    {
-        return $this->documentRevision->records()->where( "record_type_sid", $this->sid );
+        return $this->documentRevision->linkTypes()
+            ->where( "domain_sid", $this->sid );
     }
 
-    // data to create the record. Should supply data and all 1:n and n:1 links.
-    // may supply other links but this is not requred.
-    // 1:1 links are not yet supported. 
+    /**
+     * @return LinkType[]
+     */
+    public function backLinkTypes()
+    {
+        return $this->documentRevision->linkTypes()
+            ->where( "range_sid", $this->sid );
+    }
+
+    /**
+     * @return Record[]
+     */
+    public function records()
+    {
+        return $this->documentRevision->records()
+            ->where( "record_type_sid", $this->sid );
+    }
+
     // TODO: passing in secondary records could be helpful later
-    public function createRecord($data=[],$forwardLinks=[],$backLinks=[])
+    /**
+     * Data to create the record. Should supply data and all 1:n and n:1 links.
+     * may supply other links but this is not requred.
+     * 1:1 links are not yet supported.
+     * @param array $data
+     * @param array $forwardLinks
+     * @param array $backLinks
+     * @return Record
+     */
+    public function createRecord($data=[], $forwardLinks=[], $backLinks=[])
     {
         // make any single link targets into a list before validation
         foreach( $forwardLinks as $key=>&$value ) {
@@ -43,7 +63,6 @@ class RecordType extends DocumentPart
         foreach( $backLinks as $key=>&$value ) {
             if( !is_array( $value ) ) { $value = [$value]; }
         }
-    
 
         // these need to be checked before we create the record
         // there is a good argument for making this validation much
@@ -52,9 +71,9 @@ class RecordType extends DocumentPart
         $this->validateRecordBackLinks( $backLinks );
 
         $record = new Record();
+        $record->data = $data;
         $record->documentRevision()->associate( $this->documentRevision );
         $record->record_type_sid = $this->sid;
-        $record->data = json_encode( $data );
         $record->validateData();
         $record->save();
 
@@ -79,26 +98,28 @@ class RecordType extends DocumentPart
         return $record;
     }
 
-    // candidate for a trait or something?
-    var $dataCache;
-    public function data() {
-        if( !$this->dataCache ) { 
-            $this->dataCache = json_decode( $this->data, true );
-        }  
-        return $this->dataCache;
-    }
-
+    /**
+     * @var Field[]
+     */
     var $fieldsCache;
+
+    /**
+     * @return Field[]
+     */
     public function fields() {
         if( !$this->fieldsCache ) { 
             $this->fieldsCache = [];
-            foreach( $this->data()["fields"] as $fieldData ) {
+            foreach( $this->data["fields"] as $fieldData ) {
                 $this->fieldsCache []= Field::createFromData( $fieldData );
             }
         }  
         return $this->fieldsCache;
     }
-    
+
+    /**
+     * @param string $name
+     * @return Field|null
+     */
     public function field( $name ) {
         foreach( $this->fields() as $field ) {
             if( $field->data["name"] == $name ) {
@@ -108,10 +129,15 @@ class RecordType extends DocumentPart
         return null; // no such field
     }
 
-    // validate forward links to be added to a record of this type
-    // must be relevant links and a legal number
-    // $links are of the format [ link_name=>[ $records,... ]]
-    public function validateRecordForwardLinks( $links ) {
+
+    /**
+     * Validate forward links to be added to a record of this type
+     *  must be relevant links and a legal number
+     *  $links are of the format [ link_name=>[ $record,... ]]
+     * @param Record[][] $links
+     * @throws DataStructValidationException
+     */
+    public function validateRecordForwardLinks($links ) {
         $linkTypes = $this->forwardLinkTypes;
         $unknownLinks = $links; // we'll reduce this list to actually unknown items
         $issues = [];
@@ -141,14 +167,18 @@ class RecordType extends DocumentPart
             }
         } 
         if( count($issues ) ) {
-            throw new DataStructValidationException( "Record", "forwardLinks", "", ["forwardLinks"=>$issues] );
+            throw new DataStructValidationException( "Validation fail in recordtype.forwardLinks: ".join( ", ", $issues ));
         }
     }
 
-    // validate back links to be added to a record of this type
-    // must be relevant links and a legal number
-    // $links are of the format [ link_name=>[ $records,... ]]
-    public function validateRecordBackLinks( $links ) {
+    /**
+     * Validate back links to be added to a record of this type
+     *  must be relevant links and a legal number
+     *  $links are of the format [ link_name=>[ $record,... ]]
+     * @param $links
+     * @throws DataStructValidationException
+     */
+    public function validateRecordBackLinks($links ) {
         $linkTypes = $this->backLinkTypes;
         $unknownLinks = $links; // we'll reduce this list to actually unknown items
         $issues = [];
@@ -177,10 +207,13 @@ class RecordType extends DocumentPart
             }
         } 
         if( count($issues ) ) {
-            throw new DataStructValidationException( "Record", "backLinks", "", ["backLinks"=>$issues] );
+            throw new DataStructValidationException( "Validation fail in recordtype.backLinks: ".join( ", ", $issues ));
         }
     }
 
+    /**
+     * @throws DataStructValidationException
+     */
     public function validateName() {
 
         $validator = Validator::make(
@@ -192,15 +225,18 @@ class RecordType extends DocumentPart
         }
     }
 
+    /**
+     * @throws DataStructValidationException
+     */
     public function validateData() {
 
         $validator = Validator::make(
-          $this->data(),
+          $this->data,
           [ 'fields' => 'required|array', 
             'fields.*.type' => 'required|in:boolean,integer,decimal,string' ]);
 
         if($validator->fails()) {
-            throw new DataStructValidationException( "RecordType", "data", $this->data(), $validator->errors() );
+            throw new DataStructValidationException( "RecordType", "data", $this->data, $validator->errors() );
         }
         foreach( $this->fields() as $field ) {
             $field->validate();

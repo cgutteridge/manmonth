@@ -4,7 +4,7 @@ namespace App\MMAction;
 
 use App\RecordReport;
 
-class AssignLoad extends AbstractAction
+class AssignLoad extends Action
 {
     // has a name, to use in the rules
     public $name = 'assign_load';

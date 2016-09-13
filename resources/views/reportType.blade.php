@@ -4,9 +4,6 @@
 
 @section( 'content')
 
-
-
-
     @foreach( $report->loadingTypes() as $loadingType )
         <div class="panel panel-primary">
             <div class="panel-heading">
@@ -87,19 +84,19 @@
     @endforeach
 
     <div class="panel panel-primary">
-        <div class="panel-heading"><b>Rules</b></b></div>
+        <div class="panel-heading"><b>Rules</b></div>
 
         <div class="panel-body">
             @foreach( $reportType->rules() as $rule )
                 <h3>Rule #{{ $rule->rank+1 }}</h3>
-                @include( 'dataTable', ['data'=>$rule->data() ])
+                @include( 'dataTable', ['data'=>$rule->data ])
             @endforeach
         </div>
     </div>
 
 
     <div class="panel panel-primary">
-        <div class="panel-heading"><b>Records</b></b></div>
+        <div class="panel-heading"><b>Records</b></div>
 
         <div class="panel-body">
             @foreach( $reportType->baseRecordType()->records as $record)
@@ -109,14 +106,14 @@
     </div>
 
     <div class="panel panel-primary">
-        <div class="panel-heading"><b>Log</b></b></div>
+        <div class="panel-heading"><b>Log</b></div>
 
         <div class="panel-body">
             <p>This is a list of every action triggered on every record.</p>
             @foreach( $reportType->baseRecordType()->records as $record)
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        @include( 'dataTable', ['data'=>$record->data() ])
+                        @include( 'dataTable', ['data'=>$record->data ])
                     </div>
                     <ol class="list-group">
                             @foreach( $report->recordReports()[ $record->sid ]->getLog() as $log )
@@ -136,7 +133,7 @@
             if( !hovernote )
             {
                 hovernote = jQuery("<div id='hovernote' style='display:none'></div>").appendTo('body');
-                hovernote.mouseleave( function(event) { jQuery('#hovernote').hide(); } );
+                hovernote.mouseleave( function() { jQuery('#hovernote').hide(); } );
             }
             var ua = navigator.userAgent;
             var mobile = ua.match(/(iPhone|iPod|iPad|BlackBerry|Android)/);
@@ -148,7 +145,7 @@
                     hovernote.html( cell.find( ".hover").html() );
                     var tPosX = event.pageX - 190;
                     var tPosY = event.pageY - 10;
-                    jQuery('#hovernote').css( {
+                    hovernote.css( {
                         'position': 'absolute',
                         'width': '300px',
                         'white-space': 'normal',
@@ -161,24 +158,24 @@
                     var RIGHT_MARGIN = 15;
                     // check to see if box would be off right hand side and if so
                     // shunt it back a bit
-                    if( tPosX+jQuery('#hovernote').width() > jQuery(window).innerWidth()+jQuery(window).scrollLeft()-RIGHT_MARGIN )
+                    if( tPosX+hovernote.width() > jQuery(window).innerWidth()+jQuery(window).scrollLeft()-RIGHT_MARGIN )
                     {
-                        tPosX=jQuery(window).innerWidth()+jQuery(window).scrollLeft()-jQuery('#hovernote').width()-RIGHT_MARGIN;
-                        jQuery('#hovernote').css('left', tPosX+'px' );
+                        tPosX=jQuery(window).innerWidth()+jQuery(window).scrollLeft()-hovernote.width()-RIGHT_MARGIN;
+                        hovernote.css('left', tPosX+'px' );
                     }
                     // and the left
                     if( tPosX < jQuery(window).scrollLeft()+RIGHT_MARGIN )
                     {
                         tPosX=jQuery(window).scrollLeft()+RIGHT_MARGIN;
-                        jQuery('#hovernote').css('left', tPosX+'px' );
+                        hovernote.css('left', tPosX+'px' );
                     }
                     // check to see if box would be off the bottom of the window and if so
                     // shunt it up a bit
-                    if( tPosY+jQuery('#hovernote').height() > jQuery(window).innerHeight()+jQuery(window).scrollTop()-BOTTOM_MARGIN )
+                    if( tPosY+hovernote.height() > jQuery(window).innerHeight()+jQuery(window).scrollTop()-BOTTOM_MARGIN )
                     {
-                        tPosY=jQuery(window).innerHeight()+jQuery(window).scrollTop()-jQuery('#hovernote').height()-BOTTOM_MARGIN;
+                        tPosY=jQuery(window).innerHeight()+jQuery(window).scrollTop()-hovernote.height()-BOTTOM_MARGIN;
 
-                        jQuery('#hovernote').css('top', tPosY+'px' );
+                        hovernote.css('top', tPosY+'px' );
                     }
                 };
                 if( !mobile )

@@ -9,7 +9,7 @@
 // so minimal. much nothing.
 namespace App\MMScript\Values;
 
-class NullValue extends AbstractValue
+class NullValue extends Value
 {
     function __construct()
     {

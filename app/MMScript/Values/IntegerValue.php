@@ -9,6 +9,6 @@
 
 namespace App\MMScript\Values;
 
-class IntegerValue extends AbstractValue
+class IntegerValue extends Value
 {
 }

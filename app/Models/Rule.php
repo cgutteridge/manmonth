@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Exceptions\DataStructValidationException;
 use App\Fields\Field;
-use App\MMAction\AbstractAction;
+use App\MMAction\Action;
 use App\MMAction\AlterTarget;
 use App\MMAction\AssignLoad;
 use App\MMAction\ScaleTarget;
@@ -14,6 +14,7 @@ use App\MMAction\SetTarget;
 use App\MMScript;
 use App\RecordReport;
 use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -35,7 +36,8 @@ class Rule extends DocumentPart
      */
     public function reportType()
     {
-        return $this->hasOne('App\Models\ReportType', 'sid', 'report_type_sid')->where('document_revision_id', $this->document_revision_id);
+        return $this->hasOne('App\Models\ReportType', 'sid', 'report_type_sid')
+            ->where('document_revision_id', $this->document_revision_id);
     }
 
     // there's probably a cleverer laravel way of doing this...
@@ -52,7 +54,7 @@ class Rule extends DocumentPart
     ];
 
     /**
-     * @var
+     * @var array[Action]
      */
     static protected $actionCache;
 
@@ -74,7 +76,7 @@ class Rule extends DocumentPart
 
     /**
      * @param string $actionName
-     * @return \App\MMAction\AbstractAction
+     * @return \App\MMAction\Action
      */
     public static function actionFactory($actionName)
     {
@@ -82,33 +84,14 @@ class Rule extends DocumentPart
         return $actions[$actionName];
     }
 
-    // candidate for a trait or something?
-    /**
-     * @var array;
-     */
-    var $dataCache;
-
-    /**
-     * @return array
-     */
-    public function data()
-    {
-        if (!$this->dataCache) {
-            $this->dataCache = json_decode($this->data, true);
-        }
-        return $this->dataCache;
-    }
-
     /**
      * @throws DataStructValidationException,Exception
      */
     public function validateData()
     {
-
         $actions = Rule::actions();
-
         $validator = Validator::make(
-            $this->data(),
+            $this->data,
             [
                 'action' => 'required|string|in:' . join(",", array_keys($actions)),
                 'trigger' => 'string',
@@ -117,36 +100,31 @@ class Rule extends DocumentPart
                 'params' => 'array']);
 
         if ($validator->fails()) {
-            throw new DataStructValidationException("Rule", "data", $this->data(), $validator->errors());
+            throw new DataStructValidationException( "Validation fail in rule.data: ".join( ", ", $validator->errors() ));
         }
 
-        // context is the types this is to operate on, not the specific instances
-        // contains all the named record types
-        // can throw exception is the route is invalid, an we're happy to throw that exception
-        if (!@$this->data()["route"]) {
-            $this->data()["route"] = [];
-        }
+        // run this function just to let it throw an exception
+        $this->abstractContext();
 
-        if (@$this->data()["trigger"]) {
-            $trigger = $this->script($this->data()["trigger"]);
+        if (@$this->data["trigger"]) {
+            $trigger = $this->script($this->data["trigger"]);
             $type = $trigger->type();
             if ($type != "boolean") {
                 // TODO better class of exception?
-                throw new Exception("Trigger must either be unset or evaluate to true/false. Currently evaluates to $type");
+                throw new DataStructValidationException("Trigger must either be unset or evaluate to true/false. Currently evaluates to $type");
             }
         }
         $action = $this->getAction();
         /** @var Field $field */
         foreach ($action->fields as $field) {
-            if (!array_key_exists($field->data["name"], $this->data()["params"])) {
+            if (!array_key_exists($field->data["name"], $this->data["params"])) {
                 if ($field->required()) {
-                    throw new Exception("Action " . $action->name . " requires param '" . $field->data["name"] . "'");
+                    throw new DataStructValidationException("Action " . $action->name . " requires param '" . $field->data["name"] . "'");
                 }
                 continue;
             }
-            $script = $this->script($this->data()["params"][$field->data["name"]]);
+            $script = $this->script($this->data["params"][$field->data["name"]]);
             $type = $script->type();
-#print $script->textTree();
 
             // not doing full autocasting but doing a special case to let decimal fields accpet integers
             $typeMatch = false;
@@ -158,18 +136,18 @@ class Rule extends DocumentPart
             }
 
             if (!$typeMatch) {
-                throw new Exception("Action " . $action->name . " param '" . $field->data["name"] . "' requires a value of type '" . $field->data["type"] . "' but got given '$type'");
+                throw new DataStructValidationException("Action " . $action->name . " param '" . $field->data["name"] . "' requires a value of type '" . $field->data["type"] . "' but got given '$type'");
             }
         }
     }
 
     /**
      * Return the action associated with this rule.
-     * @return AbstractAction;
+     * @return Action
      */
     public function getAction()
     {
-        return Rule::actionFactory($this->data()["action"]);
+        return Rule::actionFactory($this->data["action"]);
     }
 
     protected $scripts=[];
@@ -180,7 +158,10 @@ class Rule extends DocumentPart
      */
     function script($scriptText ) {
         if( isset( $this->scripts[$scriptText] ) ) { return $this->scripts[$scriptText]; }
-        $this->scripts[$scriptText] = new MMScript( $scriptText, $this->documentRevision, $this->abstractContext() );
+        $this->scripts[$scriptText] = new MMScript(
+            $scriptText,
+            $this->documentRevision,
+            $this->abstractContext() );
         return $this->scripts[$scriptText];
     }
 
@@ -202,9 +183,9 @@ class Rule extends DocumentPart
         $iterativeRecordType = $baseRecordType;
 
         // simple case
-        if( !isset($this->data()['route']) ) { return $this->abstractContext; }
+        if( !isset($this->data['route']) ) { return $this->abstractContext; }
         
-        foreach( $this->data()['route'] as $linkName ) {
+        foreach( $this->data['route'] as $linkName ) {
             $fwd = true;
             if( substr( $linkName, 0, 1 ) == "^" ) {
                 $linkName = substr( $linkName, 1 );
@@ -255,7 +236,7 @@ class Rule extends DocumentPart
         $baseRecordType = $this->reportType->baseRecordType();
         $context[$baseRecordType->name] = $record;
         $route = [];
-        if( isset($this->data()['route']) ) { $route = $this->data()['route']; }
+        if( isset($this->data['route']) ) { $route = $this->data['route']; }
         $this->applyToRoute( $recordReport, $context, $route, $record );
     }
 
@@ -307,7 +288,7 @@ class Rule extends DocumentPart
         if( count( $nextFocusObjectsSids) == 0) {
             return; // this route doesn't resolve to any contexts to run the rule in
         }
-        $nextThing = $this->documentRevision->records()->where( 'sid','=', $nextFocusObjectsSids[0] )->first();
+        $nextThing = $this->documentRevision->records()->getQuery()->where( 'sid','=', $nextFocusObjectsSids[0] )->first();
         $baseNextTypeName = $nextThing->recordType->name;
         $nextTypeName = $baseNextTypeName;
         // in case we meet the same class twice, will fallback
@@ -318,7 +299,8 @@ class Rule extends DocumentPart
             $i++;
         }
         foreach( $nextFocusObjectsSids as $sid ) {
-            $nextFocusObject = $this->documentRevision->records()->where( 'sid','=', $sid )->first();
+            /** @var Record $nextFocusObject */
+            $nextFocusObject = $this->documentRevision->records()->getQuery()->where( 'sid','=', $sid )->first();
 
             $context[$nextTypeName] = $nextFocusObject;
             $this->applyToRoute( $recordReport, $context, $route, $nextFocusObject );
@@ -331,28 +313,19 @@ class Rule extends DocumentPart
      */
     private function applyToContext($recordReport, $context)
     {
-        /*
-        print "RUNNING RULE: ".$this->sid."\n";
-        foreach( $context as $key=>$value ) {
-            print "  | CONTEXT[$key] = ".$value->id."\n";
-        }
-        */
-        if( isset($this->data()["trigger"]) ) {
-            $trigger = $this->script($this->data()["trigger"]);
-   //         print "   * testing trigger: ".$this->data()["trigger"]."\n";
+        if( isset($this->data["trigger"]) ) {
+            $trigger = $this->script($this->data["trigger"]);
             $result = $trigger->execute( $context );
             if( !$result->value ) {
-     //           print "   / FALSE? well onwards!\n";
                 return;
             }
         }
-   //     print "   + TRUE or no test... time for action!\n";
 
         $action = $this->getAction();
         $params = [];
         foreach ($action->fields as $field) {
             $fieldName = $field->data["name"];
-            $paramCode = @$this->data()["params"][$fieldName];
+            $paramCode = @$this->data["params"][$fieldName];
             if( !isset($paramCode) ) { continue; }
             $script = $this->script( $paramCode );
             $params[ $fieldName ] = $script->execute( $context )->value;

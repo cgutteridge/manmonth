@@ -8,6 +8,6 @@
 
 namespace App\MMScript\Values;
 
-class NameValue extends AbstractValue
+class NameValue extends Value
 {
 }
