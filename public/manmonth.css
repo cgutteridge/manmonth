@@ -39,11 +39,8 @@
 .mm_cat_penguin {
     background-color: #c09d88;
 }
-.mm_target_bar {
-    overflow: hidden;
-    clear: both;
-    height: 30px;
-}
+
+
 .mm_target_indicator_bar {
     overflow: hidden;
     clear: both;
@@ -58,11 +55,17 @@
     font-size: 10px;
 }
 
+.mm_target_bar {
+    overflow: hidden;
+    clear: both;
+    height: 20px;
+}
 .mm_target {
     overflow: hidden;
     background-color: green;
     float: left;
     margin: 0;
+    font-size:10px;
 }
 .mm_target_alloc {
     background-color: #83de7a;
@@ -70,7 +73,6 @@
 .mm_target_free {
     background-color: #d3de60;
 }
-
 .mm_target_over {
     background-color: #de5b64;
 }
@@ -80,8 +82,11 @@
     white-space: nowrap;
     display: inline-block;
     padding: 4px;
-    height: 34px;
+    height: 24px;
 }
+
+
+
 .mm_record_report {
     clear: both;
     margin-top: 1em;
