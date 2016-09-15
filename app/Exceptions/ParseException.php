@@ -21,7 +21,7 @@ class ParseException extends ScriptException
      
         $message = "$message near: ";
 	    $message .= substr( $script,0,$offset );
-	    $message .= "<HERE>";
+	    $message .= "{HERE}";
     	$message .= substr( $script,$offset );
 
         $code = null;         
