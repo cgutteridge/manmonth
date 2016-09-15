@@ -3,10 +3,10 @@
 <head>
     <title>@yield('title')</title>
 
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/bootstrap.min.css" rel="stylesheet">
     <link href="/manmonth.css" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+    <script src=/jquery.min.js"></script>
+    <script src="/bootstrap.min.js"></script>
 
 </head>
 <body>

@@ -62,6 +62,29 @@ abstract class Field
     }
 
     /**
+     * Return the human readable title for this field. Failing that, the
+     * name string.
+     * @return string
+     */
+    public function title() {
+        if( @$this->data["title"] ) {
+            return $this->data["title"];
+        }
+        return $this->data["name"];
+    }
+
+    /**
+     * Give the description text for the field, or null if there is none.
+     * @return string|null
+     */
+    public function description() {
+        if( @$this->data["description"] ) {
+            return $this->data["description"];
+        }
+        return null;
+    }
+
+    /**
      * Return the laravel validate array to validate data for this field
      * @return array
      */

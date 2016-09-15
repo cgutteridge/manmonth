@@ -12,6 +12,7 @@
 */
 
 use App\Models\DocumentRevision;
+use App\Models\Record;
 use App\Models\Report;
 use App\Models\ReportType;
 use Illuminate\Support\Facades\Route;
@@ -36,4 +37,11 @@ Route::get('report-type/{id}', function ($id) {
     $report = $reportType->makeReport();
     return view('reportType', ["reportType"=>$reportType, "report"=>$report] );
 });
+
+Route::get('record/{id}/edit', function ($id) {
+    /** @var Record $record */
+    $record = Record::find( $id );
+    return view('editRecord', ["record"=>$record,"idPrefix"=>"cjg"] );
+});
+
 

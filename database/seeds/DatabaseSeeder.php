@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
           "fields"=> [
               ["name"=>"name", "type"=>"string", "required"=>true],
               ["name"=>"group", "type"=>"string"],
-              ["name"=>"penguins", "type"=>"decimal"],
+              ["name"=>"penguins", "type"=>"decimal", "min"=>0 ],
               ["name"=>"newbie", "type"=>"boolean", "default"=>false],
           ]
         ]);
