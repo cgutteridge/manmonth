@@ -2,7 +2,8 @@
 <input
         type="number"
         class="form-control"
-        id="{{ $idPrefix }}_input"
+        id="{{ $idPrefix }}"
+        name="{{ $idPrefix }}"
         @if(array_key_exists("min",$field->data))
         min="{{$field->data["min"]}}"
         @endif

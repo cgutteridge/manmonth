@@ -14,9 +14,10 @@ use App\MMAction\SetTarget;
 use App\MMScript;
 use App\RecordReport;
 use Exception;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use DB;
+use Validator;
+
+/** @noinspection PhpUndefinedClassInspection */
 
 /**
  * Class Rule
@@ -36,6 +37,7 @@ class Rule extends DocumentPart
      */
     public function reportType()
     {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->hasOne('App\Models\ReportType', 'sid', 'report_type_sid')
             ->where('document_revision_id', $this->document_revision_id);
     }

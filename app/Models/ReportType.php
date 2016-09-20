@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Exceptions\DataStructValidationException;
-use Illuminate\Support\Facades\Validator;
+use Validator;
 use App\RecordReport;
 
 /**
@@ -19,6 +19,7 @@ class ReportType extends DocumentPart
      * @return array[Rule]
      */
     public function rules() {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->documentRevision->rules()
             ->where( "report_type_sid", $this->sid )
             ->orderBy( 'rank')
@@ -31,6 +32,7 @@ class ReportType extends DocumentPart
      */
     public function baseRecordType()
     {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->documentRevision->recordTypes()
             ->where( "sid", $this->base_record_type_sid )
             ->first();
@@ -73,6 +75,7 @@ class ReportType extends DocumentPart
 
         // all OK, let's make this rule
         $rank = 0;
+        /** @noinspection PhpUndefinedMethodInspection */
         $lastrule = $this->rules()->sortByDesc( 'id' )->first();
         if( $lastrule ) { 
             $rank = $lastrule->rank + 1 ;

@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Validator;
+use Validator;
 use App\Exceptions\DataStructValidationException;
 
 /**
@@ -21,6 +21,7 @@ class LinkType extends DocumentPart
      * @return RecordType
      */
     public function domain() {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->hasOne( 'App\Models\RecordType', 'sid', 'domain_sid' )->where( 'document_revision_id', $this->document_revision_id );
     }
 
@@ -28,6 +29,7 @@ class LinkType extends DocumentPart
      * @return RecordType
      */
     public function range() {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->hasOne( 'App\Models\RecordType', 'sid', 'range_sid' )->where( 'document_revision_id', $this->document_revision_id );
     }
 
@@ -35,6 +37,7 @@ class LinkType extends DocumentPart
      * @return Collection List of Record models
      */
     public function links() {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->documentRevision->records()->where( "link_type_sid", $this->sid );
     }
 

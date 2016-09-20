@@ -1,6 +1,6 @@
 <?php namespace App\Console\Commands;
 
-use Illuminate\Support\Facades\DB;
+use DB;
 use Illuminate\Console\Command;
 
 class DropTables extends Command

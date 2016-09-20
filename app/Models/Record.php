@@ -6,9 +6,8 @@ use App\Exceptions\DataStructValidationException;
 use App\Fields\Field;
 use App\MMScript\Values\Value;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
-
+use Validator;
+use DB;
 
 /**
  * @property DocumentRevision documentRevision
@@ -29,6 +28,7 @@ class Record extends DocumentPart
      */
     public function recordType()
     {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->hasOne( 'App\Models\RecordType', 'sid', 'record_type_sid' )
             ->where( 'document_revision_id', $this->document_revision_id );
     }
@@ -38,6 +38,7 @@ class Record extends DocumentPart
      */
     public function forwardLinks()
     {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->hasMany( 'App\Models\Link', 'subject_sid', 'sid' )
             ->where( 'document_revision_id', $this->document_revision_id );
     }
@@ -47,6 +48,7 @@ class Record extends DocumentPart
      */
     public function backLinks()
     {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->hasMany( 'App\Models\Link', 'object_sid', 'sid' )
             ->where( 'document_revision_id', $this->document_revision_id );
     }
@@ -84,6 +86,7 @@ class Record extends DocumentPart
             ->pluck("links.subject_sid");
         $records = [];
         foreach( $recordIds as $recordId ) {
+            /** @noinspection PhpUndefinedMethodInspection */
             $records []= $this->documentRevision->records()->where( 'sid','=', $recordId )->first();
         }
         return $records;
@@ -126,13 +129,22 @@ class Record extends DocumentPart
             $validationCodes[$field->data["name"]] = $field->valueValidationCode();
         }
 
+        /** @var \Illuminate\Validation\Validator $validator */
         $validator = Validator::make( $this->data, $validationCodes );
-
         if($validator->fails()) {
-            throw new DataStructValidationException( "Validation fail in record.data: ".join( ", ", $validator->errors ));
+            throw $this->makeValidationException( $validator );
         }
     }
 
+    public function updateData(array $update) {
+        $data = $this->data;
+        foreach( $update as $key=>$value ) {
+            if( $value !== null ) {
+                $data[$key]=$value;
+            }
+        }
+        $this->data = $data;
+    }
 }
 
 

@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Exceptions\DataStructValidationException;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\Validator;
 
 /**
  * @property int sid
@@ -41,6 +43,20 @@ abstract class DocumentPart extends Model
             $saved &= parent::save($options);
         }
         return $saved;
+    }
+
+    /**
+     * @param Validator $validator
+     * @return DataStructValidationException
+     */
+    protected function makeValidationException(Validator $validator ) {
+        $msg = "Validation failure.";
+        $errors = $validator->errors();
+        foreach( $errors->getMessages() as $fieldName=>$list ) {
+            $msg .= " ".join( ", ", $list );
+            $msg .= " The $fieldName field had value ".json_encode( $validator->getData()[$fieldName] ).".";
+        }
+        return new DataStructValidationException( $msg );
     }
 }
 

@@ -4,7 +4,7 @@ namespace App\Fields;
 
 use App\MMScript\Values\Value;
 use Exception;
-use Illuminate\Support\Facades\Validator;
+use Validator;
 use App\Exceptions\DataStructValidationException;
 
 abstract class Field

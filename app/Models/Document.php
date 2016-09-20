@@ -81,6 +81,7 @@ class Document extends Model
      */
     public function draftRevision()
     {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->revisions()->where( 'status', 'draft' )->first();
     }
 
@@ -92,6 +93,7 @@ class Document extends Model
     {
         // there must always be exactly one current revision so if there isn't
         // this throws an exception
+        /** @noinspection PhpUndefinedMethodInspection */
         $first = $this->revisions()->where( 'status', 'current' )->first();
         if( !$first ) 
         {

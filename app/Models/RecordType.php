@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Exceptions\DataStructValidationException;
 use App\Fields\Field;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Validator;
+use Validator;
 
 /**
  * @property string name
@@ -22,6 +22,7 @@ class RecordType extends DocumentPart
      */
     public function forwardLinkTypes()
     {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->documentRevision->linkTypes()
             ->where( "domain_sid", $this->sid );
     }
@@ -31,6 +32,7 @@ class RecordType extends DocumentPart
      */
     public function backLinkTypes()
     {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->documentRevision->linkTypes()
             ->where( "range_sid", $this->sid );
     }
@@ -40,6 +42,7 @@ class RecordType extends DocumentPart
      */
     public function records()
     {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->documentRevision->records()
             ->where( "record_type_sid", $this->sid );
     }

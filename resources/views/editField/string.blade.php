@@ -1,8 +1,9 @@
-<label for="{{$idPrefix}}_{{$field->data["name"]}}">{{ $field->title() }}</label>
+<label for="{{$idPrefix}}">{{ $field->title() }}</label>
 <input
         type="text"
         class="form-control"
-        id="{{ $idPrefix }}_input"
+        id="{{ $idPrefix }}"
+        name="{{ $idPrefix }}"
         @if($field->description()!=null)
             aria-describedby="{{ $idPrefix }}_help"
         @endif

@@ -52,6 +52,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapWebRoutes(Router $router)
     {
+        /** @noinspection PhpUnusedParameterInspection */
         $router->group([
             'namespace' => $this->namespace, 'middleware' => 'web',
         ], function ($router) {

@@ -1,14 +1,8 @@
 <?php
 
 namespace App\Models;
-use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/**
- * @property int document_revision_id
- * @property int link_type_sid
- * @property int subject_sid
- * @property int object_sid
- */
 /**
  * Class Link
  * @property int document_revision_id
@@ -20,27 +14,33 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 class Link extends DocumentPart
 {
     /**
-     * @return Relation (LinkType)
+     * @return HasOne
      */
     public function linkType()
     {
-        return $this->hasOne( 'App\Models\LinkType', 'sid', 'link_type_sid' )->where( 'document_revision_id', $this->document_revision_id );
+        /** @noinspection PhpUndefinedMethodInspection */
+        return $this->hasOne( 'App\Models\LinkType', 'sid', 'link_type_sid' )
+            ->where( 'document_revision_id', $this->document_revision_id );
     }
 
     /**
-     * @return Relation (Record)
+     * @return Record
      */
-    public function subject()
+    public function subjectRecord()
     {
-        return $this->hasOne( 'App\Models\Record', 'sid', 'subject_sid' )->where( 'document_revision_id', $this->document_revision_id );
+        /** @noinspection PhpUndefinedMethodInspection */
+        return $this->hasOne( 'App\Models\Record', 'sid', 'subject_sid' )
+            ->where( 'document_revision_id', $this->document_revision_id );
     }
 
     /**
-     * @return Relation (Record)
+     * @return Record
      */
     public function objectRecord()
     {
-        return $this->hasOne( 'App\Models\Record', 'sid', 'object_sid' )->where( 'document_revision_id', $this->document_revision_id );
+        /** @noinspection PhpUndefinedMethodInspection */
+        return $this->hasOne( 'App\Models\Record', 'sid', 'object_sid' )
+            ->where( 'document_revision_id', $this->document_revision_id );
     }
 
 }

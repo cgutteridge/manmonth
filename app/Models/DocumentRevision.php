@@ -67,6 +67,7 @@ class DocumentRevision extends Model
      * @return ReportType
      */
     public function reportTypeByName($name ) {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->reportTypes()->where( 'name', $name )->first();
     }
 
@@ -75,6 +76,7 @@ class DocumentRevision extends Model
      * @return RecordType
      */
     public function recordTypeByName($name ) {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->recordTypes()->where( 'name', $name )->first();
     }
 
@@ -83,6 +85,7 @@ class DocumentRevision extends Model
      * @return LinkType
      */
     public function linkTypeByName($name ) {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->linkTypes()->where( 'name', $name )->first();
     }
 

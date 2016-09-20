@@ -30,6 +30,7 @@ class LoadReport extends Command
     public function handle()
     {
         /** @var DocumentRevision $docRev */
+        /** @noinspection PhpUndefinedMethodInspection */
         $docRev = DocumentRevision::query()->orderBy( 'id','desc' )->first();
 
         $loadingReportType = $docRev->reportTypeByName( 'loading' );

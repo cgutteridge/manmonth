@@ -72,7 +72,6 @@ class DatabaseSeeder extends Seeder
 
         // add rules
 
-
         $loadingReportType = $draft->createReportType( 'loading', $actorType, ['title'=>'Loadings Report' ] );
         // people have a basic target load of 100 
         // people in the wombats group get 100 hours extra load target
