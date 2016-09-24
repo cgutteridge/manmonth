@@ -15,7 +15,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::resource('records', 'RecordController', ['parameters' => 'singular'] );
+// create record form is handled by record type
+Route::resource('records', 'RecordController', [
+    'parameters' => 'singular',
+    'except'=>['create','index']] );
+Route::resource('recordtypes', 'RecordTypeController', [
+    'parameters' => 'singular']);
+Route::resource('reporttypes', 'ReportTypeController', [
+    'parameters' => 'singular']);
+
 Route::resource('documents', 'DocumentController');
 Route::resource('revisions', 'DocumentRevisionController');
 Route::resource('reports', 'ReportController');

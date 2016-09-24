@@ -120,18 +120,23 @@ body {
 }
 
 /* inspect record */
-
-.mm_inspect_record_record {
-    background-color: #666;
-    padding: 4px;
+.mm-record-block .panel-heading {
+    padding: 1px 15px;
 }
-.mm_inspect_record {
-    margin-bottom: 8px;
-}
-.mm_inspect_record td {
-    vertical-align: top;
+.mm-record-block .mm-record-block {
+    margin-top:8px;
+    margin-bottom:8px;
 }
 
+.mm-record-block th {
+    text-align: right;
+    background-color: #f5f5f5;
+    border-right: solid 1px #dddddd;
+    padding: 0px 2px 0px 8px !important;
+}
+.mm-record-block td {
+    padding: 0px 2px 0px 8px !important;
+}
 /* forms */
 
 .form-check-input {

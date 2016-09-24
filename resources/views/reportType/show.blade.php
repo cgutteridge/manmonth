@@ -96,16 +96,6 @@
 
 
     <div class="panel panel-primary">
-        <div class="panel-heading"><b>Records</b></div>
-
-        <div class="panel-body">
-            @foreach( $reportType->baseRecordType()->records as $record)
-                @include( 'inspectRecord', ['record'=>$record ])
-            @endforeach
-        </div>
-    </div>
-
-    <div class="panel panel-primary">
         <div class="panel-heading"><b>Log</b></div>
 
         <div class="panel-body">

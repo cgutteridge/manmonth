@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ReportType;
+use App\Models\DocumentRevision;
 use Illuminate\Http\Request;
 
-class ReportTypeController extends Controller
+class DocumentRevisionController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,8 +14,7 @@ class ReportTypeController extends Controller
      */
     public function index()
     {
-        $all = ReportType::all();
-        dump($all);
+        //
     }
 
     /**
@@ -47,13 +46,8 @@ class ReportTypeController extends Controller
      */
     public function show($id)
     {
-        /** @var ReportType $reportType */
-        /** @noinspection PhpUndefinedMethodInspection */
-        $reportType = ReportType::find($id);
-        return view('reportType.show', [
-            "reportType" => $reportType,
-            "report"=>$reportType->makeReport()
-        ]);
+        $documentRevision = DocumentRevision::find( $id );
+        return view('documentRevision.show', ["documentRevision"=>$documentRevision] );
     }
 
     /**

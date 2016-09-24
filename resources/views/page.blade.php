@@ -10,9 +10,21 @@
 
 </head>
 <body>
+@include("nav")
 <div class="container">
     <div class="content">
-        <h1 class="title">@yield('title')</h1>
+        @hasSection ('context')
+            <div class="row">
+                <div class="col-md-8">
+                    <h1 class="title">@yield('title')</h1>
+                </div>
+                <div class="col-md-4">
+                    @yield('context')
+                </div>
+            </div>
+        @else
+            <h1 class="title">@yield('title')</h1>
+        @endif
         @if (count($errors) > 0)
             <div class="alert alert-danger">
                 <ul>

@@ -25,14 +25,16 @@ class DatabaseSeeder extends Seeder
               ["name"=>"group", "type"=>"string"],
               ["name"=>"penguins", "type"=>"decimal", "min"=>0 ],
               ["name"=>"newbie", "type"=>"boolean", "default"=>false],
-          ]
+          ],
+          "title"=>"record.name+' ('+record.group+')'"
         ]);
         $taskType = $draft->createRecordType( "task", [
           "fields"=> [
               ["name"=>"name", "type"=>"string", "required"=>true],
               ["name"=>"size", "type"=>"integer", "required"=>true],
               ["name"=>"new", "type"=>"boolean", "default"=>false],
-          ]
+          ],
+          "title"=>"record.name"
         ]);
         $atType = $draft->createRecordType( "acttask", [
           "fields"=> [

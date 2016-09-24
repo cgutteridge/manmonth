@@ -22,16 +22,26 @@ class MMScript
         $this->type = $this->expression->type();
     }
 
+    /**
+     * @return string
+     */
     function textTree()
     {
         return $this->expression->treeText();
     }
 
+    /**
+     * @return string
+     */
     function type()
     {
         return $this->expression->type();
     }
 
+    /**
+     * @param array $context
+     * @return MMScript\Values\Value
+     */
     function execute($context) {
         return $this->expression->execute( $context );
     }

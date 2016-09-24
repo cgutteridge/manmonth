@@ -4,8 +4,11 @@ namespace App\Models;
 
 use App\Exceptions\DataStructValidationException;
 use App\Fields\Field;
+use App\MMScript;
 use Illuminate\Database\Eloquent\Collection;
 use Validator;
+
+// TODO - sort out expception throwing
 
 /**
  * @property string name
@@ -110,12 +113,12 @@ class RecordType extends DocumentPart
      * @return Field[]
      */
     public function fields() {
-        if( !$this->fieldsCache ) { 
+        if( !$this->fieldsCache ) {
             $this->fieldsCache = [];
             foreach( $this->data["fields"] as $fieldData ) {
                 $this->fieldsCache []= Field::createFromData( $fieldData );
             }
-        }  
+        }
         return $this->fieldsCache;
     }
 
@@ -146,16 +149,16 @@ class RecordType extends DocumentPart
         $issues = [];
         foreach( $linkTypes as $linkType ) {
             // check domain restrictions
-            if( @$linkType->dataCache["domain_min"] 
+            if( @$linkType->dataCache["domain_min"]
              && count(@$links[$linkType->name]) < $linkType->dataCache["domain_min"] ) {
                 $issues []= "Expected minimum of ".$linkType->dataCache["domain_min"]." forward links of type ".$linkType["name"] ;
             }
-            if( @$linkType->dataCache["domain_max"] 
+            if( @$linkType->dataCache["domain_max"]
              && count(@$links[$linkType->name]) > $linkType->dataCache["domain_max"] ) {
                 $issues []= "Expected maximum of ".$linkType->dataCache["domain_max"]." forward links of type ".$linkType["name"] ;
             }
             // check target object(s) are correct type 
-            if( @$links[$linkType->name] ) { 
+            if( @$links[$linkType->name] ) {
                 foreach( $links[$linkType->name] as $record ) {
                     $linkType->validateLinkObject($record);
                     // TODO check $record can accept this additional incoming link
@@ -168,7 +171,7 @@ class RecordType extends DocumentPart
             foreach( $unknownLinks as $linkName=>$record ) {
                 $issues []= "Attempt to add an invalid link type: $linkName";
             }
-        } 
+        }
         if( count($issues ) ) {
             throw new DataStructValidationException( "Validation fail in recordtype.forwardLinks: ".join( ", ", $issues ));
         }
@@ -187,16 +190,16 @@ class RecordType extends DocumentPart
         $issues = [];
         foreach( $linkTypes as $linkType ) {
             // check range restrictions
-            if( @$linkType->dataCache["range_min"] 
+            if( @$linkType->dataCache["range_min"]
              && count(@$links[$linkType->name]) < $linkType->dataCache["range_min"] ) {
                 $issues []="Expected minimum of ".$linkType->dataCache["range_min"]." back links of type ".$linkType["name"] ;
             }
-            if( @$linkType->dataCache["range_max"] 
+            if( @$linkType->dataCache["range_max"]
              && count(@$links[$linkType->name]) > $linkType->dataCache["range_max"] ) {
                 $issues []="Expected maximum of ".$linkType->dataCache["range_max"]." back links of type ".$linkType["name"] ;
             }
             // check target subject(s) are correct type 
-            if( @$links[$linkType->name] ) { 
+            if( @$links[$linkType->name] ) {
                 foreach( $links[$linkType->name] as $record ) {
                     $linkType->validateLinkSubject($record);
                     // TODO check $record can accept this additional incoming link
@@ -208,7 +211,7 @@ class RecordType extends DocumentPart
             foreach( $unknownLinks as $linkName=>$record ) {
                 $issues []= "Attempt to add an invalid link type: $linkName";
             }
-        } 
+        }
         if( count($issues ) ) {
             throw new DataStructValidationException( "Validation fail in recordtype.backLinks: ".join( ", ", $issues ));
         }
@@ -235,8 +238,11 @@ class RecordType extends DocumentPart
 
         $validator = Validator::make(
           $this->data,
-          [ 'fields' => 'required|array', 
-            'fields.*.type' => 'required|in:boolean,integer,decimal,string' ]);
+          [
+              'title' => 'string',
+              'fields' => 'required|array',
+              'fields.*.type' => 'required|in:boolean,integer,decimal,string'
+          ]);
 
         if($validator->fails()) {
             throw new DataStructValidationException( "RecordType", "data", $this->data, $validator->errors() );
@@ -245,6 +251,31 @@ class RecordType extends DocumentPart
             $field->validate();
         }
 
+        if( isset($this->data["title"])) {
+
+            $script = $this->titleScript();
+            if( $script->type() != "string" ) {
+                throw new DataStructValidationException( "If a record type has a title it should be an MMScript which returns a string. This returned a ".$script->type() );
+            }
+        }
+
+    }
+
+    var $titleScript;
+    /**
+     * Compiles the title script, if any, for this recordtype
+     * @return MMScript
+     */
+    function titleScript() {
+        if( isset( $this->titleScript )) { return $this->titleScript; }
+        if( !isset( $this->data["title"]) ) {
+            return null;
+        }
+        $this->titleScript = new MMScript(
+            $this->data["title"],
+            $this->documentRevision,
+            [ "record"=>$this ] );
+        return $this->titleScript;
     }
 
 }

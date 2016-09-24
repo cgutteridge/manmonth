@@ -145,6 +145,23 @@ class Record extends DocumentPart
         }
         $this->data = $data;
     }
+
+    /**
+     * @return string
+     * @throws DataStructValidationException
+     */
+    public function title() {
+        $script = $this->recordType->titleScript();
+        if( !$script ) {
+            return $this->recordType->name . "#" . $this->sid;
+        }
+
+        if( $script->type() != "string" ) {
+            throw new DataStructValidationException( "If a record type has a title it should be an MMScript which returns a string. This returned a ".$script->type() );
+        }
+        $result = $script->execute( ["record"=>$this ]);
+        return $result->value;
+    }
 }
 
 

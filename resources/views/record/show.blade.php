@@ -2,7 +2,10 @@
 
 @section('title','View Record #'.$record->sid)
 
+@section('context')
+    @include('documentRevision.contextBar',['documentRevision'=>$record->documentRevision])
+@endsection
+
 @section( 'content')
-    @include("inspectRecord",['record'=>$record])
-    <div><a href="/records/{{ $record->id }}/edit">Edit</a></div>
+    @include("record.block",['record'=>$record, 'followLink'=>'all'])
 @endsection

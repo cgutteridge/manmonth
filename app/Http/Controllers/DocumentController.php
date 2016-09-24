@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ReportType;
+use App\Models\Document;
 use Illuminate\Http\Request;
 
-class ReportTypeController extends Controller
+class DocumentController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,8 +14,8 @@ class ReportTypeController extends Controller
      */
     public function index()
     {
-        $all = ReportType::all();
-        dump($all);
+        $list = Document::all();
+        return view('document.index', ["list"=>$list] );
     }
 
     /**
@@ -41,19 +41,16 @@ class ReportTypeController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
+     * @internal param Document $document
      */
     public function show($id)
     {
-        /** @var ReportType $reportType */
-        /** @noinspection PhpUndefinedMethodInspection */
-        $reportType = ReportType::find($id);
-        return view('reportType.show', [
-            "reportType" => $reportType,
-            "report"=>$reportType->makeReport()
-        ]);
+        $document = Document::findOrFail($id);
+        return view('document.show', [
+            'document' => $document
+        ] );
     }
 
     /**
