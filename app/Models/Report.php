@@ -25,7 +25,7 @@ class Report extends Model
      * @var array
      */
     protected $casts = [
-        "data"=>"array"
+        "data" => "array"
     ];
 
     /**
@@ -46,8 +46,8 @@ class Report extends Model
      */
     public function save(array $options = [])
     {
-        $data = [ "records"=>[] ];
-        foreach( $this->recordReports() as $id=>$report ) {
+        $data = ["records" => []];
+        foreach ($this->recordReports() as $id => $report) {
             $data["records"][$id] = $report->toData();
         }
         $this->data = $data;
@@ -58,13 +58,14 @@ class Report extends Model
      * @var array
      */
     private $loadingTypesCache;
+
     /*
      * Return the list of loadings this report has a target or total for.
      * @return array[string]
      */
     public function loadingTypes()
     {
-        if ($this->loadingTypesCache==null) {
+        if ($this->loadingTypesCache == null) {
             $list = [];
             foreach ($this->recordReports() as $recordReport) {
                 $list = array_merge($list, $recordReport->getLoadingTypes());
@@ -78,20 +79,21 @@ class Report extends Model
      * @var array
      */
     protected $maxTargetsCache;
+
     /*
      * Return the maximum target loading for each loading category.
      * @return array[float]
      */
     public function maxTargets()
     {
-        if($this->maxTargetsCache == null) {
+        if ($this->maxTargetsCache == null) {
             $this->maxTargetsCache = [];
-            foreach($this->loadingTypes() as $loadingType ) {
-                $this->maxTargetsCache[$loadingType]=0;
+            foreach ($this->loadingTypes() as $loadingType) {
+                $this->maxTargetsCache[$loadingType] = 0;
             }
             foreach ($this->recordReports() as $recordReport) {
-                foreach( $recordReport->getLoadingTargets() as $loadingType=>$total ) {
-                    if( $total > $this->maxTargetsCache[$loadingType]) {
+                foreach ($recordReport->getLoadingTargets() as $loadingType => $total) {
+                    if ($total > $this->maxTargetsCache[$loadingType]) {
                         $this->maxTargetsCache[$loadingType] = $total;
                     }
                 }
@@ -104,28 +106,30 @@ class Report extends Model
      * @param string $loadingType
      * @return float
      */
-    public function maxTarget($loadingType) {
+    public function maxTarget($loadingType)
+    {
         return $this->maxTargets()[$loadingType];
     }
 
     /**
      * @var array[float]
      */
-    private $maxLoadingsCache=null;
+    private $maxLoadingsCache = null;
+
     /*
      * Return the maximum loading for each loading category.
      * @return array[float]
      */
     public function maxLoadings()
     {
-        if ($this->maxLoadingsCache==null) {
+        if ($this->maxLoadingsCache == null) {
             $cache = [];
-            foreach($this->loadingTypes() as $loadingType ) {
-                $cache[$loadingType]=0;
+            foreach ($this->loadingTypes() as $loadingType) {
+                $cache[$loadingType] = 0;
             }
             foreach ($this->recordReports() as $recordReport) {
-                foreach( $recordReport->getLoadingTotals() as $loadingType=>$total ) {
-                    if( $total > $cache[$loadingType]) {
+                foreach ($recordReport->getLoadingTotals() as $loadingType => $total) {
+                    if ($total > $cache[$loadingType]) {
                         $cache[$loadingType] = $total;
                     }
                 }
@@ -139,7 +143,8 @@ class Report extends Model
      * @param string $loadingType
      * @return float
      */
-    public function maxLoading($loadingType) {
+    public function maxLoading($loadingType)
+    {
         return $this->maxLoadings()[$loadingType];
     }
 
@@ -159,16 +164,16 @@ class Report extends Model
     {
         if ($this->maxLoadingRatiosCache == null) {
             $this->maxLoadingRatiosCache = [];
-            foreach($this->loadingTypes() as $loadingType ) {
-                $this->maxLoadingRatiosCache[$loadingType]=0;
+            foreach ($this->loadingTypes() as $loadingType) {
+                $this->maxLoadingRatiosCache[$loadingType] = 0;
             }
             foreach ($this->recordReports() as $recordReport) {
                 $totals = $recordReport->getLoadingTotals();
                 $targets = $recordReport->getLoadingTargets();
-                foreach($this->loadingTypes() as $loadingType ) {
-                    if( isset($totals[$loadingType]) && isset($targets[$loadingType])) {
+                foreach ($this->loadingTypes() as $loadingType) {
+                    if (isset($totals[$loadingType]) && isset($targets[$loadingType])) {
                         $ratio = $totals[$loadingType] / $targets[$loadingType];
-                        if( $ratio > $this->maxLoadingRatiosCache[$loadingType]) {
+                        if ($ratio > $this->maxLoadingRatiosCache[$loadingType]) {
                             $this->maxLoadingRatiosCache[$loadingType] = $ratio;
                         }
                     }
@@ -182,7 +187,8 @@ class Report extends Model
      * @param string $loadingType
      * @return float
      */
-    public function maxLoadingRatio($loadingType) {
+    public function maxLoadingRatio($loadingType)
+    {
         return $this->maxLoadingRatios()[$loadingType];
     }
 
@@ -194,10 +200,11 @@ class Report extends Model
     /**
      * @return RecordReport[]
      */
-    public function recordReports() {
-        if( $this->recordReportsCache == null ) {
+    public function recordReports()
+    {
+        if ($this->recordReportsCache == null) {
             $this->recordReportsCache = [];
-            if( $this->data !== null ) {
+            if ($this->data !== null) {
                 foreach ($this->data["records"] as $sid => $recordReportData) {
                     $recordReport = new RecordReport($recordReportData);
                     $this->recordReportsCache[$sid] = $recordReport;

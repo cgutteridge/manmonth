@@ -27,7 +27,7 @@ class RecordType extends DocumentPart
     {
         /** @noinspection PhpUndefinedMethodInspection */
         return $this->documentRevision->linkTypes()
-            ->where( "domain_sid", $this->sid );
+            ->where("domain_sid", $this->sid);
     }
 
     /**
@@ -37,7 +37,7 @@ class RecordType extends DocumentPart
     {
         /** @noinspection PhpUndefinedMethodInspection */
         return $this->documentRevision->linkTypes()
-            ->where( "range_sid", $this->sid );
+            ->where("range_sid", $this->sid);
     }
 
     /**
@@ -47,7 +47,7 @@ class RecordType extends DocumentPart
     {
         /** @noinspection PhpUndefinedMethodInspection */
         return $this->documentRevision->records()
-            ->where( "record_type_sid", $this->sid );
+            ->where("record_type_sid", $this->sid);
     }
 
     // TODO: passing in secondary records could be helpful later
@@ -60,43 +60,47 @@ class RecordType extends DocumentPart
      * @param array $backLinks
      * @return Record
      */
-    public function createRecord($data=[], $forwardLinks=[], $backLinks=[])
+    public function createRecord($data = [], $forwardLinks = [], $backLinks = [])
     {
         // make any single link targets into a list before validation
-        foreach( $forwardLinks as $key=>&$value ) {
-            if( !is_array( $value ) ) { $value = [$value]; }
+        foreach ($forwardLinks as $key => &$value) {
+            if (!is_array($value)) {
+                $value = [$value];
+            }
         }
-        foreach( $backLinks as $key=>&$value ) {
-            if( !is_array( $value ) ) { $value = [$value]; }
+        foreach ($backLinks as $key => &$value) {
+            if (!is_array($value)) {
+                $value = [$value];
+            }
         }
 
         // these need to be checked before we create the record
         // there is a good argument for making this validation much
         // smarter and looking and both existing and new links
-        $this->validateRecordForwardLinks( $forwardLinks );
-        $this->validateRecordBackLinks( $backLinks );
+        $this->validateRecordForwardLinks($forwardLinks);
+        $this->validateRecordBackLinks($backLinks);
 
         $record = new Record();
         $record->data = $data;
-        $record->documentRevision()->associate( $this->documentRevision );
+        $record->documentRevision()->associate($this->documentRevision);
         $record->record_type_sid = $this->sid;
         $record->validateData();
         $record->save();
 
         // we've been through validation so assume this is all OK
-        foreach( $this->forwardLinkTypes as $linkType ) {
+        foreach ($this->forwardLinkTypes as $linkType) {
             $targets = @$forwardLinks[$linkType->name];
-            if( $targets ) {
-                foreach( $targets as $target ) {
-                    $linkType->createLink( $record, $target );
+            if ($targets) {
+                foreach ($targets as $target) {
+                    $linkType->createLink($record, $target);
                 }
             }
         }
-        foreach( $this->backLinkTypes as $linkType ) {
+        foreach ($this->backLinkTypes as $linkType) {
             $targets = @$backLinks[$linkType->name];
-            if( $targets ) {
-                foreach( $targets as $target ) {
-                    $linkType->createLink( $target, $record );
+            if ($targets) {
+                foreach ($targets as $target) {
+                    $linkType->createLink($target, $record);
                 }
             }
         }
@@ -112,11 +116,12 @@ class RecordType extends DocumentPart
     /**
      * @return Field[]
      */
-    public function fields() {
-        if( !$this->fieldsCache ) {
+    public function fields()
+    {
+        if (!$this->fieldsCache) {
             $this->fieldsCache = [];
-            foreach( $this->data["fields"] as $fieldData ) {
-                $this->fieldsCache []= Field::createFromData( $fieldData );
+            foreach ($this->data["fields"] as $fieldData) {
+                $this->fieldsCache [] = Field::createFromData($fieldData);
             }
         }
         return $this->fieldsCache;
@@ -126,9 +131,10 @@ class RecordType extends DocumentPart
      * @param string $name
      * @return Field|null
      */
-    public function field( $name ) {
-        foreach( $this->fields() as $field ) {
-            if( $field->data["name"] == $name ) {
+    public function field($name)
+    {
+        foreach ($this->fields() as $field) {
+            if ($field->data["name"] == $name) {
                 return $field;
             }
         }
@@ -143,37 +149,40 @@ class RecordType extends DocumentPart
      * @param Record[][] $links
      * @throws DataStructValidationException
      */
-    public function validateRecordForwardLinks($links ) {
+    public function validateRecordForwardLinks($links)
+    {
         $linkTypes = $this->forwardLinkTypes;
         $unknownLinks = $links; // we'll reduce this list to actually unknown items
         $issues = [];
-        foreach( $linkTypes as $linkType ) {
+        foreach ($linkTypes as $linkType) {
             // check domain restrictions
-            if( @$linkType->dataCache["domain_min"]
-             && count(@$links[$linkType->name]) < $linkType->dataCache["domain_min"] ) {
-                $issues []= "Expected minimum of ".$linkType->dataCache["domain_min"]." forward links of type ".$linkType["name"] ;
+            if (@$linkType->dataCache["domain_min"]
+                && count(@$links[$linkType->name]) < $linkType->dataCache["domain_min"]
+            ) {
+                $issues [] = "Expected minimum of " . $linkType->dataCache["domain_min"] . " forward links of type " . $linkType["name"];
             }
-            if( @$linkType->dataCache["domain_max"]
-             && count(@$links[$linkType->name]) > $linkType->dataCache["domain_max"] ) {
-                $issues []= "Expected maximum of ".$linkType->dataCache["domain_max"]." forward links of type ".$linkType["name"] ;
+            if (@$linkType->dataCache["domain_max"]
+                && count(@$links[$linkType->name]) > $linkType->dataCache["domain_max"]
+            ) {
+                $issues [] = "Expected maximum of " . $linkType->dataCache["domain_max"] . " forward links of type " . $linkType["name"];
             }
             // check target object(s) are correct type 
-            if( @$links[$linkType->name] ) {
-                foreach( $links[$linkType->name] as $record ) {
+            if (@$links[$linkType->name]) {
+                foreach ($links[$linkType->name] as $record) {
                     $linkType->validateLinkObject($record);
                     // TODO check $record can accept this additional incoming link
                 }
             }
 
-            unset( $unknownLinks[$linkType->name] );
+            unset($unknownLinks[$linkType->name]);
         }
-        if( count($unknownLinks) ) {
-            foreach( $unknownLinks as $linkName=>$record ) {
-                $issues []= "Attempt to add an invalid link type: $linkName";
+        if (count($unknownLinks)) {
+            foreach ($unknownLinks as $linkName => $record) {
+                $issues [] = "Attempt to add an invalid link type: $linkName";
             }
         }
-        if( count($issues ) ) {
-            throw new DataStructValidationException( "Validation fail in recordtype.forwardLinks: ".join( ", ", $issues ));
+        if (count($issues)) {
+            throw new DataStructValidationException("Validation fail in recordtype.forwardLinks: " . join(", ", $issues));
         }
     }
 
@@ -184,97 +193,106 @@ class RecordType extends DocumentPart
      * @param $links
      * @throws DataStructValidationException
      */
-    public function validateRecordBackLinks($links ) {
+    public function validateRecordBackLinks($links)
+    {
         $linkTypes = $this->backLinkTypes;
         $unknownLinks = $links; // we'll reduce this list to actually unknown items
         $issues = [];
-        foreach( $linkTypes as $linkType ) {
+        foreach ($linkTypes as $linkType) {
             // check range restrictions
-            if( @$linkType->dataCache["range_min"]
-             && count(@$links[$linkType->name]) < $linkType->dataCache["range_min"] ) {
-                $issues []="Expected minimum of ".$linkType->dataCache["range_min"]." back links of type ".$linkType["name"] ;
+            if (@$linkType->dataCache["range_min"]
+                && count(@$links[$linkType->name]) < $linkType->dataCache["range_min"]
+            ) {
+                $issues [] = "Expected minimum of " . $linkType->dataCache["range_min"] . " back links of type " . $linkType["name"];
             }
-            if( @$linkType->dataCache["range_max"]
-             && count(@$links[$linkType->name]) > $linkType->dataCache["range_max"] ) {
-                $issues []="Expected maximum of ".$linkType->dataCache["range_max"]." back links of type ".$linkType["name"] ;
+            if (@$linkType->dataCache["range_max"]
+                && count(@$links[$linkType->name]) > $linkType->dataCache["range_max"]
+            ) {
+                $issues [] = "Expected maximum of " . $linkType->dataCache["range_max"] . " back links of type " . $linkType["name"];
             }
             // check target subject(s) are correct type 
-            if( @$links[$linkType->name] ) {
-                foreach( $links[$linkType->name] as $record ) {
+            if (@$links[$linkType->name]) {
+                foreach ($links[$linkType->name] as $record) {
                     $linkType->validateLinkSubject($record);
                     // TODO check $record can accept this additional incoming link
                 }
             }
-            unset( $unknownLinks[$linkType->name] );
+            unset($unknownLinks[$linkType->name]);
         }
-        if( count($unknownLinks) ) {
-            foreach( $unknownLinks as $linkName=>$record ) {
-                $issues []= "Attempt to add an invalid link type: $linkName";
+        if (count($unknownLinks)) {
+            foreach ($unknownLinks as $linkName => $record) {
+                $issues [] = "Attempt to add an invalid link type: $linkName";
             }
         }
-        if( count($issues ) ) {
-            throw new DataStructValidationException( "Validation fail in recordtype.backLinks: ".join( ", ", $issues ));
+        if (count($issues)) {
+            throw new DataStructValidationException("Validation fail in recordtype.backLinks: " . join(", ", $issues));
         }
     }
 
     /**
      * @throws DataStructValidationException
      */
-    public function validateName() {
+    public function validateName()
+    {
 
         $validator = Validator::make(
-        [ 'name' => $this->name ],
-        [ 'name' => 'required|alpha_dash|min:2|max:255' ]);
+            ['name' => $this->name],
+            ['name' => 'required|alpha_dash|min:2|max:255']);
 
-        if($validator->fails()) {
-            throw new DataStructValidationException( "RecordType", "name", $this->name, $validator->errors() );
+        if ($validator->fails()) {
+            throw new DataStructValidationException("RecordType", "name", $this->name, $validator->errors());
         }
     }
 
     /**
      * @throws DataStructValidationException
      */
-    public function validateData() {
+    public function validateData()
+    {
 
         $validator = Validator::make(
-          $this->data,
-          [
-              'title' => 'string',
-              'fields' => 'required|array',
-              'fields.*.type' => 'required|in:boolean,integer,decimal,string'
-          ]);
+            $this->data,
+            [
+                'title' => 'string',
+                'fields' => 'required|array',
+                'fields.*.type' => 'required|in:boolean,integer,decimal,string'
+            ]);
 
-        if($validator->fails()) {
-            throw new DataStructValidationException( "RecordType", "data", $this->data, $validator->errors() );
+        if ($validator->fails()) {
+            throw new DataStructValidationException("RecordType", "data", $this->data, $validator->errors());
         }
-        foreach( $this->fields() as $field ) {
+        foreach ($this->fields() as $field) {
             $field->validate();
         }
 
-        if( isset($this->data["title"])) {
+        if (isset($this->data["title"])) {
 
             $script = $this->titleScript();
-            if( $script->type() != "string" ) {
-                throw new DataStructValidationException( "If a record type has a title it should be an MMScript which returns a string. This returned a ".$script->type() );
+            if ($script->type() != "string") {
+                throw new DataStructValidationException("If a record type has a title it should be an MMScript which returns a string. This returned a " . $script->type());
             }
         }
 
     }
 
     var $titleScript;
+
     /**
      * Compiles the title script, if any, for this recordtype
      * @return MMScript
      */
-    function titleScript() {
-        if( isset( $this->titleScript )) { return $this->titleScript; }
-        if( !isset( $this->data["title"]) ) {
+    function titleScript()
+    {
+        if (isset($this->titleScript)) {
+            return $this->titleScript;
+        }
+        if (!isset($this->data["title"])) {
             return null;
         }
         $this->titleScript = new MMScript(
             $this->data["title"],
             $this->documentRevision,
-            [ "record"=>$this ] );
+            ["record" => $this]);
         return $this->titleScript;
     }
 

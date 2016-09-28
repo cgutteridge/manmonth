@@ -21,7 +21,8 @@ abstract class UnaryOp extends Op
      * @param array $token
      * @param Op $param
      */
-    public function __construct($script, $token, $param ) {
+    public function __construct($script, $token, $param)
+    {
         $this->param = $param;
         parent::__construct($script, $token);
     }
@@ -30,9 +31,10 @@ abstract class UnaryOp extends Op
      * @param string $prefix
      * @return string
      */
-    public function treeText($prefix = "" ) {
-        $r = $prefix.get_class( $this )." :: ".$this->opCode." [".@$this->type()."]\n";
-        $r.= $this->param->treeText($prefix."  ");
+    public function treeText($prefix = "")
+    {
+        $r = $prefix . get_class($this) . " :: " . $this->opCode . " [" . @$this->type() . "]\n";
+        $r .= $this->param->treeText($prefix . "  ");
         return $r;
     }
 }

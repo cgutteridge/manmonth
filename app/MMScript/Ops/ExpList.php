@@ -18,7 +18,8 @@ class ExpList extends Op
      * @param array $token
      * @param Op[] $list
      */
-    public function __construct($script, $token, $list ) {
+    public function __construct($script, $token, $list)
+    {
         $this->list = $list;
         parent::__construct($script, $token);
     }
@@ -27,11 +28,12 @@ class ExpList extends Op
      * @param string $prefix
      * @return string
      */
-    public function treeText($prefix = "" ) {
-        $r = $prefix.get_class( $this )." [".@$this->type()."]\n";
+    public function treeText($prefix = "")
+    {
+        $r = $prefix . get_class($this) . " [" . @$this->type() . "]\n";
         /** @var Op $item */
-        foreach($this->list as $item ) {
-            $r.= $item->treeText($prefix."  ");
+        foreach ($this->list as $item) {
+            $r .= $item->treeText($prefix . "  ");
         }
         return $r;
     }
@@ -45,15 +47,19 @@ class ExpList extends Op
     /**
      * @return string
      */
-    public function type() { return "list"; }
+    public function type()
+    {
+        return "list";
+    }
 
     /**
      * @param array $context
      * @return NullValue
      * @throws MMScriptRuntimeException
      */
-    function execute( $context ) {
-        throw new MMScriptRuntimeException( "ExpList should not be executed");
+    function execute($context)
+    {
+        throw new MMScriptRuntimeException("ExpList should not be executed");
         // maybe later we can do something smart with lists as their own type
     }
 

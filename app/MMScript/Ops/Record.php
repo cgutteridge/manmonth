@@ -19,8 +19,11 @@ class Record extends Op
     /**
      * @return string
      */
-    function type() {
-        if( @$this->type ) { return $this->type; }
+    function type()
+    {
+        if (@$this->type) {
+            return $this->type;
+        }
         $this->type = "record";
         return $this->type;
     }
@@ -29,12 +32,15 @@ class Record extends Op
      * @return RecordType
      * @throws ScriptException
      */
-    function recordType() {
-        if( @$this->recordType ) { return $this->recordType; }
-        if( !@$this->script->context[ $this->value ] ) {
-            throw new ScriptException( "Reference to non-existant item '".$this->value."' in the context of this script. Valid names are: ".join( ", ", array_keys( $this->script->context ) ).". ".$this->script->text );
+    function recordType()
+    {
+        if (@$this->recordType) {
+            return $this->recordType;
         }
-        $this->recordType = $this->script->context[ $this->value ];
+        if (!@$this->script->context[$this->value]) {
+            throw new ScriptException("Reference to non-existant item '" . $this->value . "' in the context of this script. Valid names are: " . join(", ", array_keys($this->script->context)) . ". " . $this->script->text);
+        }
+        $this->recordType = $this->script->context[$this->value];
         return $this->recordType;
     }
 
@@ -43,11 +49,11 @@ class Record extends Op
      * @return RecordValue
      * @throws MMScriptRuntimeException
      */
-    function execute($context )
+    function execute($context)
     {
-        if( !isset($context[$this->value])) {
-            throw new MMScriptRuntimeException( "Context does not contain ".$this->value.". Context has: [".join( ", ", array_keys( $context )));
+        if (!isset($context[$this->value])) {
+            throw new MMScriptRuntimeException("Context does not contain " . $this->value . ". Context has: [" . join(", ", array_keys($context)));
         }
-        return new RecordValue( $context[ $this->value ] );
+        return new RecordValue($context[$this->value]);
     }
 }

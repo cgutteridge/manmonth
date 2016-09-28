@@ -15,7 +15,7 @@ abstract class DocumentPart extends Model
     public $timestamps = false;
 
     protected $casts = [
-        "data"=>"array"
+        "data" => "array"
     ];
 
 
@@ -34,11 +34,13 @@ abstract class DocumentPart extends Model
      * @param array $options
      * @return bool
      */
-    public function save( array $options = [] )
+    public function save(array $options = [])
     {
         $saved = parent::save($options);
-        if( !$saved ) { return $saved; } // don't go on if it's already failed to save
-        if( !$this->sid ) {
+        if (!$saved) {
+            return $saved;
+        } // don't go on if it's already failed to save
+        if (!$this->sid) {
             $this->sid = $this->id;
             $saved &= parent::save($options);
         }
@@ -49,14 +51,15 @@ abstract class DocumentPart extends Model
      * @param Validator $validator
      * @return DataStructValidationException
      */
-    protected function makeValidationException(Validator $validator ) {
+    protected function makeValidationException(Validator $validator)
+    {
         $msg = "Validation failure.";
         $errors = $validator->errors();
-        foreach( $errors->getMessages() as $fieldName=>$list ) {
-            $msg .= " ".join( ", ", $list );
-            $msg .= " The $fieldName field had value ".json_encode( $validator->getData()[$fieldName] ).".";
+        foreach ($errors->getMessages() as $fieldName => $list) {
+            $msg .= " " . join(", ", $list);
+            $msg .= " The $fieldName field had value " . json_encode($validator->getData()[$fieldName]) . ".";
         }
-        return new DataStructValidationException( $msg );
+        return new DataStructValidationException($msg);
     }
 }
 

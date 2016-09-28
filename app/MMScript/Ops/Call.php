@@ -46,21 +46,25 @@ class Call extends BinaryOp
     /**
      * @return Func[]
      */
-    public static function funcs() {
-        if( self::$funcCache ) { return self::$funcCache; }
+    public static function funcs()
+    {
+        if (self::$funcCache) {
+            return self::$funcCache;
+        }
         self::$funcCache = [];
-        foreach( self::$funcs as $class ) {
+        foreach (self::$funcs as $class) {
             $func = new $class();
             self::$funcCache[$func->name] = $func;
         }
-        return self::$funcCache; 
+        return self::$funcCache;
     }
 
     /**
      * @param $funcName
      * @return Func
      */
-    public static function funcFactory($funcName ) {
+    public static function funcFactory($funcName)
+    {
         $funcs = self::funcs();
         return $funcs[$funcName];
     }
@@ -74,13 +78,16 @@ class Call extends BinaryOp
      * @return Func
      * @throws ScriptException
      */
-    function func() {
-        if( @$this->func ) { return $this->func; }
-         
+    function func()
+    {
+        if (@$this->func) {
+            return $this->func;
+        }
+
         $funcName = $this->left->value;
-        $this->func = self::funcFactory( $funcName );
-        if( !$this->func ) {
-            throw new ScriptException( "Unknown function call: $funcName" );
+        $this->func = self::funcFactory($funcName);
+        if (!$this->func) {
+            throw new ScriptException("Unknown function call: $funcName");
         }
         return $this->func;
     }
@@ -89,25 +96,29 @@ class Call extends BinaryOp
      * @return string
      * @throws ScriptException
      */
-    function type() {
-        if( @$this->type ) { return $this->type; }
+    function type()
+    {
+        if (@$this->type) {
+            return $this->type;
+        }
 
         $func = $this->func();
-        if( $this->right->type() != "list" ) {
-            throw new ScriptException( "Function ".$func->name." was not passed a list but rather a ".$this->right->type() );
+        if ($this->right->type() != "list") {
+            throw new ScriptException("Function " . $func->name . " was not passed a list but rather a " . $this->right->type());
         }
-     
-        $this->type = $func->type( $this->paramTypes() );   
+
+        $this->type = $func->type($this->paramTypes());
         return $this->type;
     }
 
     /**
      * @return string[]
      */
-    function paramTypes() {
+    function paramTypes()
+    {
         $types = [];
-        foreach( $this->right->list as $op ) {
-            $types []= $op->type();
+        foreach ($this->right->list as $op) {
+            $types [] = $op->type();
         }
         return $types;
     }
@@ -116,22 +127,26 @@ class Call extends BinaryOp
     /**
      * @return null|RecordType
      */
-    function recordType() {
-        if( !$this->type() == "record" ) { return null; }
+    function recordType()
+    {
+        if (!$this->type() == "record") {
+            return null;
+        }
         $func = $this->func();
-        return $func->recordType( $this->paramTypes() );
+        return $func->recordType($this->paramTypes());
     }
 
     /**
      * @param $context
      * @return Value
      */
-    function execute($context ) {
+    function execute($context)
+    {
         $params = [];
-        foreach( $this->right->list as $op ) {
-            $params []= $op->execute($context);
+        foreach ($this->right->list as $op) {
+            $params [] = $op->execute($context);
         }
 
-        return $this->func()->execute( $params );
+        return $this->func()->execute($params);
     }
 }

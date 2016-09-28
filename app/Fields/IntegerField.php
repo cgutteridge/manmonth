@@ -10,21 +10,27 @@ class IntegerField extends Field
     /**
      * @return string
      */
-    public function valueValidationCode() {
+    public function valueValidationCode()
+    {
         $code = parent::valueValidationCode();
-        $code.= "|integer";
-        if( isset($this->data["min"]) ) { $code .= "|min:".$this->data["min"]; }
-        if( isset($this->data["max"]) ) { $code .= "|max:".$this->data["max"]; }
+        $code .= "|integer";
+        if (isset($this->data["min"])) {
+            $code .= "|min:" . $this->data["min"];
+        }
+        if (isset($this->data["max"])) {
+            $code .= "|max:" . $this->data["max"];
+        }
         return $code;
     }
 
     /**
      * @return array
      */
-    public function fieldValidationArray() {
-        return array_merge( parent::fieldValidationArray(), [
-          'type' => 'required|in:integer',
-          'default' => 'integer',
+    public function fieldValidationArray()
+    {
+        return array_merge(parent::fieldValidationArray(), [
+            'type' => 'required|in:integer',
+            'default' => 'integer',
         ]);
     }
 
@@ -32,14 +38,15 @@ class IntegerField extends Field
      * @param int $value
      * @return IntegerValue|NullValue
      */
-    public function makeValue($value ) {
+    public function makeValue($value)
+    {
         if (!isset($value)) {
-            if( isset( $this->data["default"])) {
-            return new IntegerValue( $this->data["default"] );
-          }
-          return new NullValue();
+            if (isset($this->data["default"])) {
+                return new IntegerValue($this->data["default"]);
+            }
+            return new NullValue();
         }
-        return new IntegerValue( $value );
+        return new IntegerValue($value);
     }
 }
 

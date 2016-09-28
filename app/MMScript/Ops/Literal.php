@@ -17,10 +17,13 @@ class Literal extends Op
     /**
      * @return string
      */
-    public function type() {
-        if( @$this->type ) { return $this->type; }
-        $map = ['STR'=>'string','DEC'=>'decimal','INT'=>'integer','BOOL'=>'boolean'];
-        $this->type = $map[ $this->opCode ];
+    public function type()
+    {
+        if (@$this->type) {
+            return $this->type;
+        }
+        $map = ['STR' => 'string', 'DEC' => 'decimal', 'INT' => 'integer', 'BOOL' => 'boolean'];
+        $this->type = $map[$this->opCode];
         return $this->type;
     }
 
@@ -31,7 +34,7 @@ class Literal extends Op
      */
     function execute($context)
     {
-        switch( $this->type() ) {
+        switch ($this->type()) {
             case "integer":
                 return new IntegerValue($this->value);
             case "decimal":
@@ -41,15 +44,16 @@ class Literal extends Op
             case "string":
                 return new StringValue($this->value);
         }
-        throw new MMScriptRuntimeException( "Literal of literally unknown type: ".$this->type());
+        throw new MMScriptRuntimeException("Literal of literally unknown type: " . $this->type());
     }
 
     /**
      * @param string $prefix
      * @return string
      */
-    public function treeText($prefix = "" ) {
-        $r = $prefix.get_class( $this )." :: ".$this->opCode." -> ".$this->value." [".@$this->type()."]\n";
+    public function treeText($prefix = "")
+    {
+        $r = $prefix . get_class($this) . " :: " . $this->opCode . " -> " . $this->value . " [" . @$this->type() . "]\n";
         return $r;
     }
 }

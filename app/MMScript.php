@@ -42,7 +42,8 @@ class MMScript
      * @param array $context
      * @return MMScript\Values\Value
      */
-    function execute($context) {
-        return $this->expression->execute( $context );
+    function execute($context)
+    {
+        return $this->expression->execute($context);
     }
 }

@@ -21,18 +21,17 @@ class RecordController extends Controller
     public function store(RequestProcessor $requestProcessor, Request $request)
     {
         $record = new Record();
-        $record->updateData($requestProcessor->fromRequest( $request, $record->recordType->fields() ));
+        $record->updateData($requestProcessor->fromRequest($request, $record->recordType->fields()));
         try {
             $record->validateData();
-        }
-        catch( Exception $exception ) {
-            return Redirect::to('records/'.$record->id."/edit")
+        } catch (Exception $exception) {
+            return Redirect::to('records/' . $record->id . "/edit")
                 ->withInput()
                 ->withErrors($exception->getMessage());
         }
         $record->save();
-        return Redirect::to('records/'.$record->id)
-            ->with("message","Record updated.");
+        return Redirect::to('records/' . $record->id)
+            ->with("message", "Record updated.");
     }
 
     /**
@@ -56,7 +55,7 @@ class RecordController extends Controller
      */
     public function edit(Request $request, RequestProcessor $requestProcessor, Record $record)
     {
-        $record->updateData($requestProcessor->fromOldRequest( $request, $record->recordType->fields() ));
+        $record->updateData($requestProcessor->fromOldRequest($request, $record->recordType->fields()));
         return view('record.edit', ["record" => $record, "idPrefix" => ""]);
     }
 
@@ -69,26 +68,25 @@ class RecordController extends Controller
      * @return Response
      * @internal param int $id
      */
-    public function update(Request $request, RequestProcessor $requestProcessor, Record $record )
+    public function update(Request $request, RequestProcessor $requestProcessor, Record $record)
     {
-        $record->updateData($requestProcessor->fromRequest( $request, $record->recordType->fields() ));
+        $record->updateData($requestProcessor->fromRequest($request, $record->recordType->fields()));
         try {
             $record->validateData();
-        }
-        catch( Exception $exception ) {
-            return Redirect::to('records/'.$record->id."/edit")
+        } catch (Exception $exception) {
+            return Redirect::to('records/' . $record->id . "/edit")
                 ->withInput()
                 ->withErrors($exception->getMessage());
         }
         $record->save();
-        return Redirect::to('records/'.$record->id)
-            ->with("message","Record updated.");
+        return Redirect::to('records/' . $record->id)
+            ->with("message", "Record updated.");
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return Response
      */
     public function destroy($id)

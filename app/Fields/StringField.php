@@ -10,17 +10,19 @@ class StringField extends Field
     /**
      * @return string
      */
-    public function valueValidationCode() {
-        return parent::valueValidationCode()."|string";
+    public function valueValidationCode()
+    {
+        return parent::valueValidationCode() . "|string";
     }
 
     /**
      * @return array
      */
-    public function fieldValidationArray() {
-        return array_merge( parent::fieldValidationArray(), [
-          'type' => 'required|in:string',
-          'default' => 'string',
+    public function fieldValidationArray()
+    {
+        return array_merge(parent::fieldValidationArray(), [
+            'type' => 'required|in:string',
+            'default' => 'string',
         ]);
     }
 
@@ -28,14 +30,15 @@ class StringField extends Field
      * @param string $value
      * @return NullValue|StringValue
      */
-    public function makeValue($value ) {
-        if( !isset( $value )) {
-            if( isset( $this->data["default"])) {
-                return new StringValue( $this->data["default"] );
+    public function makeValue($value)
+    {
+        if (!isset($value)) {
+            if (isset($this->data["default"])) {
+                return new StringValue($this->data["default"]);
             }
             return new NullValue();
         }
-        return new StringValue( $value );
+        return new StringValue($value);
     }
 }
 

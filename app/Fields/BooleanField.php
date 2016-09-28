@@ -10,17 +10,19 @@ class BooleanField extends Field
     /**
      * @return string
      */
-    public function valueValidationCode() {
-        return parent::valueValidationCode()."|boolean";
+    public function valueValidationCode()
+    {
+        return parent::valueValidationCode() . "|boolean";
     }
 
     /**
      * @return array
      */
-    public function fieldValidationArray() {
-        return array_merge( parent::fieldValidationArray(), [
-          'type' => 'required|in:boolean',
-          'default' => 'boolean',
+    public function fieldValidationArray()
+    {
+        return array_merge(parent::fieldValidationArray(), [
+            'type' => 'required|in:boolean',
+            'default' => 'boolean',
         ]);
     }
 
@@ -28,14 +30,15 @@ class BooleanField extends Field
      * @param boolean $value
      * @return BooleanValue|NullValue
      */
-    public function makeValue($value ) {
+    public function makeValue($value)
+    {
         if (!isset($value)) {
-             if (isset($this->data["default"])) {
-                 return new BooleanValue($this->data["default"]);
-             }
-             return new NullValue();
+            if (isset($this->data["default"])) {
+                return new BooleanValue($this->data["default"]);
+            }
+            return new NullValue();
         }
-        return new BooleanValue( $value );
+        return new BooleanValue($value);
     }
 
 }

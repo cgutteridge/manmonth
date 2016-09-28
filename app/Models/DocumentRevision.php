@@ -23,70 +23,94 @@ class DocumentRevision extends Model
      * The relationship to the document this is a revision of.
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function document() { return $this->belongsTo('App\Models\Document'); }
+    public function document()
+    {
+        return $this->belongsTo('App\Models\Document');
+    }
 
     /**
      * The relationship to the record types in this revision.
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function recordTypes() { return $this->hasMany('App\Models\RecordType'); }
+    public function recordTypes()
+    {
+        return $this->hasMany('App\Models\RecordType');
+    }
 
     /**
      * The relationship to the records in this revision.
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function records() { return $this->hasMany('App\Models\Record'); }
+    public function records()
+    {
+        return $this->hasMany('App\Models\Record');
+    }
 
     /**
      * The relationship to the link types in this revision.
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function linkTypes() { return $this->hasMany('App\Models\LinkType'); }
+    public function linkTypes()
+    {
+        return $this->hasMany('App\Models\LinkType');
+    }
 
     /**
      * The relationship to the links in this revision.
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function links() { return $this->hasMany('App\Models\Link'); }
+    public function links()
+    {
+        return $this->hasMany('App\Models\Link');
+    }
 
     /**
      * Kinda the relationship but with order added.
      * Needs more thought.
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function rules() { return $this->hasMany('App\Models\Rule');  }
+    public function rules()
+    {
+        return $this->hasMany('App\Models\Rule');
+    }
 
     /**
      * The relationship to the report types in this revision.
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function reportTypes() { return $this->hasMany('App\Models\ReportType'); }
+    public function reportTypes()
+    {
+        return $this->hasMany('App\Models\ReportType');
+    }
 
     /**
      * @param string $name
      * @return ReportType
      */
-    public function reportTypeByName($name ) {
+    public function reportTypeByName($name)
+    {
         /** @noinspection PhpUndefinedMethodInspection */
-        return $this->reportTypes()->where( 'name', $name )->first();
+        return $this->reportTypes()->where('name', $name)->first();
     }
 
     /**
      * @param string $name
      * @return RecordType
      */
-    public function recordTypeByName($name ) {
+    public function recordTypeByName($name)
+    {
         /** @noinspection PhpUndefinedMethodInspection */
-        return $this->recordTypes()->where( 'name', $name )->first();
+        return $this->recordTypes()->where('name', $name)->first();
     }
 
     /**
      * @param string $name
      * @return LinkType
      */
-    public function linkTypeByName($name ) {
+    public function linkTypeByName($name)
+    {
         /** @noinspection PhpUndefinedMethodInspection */
-        return $this->linkTypes()->where( 'name', $name )->first();
+        return $this->linkTypes()->where('name', $name)->first();
     }
 
 
@@ -98,15 +122,14 @@ class DocumentRevision extends Model
     public function publish()
     {
         // can only publish if this is a draft
-        if( $this->status != "draft" )
-        {
-            throw new Exception( "Can't publish a revision that is not a draft. status=".$this->status );
+        if ($this->status != "draft") {
+            throw new Exception("Can't publish a revision that is not a draft. status=" . $this->status);
         }
         $oldRevision = $this->document->currentRevision();
         $oldRevision->status = "archive";
         $this->status = "current";
-        $oldRevision->save();    
-        $this->save();    
+        $oldRevision->save();
+        $this->save();
     }
 
     /**
@@ -115,9 +138,8 @@ class DocumentRevision extends Model
     public function scrap()
     {
         // can only publish if this is a draft
-        if( $this->status != "draft" )
-        {
-            throw new Exception( "Can't scrap a revision that is not a draft. status=".$this->status );
+        if ($this->status != "draft") {
+            throw new Exception("Can't scrap a revision that is not a draft. status=" . $this->status);
         }
         $this->status = "scrap";
         $this->save();
@@ -130,12 +152,12 @@ class DocumentRevision extends Model
      * @param array $data
      * @return ReportType
      */
-    public function createReportType($name, $baseRecordType, $data )
+    public function createReportType($name, $baseRecordType, $data)
     {
         // these take exception if there's an issue
 
         $report_type = new ReportType();
-        $report_type->documentRevision()->associate( $this );
+        $report_type->documentRevision()->associate($this);
         $report_type->base_record_type_sid = $baseRecordType->sid;
         $report_type->name = $name;
         $report_type->data = $data;
@@ -152,10 +174,10 @@ class DocumentRevision extends Model
      * @param array $data
      * @return RecordType
      */
-    public function createRecordType($name, $data )
+    public function createRecordType($name, $data)
     {
         $record_type = new RecordType();
-        $record_type->documentRevision()->associate( $this );
+        $record_type->documentRevision()->associate($this);
         $record_type->name = $name;
         $record_type->data = $data;
 
@@ -174,7 +196,7 @@ class DocumentRevision extends Model
     public function makeReport()
     {
         $report = new Report();
-        $report->documentRevision()->associate( $this );
+        $report->documentRevision()->associate($this);
         return $report;
     }
 
@@ -185,15 +207,19 @@ class DocumentRevision extends Model
      * @param array $data
      * @return LinkType
      */
-    public function createLinkType($name, $domain, $range, $data )
+    public function createLinkType($name, $domain, $range, $data)
     {
         // default minimum is zero. Default maximum is N (max null means unlimited)
-        if( @$data["domain_min"]===null ) { $data["domain_min"]=0; }
-        if( @$data["range_min"]===null ) { $data["range_min"]=0; }
+        if (@$data["domain_min"] === null) {
+            $data["domain_min"] = 0;
+        }
+        if (@$data["range_min"] === null) {
+            $data["range_min"] = 0;
+        }
 
         // all OK, let's make this link type
         $link_type = new LinkType();
-        $link_type->documentRevision()->associate( $this );
+        $link_type->documentRevision()->associate($this);
         $link_type->name = $name;
         $link_type->domain_sid = $domain->sid;
         $link_type->range_sid = $range->sid;

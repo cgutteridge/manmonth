@@ -4,49 +4,57 @@ namespace App\MMScript\Ops;
 
 use App\Exceptions\ScriptException;
 use App\MMScript\Values\RecordValue;
+
 /**
  * @property Record left
  * @property Name right
  */
 class Link extends BinaryOp
 {
-    function type() {
-        if( @$this->type ) { return $this->type; }
+    function type()
+    {
+        if (@$this->type) {
+            return $this->type;
+        }
         $this->type = "record";
         return $this->type;
     }
 
     // another complex one -- needs to follow the link to find out the new type
     var $recordType;
-    function recordType() {
-        if( @$this->recordType ) { return $this->recordType; }
-        if( $this->left->type() != "record" ) {
-            throw new ScriptException( "Left-value of a ".$this->opCode." must be record not ".$this->right->type() );
+
+    function recordType()
+    {
+        if (@$this->recordType) {
+            return $this->recordType;
         }
-        if( $this->right->type() != "name" ) {
-            throw new ScriptException( "Right-value of a ".$this->opCode." must be name not ".$this->right->type() );
+        if ($this->left->type() != "record") {
+            throw new ScriptException("Left-value of a " . $this->opCode . " must be record not " . $this->right->type());
+        }
+        if ($this->right->type() != "name") {
+            throw new ScriptException("Right-value of a " . $this->opCode . " must be name not " . $this->right->type());
         }
 
-	    $leftType = $this->left->recordType();
+        $leftType = $this->left->recordType();
 
         $linkName = $this->right->value;
-        $link = $this->script->documentRevision->linkTypeByName( $linkName );
-        if( !$link ) {
+        $link = $this->script->documentRevision->linkTypeByName($linkName);
+        if (!$link) {
             // not sure what type of exception to make this (Script?)
-            throw new ScriptException( "Unknown linkName '$linkName'" );
+            throw new ScriptException("Unknown linkName '$linkName'");
         }
-        
-        if( $this->opCode == "FWD" ) {
+
+        if ($this->opCode == "FWD") {
             // check the domain of this link is the right recordtype
-            if( $link->domain_sid != $leftType->sid ) {
-                throw new ScriptException( "Domain of $linkName is not ".$leftType->name );
-            } 
+            if ($link->domain_sid != $leftType->sid) {
+                throw new ScriptException("Domain of $linkName is not " . $leftType->name);
+            }
             $this->recordType = $link->range;
         } else {
             // backlink, so check range, set type to domain
-            if( $link->range_sid != $leftType->sid ) {
-                throw new ScriptException( "Range of $linkName is not ".$leftType->name );
-            } 
+            if ($link->range_sid != $leftType->sid) {
+                throw new ScriptException("Range of $linkName is not " . $leftType->name);
+            }
             $this->recordType = $link->domain;
         }
 
@@ -64,11 +72,11 @@ class Link extends BinaryOp
         $record = $this->left->execute($context)->value;
         $linkName = $this->right->execute($context)->value;
         // hopefully there's one and only one...
-        if( $this->opCode == "FWD" ) {
+        if ($this->opCode == "FWD") {
             $linkedRecords = $record->forwardLinkedRecords($linkName);
         } else {
             $linkedRecords = $record->backLinkedRecords($linkName);
         }
-        return new RecordValue( $linkedRecords[0] );
+        return new RecordValue($linkedRecords[0]);
     }
 }

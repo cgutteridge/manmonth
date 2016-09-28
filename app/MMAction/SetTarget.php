@@ -15,19 +15,19 @@ class SetTarget extends Action
     // has some parameters with an ordered name & type and human
     // readable title etc.
     public $params = [
-        [ 
-            "name"=>"target",
-            "type"=>"string",
-            "required"=>true,
+        [
+            "name" => "target",
+            "type" => "string",
+            "required" => true,
         ],
-        [ 
-            "name"=>"value",
-            "type"=>"decimal",
-            "required"=>true,
+        [
+            "name" => "value",
+            "type" => "decimal",
+            "required" => true,
         ],
-        [ 
-            "name"=>"description",
-            "type"=>"string",
+        [
+            "name" => "description",
+            "type" => "string",
         ],
     ];
 
@@ -35,8 +35,9 @@ class SetTarget extends Action
      * @param RecordReport $recordReport
      * @param $params
      */
-    public function execute($recordReport, $params ) {
-        $recordReport->setLoadingTarget( $params["target"], $params["value"] );
-        $this->recordLog( $recordReport, $params );
+    public function execute($recordReport, $params)
+    {
+        $recordReport->setLoadingTarget($params["target"], $params["value"]);
+        $this->recordLog($recordReport, $params);
     }
 }

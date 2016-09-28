@@ -20,11 +20,11 @@ class RequestProcessor
      * @param $idPrefix
      * @return array
      */
-    public function fromRequest(Request $request, array $fields, $idPrefix="" )
+    public function fromRequest(Request $request, array $fields, $idPrefix = "")
     {
         return $this->_fromRequest($request, $fields, $idPrefix,
-            function(Request $request,$param) {
-                return $request->get( $param );
+            function (Request $request, $param) {
+                return $request->get($param);
             }
         );
     }
@@ -37,11 +37,11 @@ class RequestProcessor
      * @param $idPrefix
      * @return array
      */
-    public function fromOldRequest(Request $request, array $fields, $idPrefix="" )
+    public function fromOldRequest(Request $request, array $fields, $idPrefix = "")
     {
         return $this->_fromRequest($request, $fields, $idPrefix,
-            function(Request $request,$param) {
-                return $request->old( $param );
+            function (Request $request, $param) {
+                return $request->old($param);
             }
         );
     }
@@ -54,23 +54,24 @@ class RequestProcessor
      * @param callable $getParam
      * @return array
      */
-    protected function _fromRequest(Request $request, array $fields, $idPrefix, callable $getParam ) {
+    protected function _fromRequest(Request $request, array $fields, $idPrefix, callable $getParam)
+    {
         $data = [];
-        foreach( $fields as $field) {
-            $fieldId = $idPrefix.$field->data["name"];
+        foreach ($fields as $field) {
+            $fieldId = $idPrefix . $field->data["name"];
 
             //  TODO candidate for classes, but only boolean is a special case SO FAR....
-            if( $field->data["type"]=='boolean') {
-                if( $getParam($request,$fieldId."_exists") ) {
+            if ($field->data["type"] == 'boolean') {
+                if ($getParam($request, $fieldId . "_exists")) {
                     // set to a boolean
-                    $data[ $field->data["name"] ] = true==$getParam($request,$fieldId);
+                    $data[$field->data["name"]] = true == $getParam($request, $fieldId);
                 }
                 continue;
             }
 
-            $value = $getParam($request,$fieldId);
-            if( $value !== null ) {
-                $data[ $field->data["name"] ] = $value;
+            $value = $getParam($request, $fieldId);
+            if ($value !== null) {
+                $data[$field->data["name"]] = $value;
             }
         }
         return $data;

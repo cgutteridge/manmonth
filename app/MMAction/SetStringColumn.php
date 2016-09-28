@@ -22,18 +22,18 @@ class SetStringColumn extends Action
     // readable title etc.
     public $params = [
         [
-            "name"=>"column",
-            "type"=>"string",
-            "required"=>true,
+            "name" => "column",
+            "type" => "string",
+            "required" => true,
         ],
         [
-            "name"=>"value",
-            "type"=>"string",
-            "required"=>true,
+            "name" => "value",
+            "type" => "string",
+            "required" => true,
         ],
         [
-            "name"=>"description",
-            "type"=>"string",
+            "name" => "description",
+            "type" => "string",
         ],
     ];
 
@@ -41,8 +41,9 @@ class SetStringColumn extends Action
      * @param RecordReport $recordReport
      * @param $params
      */
-    public function execute($recordReport, $params ) {
-        $recordReport->setColumn( $params["column"], $params["value"] );
-        $this->recordLog( $recordReport, $params );
+    public function execute($recordReport, $params)
+    {
+        $recordReport->setColumn($params["column"], $params["value"]);
+        $this->recordLog($recordReport, $params);
     }
 }

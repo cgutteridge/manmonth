@@ -15,17 +15,18 @@ abstract class Field
      * @return Field
      * @throws Exception
      */
-    public static function createFromData($fieldData ) {
-        if( $fieldData["type"]=="string" ) {
-            return new StringField( $fieldData );
-        } elseif( $fieldData["type"]=="decimal" ) {
-            return new DecimalField( $fieldData );
-        } elseif( $fieldData["type"]=="integer" ) {
-            return new IntegerField( $fieldData );
-        } elseif( $fieldData["type"]=="boolean" ) {
-            return new BooleanField( $fieldData );
+    public static function createFromData($fieldData)
+    {
+        if ($fieldData["type"] == "string") {
+            return new StringField($fieldData);
+        } elseif ($fieldData["type"] == "decimal") {
+            return new DecimalField($fieldData);
+        } elseif ($fieldData["type"] == "integer") {
+            return new IntegerField($fieldData);
+        } elseif ($fieldData["type"] == "boolean") {
+            return new BooleanField($fieldData);
         } else {
-            throw new Exception( "Unknown field type: '".$fieldData["type"]."'" );
+            throw new Exception("Unknown field type: '" . $fieldData["type"] . "'");
         }
     }
 
@@ -38,8 +39,9 @@ abstract class Field
      * Field constructor.
      * @param $data
      */
-    public function __construct($data) {
-        $this->data = $data; 
+    public function __construct($data)
+    {
+        $this->data = $data;
     }
 
     /**
@@ -47,18 +49,22 @@ abstract class Field
      * Subclassed by non abstract versions of Field
      * @return string
      */
-    public function valueValidationCode() {
+    public function valueValidationCode()
+    {
         $parts = [];
-        if( @$this->data["required"] ) { $parts []= "required"; }
-        return join( "|", $parts );
+        if (@$this->data["required"]) {
+            $parts [] = "required";
+        }
+        return join("|", $parts);
     }
 
     /**
      * Is this a required field?
      * @return bool
      */
-    public function required() {
-        return( true == @$this->data["required"] );
+    public function required()
+    {
+        return (true == @$this->data["required"]);
     }
 
     /**
@@ -66,8 +72,9 @@ abstract class Field
      * name string.
      * @return string
      */
-    public function title() {
-        if( @$this->data["title"] ) {
+    public function title()
+    {
+        if (@$this->data["title"]) {
             return $this->data["title"];
         }
         return $this->data["name"];
@@ -77,8 +84,9 @@ abstract class Field
      * Give the description text for the field, or null if there is none.
      * @return string|null
      */
-    public function description() {
-        if( @$this->data["description"] ) {
+    public function description()
+    {
+        if (@$this->data["description"]) {
             return $this->data["description"];
         }
         return null;
@@ -88,10 +96,11 @@ abstract class Field
      * Return the laravel validate array to validate data for this field
      * @return array
      */
-    public function fieldValidationArray() {
-        return [ 
-          'name' => 'required|alpha_dash|min:2|max:255', 
-          'required' => 'boolean',
+    public function fieldValidationArray()
+    {
+        return [
+            'name' => 'required|alpha_dash|min:2|max:255',
+            'required' => 'boolean',
         ];
     }
 
@@ -99,10 +108,11 @@ abstract class Field
      * Check this field is valid
      * @throws DataStructValidationException
      */
-    public function validate() {
-        $validator = Validator::make( $this->data, $this->fieldValidationArray() );
-        if($validator->fails()) {
-            throw new DataStructValidationException( "Validation fail in field: ".join( ", ", $validator->errors() ));
+    public function validate()
+    {
+        $validator = Validator::make($this->data, $this->fieldValidationArray());
+        if ($validator->fails()) {
+            throw new DataStructValidationException("Validation fail in field: " . join(", ", $validator->errors()));
         }
     }
 
@@ -111,7 +121,7 @@ abstract class Field
      * @param $value
      * @return Value
      */
-    public abstract function makeValue($value );
+    public abstract function makeValue($value);
 
 }
 

@@ -18,23 +18,27 @@ class Name extends Op
     /**
      * @return string
      */
-    public function type() { return "name"; }
+    public function type()
+    {
+        return "name";
+    }
 
     /**
      * @param array $context
      * @return NameValue
      */
-    function execute($context )
+    function execute($context)
     {
-        return new NameValue( $this->value );
+        return new NameValue($this->value);
     }
 
     /**
      * @param string $prefix
      * @return string
      */
-    public function treeText($prefix = "" ) {
-        $r = $prefix.$this->opCode." -> ".$this->value." [".@$this->type()."]\n";
+    public function treeText($prefix = "")
+    {
+        $r = $prefix . $this->opCode . " -> " . $this->value . " [" . @$this->type() . "]\n";
         return $r;
     }
 }

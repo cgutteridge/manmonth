@@ -102,7 +102,7 @@ class Rule extends DocumentPart
                 'params' => 'array']);
 
         if ($validator->fails()) {
-            throw new DataStructValidationException( "Validation fail in rule.data: ".join( ", ", $validator->errors() ));
+            throw new DataStructValidationException("Validation fail in rule.data: " . join(", ", $validator->errors()));
         }
 
         // run this function just to let it throw an exception
@@ -152,18 +152,21 @@ class Rule extends DocumentPart
         return Rule::actionFactory($this->data["action"]);
     }
 
-    protected $scripts=[];
+    protected $scripts = [];
 
     /**
      * @param string $scriptText
      * @return MMScript
      */
-    function script($scriptText ) {
-        if( isset( $this->scripts[$scriptText] ) ) { return $this->scripts[$scriptText]; }
+    function script($scriptText)
+    {
+        if (isset($this->scripts[$scriptText])) {
+            return $this->scripts[$scriptText];
+        }
         $this->scripts[$scriptText] = new MMScript(
             $scriptText,
             $this->documentRevision,
-            $this->abstractContext() );
+            $this->abstractContext());
         return $this->scripts[$scriptText];
     }
 
@@ -174,10 +177,13 @@ class Rule extends DocumentPart
      * @return array
      * @throws Exception
      */
-    public function abstractContext() {
-        if( isset($this->abstractContext)) { return $this->abstractContext; }
+    public function abstractContext()
+    {
+        if (isset($this->abstractContext)) {
+            return $this->abstractContext;
+        }
 
-        $this->abstractContext= [];
+        $this->abstractContext = [];
 
         $baseRecordType = $this->reportType->baseRecordType();
         $this->abstractContext[$baseRecordType->name] = $baseRecordType;
@@ -185,45 +191,47 @@ class Rule extends DocumentPart
         $iterativeRecordType = $baseRecordType;
 
         // simple case
-        if( !isset($this->data['route']) ) { return $this->abstractContext; }
-        
-        foreach( $this->data['route'] as $linkName ) {
+        if (!isset($this->data['route'])) {
+            return $this->abstractContext;
+        }
+
+        foreach ($this->data['route'] as $linkName) {
             $fwd = true;
-            if( substr( $linkName, 0, 1 ) == "^" ) {
-                $linkName = substr( $linkName, 1 );
+            if (substr($linkName, 0, 1) == "^") {
+                $linkName = substr($linkName, 1);
                 $fwd = false;
             }
-            $linkType = $this->documentRevision->linkTypeByName( $linkName );
-            if( !$linkType ) {
+            $linkType = $this->documentRevision->linkTypeByName($linkName);
+            if (!$linkType) {
                 // not sure what type of exception to make this (Script?)
-                throw new Exception( "Unknown linkName in context '$linkName'" );
+                throw new Exception("Unknown linkName in context '$linkName'");
             }
-            
-            if( $fwd ) {
+
+            if ($fwd) {
                 // check the domain of this link is the right recordtype
-                if( $linkType->domain_sid != $iterativeRecordType->sid ) {
-                    throw new Exception( "Domain of $linkName is not ".$iterativeRecordType->name );
-                } 
+                if ($linkType->domain_sid != $iterativeRecordType->sid) {
+                    throw new Exception("Domain of $linkName is not " . $iterativeRecordType->name);
+                }
                 $iterativeRecordType = $linkType->range;
             } else {
                 // backlink, so check range, set type to domain
-                if( $linkType->range_sid != $iterativeRecordType->sid ) {
-                    throw new Exception( "Range of $linkName is not ".$iterativeRecordType->name );
-                } 
+                if ($linkType->range_sid != $iterativeRecordType->sid) {
+                    throw new Exception("Range of $linkName is not " . $iterativeRecordType->name);
+                }
                 $iterativeRecordType = $linkType->domain;
             }
- 
+
             $name = $iterativeRecordType->name;
 
             // in case we meet the same class twice, will fallback
             // to class, class2, class3, etc.
-            $i=2;
-            while( array_key_exists( $name, $this->abstractContext ) ) {
-                $name = $linkType->name."$i";
+            $i = 2;
+            while (array_key_exists($name, $this->abstractContext)) {
+                $name = $linkType->name . "$i";
                 $i++;
             }
-            $this->abstractContext[ $name ] = $iterativeRecordType;
-           
+            $this->abstractContext[$name] = $iterativeRecordType;
+
         }
 
         return $this->abstractContext;
@@ -233,13 +241,16 @@ class Rule extends DocumentPart
      * @param Record $record
      * @param RecordReport $recordReport
      */
-    public function apply($record, $recordReport ) {
+    public function apply($record, $recordReport)
+    {
         $context = [];
         $baseRecordType = $this->reportType->baseRecordType();
         $context[$baseRecordType->name] = $record;
         $route = [];
-        if( isset($this->data['route']) ) { $route = $this->data['route']; }
-        $this->applyToRoute( $recordReport, $context, $route, $record );
+        if (isset($this->data['route'])) {
+            $route = $this->data['route'];
+        }
+        $this->applyToRoute($recordReport, $context, $route, $record);
     }
 
     // recursive function used to apply this rule to the record for every context possible with the given route
@@ -251,61 +262,62 @@ class Rule extends DocumentPart
      * @param Record $focusObject - the object to which the remaining route applies
      * @throws Exception
      */
-    private function applyToRoute($recordReport, $context, $route, $focusObject ) {
-        if( sizeof($route) == 0 ) {
+    private function applyToRoute($recordReport, $context, $route, $focusObject)
+    {
+        if (sizeof($route) == 0) {
             $this->applyToContext($recordReport, $context);
             return;
         }
 
         // follow the top link on the route
-        $linkName = array_shift( $route );
+        $linkName = array_shift($route);
 
         $fwd = true;
-        if( substr( $linkName, 0, 1 ) == "^" ) {
-            $linkName = substr( $linkName, 1 );
+        if (substr($linkName, 0, 1) == "^") {
+            $linkName = substr($linkName, 1);
             $fwd = false;
         }
-        $linkType = $this->documentRevision->linkTypeByName( $linkName );
-        if( !$linkType ) {
+        $linkType = $this->documentRevision->linkTypeByName($linkName);
+        if (!$linkType) {
             // not sure what type of exception to make this (Script?)
-            throw new Exception( "Unknown linkName in context '$linkName'" );
+            throw new Exception("Unknown linkName in context '$linkName'");
         }
 
-        if( $fwd ) {
+        if ($fwd) {
             // get ids of records of instances of this link for which the focus object is the subject
-            $nextFocusObjectsSids= DB::table('links')
-                ->where("links.document_revision_id", "=", $this->documentRevision->id )
+            $nextFocusObjectsSids = DB::table('links')
+                ->where("links.document_revision_id", "=", $this->documentRevision->id)
                 ->where("links.subject_sid", '=', $focusObject->sid)
                 ->where("links.link_type_sid", '=', $linkType->sid)
                 ->pluck("links.object_sid");
         } else {
             // get ids of records of instances of this link for which the focus object is the object
-            $nextFocusObjectsSids= DB::table('links')
-                ->where("links.document_revision_id", "=", $this->documentRevision->id )
+            $nextFocusObjectsSids = DB::table('links')
+                ->where("links.document_revision_id", "=", $this->documentRevision->id)
                 ->where("links.object_sid", '=', $focusObject->sid)
                 ->where("links.link_type_sid", '=', $linkType->sid)
                 ->pluck("links.subject_sid");
         }
 
-        if( count( $nextFocusObjectsSids) == 0) {
+        if (count($nextFocusObjectsSids) == 0) {
             return; // this route doesn't resolve to any contexts to run the rule in
         }
-        $nextThing = $this->documentRevision->records()->getQuery()->where( 'sid','=', $nextFocusObjectsSids[0] )->first();
+        $nextThing = $this->documentRevision->records()->getQuery()->where('sid', '=', $nextFocusObjectsSids[0])->first();
         $baseNextTypeName = $nextThing->recordType->name;
         $nextTypeName = $baseNextTypeName;
         // in case we meet the same class twice, will fallback
         // to class, class2, class3, etc.
-        $i=2;
-        while( array_key_exists( $nextTypeName, $context ) ) {
-            $nextTypeName = $baseNextTypeName.$i;
+        $i = 2;
+        while (array_key_exists($nextTypeName, $context)) {
+            $nextTypeName = $baseNextTypeName . $i;
             $i++;
         }
-        foreach( $nextFocusObjectsSids as $sid ) {
+        foreach ($nextFocusObjectsSids as $sid) {
             /** @var Record $nextFocusObject */
-            $nextFocusObject = $this->documentRevision->records()->getQuery()->where( 'sid','=', $sid )->first();
+            $nextFocusObject = $this->documentRevision->records()->getQuery()->where('sid', '=', $sid)->first();
 
             $context[$nextTypeName] = $nextFocusObject;
-            $this->applyToRoute( $recordReport, $context, $route, $nextFocusObject );
+            $this->applyToRoute($recordReport, $context, $route, $nextFocusObject);
         }
     }
 
@@ -315,10 +327,10 @@ class Rule extends DocumentPart
      */
     private function applyToContext($recordReport, $context)
     {
-        if( isset($this->data["trigger"]) ) {
+        if (isset($this->data["trigger"])) {
             $trigger = $this->script($this->data["trigger"]);
-            $result = $trigger->execute( $context );
-            if( !$result->value ) {
+            $result = $trigger->execute($context);
+            if (!$result->value) {
                 return;
             }
         }
@@ -328,11 +340,13 @@ class Rule extends DocumentPart
         foreach ($action->fields as $field) {
             $fieldName = $field->data["name"];
             $paramCode = @$this->data["params"][$fieldName];
-            if( !isset($paramCode) ) { continue; }
-            $script = $this->script( $paramCode );
-            $params[ $fieldName ] = $script->execute( $context )->value;
+            if (!isset($paramCode)) {
+                continue;
+            }
+            $script = $this->script($paramCode);
+            $params[$fieldName] = $script->execute($context)->value;
         }
-        $action->execute( $recordReport, $params );
+        $action->execute($recordReport, $params);
     }
 
 }

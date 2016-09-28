@@ -12,23 +12,23 @@ class AssignLoad extends Action
     // has some parameters with an ordered name & type and human
     // readable title etc.
     public $params = [
-        [ 
-            "name"=>"target",
-            "type"=>"string",
-            "required"=>true,
+        [
+            "name" => "target",
+            "type" => "string",
+            "required" => true,
         ],
-        [ 
-            "name"=>"category",
-            "type"=>"string",
+        [
+            "name" => "category",
+            "type" => "string",
         ],
-        [ 
-            "name"=>"load",
-            "type"=>"decimal",
-            "required"=>true,
+        [
+            "name" => "load",
+            "type" => "decimal",
+            "required" => true,
         ],
-        [ 
-            "name"=>"description",
-            "type"=>"string",
+        [
+            "name" => "description",
+            "type" => "string",
         ],
     ];
 
@@ -36,13 +36,14 @@ class AssignLoad extends Action
      * @param RecordReport $recordReport
      * @param $params
      */
-    public function execute($recordReport, $params ) {
-        if( $params["load"] != 0 ) {
+    public function execute($recordReport, $params)
+    {
+        if ($params["load"] != 0) {
             $total = $recordReport->getLoadingTotal($params["target"]);
             $recordReport->setLoadingTotal($params["target"], $total + $params["load"]);
             $recordReport->appendLoading($params);
         }
         // always log that we got this far if we passed the trigger rule
-        $this->recordLog( $recordReport, $params );
+        $this->recordLog($recordReport, $params);
     }
 }

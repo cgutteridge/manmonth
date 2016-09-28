@@ -15,7 +15,7 @@ class DocumentController extends Controller
     public function index()
     {
         $list = Document::all();
-        return view('document.index', ["list"=>$list] );
+        return view('document.index', ["list" => $list]);
     }
 
     /**
@@ -31,7 +31,7 @@ class DocumentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -50,13 +50,13 @@ class DocumentController extends Controller
         $document = Document::findOrFail($id);
         return view('document.show', [
             'document' => $document
-        ] );
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -67,8 +67,8 @@ class DocumentController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request $request
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -79,7 +79,7 @@ class DocumentController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

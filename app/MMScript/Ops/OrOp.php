@@ -15,28 +15,31 @@ class OrOp extends BinaryOp
      * @return string
      * @throws ScriptException
      */
-    function type() {
-        if( @$this->type ) { return $this->type; }
+    function type()
+    {
+        if (@$this->type) {
+            return $this->type;
+        }
         $lt = $this->left->type();
         $rt = $this->right->type();
 
-        if( ($lt == 'boolean'&&$rt == 'boolean' ) ) {
+        if (($lt == 'boolean' && $rt == 'boolean')) {
             $this->type = 'boolean';
             return $this->type;
         }
 
-        throw new ScriptException( "Can't OR $lt and $rt" );
+        throw new ScriptException("Can't OR $lt and $rt");
     }
 
     /**
      * @param array $context
      * @return BooleanValue
      */
-    function execute($context )
+    function execute($context)
     {
         $leftValue = $this->left->execute($context)->value;
         $rightValue = $this->right->execute($context)->value;
 
-        return new BooleanValue( $leftValue || $rightValue );
+        return new BooleanValue($leftValue || $rightValue);
     }
 }

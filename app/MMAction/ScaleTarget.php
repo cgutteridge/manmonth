@@ -16,19 +16,19 @@ class ScaleTarget extends Action
     // has some parameters with an ordered name & type and human
     // readable title etc.
     public $params = [
-        [ 
-            "name"=>"target",
-            "type"=>"string",
-            "required"=>true,
+        [
+            "name" => "target",
+            "type" => "string",
+            "required" => true,
         ],
-        [ 
-            "name"=>"factor",
-            "type"=>"decimal",
-            "required"=>true,
+        [
+            "name" => "factor",
+            "type" => "decimal",
+            "required" => true,
         ],
-        [ 
-            "name"=>"description",
-            "type"=>"string",
+        [
+            "name" => "description",
+            "type" => "string",
         ],
     ];
 
@@ -38,12 +38,13 @@ class ScaleTarget extends Action
      * @param $params
      * @throws ReportingException
      */
-    public function execute($recordReport, $params ) {
-        if( !$recordReport->hasLoadingTarget( $params["target"] )) {
-            throw new ReportingException( "Attempt to scale uninitialised target '".$params["target"]."'");
+    public function execute($recordReport, $params)
+    {
+        if (!$recordReport->hasLoadingTarget($params["target"])) {
+            throw new ReportingException("Attempt to scale uninitialised target '" . $params["target"] . "'");
         }
-        $value = $recordReport->getLoadingTarget( $params["target"] ) * $params["factor"];
-        $recordReport->setLoadingTarget( $params["target"], $value );
-        $this->recordLog( $recordReport, $params );
+        $value = $recordReport->getLoadingTarget($params["target"]) * $params["factor"];
+        $recordReport->setLoadingTarget($params["target"], $value);
+        $this->recordLog($recordReport, $params);
     }
 }

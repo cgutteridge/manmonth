@@ -32,10 +32,11 @@ abstract class Action
     /**
      * AbstractAction constructor.
      */
-    public function __construct() {
-        $this->fields = []; 
-        foreach( $this->params as $param ) {
-            $this->fields[ $param["name"] ]= Field::createFromData( $param );
+    public function __construct()
+    {
+        $this->fields = [];
+        foreach ($this->params as $param) {
+            $this->fields[$param["name"]] = Field::createFromData($param);
         }
     }
 
@@ -44,10 +45,10 @@ abstract class Action
      * @param $params - params for the action to be logged
      * @internal param $rreport - report to write log to
      */
-    protected function recordLog( $recordReport, $params)
+    protected function recordLog($recordReport, $params)
     {
         $recordReport->appendLog(
-            [ "action"=>$this->name, "params"=>$params ]
+            ["action" => $this->name, "params" => $params]
         );
     }
 
@@ -55,6 +56,6 @@ abstract class Action
      * @param RecordReport $recordReport
      * @param array $params
      */
-    public abstract function execute($recordReport, $params );
+    public abstract function execute($recordReport, $params);
 
 }

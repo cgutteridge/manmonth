@@ -18,11 +18,12 @@ class ReportType extends DocumentPart
     /**
      * @return array[Rule]
      */
-    public function rules() {
+    public function rules()
+    {
         /** @noinspection PhpUndefinedMethodInspection */
         return $this->documentRevision->rules()
-            ->where( "report_type_sid", $this->sid )
-            ->orderBy( 'rank')
+            ->where("report_type_sid", $this->sid)
+            ->orderBy('rank')
             ->get();
     }
 
@@ -34,36 +35,38 @@ class ReportType extends DocumentPart
     {
         /** @noinspection PhpUndefinedMethodInspection */
         return $this->documentRevision->recordTypes()
-            ->where( "sid", $this->base_record_type_sid )
+            ->where("sid", $this->base_record_type_sid)
             ->first();
     }
 
     /**
      * @throws DataStructValidationException
      */
-    public function validateName() {
+    public function validateName()
+    {
 
         $validator = Validator::make(
-        [ 'name' => $this->name ],
-        [ 'name' => 'required|alpha_dash|min:2|max:255' ]);
+            ['name' => $this->name],
+            ['name' => 'required|alpha_dash|min:2|max:255']);
 
-        if($validator->fails()) {
-            throw new DataStructValidationException( "Validation fail in reportType.name: ".join( ", ", $validator->errors() ));
+        if ($validator->fails()) {
+            throw new DataStructValidationException("Validation fail in reportType.name: " . join(", ", $validator->errors()));
         }
     }
 
     /**
      * @throws DataStructValidationException
      */
-    public function validateData() {
+    public function validateData()
+    {
 
         $validator = Validator::make(
-          $this->data,
-          [ 'title' => 'required' ]
+            $this->data,
+            ['title' => 'required']
         );
 
-        if($validator->fails()) {
-            throw new DataStructValidationException( "Validation fail in reportType.data: ".join( ", ", $validator->errors() ));
+        if ($validator->fails()) {
+            throw new DataStructValidationException("Validation fail in reportType.data: " . join(", ", $validator->errors()));
         }
     }
 
@@ -71,18 +74,19 @@ class ReportType extends DocumentPart
      * @param array $data
      * @return Rule
      */
-    public function createRule($data ) {
+    public function createRule($data)
+    {
 
         // all OK, let's make this rule
         $rank = 0;
         /** @noinspection PhpUndefinedMethodInspection */
-        $lastrule = $this->rules()->sortByDesc( 'id' )->first();
-        if( $lastrule ) { 
-            $rank = $lastrule->rank + 1 ;
+        $lastrule = $this->rules()->sortByDesc('id')->first();
+        if ($lastrule) {
+            $rank = $lastrule->rank + 1;
         }
 
         $rule = new Rule();
-        $rule->documentRevision()->associate( $this->documentRevision );
+        $rule->documentRevision()->associate($this->documentRevision);
         $rule->rank = $rank;
         $rule->report_type_sid = $this->sid;
         $rule->data = $data;
@@ -99,11 +103,12 @@ class ReportType extends DocumentPart
      * Doesn't save the object.
      * @return Report
      */
-    function makeReport() {
+    function makeReport()
+    {
         $records = $this->baseRecordType()->records;
         $report = $this->documentRevision->makeReport(); // will be an object when I know what shape it is!
-        foreach( $records as $record ) {
-            $report->setRecordReport( $record->sid, $this->recordReport( $record ) );
+        foreach ($records as $record) {
+            $report->setRecordReport($record->sid, $this->recordReport($record));
         }
         return $report;
     }
@@ -115,13 +120,14 @@ class ReportType extends DocumentPart
      * @param Record $record
      * @return RecordReport
      */
-    function recordReport($record ) {
+    function recordReport($record)
+    {
 
         $recordReport = new RecordReport();
 
-        foreach( $this->rules() as $rule ) {
+        foreach ($this->rules() as $rule) {
             // apply this rule to every possible context based on the route
-            $rule->apply( $record, $recordReport );
+            $rule->apply($record, $recordReport);
         }
         return $recordReport;
     }

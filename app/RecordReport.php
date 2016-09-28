@@ -11,7 +11,8 @@
 
 namespace App;
 
-class RecordReport {
+class RecordReport
+{
 
     private $columns = [];
     private $loading_targets = [];
@@ -19,7 +20,7 @@ class RecordReport {
     private $loadings = [];
     private $log = [];
 
-    public function __construct( $data = null)
+    public function __construct($data = null)
     {
         if (isset($data)) {
             $this->columns = $data["columns"];
@@ -49,8 +50,9 @@ class RecordReport {
      * Return the list of loadings this report has a target or total for.
      * @return array[string]
      */
-    public function getLoadingTypes() {
-        return array_unique(array_merge( array_keys( $this->loading_targets ), array_keys( $this->loading_totals )), SORT_REGULAR);
+    public function getLoadingTypes()
+    {
+        return array_unique(array_merge(array_keys($this->loading_targets), array_keys($this->loading_totals)), SORT_REGULAR);
     }
 
     /**
@@ -82,7 +84,7 @@ class RecordReport {
      * @param string $columnName
      * @param mixed $value
      */
-    public function setColumn($columnName,$value)
+    public function setColumn($columnName, $value)
     {
         $this->columns[$columnName] = $value;
     }
@@ -110,7 +112,7 @@ class RecordReport {
      */
     public function hasLoadingTarget($loading)
     {
-        return isset( $this->loading_targets[$loading]);
+        return isset($this->loading_targets[$loading]);
     }
 
     /**
@@ -126,7 +128,7 @@ class RecordReport {
      * @param string $loading
      * @param float $value
      */
-    public function setLoadingTarget($loading,$value)
+    public function setLoadingTarget($loading, $value)
     {
         $this->loading_targets[$loading] = $value;
     }
@@ -145,7 +147,7 @@ class RecordReport {
      */
     public function getLoadingTotal($loading)
     {
-        if( !isset( $this->loading_totals[$loading])) {
+        if (!isset($this->loading_totals[$loading])) {
             return 0;
         }
         return $this->loading_totals[$loading];
@@ -155,7 +157,7 @@ class RecordReport {
      * @param string $loading
      * @param float $value
      */
-    public function setLoadingTotal($loading,$value)
+    public function setLoadingTotal($loading, $value)
     {
         $this->loading_totals[$loading] = $value;
     }
@@ -172,7 +174,7 @@ class RecordReport {
      * @param string $loading
      * @param float $value
      */
-    public function setLoading($loading,$value)
+    public function setLoading($loading, $value)
     {
         $this->loadings[$loading] = $value;
     }
@@ -182,7 +184,7 @@ class RecordReport {
      */
     public function appendLoading($loadItem)
     {
-        $this->loadings []= $loadItem;
+        $this->loadings [] = $loadItem;
     }
 
     /**
@@ -198,9 +200,8 @@ class RecordReport {
      */
     public function appendLog($logItem)
     {
-        $this->log []= $logItem;
+        $this->log [] = $logItem;
     }
-
 
 
 }

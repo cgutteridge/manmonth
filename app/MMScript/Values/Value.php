@@ -8,7 +8,8 @@
 
 namespace App\MMScript\Values;
 
-abstract class Value {
+abstract class Value
+{
 
     public $value;
 

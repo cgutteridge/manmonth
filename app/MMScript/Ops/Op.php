@@ -1,6 +1,7 @@
 <?php
 
 namespace App\MMScript\Ops;
+
 use App\MMScript\Values\Value;
 use App\Models\RecordType;
 
@@ -36,7 +37,8 @@ abstract class Op
      * @param $script
      * @param $token
      */
-    public function __construct($script, $token ) {
+    public function __construct($script, $token)
+    {
         $this->script = $script;
         $this->offset = $token[0];
         $this->opCode = $token[1];
@@ -52,8 +54,9 @@ abstract class Op
      * @param string $prefix
      * @return string
      */
-    public function treeText($prefix = "" ) {
-        $r = $prefix.get_class( $this )." :: ".$this->opCode." -> ".@$this->value." [".@$this->type()."]\n";
+    public function treeText($prefix = "")
+    {
+        $r = $prefix . get_class($this) . " :: " . $this->opCode . " -> " . @$this->value . " [" . @$this->type() . "]\n";
         return $r;
     }
 
@@ -61,7 +64,8 @@ abstract class Op
     /**
      * @return null|RecordType
      */
-    function recordType() {
+    function recordType()
+    {
         return null;
     }
 
@@ -69,5 +73,5 @@ abstract class Op
      * @param $context
      * @return Value
      */
-    public abstract function execute($context );
+    public abstract function execute($context);
 }

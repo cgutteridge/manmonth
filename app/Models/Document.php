@@ -25,10 +25,12 @@ class Document extends Model
      */
     public function init()
     {
-        if( !$this->id ) { throw new Exception( "Save document before calling init()" ); }
+        if (!$this->id) {
+            throw new Exception("Save document before calling init()");
+        }
 
         $rev = new DocumentRevision();
-        $rev->document()->associate( $this );
+        $rev->document()->associate($this);
         $rev->status = "current";
         $rev->save();
     }
@@ -44,7 +46,9 @@ class Document extends Model
     {
         // if there's already a draft throw an exception
         $draft = $this->draftRevision();
-        if( $draft ) { throw new Exception( "Already a draft, can't make another one." ); }
+        if ($draft) {
+            throw new Exception("Already a draft, can't make another one.");
+        }
 
         /** @var DocumentRevision $current */
         $current = $this->currentRevision();
@@ -53,26 +57,26 @@ class Document extends Model
         $draft = $current->replicate();
         $draft->status = "draft";
         $draft->save();
-       
-        $partLists = array( 
+
+        $partLists = array(
             $current->reportTypes,
             $current->records,
             $current->recordTypes,
             $current->links,
             $current->linkTypes,
-            $current->rules );
+            $current->rules);
         // reports are a document part but belong to a single revision
-      
-        foreach( $partLists as $partList ) {
+
+        foreach ($partLists as $partList) {
             /** @var DocumentPart $part */
-            foreach($partList as $part ) {
+            foreach ($partList as $part) {
                 /** @var DocumentPart $newPart */
                 $newPart = $part->replicate();
-                $newPart->documentRevision()->associate( $draft );
+                $newPart->documentRevision()->associate($draft);
                 $newPart->save();
             }
         }
- 
+
         return $draft;
     }
 
@@ -82,7 +86,7 @@ class Document extends Model
     public function draftRevision()
     {
         /** @noinspection PhpUndefinedMethodInspection */
-        return $this->revisions()->where( 'status', 'draft' )->first();
+        return $this->revisions()->where('status', 'draft')->first();
     }
 
     /**
@@ -94,10 +98,9 @@ class Document extends Model
         // there must always be exactly one current revision so if there isn't
         // this throws an exception
         /** @noinspection PhpUndefinedMethodInspection */
-        $first = $this->revisions()->where( 'status', 'current' )->first();
-        if( !$first ) 
-        {
-            throw new Exception( "Document has no current revision. That should not happen, ever." );
+        $first = $this->revisions()->where('status', 'current')->first();
+        if (!$first) {
+            throw new Exception("Document has no current revision. That should not happen, ever.");
         }
         return $first;
     }

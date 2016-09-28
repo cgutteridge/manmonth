@@ -18,7 +18,7 @@ Route::get('/', function () {
 // create record form is handled by record type
 Route::resource('records', 'RecordController', [
     'parameters' => 'singular',
-    'except'=>['create','index']] );
+    'except' => ['create', 'index']]);
 Route::resource('recordtypes', 'RecordTypeController', [
     'parameters' => 'singular']);
 Route::resource('reporttypes', 'ReportTypeController', [
