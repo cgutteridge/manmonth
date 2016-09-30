@@ -11,20 +11,38 @@
 |
 */
 
+Route::singularResourceParameters();
+
 Route::get('/', function () {
     return view('welcome');
 });
+Route::resource('documents', 'DocumentController',
+    ['only' => ['index', 'show', 'create', 'store']]
+);
+Route::get('documents/{document}/current', 'DocumentController@current');
+Route::get('documents/{document}/draft', 'DocumentController@draft');
 
-// create record form is handled by record type
-Route::resource('records', 'RecordController', [
-    'parameters' => 'singular',
-    'except' => ['create', 'index']]);
-Route::resource('recordtypes', 'RecordTypeController', [
-    'parameters' => 'singular']);
-Route::resource('reporttypes', 'ReportTypeController', [
-    'parameters' => 'singular']);
+Route::resource('revisions', 'DocumentRevisionController',
+    ['only' => ['show']]
+);
 
-Route::resource('documents', 'DocumentController');
-Route::resource('revisions', 'DocumentRevisionController');
-Route::resource('reports', 'ReportController');
+Route::resource('records', 'RecordController',
+    ['only' => ['show', 'store', 'edit', 'update']]
+);
+
+Route::resource('record-types', 'RecordTypeController',
+    ['only' => ['show']]
+);
+
+Route::resource('report-types', 'ReportTypeController',
+    ['only' => ['show']]
+);
+
+Route::resource('reports', 'ReportController',
+    ['only' => ['show']]
+);
+
+Route::resource('link-types', 'LinkTypeController',
+    ['only' => ['show']]
+);
 

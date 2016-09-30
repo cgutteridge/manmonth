@@ -25,7 +25,7 @@ class ReportController extends Controller
      */
     public function create()
     {
-        //
+        // TODO
     }
 
     /**
@@ -36,7 +36,7 @@ class ReportController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // TODO
     }
 
     /**
@@ -60,7 +60,7 @@ class ReportController extends Controller
      */
     public function edit($id)
     {
-        //
+        // TODO
     }
 
     /**
@@ -72,7 +72,7 @@ class ReportController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // TODO
     }
 
     /**
@@ -83,6 +83,6 @@ class ReportController extends Controller
      */
     public function destroy($id)
     {
-        //
+        // TODO
     }
 }

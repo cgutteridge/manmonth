@@ -50,6 +50,16 @@ class RecordType extends DocumentPart
             ->where("record_type_sid", $this->sid);
     }
 
+    /**
+     * @return ReportType[]
+     */
+    public function reportTypes()
+    {
+        /** @noinspection PhpUndefinedMethodInspection */
+        return $this->documentRevision->reportTypes()
+            ->where("base_record_type_sid", $this->sid);
+    }
+
     // TODO: passing in secondary records could be helpful later
     /**
      * Data to create the record. Should supply data and all 1:n and n:1 links.

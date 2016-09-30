@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "eaa836503f40e3088da29a1736fda179",
-    "content-hash": "8c4479137ac98d081a6e16d6dd931602",
+    "hash": "f6a22c5526847ede41a12b036284a0ae",
+    "content-hash": "1ae61cc8e6943307a283b4becfa6510d",
     "packages": [
         {
             "name": "barryvdh/laravel-ide-helper",
@@ -2351,6 +2351,41 @@
                 "environment"
             ],
             "time": "2016-09-01 10:05:43"
+        },
+        {
+            "name": "vsn4ik/bootstrap-submenu",
+            "version": "v2.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/vsn4ik/bootstrap-submenu.git",
+                "reference": "663c0c48eeb43d6fae893edb38ba48f1477676e5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/vsn4ik/bootstrap-submenu/zipball/663c0c48eeb43d6fae893edb38ba48f1477676e5",
+                "reference": "663c0c48eeb43d6fae893edb38ba48f1477676e5",
+                "shasum": ""
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Vasily A.",
+                    "homepage": "https://github.com/vsn4ik"
+                }
+            ],
+            "description": "Bootstrap Sub-Menus",
+            "homepage": "http://vsn4ik.github.io/bootstrap-submenu",
+            "keywords": [
+                "bootstrap",
+                "dropdown",
+                "jquery-plugin",
+                "submenu"
+            ],
+            "time": "2016-03-19 08:16:43"
         }
     ],
     "packages-dev": [

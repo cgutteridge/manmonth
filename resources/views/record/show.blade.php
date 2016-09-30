@@ -2,10 +2,19 @@
 
 @section('title','View Record #'.$record->sid)
 
-@section('context')
-    @include('documentRevision.contextBar',['documentRevision'=>$record->documentRevision])
-@endsection
-
 @section( 'content')
-    @include("record.block",['record'=>$record, 'followLink'=>'all'])
+    @foreach( $reports as $report )
+        @foreach( $report->getLoadingTypes() as $loadingType )
+            @include( 'reportType.recordRow', [
+            "showFree"=>true,
+            "showTarget"=>true,
+            "record"=>$record,
+            "recordReport"=>$report,
+            "scale" => 1/max( $report->getLoadingTotal($loadingType), $report->getLoadingTarget($loadingType) ),
+            "target" => $report->getLoadingTarget( $loadingType ),
+            "total" => $report->getLoadingTotal( $loadingType )
+            ])
+        @endforeach
+    @endforeach
+    @include("record.block",['record'=>$record, 'followLink'=>'all', 'seen'=>[]])
 @endsection

@@ -6,6 +6,23 @@ body {
     margin-bottom: 5em;
 }
 
+.content {
+    min-height: 300px;
+}
+
+footer .navbar-brand {
+    font-size: 80%;
+    height: 10px;
+    line-height: 10px;
+    padding: 5px 15px;
+}
+
+footer.navbar {
+    margin-top: 1em;
+    min-height: 25px;
+}
+
+
 /* stuff*/
 
 .mm_loading_bar {
@@ -35,7 +52,9 @@ body {
     box-shadow: 5px 5px 5px rgba(0,0,0,0.3)
 }
 
-
+.mm_loading_free {
+    background-image: url('/stripe.png');
+}
 .mm_loading_inner {
     height:36px;
     font-size: 15px;
@@ -142,3 +161,39 @@ body {
 .form-check-input {
     padding: 10px;
 }
+
+/* side status indicator */
+.mm_sidestatus {
+    background-color: #000;
+    color: #fff;
+    padding: 5px 20px;
+    width: 300px;
+    transform: rotate(-90deg);
+    overflow: hidden;
+    transform-origin: left top 0;
+    position: absolute;
+    left: 0em;
+    top: 350px;
+    text-align: right;
+}
+
+.mm_sidestatus_draft {
+    background-color: darkorange;
+    color: #000;
+}
+
+.mm_sidestatus_current {
+    background-color: darkblue;
+    color: #fff;
+}
+
+.mm_sidestatus_scrap {
+    background-color: darkred;
+    color: #fff;
+}
+
+.mm_sidestatus_archive {
+    background-color: darkgray;
+    color: #000;
+}
+

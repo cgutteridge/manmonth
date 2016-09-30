@@ -11,6 +11,7 @@
     ])
         <input name="_token" type="hidden" value="{!! csrf_token() !!}" />
         <input name="_method" type="hidden" value="PUT" />
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Cancel</button>
     </form>
 @endsection

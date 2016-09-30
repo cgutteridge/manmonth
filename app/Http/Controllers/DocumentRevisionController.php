@@ -8,26 +8,6 @@ use Illuminate\Http\Request;
 class DocumentRevisionController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request $request
@@ -35,19 +15,21 @@ class DocumentRevisionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // TODO
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int $id
+     * @param DocumentRevision $revision
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(DocumentRevision $revision)
     {
-        $documentRevision = DocumentRevision::find($id);
-        return view('documentRevision.show', ["documentRevision" => $documentRevision]);
+        return view('documentRevision.show', [
+            "documentRevision" => $revision,
+            'nav' => $this->navigationMaker->documentRevisionNavigation($revision)
+        ]);
     }
 
     /**
@@ -58,7 +40,7 @@ class DocumentRevisionController extends Controller
      */
     public function edit($id)
     {
-        //
+        // TODO
     }
 
     /**
@@ -70,7 +52,7 @@ class DocumentRevisionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // TODO
     }
 
     /**
@@ -81,6 +63,6 @@ class DocumentRevisionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        // TODO
     }
 }

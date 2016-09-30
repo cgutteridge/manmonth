@@ -122,7 +122,6 @@ class ReportType extends DocumentPart
      */
     function recordReport($record)
     {
-
         $recordReport = new RecordReport();
 
         foreach ($this->rules() as $rule) {

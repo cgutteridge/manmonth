@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 
 class DocumentController extends Controller
 {
@@ -14,8 +15,11 @@ class DocumentController extends Controller
      */
     public function index()
     {
-        $list = Document::all();
-        return view('document.index', ["list" => $list]);
+        $list = Document::all()->reverse();
+        return view('document.index', [
+            "list" => $list,
+            'nav' => $this->navigationMaker->defaultNavigation()
+        ]);
     }
 
     /**
@@ -25,7 +29,7 @@ class DocumentController extends Controller
      */
     public function create()
     {
-        //
+        // TODO
     }
 
     /**
@@ -36,54 +40,45 @@ class DocumentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // TODO
     }
 
     /**
      * Display the specified resource.
-     * @param int $id
+     * @param Document $document
      * @return \Illuminate\Http\Response
-     * @internal param Document $document
      */
-    public function show($id)
+    public function show(Document $document)
     {
-        $document = Document::findOrFail($id);
         return view('document.show', [
-            'document' => $document
+            'document' => $document,
+            'nav' => $this->navigationMaker->documentNavigation($document)
         ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int $id
+     * Display the specified resource.
+     * @param Document $document
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function current(Document $document)
     {
-        //
+        $current = $document->currentRevision();
+        return Redirect::to($this->linkMaker->link($current));
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param  int $id
+     * Display the specified resource.
+     * @param Document $document
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function draft(Document $document)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        $draft = $document->draftRevision();
+        if (!$draft) {
+            return Redirect::to($this->linkMaker->link($document))
+                ->withErrors("This document does not currently have a draft revision.");
+        }
+        return Redirect::to($this->linkMaker->link($draft));
     }
 }

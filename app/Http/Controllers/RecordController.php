@@ -42,7 +42,16 @@ class RecordController extends Controller
      */
     public function show(Record $record)
     {
-        return view('record.show', ["record" => $record]);
+        $reports = [];
+        foreach ($record->recordType->reportTypes as $reportType) {
+            $reports [] = $reportType->recordReport($record);
+        }
+
+        return view('record.show', [
+            "record" => $record,
+            "reports" => $reports,
+            "nav" => $this->navigationMaker->documentRevisionNavigation($record->documentRevision)
+        ]);
     }
 
     /**
@@ -56,7 +65,11 @@ class RecordController extends Controller
     public function edit(Request $request, RequestProcessor $requestProcessor, Record $record)
     {
         $record->updateData($requestProcessor->fromOldRequest($request, $record->recordType->fields()));
-        return view('record.edit', ["record" => $record, "idPrefix" => ""]);
+        return view('record.edit', [
+            "record" => $record,
+            "idPrefix" => "",
+            "nav" => $this->navigationMaker->documentRevisionNavigation($record->documentRevision)
+        ]);
     }
 
     /**
@@ -83,14 +96,4 @@ class RecordController extends Controller
             ->with("message", "Record updated.");
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int $id
-     * @return Response
-     */
-    public function destroy($id)
-    {
-        // delete attached links and N-1 records too?
-    }
 }

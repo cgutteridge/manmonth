@@ -9,7 +9,7 @@
         "updated_at"=>$document->updated_at,
     ]])
     <ul>
-    @foreach( $document->revisions as $revision )
+        @foreach( $document->revisions->reverse() as $revision )
         <li>
             <a href="/revisions/{{$revision->id}}">#{{$revision->id}} ({{$revision->status}}) {{$revision->created_at}}</a>
         </li>
