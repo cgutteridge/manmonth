@@ -1,12 +1,14 @@
 @inject('linkMaker','App\Http\Controllers\LinkMaker')
 <div class="panel panel-info mm-record-block">
     <div class="panel-heading">
-        <a href="{{ $linkMaker->link($record) }}" title="focus"><span class="glyphicon glyphicon-eye-open"
-                                                                      aria-hidden="true"></span></a>
-        <a href="{{ $linkMaker->edit($record) }}" class="pull-right" title="edit"><span class="glyphicon glyphicon-edit"
-                                                                                        aria-hidden="true"></span></a>
+        <a href="{{ $linkMaker->link($record) }}" title="focus">
+            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+            {{ $record->title() }}
+        </a>
+        <a href="{{ $linkMaker->edit($record, $editParams) }}" class="pull-right" title="edit"><span
+                    class="glyphicon glyphicon-edit"
+                    aria-hidden="true"></span></a>
         <i class="pull-right" style="margin-right:1em">{{ $record->recordType->name }} </i>
-        {{ $record->title() }}
     </div>
     <table class="table">
         @include( 'dataTable', ['data'=>$record->data ])
@@ -17,7 +19,12 @@
                         <tr>
                             <th>{{ preg_replace( '/_/',' ',$link->linkType->name) }}:</th>
                             <td>
-                                @include( 'record.block', ['record'=>$link->objectRecord,'followLink'=>'single', 'seen'=>array_replace($seen,[$record->id=>1])])
+                                @include( 'record.block', [
+                                    'record'=>$link->objectRecord,
+                                    'followLink'=>'single',
+                                    'editParams'=>$editParams,
+                                    'seen'=>array_replace($seen,[$record->id=>1])
+                                ])
                             </td>
                         </tr>
                     @endif

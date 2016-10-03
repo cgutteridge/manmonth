@@ -1,3 +1,4 @@
+@inject('linkMaker','App\Http\Controllers\LinkMaker')
 @extends('page')
 
 @section('title','View Record #'.$record->sid)
@@ -16,5 +17,10 @@
             ])
         @endforeach
     @endforeach
-    @include("record.block",['record'=>$record, 'followLink'=>'all', 'seen'=>[]])
+    @include("record.block",[
+        'record'=>$record,
+        'followLink'=>'all',
+        'seen'=>[],
+        'editParams'=>['_mmreturn'=>$linkMaker->link($record)]
+    ])
 @endsection

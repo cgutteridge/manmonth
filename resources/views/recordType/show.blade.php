@@ -1,3 +1,4 @@
+@inject('linkMaker','App\Http\Controllers\LinkMaker')
 @extends('page')
 
 @section('title','View Record Type #'.$recordType->sid." - ".$recordType->name )
@@ -30,7 +31,7 @@
     <h3>Records</h3>
     <p>TODO: Create new record</p>
     @foreach( $recordType->records as $record )
-        @include("record.block",["record"=>$record, "followLink"=>"none"])
+        @include("record.block",["record"=>$record, "followLink"=>"none","editParams"=>["_mmreturn"=>$linkMaker->link($recordType)]])
     @endforeach
 @endsection
 

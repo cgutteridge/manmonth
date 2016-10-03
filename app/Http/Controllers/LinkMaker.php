@@ -16,10 +16,11 @@ class LinkMaker
 {
     /**
      * @param Model $model
+     * @param array $params CGI parameters
      * @return string
      * @throws Exception
      */
-    public function link(Model $model)
+    public function link(Model $model, $params = [])
     {
         $link = null;
         if (is_a($model, 'App\Models\Document')) {
@@ -52,16 +53,30 @@ class LinkMaker
         if ($link == null) {
             throw new Exception("Could not make a link for model of class " . get_class($model));
         }
+        $link .= $this->params($params);
         return $link;
     }
 
     /**
      * @param Model $model
+     * @param array $params CGI parameters
      * @return string
-     * @throws Exception
      */
-    public function edit(Model $model)
+    public function edit(Model $model, $params = [])
     {
-        return $this->link($model) . "/edit";
+        return $this->link($model) . "/edit" . $this->params($params);
+    }
+
+    public function params($params = [])
+    {
+        if (count($params) == 0) {
+            return "";
+        }
+
+        $list = array();
+        foreach ($params as $key => $value) {
+            $list [] = $key . "=" . $value;
+        }
+        return "?" . join("&", $list);
     }
 }

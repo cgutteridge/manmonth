@@ -56,21 +56,6 @@ class NavigationMaker
                         [
                             "label" => "All revisions",
                             "href" => $this->linkMaker->link($document)
-                        ],
-                        ["label" => "Example",
-                            "items" =>
-                                [
-                                    [
-                                        "label" => "Aaaaa",
-                                        "href" => $this->linkMaker->link($document) . "/current",
-                                        "disabled" => true
-                                    ],
-                                    [
-                                        "label" => "Bbbbb",
-                                        "href" => $this->linkMaker->link($document) . "/draft"
-                                    ]
-                                ]
-
                         ]
                     ]
                 ]
@@ -81,6 +66,7 @@ class NavigationMaker
     /**
      * @param DocumentRevision $documentRevision
      * @return array
+     * @throws Exception
      */
     public function documentRevisionNavigation(DocumentRevision $documentRevision)
     {

@@ -25,12 +25,12 @@ class RecordController extends Controller
         try {
             $record->validateData();
         } catch (Exception $exception) {
-            return Redirect::to('records/' . $record->id . "/edit")
+            return Redirect::to($this->linkMaker->edit($record))
                 ->withInput()
                 ->withErrors($exception->getMessage());
         }
         $record->save();
-        return Redirect::to('records/' . $record->id)
+        return Redirect::to($this->linkMaker->link($record))
             ->with("message", "Record updated.");
     }
 
@@ -68,6 +68,7 @@ class RecordController extends Controller
         return view('record.edit', [
             "record" => $record,
             "idPrefix" => "",
+            "returnTo" => $request->get("_mmreturn", ""),
             "nav" => $this->navigationMaker->documentRevisionNavigation($record->documentRevision)
         ]);
     }
@@ -79,11 +80,20 @@ class RecordController extends Controller
      * @param RequestProcessor $requestProcessor
      * @param Record $record
      * @return Response
-     * @internal param int $id
+     * @throws Exception
      */
     public function update(Request $request, RequestProcessor $requestProcessor, Record $record)
     {
-        $record->updateData($requestProcessor->fromRequest($request, $record->recordType->fields()));
+        $action = $request->get("_mmaction", "");
+        $returnLink = $request->get("_mmreturn", $this->linkMaker->link($record));
+        if ($action == "cancel") {
+            return Redirect::to($returnLink);
+        }
+        if ($action != "save") {
+            throw new Exception("Unknown action '$action'");
+        }
+        $record->updateData(
+            $requestProcessor->fromRequest($request, $record->recordType->fields()));
         try {
             $record->validateData();
         } catch (Exception $exception) {
@@ -92,8 +102,7 @@ class RecordController extends Controller
                 ->withErrors($exception->getMessage());
         }
         $record->save();
-        return Redirect::to('records/' . $record->id)
+        return Redirect::to($returnLink)
             ->with("message", "Record updated.");
     }
-
 }

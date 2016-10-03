@@ -17,7 +17,7 @@ class RequestProcessor
      * This method is the compliment to the editFields.blade template.
      * @param Request $request
      * @param array $fields
-     * @param $idPrefix
+     * @param string $idPrefix
      * @return array
      */
     public function fromRequest(Request $request, array $fields, $idPrefix = "")
@@ -34,7 +34,7 @@ class RequestProcessor
      * uses old() instead of get() to get values.
      * @param Request $request
      * @param array $fields
-     * @param $idPrefix
+     * @param string $idPrefix
      * @return array
      */
     public function fromOldRequest(Request $request, array $fields, $idPrefix = "")
