@@ -16,6 +16,9 @@ class DocumentRevisionController extends Controller
     public function store(Request $request)
     {
         // TODO
+        return view('featureNotDoneYet', [
+            'nav' => $this->navigationMaker->defaultNavigation()
+        ]);
     }
 
     /**
@@ -41,6 +44,9 @@ class DocumentRevisionController extends Controller
     public function edit($id)
     {
         // TODO
+        return view('featureNotDoneYet', [
+            'nav' => $this->navigationMaker->defaultNavigation()
+        ]);
     }
 
     /**
@@ -53,6 +59,9 @@ class DocumentRevisionController extends Controller
     public function update(Request $request, $id)
     {
         // TODO
+        return view('featureNotDoneYet', [
+            'nav' => $this->navigationMaker->defaultNavigation()
+        ]);
     }
 
     /**
@@ -64,5 +73,8 @@ class DocumentRevisionController extends Controller
     public function destroy($id)
     {
         // TODO
+        return view('featureNotDoneYet', [
+            'nav' => $this->navigationMaker->defaultNavigation()
+        ]);
     }
 }

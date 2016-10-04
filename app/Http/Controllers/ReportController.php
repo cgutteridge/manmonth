@@ -14,8 +14,10 @@ class ReportController extends Controller
      */
     public function index()
     {
-        $all = Report::all();
-        dump($all);
+        return view('featureNotDoneYet', [
+            'nav' => $this->navigationMaker->defaultNavigation()
+        ]);
+        // TODO
     }
 
     /**
@@ -25,7 +27,9 @@ class ReportController extends Controller
      */
     public function create()
     {
-        // TODO
+        return view('featureNotDoneYet', [
+            'nav' => $this->navigationMaker->defaultNavigation()
+        ]);
     }
 
     /**
@@ -36,7 +40,9 @@ class ReportController extends Controller
      */
     public function store(Request $request)
     {
-        // TODO
+        return view('featureNotDoneYet', [
+            'nav' => $this->navigationMaker->defaultNavigation()
+        ]);
     }
 
     /**
@@ -60,7 +66,9 @@ class ReportController extends Controller
      */
     public function edit($id)
     {
-        // TODO
+        return view('featureNotDoneYet', [
+            'nav' => $this->navigationMaker->defaultNavigation()
+        ]);
     }
 
     /**
@@ -72,6 +80,9 @@ class ReportController extends Controller
      */
     public function update(Request $request, $id)
     {
+        return view('featureNotDoneYet', [
+            'nav' => $this->navigationMaker->defaultNavigation()
+        ]);
         // TODO
     }
 
@@ -83,6 +94,9 @@ class ReportController extends Controller
      */
     public function destroy($id)
     {
+        return view('featureNotDoneYet', [
+            'nav' => $this->navigationMaker->defaultNavigation()
+        ]);
         // TODO
     }
 }
