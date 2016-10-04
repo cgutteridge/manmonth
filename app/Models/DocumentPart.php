@@ -3,14 +3,13 @@
 namespace App\Models;
 
 use App\Exceptions\DataStructValidationException;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Validator;
 
 /**
  * @property int sid
  * @property int id
  */
-abstract class DocumentPart extends Model
+abstract class DocumentPart extends MMModel
 {
     public $timestamps = false;
 

@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Exception;
 
 /**
  * @property int id
+ * @property string name
  */
-class Document extends Model
+class Document extends MMModel
 {
     /**
      * The relationship to the revisions of this document.

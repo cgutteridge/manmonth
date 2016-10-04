@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\ReportType;
-use Illuminate\Http\Request;
 
 class ReportTypeController extends Controller
 {
@@ -11,7 +10,7 @@ class ReportTypeController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param
+     * @param ReportType $report_type
      * @return \Illuminate\Http\Response
      */
     public function show(ReportType $report_type)

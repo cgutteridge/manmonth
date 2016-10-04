@@ -9,12 +9,11 @@
 namespace App\Models;
 
 use App\RecordReport;
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property array data
  */
-class Report extends Model
+class Report extends MMModel
 {
     /**
      * @var bool

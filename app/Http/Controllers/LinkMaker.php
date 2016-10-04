@@ -9,45 +9,54 @@
 namespace App\Http\Controllers;
 
 /* return URLs for models */
+use App\Models\Document;
+use App\Models\DocumentRevision;
+use App\Models\Link;
+use App\Models\LinkType;
+use App\Models\MMModel;
+use App\Models\Record;
+use App\Models\RecordType;
+use App\Models\Report;
+use App\Models\ReportType;
+use App\Models\Rule;
 use Exception;
-use Illuminate\Database\Eloquent\Model;
 
 class LinkMaker
 {
     /**
-     * @param Model $model
+     * @param MMModel $model
      * @param array $params CGI parameters
      * @return string
      * @throws Exception
      */
-    public function link(Model $model, $params = [])
+    public function link(MMModel $model, $params = [])
     {
         $link = null;
-        if (is_a($model, 'App\Models\Document')) {
+        if (is_a($model, Document::class)) {
             $link = "/documents/" . $model->id;
         }
-        if (is_a($model, 'App\Models\DocumentRevision')) {
+        if (is_a($model, DocumentRevision::class)) {
             $link = "/revisions/" . $model->id;
         }
-        if (is_a($model, 'App\Models\RecordType')) {
+        if (is_a($model, RecordType::class)) {
             $link = "/record-types/" . $model->id;
         }
-        if (is_a($model, 'App\Models\Record')) {
+        if (is_a($model, Record::class)) {
             $link = "/records/" . $model->id;
         }
-        if (is_a($model, 'App\Models\LinkType')) {
+        if (is_a($model, LinkType::class)) {
             $link = "/link-types/" . $model->id;
         }
-        if (is_a($model, 'App\Models\Link')) {
+        if (is_a($model, Link::class)) {
             $link = "/links/" . $model->id;
         }
-        if (is_a($model, 'App\Models\ReportType')) {
+        if (is_a($model, ReportType::class)) {
             $link = "/report-types/" . $model->id;
         }
-        if (is_a($model, 'App\Models\Report')) {
+        if (is_a($model, Report::class)) {
             $link = "/reports/" . $model->id;
         }
-        if (is_a($model, 'App\Models\Rule')) {
+        if (is_a($model, Rule::class)) {
             $link = "/rules/" . $model->id;
         }
         if ($link == null) {
@@ -58,11 +67,11 @@ class LinkMaker
     }
 
     /**
-     * @param Model $model
+     * @param MMModel $model
      * @param array $params CGI parameters
      * @return string
      */
-    public function edit(Model $model, $params = [])
+    public function edit(MMModel $model, $params = [])
     {
         return $this->link($model) . "/edit" . $this->params($params);
     }

@@ -17,6 +17,7 @@ use Validator;
  * @property Collection forwardLinkTypes
  * @property Collection backLinkTypes
  * @property Collection records
+ * @property Collection reportTypes
  */
 class RecordType extends DocumentPart
 {

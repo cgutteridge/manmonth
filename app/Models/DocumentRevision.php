@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Exception;
 
 // TODO add a field that knows that a revision is replacing a specific current revision. That can allow unscrapping if the scrap could still replace the current.
@@ -19,7 +18,7 @@ use Exception;
  * @property LinkType[] linkTypes
  * @property Rule[] rules
  */
-class DocumentRevision extends Model
+class DocumentRevision extends MMModel
 {
     /**
      * The relationship to the document this is a revision of.
