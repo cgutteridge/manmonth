@@ -16,7 +16,7 @@ class RecordController extends Controller
      *
      * @param RequestProcessor $requestProcessor
      * @param  Request $request
-     * @return Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(RequestProcessor $requestProcessor, Request $request)
     {
@@ -79,7 +79,7 @@ class RecordController extends Controller
      * @param Request $request
      * @param RequestProcessor $requestProcessor
      * @param Record $record
-     * @return Response
+     * @return \Illuminate\Http\RedirectResponse
      * @throws Exception
      */
     public function update(Request $request, RequestProcessor $requestProcessor, Record $record)

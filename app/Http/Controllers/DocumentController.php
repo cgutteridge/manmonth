@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
+use Redirect;
 
 class DocumentController extends Controller
 {
@@ -63,7 +63,7 @@ class DocumentController extends Controller
     /**
      * Display the specified resource.
      * @param Document $document
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function current(Document $document)
     {
@@ -74,7 +74,7 @@ class DocumentController extends Controller
     /**
      * Display the specified resource.
      * @param Document $document
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function draft(Document $document)
     {
