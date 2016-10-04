@@ -8,11 +8,13 @@ use App\MMScript\Values\NullValue;
 class BooleanField extends Field
 {
     /**
-     * @return string
+     * @return array
      */
-    public function valueValidationCode()
+    protected function valueValidationCodeParts()
     {
-        return parent::valueValidationCode() . "|boolean";
+        $parts = parent::valueValidationCodeParts();
+        $parts["boolean"] = true;
+        return $parts;
     }
 
     /**

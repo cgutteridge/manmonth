@@ -8,20 +8,21 @@ use App\MMScript\Values\NullValue;
 class IntegerField extends Field
 {
     /**
-     * @return string
+     * @return array
      */
-    public function valueValidationCode()
+    protected function valueValidationCodeParts()
     {
-        $code = parent::valueValidationCode();
-        $code .= "|integer";
+        $parts = parent::valueValidationCodeParts();
+        $parts["integer"] = true;
         if (isset($this->data["min"])) {
-            $code .= "|min:" . $this->data["min"];
+            $parts["min:" . $this->data["min"]] = true;
         }
         if (isset($this->data["max"])) {
-            $code .= "|max:" . $this->data["max"];
+            $parts["max:" . $this->data["max"]] = true;
         }
-        return $code;
+        return $parts;
     }
+
 
     /**
      * @return array

@@ -51,11 +51,21 @@ abstract class Field
      */
     public function valueValidationCode()
     {
+        $parts = array_keys($this->valueValidationCodeParts());
+        sort($parts); // so tests don't get confused by meaningless variation
+        return join("|", $parts);
+    }
+
+    /**
+     * @return array
+     */
+    protected function valueValidationCodeParts()
+    {
         $parts = [];
         if (@$this->data["required"]) {
-            $parts [] = "required";
+            $parts["required"] = true;
         }
-        return join("|", $parts);
+        return $parts;
     }
 
     /**
@@ -100,6 +110,8 @@ abstract class Field
     {
         return [
             'name' => 'required|alpha_dash|min:2|max:255',
+            'title' => 'string',
+            'description' => 'string',
             'required' => 'boolean',
         ];
     }
@@ -112,7 +124,7 @@ abstract class Field
     {
         $validator = Validator::make($this->data, $this->fieldValidationArray());
         if ($validator->fails()) {
-            throw new DataStructValidationException("Validation fail in field: " . join(", ", $validator->errors()));
+            throw new DataStructValidationException("Validation fail in field: " . join(", ", $validator->errors()->all()));
         }
     }
 

@@ -7,12 +7,15 @@ use App\MMScript\Values\NullValue;
 
 class StringField extends Field
 {
+
     /**
-     * @return string
+     * @return array
      */
-    public function valueValidationCode()
+    protected function valueValidationCodeParts()
     {
-        return parent::valueValidationCode() . "|string";
+        $parts = parent::valueValidationCodeParts();
+        $parts["string"] = true;
+        return $parts;
     }
 
     /**
