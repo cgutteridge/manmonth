@@ -47,7 +47,7 @@ class PowOp extends BinaryOp
     {
         $leftValue = $this->left->execute($context)->value;
         $rightValue = $this->right->execute($context)->value;
-        $newValue = $leftValue ^ $rightValue;
+        $newValue = pow($leftValue, $rightValue);
         if ($this->type() == 'decimal') {
             return new DecimalValue($newValue);
         }

@@ -21,7 +21,7 @@ class AddOp extends BinaryOp
      */
     function type()
     {
-        if (@$this->type) {
+        if (isset($this->type)) {
             return $this->type;
         }
         $lt = $this->left->type();
@@ -51,14 +51,13 @@ class AddOp extends BinaryOp
 
     function execute($context)
     {
-        # "EQ","NEQ","LEQ","GEQ","LT","GT"
         $leftValue = $this->left->execute($context)->value;
         $rightValue = $this->right->execute($context)->value;
 
         if ($this->type() == "string") {
             return new StringValue("$leftValue$rightValue");
         }
-        if ($this->opCode == 'MINUS') {
+        if ($this->opCode == 'MIN') {
             $rightValue = -$rightValue;
         }
         if ($this->type() == 'decimal') {
