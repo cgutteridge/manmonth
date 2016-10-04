@@ -14,7 +14,7 @@
 Route::singularResourceParameters();
 
 Route::get('/', function () {
-    return view('welcome');
+    return Redirect::to('/documents');
 });
 Route::resource('documents', 'DocumentController',
     ['only' => ['index', 'show', 'create', 'store']]
