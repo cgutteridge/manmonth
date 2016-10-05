@@ -53,19 +53,20 @@ class AddOp extends BinaryOp
     {
         $leftValue = $this->left->execute($context)->value;
         $rightValue = $this->right->execute($context)->value;
-
-        if ($this->type() == "string") {
+        try {
+            $type = $this->type();
+        } catch (ScriptException $e) {
+            throw new MMScriptRuntimeException($e->getMessage());
+        }
+        if ($type == "string") {
             return new StringValue("$leftValue$rightValue");
         }
         if ($this->opCode == 'MIN') {
             $rightValue = -$rightValue;
         }
-        if ($this->type() == 'decimal') {
-            return new DecimalValue($leftValue + $rightValue);
-        } elseif ($this->type() == "integer") {
+        if ($type == 'integer') {
             return new IntegerValue($leftValue + $rightValue);
-        } else {
-            throw new MMScriptRuntimeException("impossible add error: " . $this->opCode . ' for ' . $this->type());
         }
+        return new DecimalValue($leftValue + $rightValue);
     }
 }

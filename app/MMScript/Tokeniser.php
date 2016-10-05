@@ -34,6 +34,11 @@ class Tokeniser
                 $offset++;
                 continue;
             }
+            if ($c == "!") {
+                $offset++;
+                $tokens [] = [$toff, "NOT"];
+                continue;
+            }
             if ($c == "|") {
                 $offset++;
                 $tokens [] = [$toff, "OR"];

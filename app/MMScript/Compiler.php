@@ -128,7 +128,7 @@ class Compiler
         return $left;
     }
 
-    # <NOTOP> = "!" <NOTOP> | <ADDOP>
+    # <NOTOP> = "!" <NOTOP> | <UMINUS>
     public function compileNot()
     {
         if ($this->tokenIs("NOT")) {
@@ -136,6 +136,18 @@ class Compiler
             $this->offset++;
             $right = $this->compileNot();
             return new Ops\NotOp($this->script, $op, $right);
+        }
+        return $this->compileUnaryMinus();
+    }
+
+    # <UMINUS> = "-" <NOTOP> | <ADDOP>
+    public function compileUnaryMinus()
+    {
+        if ($this->tokenIs("MIN")) {
+            $op = $this->token();
+            $this->offset++;
+            $right = $this->compileUnaryMinus();
+            return new Ops\UnaryMinusOp($this->script, $op, $right);
         }
         return $this->compileAdd();
     }
@@ -329,7 +341,8 @@ class Compiler
 # <OROP>  = <ANDOP> [ "|" + <OROP> ]
 # <ANDOP> = <CMPOP> [ "&" + <ANDOP> ]
 # <CMPOP> = <NOTOP> [ ( "=" | "<>" | ">=" | "<=" | ">" | "<" ) <CMPOP> ]
-# <NOTOP> = "!" <NOTOP> | <ADDOP>
+# <NOTOP> = "!" <NOTOP> | <UMINUSOP>
+# <UMINUSOP> = "-" <UMINUSOP> | <ADDOP>
 # <ADDOP> = <MULOP> [ ("+"|"-") <ADDOP> ]
 # <MULOP> = <POWOP> [ ("*"|"/") <MULOP> ]
 # <POWOP> = <BRAOP> [ "^" <POPOP> ]

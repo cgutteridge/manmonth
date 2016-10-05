@@ -42,7 +42,9 @@ abstract class Op
         $this->script = $script;
         $this->offset = $token[0];
         $this->opCode = $token[1];
-        $this->value = @$token[2];
+        if (isset($token[2])) {
+            $this->value = $token[2];
+        }
     }
 
     /**

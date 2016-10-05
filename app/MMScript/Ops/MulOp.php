@@ -2,6 +2,7 @@
 
 namespace App\MMScript\Ops;
 
+use App\Exceptions\MMScriptRuntimeException;
 use App\Exceptions\ScriptException;
 use App\MMScript\Values\DecimalValue;
 use App\MMScript\Values\IntegerValue;
@@ -52,7 +53,11 @@ class MulOp extends BinaryOp
         if ($this->opCode == 'MUL') {
             $newValue = $leftValue * $rightValue;
         } else {
-            $newValue = $leftValue / $rightValue;
+            try {
+                $newValue = $leftValue / $rightValue;
+            } catch (\ErrorException $e) {
+                throw new MMScriptRuntimeException($e->getMessage());
+            }
         }
         if ($this->type() == 'decimal') {
             return new DecimalValue($newValue);

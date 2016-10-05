@@ -3,6 +3,7 @@
 namespace App\MMScript\Ops;
 
 use App\Exceptions\MMScriptRuntimeException;
+use App\Exceptions\ScriptException;
 use App\MMScript\Values\BooleanValue;
 use App\MMScript\Values\DecimalValue;
 use App\MMScript\Values\IntegerValue;
@@ -23,6 +24,9 @@ class Literal extends Op
             return $this->type;
         }
         $map = ['STR' => 'string', 'DEC' => 'decimal', 'INT' => 'integer', 'BOOL' => 'boolean'];
+        if (!array_key_exists($this->opCode, $map)) {
+            throw new ScriptException("Unknown literal type: " . $this->opCode);
+        }
         $this->type = $map[$this->opCode];
         return $this->type;
     }
