@@ -171,19 +171,17 @@ class DocumentRevision extends MMModel
     }
 
     /**
-     * @param string $name
-     * @param array $data
+     * @param $name
+     * @param array $properties
      * @return RecordType
      */
-    public function createRecordType($name, $data)
+    public function createRecordType($name, $properties)
     {
         $record_type = new RecordType();
         $record_type->documentRevision()->associate($this);
         $record_type->name = $name;
-        $record_type->data = $data;
-
-        $record_type->validateName();
-        $record_type->validateData();
+        $record_type->setProperties($properties);
+        $record_type->validate();
         $record_type->save();
 
         return $record_type;
@@ -205,34 +203,17 @@ class DocumentRevision extends MMModel
      * @param string $name
      * @param RecordType $domain
      * @param RecordType $range
-     * @param int|null $domain_min
-     * @param int|null $domain_max
-     * @param int|null $range_min
-     * @param int|null $range_max
+     * @param $properties
      * @return LinkType
-     * @internal param array $data
      */
-    public function createLinkType($name, $domain, $range, $domain_min, $domain_max, $range_min, $range_max)
+    public function createLinkType($name, $domain, $range, $properties)
     {
         $link_type = new LinkType();
         $link_type->documentRevision()->associate($this);
         $link_type->name = $name;
         $link_type->domain_sid = $domain->sid;
         $link_type->range_sid = $range->sid;
-        if (isset($domain_min)) {
-            $link_type->domain_min = $domain_min;
-        } else {
-            $link_type->domain_min = 0;
-        }
-        if (isset($range_min)) {
-            $link_type->range_min = $range_min;
-        } else {
-            $link_type->range_min = 0;
-        }
-
-        $link_type->domain_max = $domain_max;
-        $link_type->range_min = $range_min;
-        $link_type->range_max = $range_max;
+        $link_type->setProperties($properties);
 
         // these take exception if there's an issue
         $link_type->validate();

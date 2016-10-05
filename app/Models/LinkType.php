@@ -11,7 +11,8 @@ use App\Exceptions\DataStructValidationException;
  * @property int document_revision_id
  * @property array data
  * @property string name
- * @property string title
+ * @property string label
+ * @property mixed inverse_label
  * @property int sid
  * @property int domain_sid
  * @property int range_sid
@@ -22,6 +23,12 @@ use App\Exceptions\DataStructValidationException;
  */
 class LinkType extends DocumentPart
 {
+    /* defaults */
+    protected $attributes = array(
+        'domain_min' => 0,
+        'range_min' => 0
+    );
+
     /**
      * @return RecordType
      */
@@ -65,9 +72,9 @@ class LinkType extends DocumentPart
             ],
             [
                 'name' => 'required|codename|max:255',
-                'domain_min' => 'min:0,integer',
+                'domain_min' => 'required|min:0,integer',
                 'domain_max' => 'min:1,integer',
-                'range_min' => 'min:0,integer',
+                'range_min' => 'required|min:0,integer',
                 'range_max' => 'min:1,integer'
             ]);
 
@@ -133,16 +140,72 @@ class LinkType extends DocumentPart
         return $link;
     }
 
+
+    /**
+     * Update this LinkType from values in the data
+     * @param array $properties
+     */
+    public function setProperties($properties)
+    {
+        // defaults to zero if empty or null is passed in, but not
+        // if it's not set. Fun for testing! Much varied null. Wow!
+        if (array_key_exists("domain_min", $properties)) {
+            if (isset($properties["domain_min"]) && $properties["domain_min"] !== null) {
+                $this->domain_min = $properties["domain_min"];
+
+            } else {
+                $this->domain_min = 0;
+            }
+        }
+
+        if (array_key_exists("domain_max", $properties)) {
+            $this->domain_max = $properties["domain_max"];
+        }
+
+        if (array_key_exists("range_min", $properties)) {
+            if (isset($properties["range_min"]) && $properties["range_min"] !== null) {
+                $this->range_min = $properties["range_min"];
+            } else {
+                $this->range_min = 0;
+            }
+        }
+
+        if (array_key_exists("range_max", $properties)) {
+            $this->range_max = $properties["range_max"];
+        }
+
+        if (array_key_exists("label", $properties)) {
+            $this->label = $properties["label"];
+        }
+
+        if (array_key_exists("inverse_label", $properties)) {
+            $this->inverse_label = $properties["inverse_label"];
+        }
+    }
+
+
     /**
      * Return the most human readable title available.
      * @return string
      */
-    function bestTitle()
+    function title()
     {
-        if (isset($this->title) && trim($this->title) != "") {
-            return $this->title;
+        if (isset($this->label) && trim($this->label) != "") {
+            return $this->label;
         }
         return $this->name;
+    }
+
+    /**
+     * Return the most human readable title available for the inverse of this link.
+     * @return string
+     */
+    function inverseTitle()
+    {
+        if (isset($this->inverse_label) && trim($this->inverse_label) != "") {
+            return $this->inverse_label;
+        }
+        return "is " . $this->title() . " of";
     }
 }
 

@@ -19,6 +19,8 @@ class CreateRecordTypesTable extends Migration
             $table->index(['document_revision_id', 'sid'],'rev_sid');
 
             $table->string('name');
+            $table->string('label');
+            $table->string('title_script');
             $table->text('data');
         });
     }

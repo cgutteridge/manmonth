@@ -1,7 +1,7 @@
 @inject('linkMaker','App\Http\LinkMaker' )
 @extends('page')
 
-@section('title','View '.$record->recordType->bestTitle().": ".$record->title() )
+@section('title','View '.$record->recordType->title().": ".$record->title() )
 
 @section( 'content')
     @foreach( $reports as $report )

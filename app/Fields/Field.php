@@ -84,8 +84,8 @@ abstract class Field
      */
     public function title()
     {
-        if (@$this->data["title"]) {
-            return $this->data["title"];
+        if (@$this->data["label"]) {
+            return $this->data["label"];
         }
         return $this->data["name"];
     }
@@ -109,8 +109,8 @@ abstract class Field
     public function fieldValidationArray()
     {
         return [
-            'name' => 'required|alpha_dash|min:2|max:255',
-            'title' => 'string',
+            'name' => 'required|codename|min:2|max:255',
+            'label' => 'string',
             'description' => 'string',
             'required' => 'boolean',
         ];

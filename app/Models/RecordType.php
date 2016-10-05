@@ -12,7 +12,8 @@ use Validator;
 
 /**
  * @property string name
- * @property string title
+ * @property string label
+ * @property string title_script
  * @property array data
  * @property DocumentRevision documentRevision
  * @property Collection forwardLinkTypes
@@ -153,13 +154,12 @@ class RecordType extends DocumentPart
         return null; // no such field
     }
 
+
     /**
      * @throws DataStructValidationException
      */
-    public function validateName()
+    public function validate()
     {
-        // TODO check for duplicate codenames
-
         $validator = Validator::make(
             ['name' => $this->name],
             ['name' => 'required|codename|max:255']);
@@ -167,14 +167,6 @@ class RecordType extends DocumentPart
         if ($validator->fails()) {
             $this->makeValidationException($validator);
         }
-    }
-
-
-    /**
-     * @throws DataStructValidationException
-     */
-    public function validateData()
-    {
 
         $validator = Validator::make(
             $this->data,
@@ -212,11 +204,11 @@ class RecordType extends DocumentPart
         if (isset($this->titleScript)) {
             return $this->titleScript;
         }
-        if (!isset($this->data["title"])) {
+        if (!isset($this->title_script) || trim($this->title_script) == "") {
             return null;
         }
         $this->titleScript = new MMScript(
-            $this->data["title"],
+            $this->title_script,
             $this->documentRevision,
             ["record" => $this]);
         return $this->titleScript;
@@ -227,12 +219,30 @@ class RecordType extends DocumentPart
      *
      * @return string
      */
-    function bestTitle()
+    function title()
     {
-        if (isset($this->title) && trim($this->title) != "") {
-            return $this->title;
+        if (isset($this->label) && trim($this->label) != "") {
+            return $this->label;
         }
         return $this->name;
+    }
+
+
+    /**
+     * Update this recordType from values in the data
+     * @param array $properties
+     */
+    public function setProperties($properties)
+    {
+        if (array_key_exists("label", $properties)) {
+            $this->label = $properties["label"];
+        }
+        if (array_key_exists("title_script", $properties)) {
+            $this->title_script = $properties["title_script"];
+        }
+        if (array_key_exists("data", $properties)) {
+            $this->data = $properties["data"];
+        }
     }
 
 }

@@ -22,15 +22,16 @@ footer.navbar {
     min-height: 25px;
 }
 
-
 /* stuff*/
 
 .mm_loading_bar {
     height: 40px;
 }
+
 .mm_loading:first-child {
     border-left: solid 1px black;
 }
+
 .mm_loading {
     overflow: hidden;
     background-color: lightgray;
@@ -47,29 +48,32 @@ footer.navbar {
 .mm_hover_message {
     display: none;
 }
+
 .mm_loading_hover {
     padding: 0.5em;
     border: solid 2px black;
-    box-shadow: 5px 5px 5px rgba(0,0,0,0.3)
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3)
 }
 
 .mm_loading_free {
     background-image: url('/stripe.png');
 }
+
 .mm_loading_inner {
-    height:36px;
+    height: 36px;
     font-size: 15px;
     white-space: nowrap;
     display: inline-block;
     padding: 4px;
 }
+
 .mm_cat_teaching {
     background-color: #8697a4;
 }
+
 .mm_cat_penguin {
     background-color: #c09d88;
 }
-
 
 .mm_target_indicator_bar {
     overflow: hidden;
@@ -90,32 +94,36 @@ footer.navbar {
     clear: both;
     height: 20px;
 }
+
 .mm_target {
     overflow: hidden;
     background-color: green;
     float: left;
     margin: 0;
-    font-size:10px;
+    font-size: 10px;
 }
+
 .mm_target_alloc {
     background-color: #83de7a;
 }
+
 .mm_target_free {
     background-color: #d3de60;
 }
+
 .mm_target_over {
     background-color: #de5b64;
 }
+
 .mm_target:first-child {
 }
+
 .mm_target_inner {
     white-space: nowrap;
     display: inline-block;
     padding: 4px;
     height: 24px;
 }
-
-
 
 .mm_record_report {
     clear: both;
@@ -125,6 +133,7 @@ footer.navbar {
 .mm_datatable {
     border-collapse: collapse;
 }
+
 .mm_datatable th {
     text-align: right;
     vertical-align: top;
@@ -132,6 +141,7 @@ footer.navbar {
     padding: 3px;
     border: solid 1px #999;
 }
+
 .mm_datatable td {
     vertical-align: top;
     padding: 3px;
@@ -143,9 +153,10 @@ footer.navbar {
 .mm-record-block .panel-heading {
     padding: 1px 15px;
 }
+
 .mm-record-block .mm-record-block {
-    margin-top:8px;
-    margin-bottom:8px;
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 
 .mm-record-block th {
@@ -154,9 +165,20 @@ footer.navbar {
     border-right: solid 1px #dddddd;
     padding: 0px 2px 0px 8px !important;
 }
+
 .mm-record-block td {
     padding: 0px 2px 0px 8px !important;
 }
+
+.mm-record-block table th {
+    white-space: nowrap;
+}
+
+.mm-null {
+    font-style: italic;
+    color: #dddddd;
+}
+
 /* forms */
 
 .form-check-input {

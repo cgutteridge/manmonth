@@ -75,18 +75,25 @@ class NavigationMaker
         $createItems = [];
         $browseItems = [];
         $schemaRecordItems = [];
+        $schemaLinkItems = [];
         foreach ($documentRevision->recordTypes as $recordType) {
             $createItems [] = [
-                "label" => $recordType->name,
+                "label" => $recordType->title(),
                 "href" => $this->linkMaker->link($recordType) . "/create-record"
             ];
             $browseItems [] = [
-                "label" => $recordType->name,
+                "label" => $recordType->title(),
                 "href" => $this->linkMaker->link($recordType) . "/records"
             ];
             $schemaRecordItems [] = [
-                "label" => $recordType->name,
+                "label" => $recordType->title(),
                 "href" => $this->linkMaker->link($recordType)
+            ];
+        }
+        foreach ($documentRevision->linkTypes as $linkType) {
+            $schemaLinkItems [] = [
+                "label" => $linkType->title(),
+                "href" => $this->linkMaker->link($linkType)
             ];
         }
 
@@ -115,6 +122,10 @@ class NavigationMaker
                 [
                     "label" => "Record types",
                     "items" => $schemaRecordItems
+                ],
+                [
+                    "label" => "Link types",
+                    "items" => $schemaLinkItems
                 ]
             ]
         ];

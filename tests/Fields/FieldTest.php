@@ -128,7 +128,7 @@ class FieldTest extends TestCase
     {
         $field = App\Fields\Field::createFromData([
             "type" => "decimal",
-            "title" => "dubdub",
+            "label" => "dubdub",
             "name" => "test"
         ]);
         $this->assertEquals("dubdub", $field->title());
@@ -170,8 +170,8 @@ class FieldTest extends TestCase
         ]);
         $this->assertEquals(
             [
-                'name' => 'required|alpha_dash|min:2|max:255',
-                'title' => 'string',
+                'name' => 'required|codename|min:2|max:255',
+                'label' => 'string',
                 'description' => 'string',
                 'required' => 'boolean',
                 'type' => 'required|in:boolean',
@@ -188,8 +188,8 @@ class FieldTest extends TestCase
         ]);
         $this->assertEquals(
             [
-                'name' => 'required|alpha_dash|min:2|max:255',
-                'title' => 'string',
+                'name' => 'required|codename|min:2|max:255',
+                'label' => 'string',
                 'description' => 'string',
                 'required' => 'boolean',
                 'type' => 'required|in:string',
@@ -206,8 +206,8 @@ class FieldTest extends TestCase
         ]);
         $this->assertEquals(
             [
-                'name' => 'required|alpha_dash|min:2|max:255',
-                'title' => 'string',
+                'name' => 'required|codename|min:2|max:255',
+                'label' => 'string',
                 'description' => 'string',
                 'required' => 'boolean',
                 'type' => 'required|in:integer',
@@ -224,8 +224,8 @@ class FieldTest extends TestCase
         ]);
         $this->assertEquals(
             [
-                'name' => 'required|alpha_dash|min:2|max:255',
-                'title' => 'string',
+                'name' => 'required|codename|min:2|max:255',
+                'label' => 'string',
                 'description' => 'string',
                 'required' => 'boolean',
                 'type' => 'required|in:decimal',
@@ -388,7 +388,7 @@ class FieldTest extends TestCase
     {
         $field = App\Fields\Field::createFromData([
             "type" => "decimal",
-            "name" => "1test",
+            "name" => "My_test_test_23",
             "require" => true,
             "min" => 23,
             "max" => 99.999,
@@ -403,6 +403,26 @@ class FieldTest extends TestCase
         $field = App\Fields\Field::createFromData([
             "type" => "decimal",
             "name" => "x"
+        ]);
+        $this->setExpectedException(\App\Exceptions\DataStructValidationException::class);
+        $field->validate();
+    }
+
+    function test_self_validation_expect_exception_when_name_has_space()
+    {
+        $field = App\Fields\Field::createFromData([
+            "type" => "decimal",
+            "name" => "xwer werwer"
+        ]);
+        $this->setExpectedException(\App\Exceptions\DataStructValidationException::class);
+        $field->validate();
+    }
+
+    function test_self_validation_expect_exception_when_name_starts_with_number()
+    {
+        $field = App\Fields\Field::createFromData([
+            "type" => "decimal",
+            "name" => "1xwerwerwer"
         ]);
         $this->setExpectedException(\App\Exceptions\DataStructValidationException::class);
         $field->validate();

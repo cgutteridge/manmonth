@@ -14,7 +14,7 @@
     <ul>
         @foreach( $documentRevision->reportTypes as $reportType )
             <li>
-                <a href="{{ $linkMaker->link( $reportType ) }}">#{{$reportType->sid}} (runs
+                <a href="{{ $linkMaker->link( $reportType ) }}">{{$reportType->name}} #{{$reportType->sid}} (runs
                     on {{$reportType->baseRecordType()->name}}, {{$reportType->rules()->count()}} rule(s))</a>
             </li>
         @endforeach
@@ -25,7 +25,7 @@
     <ul>
         @foreach( $documentRevision->recordTypes as $recordType )
             <li>
-                <a href="{{ $linkMaker->link( $recordType ) }}">#{{$recordType->sid}} {{$recordType->name}}</a>
+                <a href="{{ $linkMaker->link( $recordType ) }}">{{$recordType->title()}}</a>
             </li>
         @endforeach
         <li>TODO: Create new record type</li>
@@ -35,7 +35,7 @@
     <ul>
         @foreach( $documentRevision->linkTypes as $linkType )
             <li>
-                <a href="{{ $linkMaker->link( $linkType ) }}">#{{$linkType->sid}} {{$linkType->name}}</a>
+                <a href="{{ $linkMaker->link( $linkType ) }}">{{$linkType->title()}}</a>
             </li>
         @endforeach
         <li>TODO: Create new record type</li>

@@ -20,34 +20,38 @@ class DatabaseSeeder extends Seeder
         // add schema
 
         $actorType = $draft->createRecordType("actor", [
-            "fields" => [
-                ["name" => "name", "type" => "string", "required" => true],
-                ["name" => "group", "type" => "string"],
-                ["name" => "penguins", "type" => "decimal", "min" => 0],
-                ["name" => "newbie", "type" => "boolean", "default" => false],
-            ],
-            "title" => "record.name+' ('+record.group+')'"
+            "label" => "Actor",
+            "data" => ["fields" => [
+                ["name" => "name", "label" => "Name", "type" => "string", "required" => true],
+                ["name" => "group", "label" => "Group", "type" => "string"],
+                ["name" => "penguins", "label" => "PhD Students", "type" => "decimal", "min" => 0],
+                ["name" => "newbie", "label" => "New staff?", "type" => "boolean", "default" => false],
+            ]],
+            "title_script" => "record.name+' ('+record.group+')'"
         ]);
         $taskType = $draft->createRecordType("task", [
-            "fields" => [
-                ["name" => "name", "type" => "string", "required" => true],
-                ["name" => "size", "type" => "integer", "required" => true],
-                ["name" => "new", "type" => "boolean", "default" => false],
-            ],
-            "title" => "record.name"
+            "label" => "Task",
+            "data" => ["fields" => [
+                ["name" => "name", "label" => "Name", "type" => "string", "required" => true],
+                ["name" => "size", "label" => "Hours per unit", "type" => "integer", "required" => true],
+                ["name" => "new", "label" => "New task?", "type" => "boolean", "default" => false],
+            ]],
+            "title_script" => "record.name"
         ]);
         $atType = $draft->createRecordType("acttask", [
-            "fields" => [
-                ["name" => "type", "type" => "string", "required" => true],
-                ["name" => "ratio", "type" => "decimal", "default" => 1.0,],
-            ]
+            "label" => "Actor/Task relationship",
+            "data" => ["fields" => [
+                ["name" => "type", "label" => "Relationship Type", "type" => "string", "required" => true],
+                ["name" => "ratio", "Type" => "Ratio", "type" => "decimal", "default" => 1.0,],
+            ]]
         ]);
-        $draft->createLinkType('actor_to_acttask', $actorType, $atType, null, null, 1, 1);
-        $draft->createLinkType('acttask_to_task', $atType, $taskType, 1, 1, null, null);
+        $draft->createLinkType('actor_to_acttask', $actorType, $atType,
+            ["domain_min" => 1, "domain_max" => 1, "label" => "task relationship", "inverse_label" => "actor"]);
+        $draft->createLinkType('acttask_to_task', $atType, $taskType,
+            ["range_min" => 1, "range_max" => 1, "label" => "task", "inverse_label" => "actor relationship"]);
 
-        $data = $atType->data;
-        $data["title"] = "record<-actor_to_acttask.name+' <-> '+record->acttask_to_task.name";
-        $atType->data = $data;
+        // this can't be set until the links are created.
+        $atType->title_script = "record<-actor_to_acttask.name+' <-> '+record->acttask_to_task.name";
         $atType->save();
 
 

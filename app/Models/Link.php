@@ -55,10 +55,10 @@ class Link extends DocumentPart
     {
 
         if ($this->subjectRecord->record_type_sid != $this->linkType->domain_sid) {
-            throw new DataStructValidationException("Validation fail in linktype.subject: incorrect type for this linktype (expects " . $this->linkType->bestTitle() . ")");
+            throw new DataStructValidationException("Validation fail in linktype.subject: incorrect type for this linktype (expects " . $this->linkType->title() . ")");
         }
         if ($this->objectRecord->record_type_sid != $this->linkType->range_sid) {
-            throw new DataStructValidationException("Validation fail in linktype.object: incorrect type for this linktype (expects " . $this->linkType->bestTitle() . ")");
+            throw new DataStructValidationException("Validation fail in linktype.object: incorrect type for this linktype (expects " . $this->linkType->title() . ")");
         }
     }
 }
