@@ -1,7 +1,7 @@
-@inject('linkMaker','App\Http\Controllers\LinkMaker')
+@inject('linkMaker','App\Http\LinkMaker' )
 @extends('page')
 
-@section('title','View Record #'.$record->sid)
+@section('title','View '.$record->recordType->bestTitle().": ".$record->title() )
 
 @section( 'content')
     @foreach( $reports as $report )
@@ -11,7 +11,11 @@
             "showTarget"=>true,
             "record"=>$record,
             "recordReport"=>$report,
-            "scale" => 1/max( $report->getLoadingTotal($loadingType), $report->getLoadingTarget($loadingType) ),
+            "scale" =>
+                0 == 1/max( $report->getLoadingTotal($loadingType), $report->getLoadingTarget($loadingType) ) ?
+                1 :
+                1/max( $report->getLoadingTotal($loadingType), $report->getLoadingTarget($loadingType) )
+            ,
             "target" => $report->getLoadingTarget( $loadingType ),
             "total" => $report->getLoadingTotal( $loadingType )
             ])

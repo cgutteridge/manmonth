@@ -1,3 +1,4 @@
+@inject('linkMaker','App\Http\LinkMaker' )
 @extends('page')
 
 @section('title', $documentRevision->document->name.' rev #'.$documentRevision->id." (".$documentRevision->status.")")
@@ -13,7 +14,8 @@
     <ul>
         @foreach( $documentRevision->reportTypes as $reportType )
             <li>
-                <a href="/report-types/{{$reportType->id}}">#{{$reportType->sid}} (runs on {{$reportType->baseRecordType()->name}}, {{$reportType->rules()->count()}} rule(s))</a>
+                <a href="{{ $linkMaker->link( $reportType ) }}">#{{$reportType->sid}} (runs
+                    on {{$reportType->baseRecordType()->name}}, {{$reportType->rules()->count()}} rule(s))</a>
             </li>
         @endforeach
         <li>TODO: Create new record type</li>
@@ -23,7 +25,7 @@
     <ul>
         @foreach( $documentRevision->recordTypes as $recordType )
             <li>
-                <a href="/record-types/{{$recordType->id}}">#{{$recordType->sid}} {{$recordType->name}}</a>
+                <a href="{{ $linkMaker->link( $recordType ) }}">#{{$recordType->sid}} {{$recordType->name}}</a>
             </li>
         @endforeach
         <li>TODO: Create new record type</li>
@@ -33,7 +35,7 @@
     <ul>
         @foreach( $documentRevision->linkTypes as $linkType )
             <li>
-                <a href="/link-types/{{$linkType->id}}">#{{$linkType->sid}} {{$linkType->name}}</a>
+                <a href="{{ $linkMaker->link( $linkType ) }}">#{{$linkType->sid}} {{$linkType->name}}</a>
             </li>
         @endforeach
         <li>TODO: Create new record type</li>

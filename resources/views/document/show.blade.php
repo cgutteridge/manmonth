@@ -1,3 +1,4 @@
+@inject('linkMaker','App\Http\LinkMaker')
 @extends('page')
 
 @section('title', $document->name )
@@ -11,7 +12,8 @@
     <ul>
         @foreach( $document->revisions->reverse() as $revision )
         <li>
-            <a href="/revisions/{{$revision->id}}">#{{$revision->id}} ({{$revision->status}}) {{$revision->created_at}}</a>
+            <a href="{{ $linkMaker->link( $revision ) }}">#{{$revision->id}} ({{$revision->status}}
+                ) {{$revision->created_at}}</a>
         </li>
     @endforeach
     </ul>

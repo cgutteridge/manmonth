@@ -9,6 +9,7 @@
     <script src="/jquery.min.js"></script>
     <script src="/bootstrap.min.js"></script>
     <script src="/bootstrap-submenu.min.js" defer></script>
+    <script src="/hover.js"></script>
     <script>
         $(document).ready(function () {
             $('[data-submenu]').submenupicker();
@@ -29,7 +30,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">[MM]</a>
+            <a class="navbar-brand" href="/">[MM]</a>
             @if( isset($nav["title"]) )
                 @if(isset($nav["title"]["url"]))
                     <a class="navbar-brand" href="{{$nav["title"]["url"]}}">{{$nav["title"]["label"]}}</a>

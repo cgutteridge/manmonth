@@ -89,7 +89,7 @@ class Rule extends DocumentPart
     /**
      * @throws DataStructValidationException,Exception
      */
-    public function validateData()
+    public function validate()
     {
         $actions = Rule::actions();
         $validator = Validator::make(

@@ -91,7 +91,7 @@ class ReportType extends DocumentPart
         $rule->report_type_sid = $this->sid;
         $rule->data = $data;
 
-        $rule->validateData();
+        $rule->validate();
         $rule->save();
 
         return $rule;

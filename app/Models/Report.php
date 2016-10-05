@@ -21,7 +21,7 @@ class Report extends MMModel
     public $timestamps = false;
 
     /**
-     * @var array
+     * @var string[]
      */
     protected $casts = [
         "data" => "array"
@@ -64,7 +64,7 @@ class Report extends MMModel
      */
     public function loadingTypes()
     {
-        if ($this->loadingTypesCache == null) {
+        if (!isset($this->loadingTypesCache)) {
             $list = [];
             foreach ($this->recordReports() as $recordReport) {
                 $list = array_merge($list, $recordReport->getLoadingTypes());
@@ -75,7 +75,7 @@ class Report extends MMModel
     }
 
     /**
-     * @var array
+     * @var float[]
      */
     protected $maxTargetsCache;
 
@@ -85,7 +85,7 @@ class Report extends MMModel
      */
     public function maxTargets()
     {
-        if ($this->maxTargetsCache == null) {
+        if (!isset($this->maxTargetsCache)) {
             $this->maxTargetsCache = [];
             foreach ($this->loadingTypes() as $loadingType) {
                 $this->maxTargetsCache[$loadingType] = 0;
@@ -111,9 +111,9 @@ class Report extends MMModel
     }
 
     /**
-     * @var array[float]
+     * @var float[]
      */
-    private $maxLoadingsCache = null;
+    private $maxLoadingsCache;
 
     /*
      * Return the maximum loading for each loading category.
@@ -121,7 +121,7 @@ class Report extends MMModel
      */
     public function maxLoadings()
     {
-        if ($this->maxLoadingsCache == null) {
+        if (!isset($this->maxLoadingsCache)) {
             $cache = [];
             foreach ($this->loadingTypes() as $loadingType) {
                 $cache[$loadingType] = 0;
@@ -151,7 +151,7 @@ class Report extends MMModel
     /**
      * @var float[]
      */
-    private $maxLoadingRatiosCache = null;
+    private $maxLoadingRatiosCache;
     /*
      * Return the maximum loading ratio for each loading category.
      * @return array[float]
@@ -161,7 +161,7 @@ class Report extends MMModel
      */
     public function maxLoadingRatios()
     {
-        if ($this->maxLoadingRatiosCache == null) {
+        if (!isset($this->maxLoadingRatiosCache)) {
             $this->maxLoadingRatiosCache = [];
             foreach ($this->loadingTypes() as $loadingType) {
                 $this->maxLoadingRatiosCache[$loadingType] = 0;
@@ -192,16 +192,16 @@ class Report extends MMModel
     }
 
     /**
-     * @var null
+     * @var RecordReport[]
      */
-    protected $recordReportsCache = null;
+    protected $recordReportsCache;
 
     /**
      * @return RecordReport[]
      */
     public function recordReports()
     {
-        if ($this->recordReportsCache == null) {
+        if (!isset($this->recordReportsCache)) {
             $this->recordReportsCache = [];
             if ($this->data !== null) {
                 foreach ($this->data["records"] as $sid => $recordReportData) {
@@ -211,6 +211,15 @@ class Report extends MMModel
             }
         }
         return $this->recordReportsCache;
+    }
+
+    /**
+     * @param integer $sid
+     * @return RecordReport
+     */
+    public function recordReport($sid)
+    {
+        return $this->recordReports()[$sid];
     }
 
     /**
@@ -225,6 +234,8 @@ class Report extends MMModel
         $this->maxLoadingsCache = null;
         $this->maxLoadingRatiosCache = null;
     }
+
+
 }
 
 

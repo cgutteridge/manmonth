@@ -42,14 +42,8 @@ class DatabaseSeeder extends Seeder
                 ["name" => "ratio", "type" => "decimal", "default" => 1.0,],
             ]
         ]);
-        $draft->createLinkType('actor_to_acttask', $actorType, $atType, [
-            'range_min' => 1,
-            'range_max' => 1,
-        ]);
-        $draft->createLinkType('acttask_to_task', $atType, $taskType, [
-            'domain_min' => 1,
-            'domain_max' => 1,
-        ]);
+        $draft->createLinkType('actor_to_acttask', $actorType, $atType, null, null, 1, 1);
+        $draft->createLinkType('acttask_to_task', $atType, $taskType, 1, 1, null, null);
 
         $data = $atType->data;
         $data["title"] = "record<-actor_to_acttask.name+' <-> '+record->acttask_to_task.name";

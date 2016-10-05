@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Document;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Redirect;
 
 class DocumentController extends Controller
@@ -11,7 +13,7 @@ class DocumentController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index()
     {
@@ -25,10 +27,11 @@ class DocumentController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create()
     {
+        // TODO
         return view('featureNotDoneYet', [
             'nav' => $this->navigationMaker->defaultNavigation()
         ]);
@@ -37,11 +40,12 @@ class DocumentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * @param  Request $request
+     * @return Response
      */
     public function store(Request $request)
     {
+        // TODO
         return view('featureNotDoneYet', [
             'nav' => $this->navigationMaker->defaultNavigation()
         ]);
@@ -50,7 +54,7 @@ class DocumentController extends Controller
     /**
      * Display the specified resource.
      * @param Document $document
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function show(Document $document)
     {
@@ -63,7 +67,7 @@ class DocumentController extends Controller
     /**
      * Display the specified resource.
      * @param Document $document
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function current(Document $document)
     {
@@ -74,7 +78,7 @@ class DocumentController extends Controller
     /**
      * Display the specified resource.
      * @param Document $document
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function draft(Document $document)
     {

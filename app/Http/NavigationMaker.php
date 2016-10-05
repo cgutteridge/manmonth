@@ -6,7 +6,7 @@
  * Time: 12:42
  */
 
-namespace App\Http\Controllers;
+namespace App\Http;
 
 
 use App\Models\Document;
@@ -71,32 +71,57 @@ class NavigationMaker
     public function documentRevisionNavigation(DocumentRevision $documentRevision)
     {
         $nav = $this->documentNavigation($documentRevision->document);
-        $items = [];
-        if ($documentRevision->status == 'draft') {
-            $createItems = [];
-            foreach ($documentRevision->recordTypes as $recordType) {
-                $createItems [] = [
-                    "label" => $recordType->name,
-                    "href" => $this->linkMaker->link($recordType) . "/create-record"
-                ];
-            }
 
-            $items [] = [
-                "label" => "Create",
-                "items" => $createItems];
-            $items [] = [
-                "label" => "Publish",
-                "href" => $this->linkMaker->link($documentRevision) . "/publish"
+        $createItems = [];
+        $browseItems = [];
+        $schemaRecordItems = [];
+        foreach ($documentRevision->recordTypes as $recordType) {
+            $createItems [] = [
+                "label" => $recordType->name,
+                "href" => $this->linkMaker->link($recordType) . "/create-record"
             ];
-            $items [] = [
-                "label" => "Scrap",
-                "href" => $this->linkMaker->link($documentRevision) . "/scrap"
+            $browseItems [] = [
+                "label" => $recordType->name,
+                "href" => $this->linkMaker->link($recordType) . "/records"
             ];
-            $nav["menus"][] = [
-                "label" => "Revision",
-                "items" => $items];
-
+            $schemaRecordItems [] = [
+                "label" => $recordType->name,
+                "href" => $this->linkMaker->link($recordType)
+            ];
         }
+
+        $ritems = [];
+        $ritems [] = [
+            "label" => "View Revision",
+            "href" => $this->linkMaker->link($documentRevision)
+        ];
+        $ritems [] = [
+            "label" => "Browse",
+            "items" => $browseItems];
+        $ritems [] = [
+            "label" => "Create",
+            "items" => $createItems];
+        $ritems [] = [
+            "label" => "Publish",
+            "href" => $this->linkMaker->link($documentRevision) . "/publish"
+        ];
+        $ritems [] = [
+            "label" => "Scrap",
+            "href" => $this->linkMaker->link($documentRevision) . "/scrap"
+        ];
+        $ritems [] = [
+            "label" => "Schema",
+            "items" => [
+                [
+                    "label" => "Record types",
+                    "items" => $schemaRecordItems
+                ]
+            ]
+        ];
+        $nav["menus"][] = [
+            "label" => "Revision",
+            "items" => $ritems];
+
 
         $nav["menus"][] = [
             "label" => "Reports",

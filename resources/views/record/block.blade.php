@@ -1,4 +1,4 @@
-@inject('linkMaker','App\Http\Controllers\LinkMaker')
+@inject('linkMaker','App\Http\LinkMaker' )
 <div class="panel panel-info mm-record-block">
     <div class="panel-heading">
         <a href="{{ $linkMaker->link($record) }}" title="focus">

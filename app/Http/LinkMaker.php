@@ -6,7 +6,7 @@
  * Time: 12:53
  */
 
-namespace App\Http\Controllers;
+namespace App\Http;
 
 /* return URLs for models */
 use App\Models\Document;

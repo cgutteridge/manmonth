@@ -3,45 +3,34 @@
 namespace App\Http\Controllers;
 
 use App\Models\DocumentRevision;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class DocumentRevisionController extends Controller
 {
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        // TODO
-        return view('featureNotDoneYet', [
-            'nav' => $this->navigationMaker->defaultNavigation()
-        ]);
-    }
 
     /**
      * Display the specified resource.
      *
-     * @param DocumentRevision $revision
-     * @return \Illuminate\Http\Response
+     * @param DocumentRevision $documentRevision
+     * @return Response
      */
-    public function show(DocumentRevision $revision)
+    public function show(DocumentRevision $documentRevision)
     {
         return view('documentRevision.show', [
-            "documentRevision" => $revision,
-            'nav' => $this->navigationMaker->documentRevisionNavigation($revision)
+            "documentRevision" => $documentRevision,
+            'nav' => $this->navigationMaker->documentRevisionNavigation($documentRevision)
         ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for publishing this revision
      *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @param DocumentRevision $documentRevision
+     * @return Response
      */
-    public function edit($id)
+    public function publishForm(DocumentRevision $documentRevision)
     {
         // TODO
         return view('featureNotDoneYet', [
@@ -50,13 +39,13 @@ class DocumentRevisionController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Respond to the publish form.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param DocumentRevision $documentRevision
+     * @return RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function publishAction(Request $request, DocumentRevision $documentRevision)
     {
         // TODO
         return view('featureNotDoneYet', [
@@ -65,12 +54,27 @@ class DocumentRevisionController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Show the form for scrapping this revision
      *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @param DocumentRevision $documentRevision
+     * @return Response
      */
-    public function destroy($id)
+    public function scrapForm(DocumentRevision $documentRevision)
+    {
+        // TODO
+        return view('featureNotDoneYet', [
+            'nav' => $this->navigationMaker->defaultNavigation()
+        ]);
+    }
+
+    /**
+     * Respond to the scrap form.
+     *
+     * @param Request $request
+     * @param DocumentRevision $documentRevision
+     * @return RedirectResponse
+     */
+    public function scrapAction(Request $request, DocumentRevision $documentRevision)
     {
         // TODO
         return view('featureNotDoneYet', [

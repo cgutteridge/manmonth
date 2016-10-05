@@ -3,36 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Record;
-use App\RequestProcessor;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Redirect;
 
 class RecordController extends Controller
 {
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param RequestProcessor $requestProcessor
-     * @param  Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function store(RequestProcessor $requestProcessor, Request $request)
-    {
-        $record = new Record();
-        $record->updateData($requestProcessor->fromRequest($request, $record->recordType->fields()));
-        try {
-            $record->validateData();
-        } catch (Exception $exception) {
-            return Redirect::to($this->linkMaker->edit($record))
-                ->withInput()
-                ->withErrors($exception->getMessage());
-        }
-        $record->save();
-        return Redirect::to($this->linkMaker->link($record))
-            ->with("message", "Record updated.");
-    }
 
     /**
      * Display the specified resource.
@@ -58,13 +36,12 @@ class RecordController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param Request $request
-     * @param RequestProcessor $requestProcessor
      * @param Record $record
      * @return Response
      */
-    public function edit(Request $request, RequestProcessor $requestProcessor, Record $record)
+    public function edit(Request $request, Record $record)
     {
-        $record->updateData($requestProcessor->fromOldRequest($request, $record->recordType->fields()));
+        $record->updateData($this->requestProcessor->fromOldRequest($request, $record->recordType->fields()));
         return view('record.edit', [
             "record" => $record,
             "idPrefix" => "",
@@ -77,12 +54,11 @@ class RecordController extends Controller
      * Update the specified resource in storage.
      *
      * @param Request $request
-     * @param RequestProcessor $requestProcessor
      * @param Record $record
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      * @throws Exception
      */
-    public function update(Request $request, RequestProcessor $requestProcessor, Record $record)
+    public function update(Request $request, Record $record)
     {
         $action = $request->get("_mmaction", "");
         $returnLink = $request->get("_mmreturn", $this->linkMaker->link($record));
@@ -93,9 +69,9 @@ class RecordController extends Controller
             throw new Exception("Unknown action '$action'");
         }
         $record->updateData(
-            $requestProcessor->fromRequest($request, $record->recordType->fields()));
+            $this->requestProcessor->fromRequest($request, $record->recordType->fields()));
         try {
-            $record->validateData();
+            $record->validate();
         } catch (Exception $exception) {
             return Redirect::to('records/' . $record->id . "/edit")
                 ->withInput()

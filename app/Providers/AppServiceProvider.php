@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Validator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,7 +14,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Validator::extend('codename', function ($attribute, $value, $parameters, $validator) {
+            return (preg_match('/^[a-z][a-z0-9_]+$/i', $value));
+        });
     }
 
     /**

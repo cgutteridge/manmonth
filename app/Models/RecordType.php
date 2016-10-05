@@ -8,10 +8,11 @@ use App\MMScript;
 use Illuminate\Database\Eloquent\Collection;
 use Validator;
 
-// TODO - sort out expception throwing
+// TODO - sort out exception throwing
 
 /**
  * @property string name
+ * @property string title
  * @property array data
  * @property DocumentRevision documentRevision
  * @property Collection forwardLinkTypes
@@ -88,14 +89,14 @@ class RecordType extends DocumentPart
         // these need to be checked before we create the record
         // there is a good argument for making this validation much
         // smarter and looking and both existing and new links
-        $this->validateRecordForwardLinks($forwardLinks);
-        $this->validateRecordBackLinks($backLinks);
 
         $record = new Record();
         $record->data = $data;
         $record->documentRevision()->associate($this->documentRevision);
         $record->record_type_sid = $this->sid;
-        $record->validateData();
+        $record->validate();
+        $record->validateWithForwardLinks($forwardLinks);
+        $record->validateWithBackLinks($backLinks);
         $record->save();
 
         // we've been through validation so assume this is all OK
@@ -152,108 +153,22 @@ class RecordType extends DocumentPart
         return null; // no such field
     }
 
-
-    /**
-     * Validate forward links to be added to a record of this type
-     *  must be relevant links and a legal number
-     *  $links are of the format [ link_name=>[ $record,... ]]
-     * @param Record[][] $links
-     * @throws DataStructValidationException
-     */
-    public function validateRecordForwardLinks($links)
-    {
-        $linkTypes = $this->forwardLinkTypes;
-        $unknownLinks = $links; // we'll reduce this list to actually unknown items
-        $issues = [];
-        foreach ($linkTypes as $linkType) {
-            // check domain restrictions
-            if (@$linkType->dataCache["domain_min"]
-                && count(@$links[$linkType->name]) < $linkType->dataCache["domain_min"]
-            ) {
-                $issues [] = "Expected minimum of " . $linkType->dataCache["domain_min"] . " forward links of type " . $linkType["name"];
-            }
-            if (@$linkType->dataCache["domain_max"]
-                && count(@$links[$linkType->name]) > $linkType->dataCache["domain_max"]
-            ) {
-                $issues [] = "Expected maximum of " . $linkType->dataCache["domain_max"] . " forward links of type " . $linkType["name"];
-            }
-            // check target object(s) are correct type 
-            if (@$links[$linkType->name]) {
-                foreach ($links[$linkType->name] as $record) {
-                    $linkType->validateLinkObject($record);
-                    // TODO check $record can accept this additional incoming link
-                }
-            }
-
-            unset($unknownLinks[$linkType->name]);
-        }
-        if (count($unknownLinks)) {
-            foreach ($unknownLinks as $linkName => $record) {
-                $issues [] = "Attempt to add an invalid link type: $linkName";
-            }
-        }
-        if (count($issues)) {
-            throw new DataStructValidationException("Validation fail in recordtype.forwardLinks: " . join(", ", $issues));
-        }
-    }
-
-    /**
-     * Validate back links to be added to a record of this type
-     *  must be relevant links and a legal number
-     *  $links are of the format [ link_name=>[ $record,... ]]
-     * @param $links
-     * @throws DataStructValidationException
-     */
-    public function validateRecordBackLinks($links)
-    {
-        $linkTypes = $this->backLinkTypes;
-        $unknownLinks = $links; // we'll reduce this list to actually unknown items
-        $issues = [];
-        foreach ($linkTypes as $linkType) {
-            // check range restrictions
-            if (@$linkType->dataCache["range_min"]
-                && count(@$links[$linkType->name]) < $linkType->dataCache["range_min"]
-            ) {
-                $issues [] = "Expected minimum of " . $linkType->dataCache["range_min"] . " back links of type " . $linkType["name"];
-            }
-            if (@$linkType->dataCache["range_max"]
-                && count(@$links[$linkType->name]) > $linkType->dataCache["range_max"]
-            ) {
-                $issues [] = "Expected maximum of " . $linkType->dataCache["range_max"] . " back links of type " . $linkType["name"];
-            }
-            // check target subject(s) are correct type 
-            if (@$links[$linkType->name]) {
-                foreach ($links[$linkType->name] as $record) {
-                    $linkType->validateLinkSubject($record);
-                    // TODO check $record can accept this additional incoming link
-                }
-            }
-            unset($unknownLinks[$linkType->name]);
-        }
-        if (count($unknownLinks)) {
-            foreach ($unknownLinks as $linkName => $record) {
-                $issues [] = "Attempt to add an invalid link type: $linkName";
-            }
-        }
-        if (count($issues)) {
-            throw new DataStructValidationException("Validation fail in recordtype.backLinks: " . join(", ", $issues));
-        }
-    }
-
     /**
      * @throws DataStructValidationException
      */
     public function validateName()
     {
+        // TODO check for duplicate codenames
 
         $validator = Validator::make(
             ['name' => $this->name],
-            ['name' => 'required|alpha_dash|min:2|max:255']);
+            ['name' => 'required|codename|max:255']);
 
         if ($validator->fails()) {
-            throw new DataStructValidationException("RecordType", "name", $this->name, $validator->errors());
+            $this->makeValidationException($validator);
         }
     }
+
 
     /**
      * @throws DataStructValidationException
@@ -305,6 +220,19 @@ class RecordType extends DocumentPart
             $this->documentRevision,
             ["record" => $this]);
         return $this->titleScript;
+    }
+
+    /**
+     * Return the most human readable title available.
+     *
+     * @return string
+     */
+    function bestTitle()
+    {
+        if (isset($this->title) && trim($this->title) != "") {
+            return $this->title;
+        }
+        return $this->name;
     }
 
 }

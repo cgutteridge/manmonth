@@ -205,30 +205,37 @@ class DocumentRevision extends MMModel
      * @param string $name
      * @param RecordType $domain
      * @param RecordType $range
-     * @param array $data
+     * @param int|null $domain_min
+     * @param int|null $domain_max
+     * @param int|null $range_min
+     * @param int|null $range_max
      * @return LinkType
+     * @internal param array $data
      */
-    public function createLinkType($name, $domain, $range, $data)
+    public function createLinkType($name, $domain, $range, $domain_min, $domain_max, $range_min, $range_max)
     {
-        // default minimum is zero. Default maximum is N (max null means unlimited)
-        if (@$data["domain_min"] === null) {
-            $data["domain_min"] = 0;
-        }
-        if (@$data["range_min"] === null) {
-            $data["range_min"] = 0;
-        }
-
-        // all OK, let's make this link type
         $link_type = new LinkType();
         $link_type->documentRevision()->associate($this);
         $link_type->name = $name;
         $link_type->domain_sid = $domain->sid;
         $link_type->range_sid = $range->sid;
-        $link_type->data = $data;
+        if (isset($domain_min)) {
+            $link_type->domain_min = $domain_min;
+        } else {
+            $link_type->domain_min = 0;
+        }
+        if (isset($range_min)) {
+            $link_type->range_min = $range_min;
+        } else {
+            $link_type->range_min = 0;
+        }
+
+        $link_type->domain_max = $domain_max;
+        $link_type->range_min = $range_min;
+        $link_type->range_max = $range_max;
 
         // these take exception if there's an issue
-        $link_type->validateName();
-        $link_type->validateData();
+        $link_type->validate();
         $link_type->save();
 
         return $link_type;

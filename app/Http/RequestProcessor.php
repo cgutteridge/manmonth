@@ -6,7 +6,7 @@
  * Time: 14:53
  */
 
-namespace App;
+namespace App\Http;
 
 // singleton for getting data from web forms
 use Illuminate\Http\Request;

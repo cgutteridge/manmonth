@@ -43,7 +43,8 @@ footer.navbar {
     height: 50px;
 
 }
-.mm_loading .hover{
+
+.mm_hover_message {
     display: none;
 }
 .mm_loading_hover {

@@ -1,4 +1,4 @@
-@inject('linkMaker','App\Http\Controllers\LinkMaker')
+@inject('linkMaker','App\Http\LinkMaker' )
 @extends('page')
 
 @section('title','View Record Type #'.$recordType->sid." - ".$recordType->name )
@@ -6,7 +6,7 @@
 @section( 'content' )
     <div class="panel panel-info mm-record-block">
         <div class="panel-heading">
-            <a href="/record-types/{{ $recordType->id }}/edit" class="pull-right" title="edit"><span
+            <a href="{{ $linkMaker->edit($recordType) }}" class="pull-right" title="edit"><span
                         class="glyphicon glyphicon-edit" aria-hidden="true"></span></a>
             &nbsp;
         </div>
@@ -20,7 +20,7 @@
         <ul>
             @foreach( $recordType->reportTypes as $reportType )
                 <li>
-                    <a href="/report-types/{{$reportType->id}}">#{{$reportType->sid}} (runs
+                    <a href="{{ $linkMaker->link($reportType) }}">#{{$reportType->sid}} (runs
                         on {{$reportType->baseRecordType()->name}}, {{$reportType->rules()->count()}} rule(s))</a>
                 </li>
             @endforeach
@@ -28,11 +28,6 @@
         </ul>
     @endif
 
-    <h3>Records</h3>
-    <p>TODO: Create new record</p>
-    @foreach( $recordType->records as $record )
-        @include("record.block",["record"=>$record, "followLink"=>"none","editParams"=>["_mmreturn"=>$linkMaker->link($recordType)]])
-    @endforeach
 @endsection
 
 
