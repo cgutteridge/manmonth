@@ -81,7 +81,7 @@ class Document extends MMModel
     }
 
     /**
-     * @return DocumentRevision
+     * @return DocumentRevision|null
      */
     public function draftRevision()
     {
