@@ -39,7 +39,7 @@ Route::post('record-types/{recordType}/create-record', 'RecordTypeController@sto
 // TODO future features: destroy form/action, edit form/action
 
 Route::get('records/{record}', 'RecordController@show');
-Route::get('records/{record}.edit', 'RecordController@edit');
+Route::get('records/{record}/edit', 'RecordController@edit');
 Route::post('records/{record}', 'RecordController@update');
 // TODO future: destroy form/action
 
