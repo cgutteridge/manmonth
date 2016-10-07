@@ -40,7 +40,7 @@ Route::post('record-types/{recordType}/create-record', 'RecordTypeController@sto
 
 Route::get('records/{record}', 'RecordController@show');
 Route::get('records/{record}/edit', 'RecordController@edit');
-Route::post('records/{record}', 'RecordController@update');
+Route::put('records/{record}', 'RecordController@update');
 // TODO future: destroy form/action
 
 Route::get('report-types/{reportType}', 'ReportTypeController@show');
