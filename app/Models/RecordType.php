@@ -24,6 +24,12 @@ use Validator;
 class RecordType extends DocumentPart
 {
     /**
+     * @var Field[]
+     */
+    var $fieldsCache;
+    var $titleScript;
+
+    /**
      * @return LinkType[]
      */
     public function forwardLinkTypes()
@@ -42,6 +48,8 @@ class RecordType extends DocumentPart
         return $this->documentRevision->linkTypes()
             ->where("range_sid", $this->sid);
     }
+
+    // TODO: passing in secondary records could be helpful later
 
     /**
      * @return Record[]
@@ -63,7 +71,6 @@ class RecordType extends DocumentPart
             ->where("base_record_type_sid", $this->sid);
     }
 
-    // TODO: passing in secondary records could be helpful later
     /**
      * Data to create the record. Should supply data and all 1:n and n:1 links.
      * may supply other links but this is not requred.
@@ -122,9 +129,18 @@ class RecordType extends DocumentPart
     }
 
     /**
-     * @var Field[]
+     * @param string $name
+     * @return Field|null
      */
-    var $fieldsCache;
+    public function field($name)
+    {
+        foreach ($this->fields() as $field) {
+            if ($field->data["name"] == $name) {
+                return $field;
+            }
+        }
+        return null; // no such field
+    }
 
     /**
      * @return Field[]
@@ -139,21 +155,6 @@ class RecordType extends DocumentPart
         }
         return $this->fieldsCache;
     }
-
-    /**
-     * @param string $name
-     * @return Field|null
-     */
-    public function field($name)
-    {
-        foreach ($this->fields() as $field) {
-            if ($field->data["name"] == $name) {
-                return $field;
-            }
-        }
-        return null; // no such field
-    }
-
 
     /**
      * @throws DataStructValidationException
@@ -193,8 +194,6 @@ class RecordType extends DocumentPart
 
     }
 
-    var $titleScript;
-
     /**
      * Compiles the title script, if any, for this recordtype
      * @return MMScript
@@ -212,19 +211,6 @@ class RecordType extends DocumentPart
             $this->documentRevision,
             ["record" => $this]);
         return $this->titleScript;
-    }
-
-    /**
-     * Return the most human readable title available.
-     *
-     * @return string
-     */
-    function title()
-    {
-        if (isset($this->label) && trim($this->label) != "") {
-            return $this->label;
-        }
-        return $this->name;
     }
 
 

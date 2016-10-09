@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
             "label" => "Task",
             "data" => ["fields" => [
                 ["name" => "name", "label" => "Name", "type" => "string", "required" => true],
-                ["name" => "size", "label" => "Hours per unit", "type" => "integer", "required" => true],
+                ["name" => "size", "label" => "Hours per unit", "type" => "decimal", "required" => true],
                 ["name" => "new", "label" => "New task?", "type" => "boolean", "default" => false],
             ]],
             "title_script" => "record.name"

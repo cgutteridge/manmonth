@@ -16,22 +16,6 @@ use App\MMScript\Values\StringValue;
 class Literal extends Op
 {
     /**
-     * @return string
-     */
-    public function type()
-    {
-        if (@$this->type) {
-            return $this->type;
-        }
-        $map = ['STR' => 'string', 'DEC' => 'decimal', 'INT' => 'integer', 'BOOL' => 'boolean'];
-        if (!array_key_exists($this->opCode, $map)) {
-            throw new ScriptException("Unknown literal type: " . $this->opCode);
-        }
-        $this->type = $map[$this->opCode];
-        return $this->type;
-    }
-
-    /**
      * @param $context
      * @return BooleanValue|DecimalValue|IntegerValue|StringValue
      * @throws MMScriptRuntimeException
@@ -49,6 +33,23 @@ class Literal extends Op
                 return new StringValue($this->value);
         }
         throw new MMScriptRuntimeException("Literal of literally unknown type: " . $this->type());
+    }
+
+    /**
+     * @return string
+     * @throws ScriptException
+     */
+    public function type()
+    {
+        if (@$this->type) {
+            return $this->type;
+        }
+        $map = ['STR' => 'string', 'DEC' => 'decimal', 'INT' => 'integer', 'BOOL' => 'boolean'];
+        if (!array_key_exists($this->opCode, $map)) {
+            throw new ScriptException("Unknown literal type: " . $this->opCode);
+        }
+        $this->type = $map[$this->opCode];
+        return $this->type;
     }
 
     /**

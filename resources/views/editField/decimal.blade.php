@@ -4,6 +4,7 @@
         class="form-control"
         id="{{ $idPrefix }}"
         name="{{ $idPrefix }}"
+        step="any"
         @if(array_key_exists("min",$field->data))
         min="{{$field->data["min"]}}"
         @endif

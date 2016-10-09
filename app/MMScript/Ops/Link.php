@@ -2,6 +2,7 @@
 
 namespace App\MMScript\Ops;
 
+use App\Exceptions\MMScriptRuntimeException;
 use App\Exceptions\ScriptException;
 use App\MMScript\Values\RecordValue;
 
@@ -11,6 +12,10 @@ use App\MMScript\Values\RecordValue;
  */
 class Link extends BinaryOp
 {
+    var $recordType;
+
+    // another complex one -- needs to follow the link to find out the new type
+
     function type()
     {
         if (@$this->type) {
@@ -19,9 +24,6 @@ class Link extends BinaryOp
         $this->type = "record";
         return $this->type;
     }
-
-    // another complex one -- needs to follow the link to find out the new type
-    var $recordType;
 
     function recordType()
     {
@@ -62,6 +64,11 @@ class Link extends BinaryOp
         return $this->recordType;
     }
 
+    /**
+     * @param $context
+     * @return RecordValue
+     * @throws MMScriptRuntimeException
+     */
     function execute($context)
     {
         // okay what to do?
@@ -69,14 +76,27 @@ class Link extends BinaryOp
         // of the given type
         // assuming there's only one
         // so...
+        /** @var \App\Models\Record $record */
         $record = $this->left->execute($context)->value;
+
+        /** @var string $linkName */
         $linkName = $this->right->execute($context)->value;
+
+        $linkType = $record->documentRevision->linkTypeByName($linkName);
+
         // hopefully there's one and only one...
         if ($this->opCode == "FWD") {
-            $linkedRecords = $record->forwardLinkedRecords($linkName);
+            $linkedRecords = $record->forwardLinkedRecords($linkType);
+            if (!count($linkedRecords)) {
+                throw new MMScriptRuntimeException("No record found for forward link: " . $linkType->title());
+            }
         } else {
-            $linkedRecords = $record->backLinkedRecords($linkName);
+            $linkedRecords = $record->backLinkedRecords($linkType);
+            if (!count($linkedRecords)) {
+                throw new MMScriptRuntimeException("No record found for backwards link: " . $linkType->inverseTitle());
+            }
         }
+
         return new RecordValue($linkedRecords[0]);
     }
 }

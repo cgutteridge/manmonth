@@ -1,9 +1,8 @@
-@inject('linkMaker','App\Http\LinkMaker' )
-
 @extends('page')
 
-@section('title','Report Type #'.$reportType->sid)
-
+@section('title')
+    Report Type @title($reportType)
+@endsection
 @section( 'content')
 
     @foreach( $reportData as $loadingType=>$loadingData )
@@ -47,7 +46,7 @@
             @foreach( $reportType->rules() as $rule )
                 <div class="panel panel-info mm-record-block">
                     <div class="panel-heading ">
-                        <a href="{{ $linkMaker->edit($rule) }}" class="pull-right" title="edit"><span
+                        <a href="@url($rule,'edit')" class="pull-right" title="edit"><span
                                     class="glyphicon glyphicon-edit"></span></a>
                         <b>Rule #{{ $rule->rank+1 }}</b>
                     </div>

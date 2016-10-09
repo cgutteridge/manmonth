@@ -11,13 +11,19 @@ namespace App\Http;
 
 use App\Models\Document;
 use App\Models\DocumentRevision;
+use App\Models\LinkType;
 use Exception;
 
+/**
+ * @property LinkMaker linkMaker
+ * @property TitleMaker titleMaker
+ */
 class NavigationMaker
 {
-    function __construct(LinkMaker $linkMaker)
+    function __construct(LinkMaker $linkMaker, TitleMaker $titleMaker)
     {
         $this->linkMaker = $linkMaker;
+        $this->titleMaker = $titleMaker;
     }
 
     /**
@@ -27,39 +33,6 @@ class NavigationMaker
     {
         return [
             "title" => ["label" => "Man Month"]
-        ];
-    }
-
-    /**
-     * @param Document $document
-     * @return array
-     */
-    public function documentNavigation(Document $document)
-    {
-        return [
-            "title" => [
-                "label" => $document->name,
-                "href" => $this->linkMaker->link($document)
-            ],
-            "menus" => [
-                [
-                    "label" => "Document",
-                    "items" => [
-                        [
-                            "label" => "Current",
-                            "href" => $this->linkMaker->link($document) . "/current"
-                        ],
-                        [
-                            "label" => "Draft",
-                            "href" => $this->linkMaker->link($document) . "/draft"
-                        ],
-                        [
-                            "label" => "All revisions",
-                            "href" => $this->linkMaker->link($document)
-                        ]
-                    ]
-                ]
-            ]
         ];
     }
 
@@ -74,60 +47,66 @@ class NavigationMaker
 
         $createItems = [];
         $browseItems = [];
-        $schemaRecordItems = [];
-        $schemaLinkItems = [];
+        $schemaItems = [];
         foreach ($documentRevision->recordTypes as $recordType) {
             $createItems [] = [
-                "label" => $recordType->title(),
-                "href" => $this->linkMaker->link($recordType) . "/create-record"
+                "glyph" => "plus-sign",
+                "label" => $this->titleMaker->title($recordType),
+                "href" => $this->linkMaker->url($recordType, "create-record")
             ];
             $browseItems [] = [
-                "label" => $recordType->title(),
-                "href" => $this->linkMaker->link($recordType) . "/records"
+                "glyph" => "list",
+                "label" => $this->titleMaker->title($recordType),
+                "href" => $this->linkMaker->url($recordType, "records")
             ];
-            $schemaRecordItems [] = [
-                "label" => $recordType->title(),
-                "href" => $this->linkMaker->link($recordType)
+            $schemaItems [] = [
+                "glyph" => "cog",
+                "label" => $this->titleMaker->title($recordType),
+                "href" => $this->linkMaker->url($recordType)
             ];
         }
+        /** @var LinkType $linkType */
         foreach ($documentRevision->linkTypes as $linkType) {
-            $schemaLinkItems [] = [
-                "label" => $linkType->title(),
-                "href" => $this->linkMaker->link($linkType)
+            $browseItems [] = [
+                "glyph" => "list",
+                "label" => "LINK: " . $this->titleMaker->title($linkType->domain) . "&rarr;" . $this->titleMaker->title($linkType) . "&rarr;" . $this->titleMaker->title($linkType->range),
+                "href" => $this->linkMaker->url($linkType, "links")
+            ];
+            $schemaItems [] = [
+                "glyph" => "cog",
+                "label" => $this->titleMaker->title($linkType),
+                "href" => $this->linkMaker->url($linkType)
             ];
         }
 
         $ritems = [];
         $ritems [] = [
+            "glyph" => "file",
             "label" => "View Revision",
-            "href" => $this->linkMaker->link($documentRevision)
+            "href" => $this->linkMaker->url($documentRevision)
         ];
         $ritems [] = [
+            "glyph" => "list",
             "label" => "Browse",
             "items" => $browseItems];
         $ritems [] = [
+            "glyph" => "plus-sign",
             "label" => "Create",
             "items" => $createItems];
         $ritems [] = [
+            "glyph" => "circle-arrow-up",
             "label" => "Publish",
-            "href" => $this->linkMaker->link($documentRevision) . "/publish"
+            "href" => $this->linkMaker->url($documentRevision, "publish")
         ];
         $ritems [] = [
             "label" => "Scrap",
-            "href" => $this->linkMaker->link($documentRevision) . "/scrap"
+            "glyph" => "circle-arrow-down",
+            "href" => $this->linkMaker->url($documentRevision, "scrap")
         ];
         $ritems [] = [
+            "glyph" => "cog",
             "label" => "Schema",
-            "items" => [
-                [
-                    "label" => "Record types",
-                    "items" => $schemaRecordItems
-                ],
-                [
-                    "label" => "Link types",
-                    "items" => $schemaLinkItems
-                ]
-            ]
+            "items" => $schemaItems
         ];
         $nav["menus"][] = [
             "label" => "Revision",
@@ -161,6 +140,42 @@ class NavigationMaker
         }
 
         return $nav;
+    }
+
+    /**
+     * @param Document $document
+     * @return array
+     */
+    public function documentNavigation(Document $document)
+    {
+        return [
+            "title" => [
+                "label" => $document->name,
+                "href" => $this->linkMaker->url($document)
+            ],
+            "menus" => [
+                [
+                    "label" => "Document",
+                    "items" => [
+                        [
+                            "glyph" => "file",
+                            "label" => "Current",
+                            "href" => $this->linkMaker->url($document, "current")
+                        ],
+                        [
+                            "glyph" => "file",
+                            "label" => "Draft",
+                            "href" => $this->linkMaker->url($document, "draft")
+                        ],
+                        [
+                            "glyph" => "list",
+                            "label" => "All revisions",
+                            "href" => $this->linkMaker->url($document)
+                        ]
+                    ]
+                ]
+            ]
+        ];
     }
 
     // TODO scrap

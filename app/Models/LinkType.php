@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Exceptions\DataStructValidationException;
 use Illuminate\Database\Eloquent\Collection;
 use Validator;
-use App\Exceptions\DataStructValidationException;
 
 /**
  * @property DocumentRevision documentRevision
@@ -20,6 +20,8 @@ use App\Exceptions\DataStructValidationException;
  * @property int domain_max
  * @property int range_min
  * @property int range_max
+ * @property mixed domain
+ * @property mixed range
  */
 class LinkType extends DocumentPart
 {
@@ -53,7 +55,45 @@ class LinkType extends DocumentPart
     public function links()
     {
         /** @noinspection PhpUndefinedMethodInspection */
-        return $this->documentRevision->records()->where("link_type_sid", $this->sid);
+        return $this->documentRevision->links()->where("link_type_sid", $this->sid);
+    }
+
+    /**
+     * @param $subject
+     * @param $object
+     * @return Link
+     */
+    public function createLink($subject, $object)
+    {
+        $this->validateLinkSubject($subject);
+        $this->validateLinkObject($object);
+
+        $link = new Link();
+        $link->documentRevision()->associate($this->documentRevision);
+        $link->link_type_sid = $this->sid;
+        $link->subject_sid = $subject->sid;
+        $link->object_sid = $object->sid;
+
+        $this->validate();
+        $link->save();
+
+        return $link;
+    }
+
+    /**
+     * @param $subject
+     * @throws DataStructValidationException
+     */
+    public function validateLinkSubject($subject)
+    {
+    }
+
+    /**
+     * @param $object
+     * @throws DataStructValidationException
+     */
+    public function validateLinkObject($object)
+    {
     }
 
     /**
@@ -103,45 +143,6 @@ class LinkType extends DocumentPart
     }
 
     /**
-     * @param $subject
-     * @throws DataStructValidationException
-     */
-    public function validateLinkSubject($subject)
-    {
-    }
-
-    /**
-     * @param $object
-     * @throws DataStructValidationException
-     */
-    public function validateLinkObject($object)
-    {
-    }
-
-    /**
-     * @param $subject
-     * @param $object
-     * @return Link
-     */
-    public function createLink($subject, $object)
-    {
-        $this->validateLinkSubject($subject);
-        $this->validateLinkObject($object);
-
-        $link = new Link();
-        $link->documentRevision()->associate($this->documentRevision);
-        $link->link_type_sid = $this->sid;
-        $link->subject_sid = $subject->sid;
-        $link->object_sid = $object->sid;
-
-        $this->validate();
-        $link->save();
-
-        return $link;
-    }
-
-
-    /**
      * Update this LinkType from values in the data
      * @param array $properties
      */
@@ -181,19 +182,6 @@ class LinkType extends DocumentPart
         if (array_key_exists("inverse_label", $properties)) {
             $this->inverse_label = $properties["inverse_label"];
         }
-    }
-
-
-    /**
-     * Return the most human readable title available.
-     * @return string
-     */
-    function title()
-    {
-        if (isset($this->label) && trim($this->label) != "") {
-            return $this->label;
-        }
-        return $this->name;
     }
 
     /**

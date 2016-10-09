@@ -49,7 +49,13 @@ Route::get('report-types/{reportType}', 'ReportTypeController@show');
 // Route::get('rules/{rule}', 'RuleController@show');
 // TODO future: show, edit form/action, destroy form/action
 
-// TODO LinkType
+Route::get('link-types/{linkType}', 'LinkTypeController@show');
+Route::get('link-types/{linkType}/links', 'LinkTypeController@links');
+Route::get('link-types/{linkType}/create-link', 'LinkTypeController@createLink');
+Route::post('link-types/{linkType}/create-link', 'LinkTypeController@storeLink');
+Route::get('link-types/{linkType}/delete-link', 'LinkTypeController@deleteLinkForm');
+Route::post('link-types/{linkType}/delete-link', 'LinkTypeController@deleteLink');
+
 // TODO Link
 // TODO Report
 

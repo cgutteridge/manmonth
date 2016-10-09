@@ -1,10 +1,10 @@
-@inject('linkMaker','App\Http\LinkMaker' )
 @extends('page')
 
-@section('title','Create Record of type '.$record->recordType->name)
-
+@section('title')
+    Create Record of type @title($record)
+@endsection
 @section( 'content')
-    <form method="post" action="{{$linkMaker->link($record->recordType)}}/create-record">
+    <form method="post" action="@url($record->recordType,'create-record')">
         @include( 'editFields', [
             "fields"=>$record->recordType->fields(),
             "values"=>$record->data,

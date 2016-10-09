@@ -34,5 +34,6 @@ abstract class MMModel extends Model
         }
         return new DataStructValidationException($msg);
     }
+
 }
 

@@ -72,7 +72,7 @@ class DocumentController extends Controller
     public function current(Document $document)
     {
         $current = $document->currentRevision();
-        return Redirect::to($this->linkMaker->link($current));
+        return Redirect::to($this->linkMaker->url($current));
     }
 
     /**

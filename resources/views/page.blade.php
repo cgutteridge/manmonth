@@ -13,6 +13,7 @@
     <script>
         $(document).ready(function () {
             $('[data-submenu]').submenupicker();
+            $('[data-toggle="tooltip"]').tooltip()
         });
     </script>
 </head>

@@ -3,7 +3,6 @@
 @section('title','Feature not done' )
 
 @section( 'content')
-
     <div class="alert alert-warning" role="alert">
         <span style="font-size: 200%;" class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
         <span class="sr-only">Dang:</span>

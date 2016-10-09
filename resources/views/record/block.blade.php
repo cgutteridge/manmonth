@@ -1,16 +1,19 @@
-@inject('linkMaker','App\Http\LinkMaker' )
 <div class="panel panel-info mm-record-block">
     <div class="panel-heading">
-        <a href="{{ $linkMaker->link($record) }}" title="focus">
+
+        <a href="@url($record)" data-toggle="tooltip" title="Focus on this @title($record->recordType)">
             <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-            {{ $record->title() }}
+            @title($record)
         </a>
-        <a href="{{ $linkMaker->edit($record, $editParams) }}" class="pull-right" title="edit"><span
-                    class="glyphicon glyphicon-edit"
-                    aria-hidden="true"></span></a>
-        <i class="pull-right" style="margin-right:1em">{{ $record->recordType->name }} </i>
+        <a href="@url($record, 'edit', $editParams)" class="pull-right" data-toggle="tooltip"
+           title="Edit this @title($record->recordType)">
+             <span
+                     class="glyphicon glyphicon-edit"
+                     aria-hidden="true"></span>
+        </a>
+        <i class="pull-right" style="font-size:80%;padding-top:0.2em;margin-right:2em">[@title($record->recordType)]</i>
     </div>
-    <table class="table">
+    <table class="table mm-table">
         @foreach( $record->recordType->fields() as $field )
             <tr>
                 <th>{{$field->title()}}:</th>
@@ -28,7 +31,7 @@
                 @if( !array_key_exists($link->objectRecord->id,$seen))
                     @if( $followLink == 'all' || (isset($link->linkType->range_max) && $link->linkType->range_max==1 ))
                         <tr>
-                            <th>{{  $link->linkType->title() }}:</th>
+                            <th>@title($link->linkType):</th>
                             <td>
                                 @include( 'record.block', [
                                     'record'=>$link->objectRecord,

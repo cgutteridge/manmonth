@@ -1,7 +1,8 @@
-@inject('linkMaker','App\Http\LinkMaker' )
 @extends('page')
 
-@section('title','View '.$record->recordType->title().": ".$record->title() )
+@section('title')
+    View @title($record->recordType): @title($record)
+@endsection
 
 @section( 'content')
     @foreach( $reports as $report )
@@ -25,6 +26,6 @@
         'record'=>$record,
         'followLink'=>'all',
         'seen'=>[],
-        'editParams'=>['_mmreturn'=>$linkMaker->link($record)]
+        'editParams'=>['_mmreturn'=>(new \App\Http\LinkMaker())->url($record)]
     ])
 @endsection

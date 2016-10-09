@@ -130,11 +130,11 @@ footer.navbar {
     margin-top: 1em;
 }
 
-.mm_datatable {
+.mm-datatable {
     border-collapse: collapse;
 }
 
-.mm_datatable th {
+.mm-datatable th {
     text-align: right;
     vertical-align: top;
     background-color: #ccc;
@@ -142,7 +142,7 @@ footer.navbar {
     border: solid 1px #999;
 }
 
-.mm_datatable td {
+.mm-datatable td {
     vertical-align: top;
     padding: 3px;
     border: solid 1px #999;

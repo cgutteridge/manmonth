@@ -24,12 +24,14 @@ use Exception;
 class LinkMaker
 {
     /**
+     * Return the URL for a model, or an action on a model
      * @param MMModel $model
+     * @param string|null $action
      * @param array $params CGI parameters
      * @return string
      * @throws Exception
      */
-    public function link(MMModel $model, $params = [])
+    public function url(MMModel $model, $action = null, $params = [])
     {
         $link = null;
         if (is_a($model, Document::class)) {
@@ -62,18 +64,12 @@ class LinkMaker
         if ($link == null) {
             throw new Exception("Could not make a link for model of class " . get_class($model));
         }
+        if (isset($action)) {
+            $link .= "/$action";
+        }
         $link .= $this->params($params);
-        return $link;
-    }
 
-    /**
-     * @param MMModel $model
-     * @param array $params CGI parameters
-     * @return string
-     */
-    public function edit(MMModel $model, $params = [])
-    {
-        return $this->link($model) . "/edit" . $this->params($params);
+        return $link;
     }
 
     public function params($params = [])
@@ -87,5 +83,10 @@ class LinkMaker
             $list [] = $key . "=" . $value;
         }
         return "?" . join("&", $list);
+    }
+
+    public function renderLink($link)
+    {
+
     }
 }

@@ -14,6 +14,31 @@ use App\MMScript\Values\IntegerValue;
 class MulOp extends BinaryOp
 {
     /**
+     * @param array $context
+     * @return DecimalValue|IntegerValue
+     * @throws MMScriptRuntimeException
+     */
+    function execute($context)
+    {
+        $leftValue = $this->left->execute($context)->value;
+        $rightValue = $this->right->execute($context)->value;
+
+        if ($this->opCode == 'MUL') {
+            $newValue = $leftValue * $rightValue;
+        } else {
+            try {
+                $newValue = $leftValue / $rightValue;
+            } catch (\ErrorException $e) {
+                throw new MMScriptRuntimeException($e->getMessage());
+            }
+        }
+        if ($this->type() == 'decimal') {
+            return new DecimalValue($newValue);
+        }
+        return new IntegerValue($newValue);
+    }
+
+    /**
      * @return string
      * @throws ScriptException
      */
@@ -39,29 +64,5 @@ class MulOp extends BinaryOp
         }
 
         throw new ScriptException("Can't " . $this->opCode . " $lt and $rt");
-    }
-
-    /**
-     * @param array $context
-     * @return DecimalValue|IntegerValue
-     */
-    function execute($context)
-    {
-        $leftValue = $this->left->execute($context)->value;
-        $rightValue = $this->right->execute($context)->value;
-
-        if ($this->opCode == 'MUL') {
-            $newValue = $leftValue * $rightValue;
-        } else {
-            try {
-                $newValue = $leftValue / $rightValue;
-            } catch (\ErrorException $e) {
-                throw new MMScriptRuntimeException($e->getMessage());
-            }
-        }
-        if ($this->type() == 'decimal') {
-            return new DecimalValue($newValue);
-        }
-        return new IntegerValue($newValue);
     }
 }

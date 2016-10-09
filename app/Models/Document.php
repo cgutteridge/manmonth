@@ -11,15 +11,6 @@ use Exception;
 class Document extends MMModel
 {
     /**
-     * The relationship to the revisions of this document.
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function revisions()
-    {
-        return $this->hasMany('App\Models\DocumentRevision');
-    }
-
-    /**
      * Create an empty current revision. Documents must always have a current revision.
      * @throws Exception
      */
@@ -34,7 +25,6 @@ class Document extends MMModel
         $rev->status = "current";
         $rev->save();
     }
-
 
     /**
      * This is a major workhorse function. It copies all the relevant data into a new revision.
@@ -90,6 +80,15 @@ class Document extends MMModel
     }
 
     /**
+     * The relationship to the revisions of this document.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function revisions()
+    {
+        return $this->hasMany('App\Models\DocumentRevision');
+    }
+
+    /**
      * @return DocumentRevision
      * @throws Exception
      */
@@ -104,6 +103,5 @@ class Document extends MMModel
         }
         return $first;
     }
-
 
 }

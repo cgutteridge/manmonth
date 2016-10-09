@@ -14,7 +14,7 @@ class LinkMakerTest extends TestCase
         $mock = new \App\Models\Document();
         $mock->id = 242;
         $linkMaker = new \App\Http\LinkMaker();
-        $this->assertEquals('/documents/242', $linkMaker->link($mock));
+        $this->assertEquals('/documents/242', $linkMaker->url($mock));
     }
 
     function test_DocumentRevision_link()
@@ -22,7 +22,7 @@ class LinkMakerTest extends TestCase
         $mock = new \App\Models\DocumentRevision();
         $mock->id = 242;
         $linkMaker = new \App\Http\LinkMaker();
-        $this->assertEquals('/revisions/242', $linkMaker->link($mock));
+        $this->assertEquals('/revisions/242', $linkMaker->url($mock));
     }
 
     function test_Record_link()
@@ -30,7 +30,7 @@ class LinkMakerTest extends TestCase
         $mock = new \App\Models\Record();
         $mock->id = 242;
         $linkMaker = new \App\Http\LinkMaker();
-        $this->assertEquals('/records/242', $linkMaker->link($mock));
+        $this->assertEquals('/records/242', $linkMaker->url($mock));
     }
 
     function test_RecordType_link()
@@ -38,7 +38,7 @@ class LinkMakerTest extends TestCase
         $mock = new \App\Models\RecordType();
         $mock->id = 242;
         $linkMaker = new \App\Http\LinkMaker();
-        $this->assertEquals('/record-types/242', $linkMaker->link($mock));
+        $this->assertEquals('/record-types/242', $linkMaker->url($mock));
     }
 
     function test_Link_link()
@@ -46,7 +46,7 @@ class LinkMakerTest extends TestCase
         $mock = new \App\Models\Link();
         $mock->id = 242;
         $linkMaker = new \App\Http\LinkMaker();
-        $this->assertEquals('/links/242', $linkMaker->link($mock));
+        $this->assertEquals('/links/242', $linkMaker->url($mock));
     }
 
     function test_LinkType_link()
@@ -54,7 +54,7 @@ class LinkMakerTest extends TestCase
         $mock = new \App\Models\LinkType();
         $mock->id = 242;
         $linkMaker = new \App\Http\LinkMaker();
-        $this->assertEquals('/link-types/242', $linkMaker->link($mock));
+        $this->assertEquals('/link-types/242', $linkMaker->url($mock));
     }
 
     function test_Report_link()
@@ -62,7 +62,7 @@ class LinkMakerTest extends TestCase
         $mock = new \App\Models\Report();
         $mock->id = 242;
         $linkMaker = new \App\Http\LinkMaker();
-        $this->assertEquals('/reports/242', $linkMaker->link($mock));
+        $this->assertEquals('/reports/242', $linkMaker->url($mock));
     }
 
     function test_Rule_link()
@@ -70,7 +70,7 @@ class LinkMakerTest extends TestCase
         $mock = new \App\Models\Rule();
         $mock->id = 242;
         $linkMaker = new \App\Http\LinkMaker();
-        $this->assertEquals('/rules/242', $linkMaker->link($mock));
+        $this->assertEquals('/rules/242', $linkMaker->url($mock));
     }
 
     function test_ReportType_link()
@@ -78,7 +78,7 @@ class LinkMakerTest extends TestCase
         $mock = new \App\Models\ReportType();
         $mock->id = 242;
         $linkMaker = new \App\Http\LinkMaker();
-        $this->assertEquals('/report-types/242', $linkMaker->link($mock));
+        $this->assertEquals('/report-types/242', $linkMaker->url($mock));
     }
 
     function test_Record_edit_link()
@@ -86,7 +86,7 @@ class LinkMakerTest extends TestCase
         $mock = new \App\Models\Record();
         $mock->id = 242;
         $linkMaker = new \App\Http\LinkMaker();
-        $this->assertEquals('/records/242/edit', $linkMaker->edit($mock));
+        $this->assertEquals('/records/242/edit', $linkMaker->url($mock, "edit"));
     }
 
     function test_Record_edit_link_with_params()
@@ -95,7 +95,7 @@ class LinkMakerTest extends TestCase
         $mock->id = 242;
         $linkMaker = new \App\Http\LinkMaker();
         $this->assertEquals('/records/242/edit?foo=23&bar=24',
-            $linkMaker->edit($mock, ["foo" => 23, "bar" => 24]));
+            $linkMaker->url($mock, "edit", ["foo" => 23, "bar" => 24]));
     }
 
     function test_Record_link_with_params()
@@ -104,7 +104,15 @@ class LinkMakerTest extends TestCase
         $mock->id = 242;
         $linkMaker = new \App\Http\LinkMaker();
         $this->assertEquals('/records/242?foo=23&bar=24',
-            $linkMaker->link($mock, ["foo" => 23, "bar" => 24]));
+            $linkMaker->url($mock, null, ["foo" => 23, "bar" => 24]));
+    }
+
+    function test_Record_link_with_stupid_class_throws_error()
+    {
+        $mockModel = $this->getMockBuilder(\App\Models\MMModel::class)->getMock();
+        $linkMaker = new \App\Http\LinkMaker();
+        $this->setExpectedException(Exception::class);
+        $linkMaker->url($mockModel);
     }
 
 }

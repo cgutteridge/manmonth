@@ -61,7 +61,7 @@ class RecordController extends Controller
     public function update(Request $request, Record $record)
     {
         $action = $request->get("_mmaction", "");
-        $returnLink = $request->get("_mmreturn", $this->linkMaker->link($record));
+        $returnLink = $request->get("_mmreturn", $this->linkMaker->url($record));
         if ($action == "cancel") {
             return Redirect::to($returnLink);
         }

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Collection;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 
 // TODO add a field that knows that a revision is replacing a specific current revision. That can allow unscrapping if the scrap could still replace the current.
 
@@ -30,30 +30,12 @@ class DocumentRevision extends MMModel
     }
 
     /**
-     * The relationship to the record types in this revision.
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function recordTypes()
-    {
-        return $this->hasMany('App\Models\RecordType');
-    }
-
-    /**
      * The relationship to the records in this revision.
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function records()
     {
         return $this->hasMany('App\Models\Record');
-    }
-
-    /**
-     * The relationship to the link types in this revision.
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function linkTypes()
-    {
-        return $this->hasMany('App\Models\LinkType');
     }
 
     /**
@@ -76,15 +58,6 @@ class DocumentRevision extends MMModel
     }
 
     /**
-     * The relationship to the report types in this revision.
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function reportTypes()
-    {
-        return $this->hasMany('App\Models\ReportType');
-    }
-
-    /**
      * @param string $name
      * @return ReportType
      */
@@ -92,6 +65,15 @@ class DocumentRevision extends MMModel
     {
         /** @noinspection PhpUndefinedMethodInspection */
         return $this->reportTypes()->where('name', $name)->first();
+    }
+
+    /**
+     * The relationship to the report types in this revision.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function reportTypes()
+    {
+        return $this->hasMany('App\Models\ReportType');
     }
 
     /**
@@ -105,6 +87,15 @@ class DocumentRevision extends MMModel
     }
 
     /**
+     * The relationship to the record types in this revision.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function recordTypes()
+    {
+        return $this->hasMany('App\Models\RecordType');
+    }
+
+    /**
      * @param string $name
      * @return LinkType
      */
@@ -112,6 +103,15 @@ class DocumentRevision extends MMModel
     {
         /** @noinspection PhpUndefinedMethodInspection */
         return $this->linkTypes()->where('name', $name)->first();
+    }
+
+    /**
+     * The relationship to the link types in this revision.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function linkTypes()
+    {
+        return $this->hasMany('App\Models\LinkType');
     }
 
 
@@ -221,5 +221,6 @@ class DocumentRevision extends MMModel
 
         return $link_type;
     }
+
 
 }

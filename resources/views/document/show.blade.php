@@ -1,7 +1,8 @@
 @extends('page')
 
-@section('title', $document->name )
-
+@section('title')
+    @title($document)
+@endsection
 @section( 'content')
     @include( 'dataTable', [ "data"=>[
         "name"=>$document->name,

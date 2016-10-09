@@ -5,9 +5,9 @@ namespace App\Models;
 use App\Exceptions\DataStructValidationException;
 use App\Fields\Field;
 use App\MMScript\Values\Value;
+use DB;
 use Illuminate\Database\Eloquent\Collection;
 use Validator;
-use DB;
 
 /**
  * @property DocumentRevision documentRevision
@@ -54,12 +54,11 @@ class Record extends DocumentPart
     }
 
     /**
-     * @param string $linkName
+     * @param LinkType $linkType
      * @return array[Record]
      */
-    public function forwardLinkedRecords($linkName)
+    public function forwardLinkedRecords($linkType)
     {
-        $linkType = $this->documentRevision->linkTypeByName($linkName);
         $recordIds = DB::table('links')
             ->where("links.document_revision_id", "=", $this->documentRevision->id)
             ->where("links.subject_sid", '=', $this->sid)
@@ -75,12 +74,11 @@ class Record extends DocumentPart
     }
 
     /**
-     * @param string $linkName
-     * @return array[Record]
+     * @param LinkType $linkType
+     * @return array [Record]
      */
-    public function backLinkedRecords($linkName)
+    public function backLinkedRecords($linkType)
     {
-        $linkType = $this->documentRevision->linkTypeByName($linkName);
         $recordIds = DB::table('links')
             ->where("links.document_revision_id", "=", $this->documentRevision->id)
             ->where("links.object_sid", '=', $this->sid)
@@ -245,23 +243,6 @@ class Record extends DocumentPart
         $this->data = $data;
     }
 
-    /**
-     * @return string
-     * @throws DataStructValidationException
-     */
-    public function title()
-    {
-        $script = $this->recordType->titleScript();
-        if (!$script) {
-            return $this->recordType->name . "#" . $this->sid;
-        }
-
-        if ($script->type() != "string") {
-            throw new DataStructValidationException("If a record type has a title it should be an MMScript which returns a string. This returned a " . $script->type());
-        }
-        $result = $script->execute(["record" => $this]);
-        return $result->value;
-    }
 }
 
 

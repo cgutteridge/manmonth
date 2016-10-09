@@ -75,7 +75,7 @@ class RecordTypeController extends Controller
     public function storeRecord(Request $request, RecordType $recordType)
     {
         $action = $request->get("_mmaction", "");
-        $returnLink = $request->get("_mmreturn", $this->linkMaker->link($recordType));
+        $returnLink = $request->get("_mmreturn", $this->linkMaker->url($recordType));
         if ($action == "cancel") {
             return Redirect::to($returnLink);
         }
@@ -90,12 +90,12 @@ class RecordTypeController extends Controller
         try {
             $record->validate();
         } catch (DataStructValidationException $exception) {
-            return Redirect::to($this->linkMaker->link($recordType) . '/create-record')
+            return Redirect::to($this->linkMaker->url($recordType, 'create-record'))
                 ->withInput()
                 ->withErrors($exception->getMessage());
         }
         $record->save();
-        return Redirect::to($this->linkMaker->link($record))
+        return Redirect::to($this->linkMaker->url($record))
             ->with("message", "Record created.");
     }
 
