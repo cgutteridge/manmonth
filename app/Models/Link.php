@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Exceptions\DataStructValidationException;
+use App\Http\TitleMaker;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -53,12 +54,13 @@ class Link extends DocumentPart
      */
     public function validate()
     {
+        $titleMaker = new TitleMaker();
 
         if ($this->subjectRecord->record_type_sid != $this->linkType->domain_sid) {
-            throw new DataStructValidationException("Validation fail in linktype.subject: incorrect type for this linktype (expects " . $this->linkType->title() . ")");
+            throw new DataStructValidationException("Validation fail in linktype.subject: incorrect type for this linktype (expects " . $titleMaker->title($this->linkType) . ")");
         }
         if ($this->objectRecord->record_type_sid != $this->linkType->range_sid) {
-            throw new DataStructValidationException("Validation fail in linktype.object: incorrect type for this linktype (expects " . $this->linkType->title() . ")");
+            throw new DataStructValidationException("Validation fail in linktype.object: incorrect type for this linktype (expects " . $titleMaker->title($this->linkType) . ")");
         }
     }
 }

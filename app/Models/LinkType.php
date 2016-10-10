@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Exceptions\DataStructValidationException;
+use App\Http\TitleMaker;
 use Illuminate\Database\Eloquent\Collection;
 use Validator;
 
@@ -190,10 +191,11 @@ class LinkType extends DocumentPart
      */
     function inverseTitle()
     {
+        $titleMaker = new TitleMaker();
         if (isset($this->inverse_label) && trim($this->inverse_label) != "") {
             return $this->inverse_label;
         }
-        return "is " . $this->title() . " of";
+        return "is " . $titleMaker->title($this) . " of";
     }
 }
 

@@ -17,5 +17,5 @@
             @if($field->description()!=null)
             aria-describedby="{{ $idPrefix }}_help"
             @endif
-    > {{ $field->title() }}
+    > @title($field)
 </label>

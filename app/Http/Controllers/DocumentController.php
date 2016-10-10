@@ -84,9 +84,9 @@ class DocumentController extends Controller
     {
         $draft = $document->draftRevision();
         if (!$draft) {
-            return Redirect::to($this->linkMaker->link($document))
+            return Redirect::to($this->linkMaker->url($document))
                 ->withErrors("This document does not currently have a draft revision.");
         }
-        return Redirect::to($this->linkMaker->link($draft));
+        return Redirect::to($this->linkMaker->url($draft));
     }
 }

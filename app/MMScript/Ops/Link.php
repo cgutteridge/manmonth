@@ -4,6 +4,7 @@ namespace App\MMScript\Ops;
 
 use App\Exceptions\MMScriptRuntimeException;
 use App\Exceptions\ScriptException;
+use App\Http\TitleMaker;
 use App\MMScript\Values\RecordValue;
 
 /**
@@ -71,6 +72,7 @@ class Link extends BinaryOp
      */
     function execute($context)
     {
+        $titleMaker = new TitleMaker();
         // okay what to do?
         // get the model which is at the other end of a forward/back link
         // of the given type
@@ -88,7 +90,7 @@ class Link extends BinaryOp
         if ($this->opCode == "FWD") {
             $linkedRecords = $record->forwardLinkedRecords($linkType);
             if (!count($linkedRecords)) {
-                throw new MMScriptRuntimeException("No record found for forward link: " . $linkType->title());
+                throw new MMScriptRuntimeException("No record found for forward link: " . $titleMaker->title($linkType));
             }
         } else {
             $linkedRecords = $record->backLinkedRecords($linkType);

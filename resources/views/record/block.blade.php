@@ -16,7 +16,7 @@
     <table class="table mm-table">
         @foreach( $record->recordType->fields() as $field )
             <tr>
-                <th>{{$field->title()}}:</th>
+                <th>@title($field):</th>
                 <td style="width:100%">
                     @if( array_key_exists( $field->data["name"], $record->data ) )
                         {{$record->data[$field->data["name"]]}}

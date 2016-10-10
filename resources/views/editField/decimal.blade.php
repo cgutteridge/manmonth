@@ -1,4 +1,4 @@
-<label for="{{$idPrefix}}_{{$field->data["name"]}}">{{ $field->title() }}</label>
+<label for="{{$idPrefix}}_{{$field->data["name"]}}">@title($field)</label>
 <input
         type="number"
         class="form-control"
@@ -14,4 +14,4 @@
         @if($field->description()!=null)
         aria-describedby="{{ $idPrefix }}_help"
         @endif
-        placeholder="Enter {{$field->title()}}" value="{{$value}}">
+        placeholder="Enter @title($field)" value="{{$value}}">

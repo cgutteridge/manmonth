@@ -19,6 +19,7 @@ class Controller extends BaseController
     protected $linkMaker;
     protected $navigationMaker;
     protected $requestProcessor;
+    protected $titleMaker;
 
     /**
      * DocumentController constructor.

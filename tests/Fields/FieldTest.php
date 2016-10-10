@@ -124,44 +124,6 @@ class FieldTest extends TestCase
         $this->assertEquals(false, $field->required());
     }
 
-    function test_title_where_there_is_a_title()
-    {
-        $field = App\Fields\Field::createFromData([
-            "type" => "decimal",
-            "label" => "dubdub",
-            "name" => "test"
-        ]);
-        $this->assertEquals("dubdub", $field->title());
-    }
-
-    function test_title_where_there_is_no_title()
-    {
-        $field = App\Fields\Field::createFromData([
-            "type" => "decimal",
-            "name" => "test"
-        ]);
-        $this->assertEquals("test", $field->title());
-    }
-
-    function test_title_where_there_is_a_description()
-    {
-        $field = App\Fields\Field::createFromData([
-            "type" => "decimal",
-            "description" => "dubdub",
-            "name" => "test"
-        ]);
-        $this->assertEquals("dubdub", $field->description());
-    }
-
-    function test_title_where_there_is_no_description()
-    {
-        $field = App\Fields\Field::createFromData([
-            "type" => "decimal",
-            "name" => "test"
-        ]);
-        $this->assertNull($field->description());
-    }
-
     function test_boolean_field_validation_array()
     {
         $field = App\Fields\Field::createFromData([

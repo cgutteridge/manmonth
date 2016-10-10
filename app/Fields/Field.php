@@ -2,14 +2,28 @@
 
 namespace App\Fields;
 
+use App\Exceptions\DataStructValidationException;
 use App\MMScript\Values\Value;
 use Exception;
 use Validator;
-use App\Exceptions\DataStructValidationException;
 
 abstract class Field
 {
     // need to make this non static? Maybe by making a fieldFactory singleton
+    public $data;
+
+    /**
+     * Field constructor.
+     * @param $data
+     */
+    public function __construct($data)
+    {
+        $this->data = $data;
+    }
+
+    // this isn't written to the db so don't bother making data a json_encoded
+    // param... but this is inconsistant with DocumentPart models.
+
     /**
      * @param array $fieldData
      * @return Field
@@ -28,20 +42,6 @@ abstract class Field
         } else {
             throw new Exception("Unknown field type: '" . $fieldData["type"] . "'");
         }
-    }
-
-
-    public $data;
-
-    // this isn't written to the db so don't bother making data a json_encoded
-    // param... but this is inconsistant with DocumentPart models.
-    /**
-     * Field constructor.
-     * @param $data
-     */
-    public function __construct($data)
-    {
-        $this->data = $data;
     }
 
     /**
@@ -78,19 +78,6 @@ abstract class Field
     }
 
     /**
-     * Return the human readable title for this field. Failing that, the
-     * name string.
-     * @return string
-     */
-    public function title()
-    {
-        if (@$this->data["label"]) {
-            return $this->data["label"];
-        }
-        return $this->data["name"];
-    }
-
-    /**
      * Give the description text for the field, or null if there is none.
      * @return string|null
      */
@@ -100,6 +87,18 @@ abstract class Field
             return $this->data["description"];
         }
         return null;
+    }
+
+    /**
+     * Check this field is valid
+     * @throws DataStructValidationException
+     */
+    public function validate()
+    {
+        $validator = Validator::make($this->data, $this->fieldValidationArray());
+        if ($validator->fails()) {
+            throw new DataStructValidationException("Validation fail in field: " . join(", ", $validator->errors()->all()));
+        }
     }
 
     /**
@@ -114,18 +113,6 @@ abstract class Field
             'description' => 'string',
             'required' => 'boolean',
         ];
-    }
-
-    /**
-     * Check this field is valid
-     * @throws DataStructValidationException
-     */
-    public function validate()
-    {
-        $validator = Validator::make($this->data, $this->fieldValidationArray());
-        if ($validator->fails()) {
-            throw new DataStructValidationException("Validation fail in field: " . join(", ", $validator->errors()->all()));
-        }
     }
 
     /**
