@@ -95,7 +95,7 @@ class Link extends BinaryOp
         } else {
             $linkedRecords = $record->backLinkedRecords($linkType);
             if (!count($linkedRecords)) {
-                throw new MMScriptRuntimeException("No record found for backwards link: " . $linkType->inverseTitle());
+                throw new MMScriptRuntimeException("No record found for backwards link: " . $titleMaker->title($linkType, 'inverse'));
             }
         }
 

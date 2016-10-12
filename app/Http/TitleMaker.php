@@ -28,11 +28,12 @@ class TitleMaker
 {
     /**
      * @param MMModel|Field $item
+     * @param string $mode
      * @return string
-     * @throws Exception
      * @throws DataStructValidationException
+     * @throws Exception
      */
-    public function title($item)
+    public function title($item, $mode = "default")
     {
         $title = null;
         if (is_a($item, Document::class)) {
@@ -69,10 +70,18 @@ class TitleMaker
         }
         if (is_a($item, LinkType::class)) {
             /** @var LinkType $item */
-            if (isset($item->label) && trim($item->label) != "") {
-                $title = $item->label;
+            if ($mode == 'inverse') {
+                if (isset($item->inverse_label) && trim($item->inverse_label) != "") {
+                    $title = $item->inverse_label;
+                } else {
+                    $title = "is " . $this->title($item) . " of";
+                }
             } else {
-                $title = $item->name;
+                if (isset($item->label) && trim($item->label) != "") {
+                    $title = $item->label;
+                } else {
+                    $title = $item->name;
+                }
             }
         }
         if (is_a($item, Link::class)) {

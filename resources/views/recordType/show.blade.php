@@ -20,11 +20,11 @@
         <ul>
             @foreach( $recordType->forwardLinkTypes as $linkType )
                 <li>
-                    @link($linkType) linking to @link($linkType->range)
+                    @include("cardinality",["min"=>$linkType->range_min,"max"=>$linkType->range_max])
+                    @link($linkType) relation linking to @link($linkType->range)
                 </li>
             @endforeach
         </ul>
-        TODO: make these link and show nice cardinality
     @endif
 
     @if( count($recordType->backLinkTypes) )
@@ -32,11 +32,12 @@
         <ul>
             @foreach( $recordType->backLinkTypes as $linkType )
                 <li>
-                    <a href="@url($linkType)}}">{{$linkType->inverseTitle()}}</a> linking from @link($linkType->domain)
+                    @include("cardinality",["min"=>$linkType->domain_min,"max"=>$linkType->domain_max])
+                    <a href="@url($linkType)">@title($linkType,"inverse")</a> relation linking
+                    from @link($linkType->domain)
                 </li>
             @endforeach
         </ul>
-        TODO: make these link and show nice cardinality
     @endif
 
     @if( count($recordType->reportTypes ))
@@ -45,7 +46,7 @@
             @foreach( $recordType->reportTypes as $reportType )
                 <li>
                     @link($reportType) (runs
-                    on @link($reportType->baseRecordType()), {{$reportType->rules()->count()}} rule(s))</a>
+                    on @link($reportType->baseRecordType()), {{$reportType->rules()->count()}} rule(s))
                 </li>
             @endforeach
             <li>TODO: Create new record type</li>

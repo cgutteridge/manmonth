@@ -26,37 +26,38 @@
                 </td>
             </tr>
         @endforeach
+
         @if( $followLink != 'none' )
-            @foreach( $record->forwardLinks as $link )
-                @if( !array_key_exists($link->objectRecord->id,$seen))
-                    @if( $followLink == 'all' || (isset($link->linkType->range_max) && $link->linkType->range_max==1 ))
-                        <tr>
-                            <th>@title($link->linkType):</th>
-                            <td>
-                                @include( 'record.block', [
-                                    'record'=>$link->objectRecord,
-                                    'followLink'=>'single',
-                                    'editParams'=>$editParams,
-                                    'seen'=>array_replace($seen,[$record->id=>1])
-                                ])
-                            </td>
-                        </tr>
-                    @endif
-                @endif
+            @foreach( $record->recordType->forwardLinkTypes as $linkType )
+                <tr>
+                    <th>@title($linkType):</th>
+                    <td>
+                        @include( 'record.linkedRecords', [
+                            "seen"=>array_replace($seen,[$record->id=>1]),
+                            "editParams"=>$editParams,
+                            "followLink"=>$followLink,
+                            "min"=>$linkType->range_min,
+                            "max"=>$linkType->range_max,
+                            "records"=>$record->forwardLinkedRecords($linkType)])
+                    </td>
+                </tr>
             @endforeach
-            @foreach( $record->backLinks as $link )
-                @if( !array_key_exists($link->subjectRecord->id,$seen))
-                    @if( $followLink == 'all' || (isset($link->linkType->domain_max) && $link->linkType->domain_max==1 ))
-                        <tr>
-                            <th>{{ $link->linkType->inverseTitle() }}:</th>
-                            <td>
-                                @include( 'record.block', ['record'=>$link->subjectRecord,'followLink'=>'single', 'seen'=>array_replace($seen,[$record->id=>1])])
-                            </td>
-                        </tr>
-                    @endif
-                @endif
+            @foreach( $record->recordType->backLinkTypes as $linkType )
+                <tr>
+                    <th>@title($linkType,'inverse'):</th>
+                    <td>
+                        @include( 'record.linkedRecords', [
+                            "seen"=>array_replace($seen,[$record->id=>1]),
+                            "editParams"=>$editParams,
+                            "followLink"=>$followLink,
+                            "min"=>$linkType->domain_min,
+                            "max"=>$linkType->domain_max,
+                            "records"=>$record->backLinkedRecords($linkType)])
+                    </td>
+                </tr>
             @endforeach
         @endif
+
     </table>
 </div>
 

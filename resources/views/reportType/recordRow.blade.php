@@ -48,12 +48,12 @@
                 <div class="mm_hover_target mm_loading mm_cat_{{ $loading['category'] }}"
                      style="width: {{ 100*$loading['load']*$scale }}%">
                     <div class="mm_loading_inner">
-                        {{ $loading['load']}} hours<br>{{ $loading['description'] }}
+                        {{ $loading['description'] }} - {{ $loading['load']}} hours
                     </div>
                 </div>
                 <div class="mm_hover_message">
                     <div class="mm_loading_hover mm_cat_{{ $loading['category'] }}">
-                        {{ $loading['load']}} hours<br>{{ $loading['description'] }}
+                        {{ $loading['description'] }} - {{ $loading['load']}} hours
                     </div>
                 </div>
             </div>

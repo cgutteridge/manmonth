@@ -3,9 +3,22 @@
 namespace App\Models;
 
 use App\Exceptions\DataStructValidationException;
-use App\Http\TitleMaker;
 use Illuminate\Database\Eloquent\Collection;
 use Validator;
+
+/*
+Hi chris. notes for later.
+This class needs a boolean flag to indicate if the link is part of the domain and/ord(
+    the range.
+When you delete any record it should delete all associated links
+BUT
+Basically, when you delete an actor or task, it should delete the linked actor_task_relationship
+so those links need some special term for this.
+"intrinsic"" maybe?
+
+'
+)
+*/
 
 /**
  * @property DocumentRevision documentRevision
@@ -185,18 +198,6 @@ class LinkType extends DocumentPart
         }
     }
 
-    /**
-     * Return the most human readable title available for the inverse of this link.
-     * @return string
-     */
-    function inverseTitle()
-    {
-        $titleMaker = new TitleMaker();
-        if (isset($this->inverse_label) && trim($this->inverse_label) != "") {
-            return $this->inverse_label;
-        }
-        return "is " . $titleMaker->title($this) . " of";
-    }
 }
 
 

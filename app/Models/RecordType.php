@@ -6,6 +6,7 @@ use App\Exceptions\DataStructValidationException;
 use App\Fields\Field;
 use App\MMScript;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Validator;
 
 // TODO - sort out exception throwing
@@ -30,7 +31,7 @@ class RecordType extends DocumentPart
     var $titleScript;
 
     /**
-     * @return LinkType[]
+     * @return Relation
      */
     public function forwardLinkTypes()
     {
@@ -40,7 +41,7 @@ class RecordType extends DocumentPart
     }
 
     /**
-     * @return LinkType[]
+     * @return Relation
      */
     public function backLinkTypes()
     {

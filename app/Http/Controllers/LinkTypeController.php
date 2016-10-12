@@ -28,7 +28,7 @@ class LinkTypeController extends Controller
                 "Maximum links" => ($linkType->range_max == 0 ? "Unrestricted" : $linkType->range_max)
             ],
             "Label" => $this->titleMaker->title($linkType),
-            "Inverse Label" => $linkType->inverseTitle()
+            "Inverse Label" => $this->titleMaker->title($linkType, 'inverse'),
         ];
         return view('linkType.show', [
             "linkType" => $linkType,
