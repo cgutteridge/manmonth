@@ -31,13 +31,24 @@ class RecordTypeController extends Controller
     /**
      * Display the records of this type
      *
+     * @param RecordController $recordController
      * @param RecordType $recordType
      * @return Response
      */
-    public function records(RecordType $recordType)
+    public function records(RecordController $recordController, RecordType $recordType)
     {
+        $recordBlocks = [];
+        foreach ($recordType->records as $record) {
+            $recordBlocks[] = [
+                "data" => $recordController->recordDataBlock($record),
+                "links" => [],
+                "returnURL" => $this->linkMaker->url($recordType, "records"),
+                "record" => $record
+            ];
+        }
         return view('recordType.records', [
             "recordType" => $recordType,
+            "records" => $recordBlocks,
             "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)]);
     }
 
@@ -75,7 +86,7 @@ class RecordTypeController extends Controller
     public function storeRecord(Request $request, RecordType $recordType)
     {
         $action = $request->get("_mmaction", "");
-        $returnLink = $request->get("_mmreturn", $this->linkMaker->url($recordType));
+        $returnLink = $request->get("_mmreturn", $this->linkMaker->url($recordType, "records"));
         if ($action == "cancel") {
             return Redirect::to($returnLink);
         }

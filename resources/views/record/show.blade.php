@@ -22,10 +22,5 @@
             ])
         @endforeach
     @endforeach
-    @include("record.block",[
-        'record'=>$record,
-        'followLink'=>'all',
-        'seen'=>[],
-        'editParams'=>['_mmreturn'=>(new \App\Http\LinkMaker())->url($record)]
-    ])
+    @include("record.block",$recordBlock)
 @endsection

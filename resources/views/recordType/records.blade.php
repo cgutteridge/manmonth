@@ -5,9 +5,13 @@
 @endsection
 
 @section( 'content' )
-    <p>TODO: Create new record</p>
-    @foreach( $recordType->records as $record )
-        @include("record.block",["record"=>$record, "followLink"=>"none","editParams"=>["_mmreturn"=>(new \App\Http\LinkMaker())->url($recordType,"records")]])
+    <p>
+        <a type="button" class="btn btn-primary" href="@url($recordType,'create-record')">
+            New @title($recordType)
+        </a>
+    </p>
+    @foreach( $records as $record )
+        @include("record.block",$record)
     @endforeach
 @endsection
 

@@ -2,9 +2,8 @@
 <html>
 <head>
     <title>@yield('title')</title>
-
-    <link href="/bootstrap.min.css" rel="stylesheet">
     <link href="/manmonth.css" rel="stylesheet">
+    <link href="/bootstrap.min.css" rel="stylesheet">
     <link href="/bootstrap-submenu.min.css" rel="stylesheet">
     <script src="/jquery.min.js"></script>
     <script src="/bootstrap.min.js"></script>
