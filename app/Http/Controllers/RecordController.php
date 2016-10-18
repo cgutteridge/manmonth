@@ -105,7 +105,7 @@ class RecordController extends Controller
     }
 
     /**
-     * @param Records[] $records
+     * @param Record[] $records
      * @param array $seen
      * @param string $returnURL
      * @return array
