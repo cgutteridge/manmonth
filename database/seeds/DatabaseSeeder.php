@@ -38,6 +38,13 @@ class DatabaseSeeder extends Seeder
             ]],
             "title_script" => "record.name"
         ]);
+        $movieType = $draft->createRecordType("movie", [
+            "label" => "Movie",
+            "data" => ["fields" => [
+                ["name" => "name", "label" => "Name", "type" => "string", "required" => true]
+            ]],
+            "title_script" => "record.name"
+        ]);
         $atType = $draft->createRecordType("acttask", [
             "label" => "Actor/Task relationship",
             "data" => ["fields" => [
@@ -46,9 +53,14 @@ class DatabaseSeeder extends Seeder
             ]]
         ]);
         $draft->createLinkType('actor_to_acttask', $actorType, $atType,
-            ["domain_min" => 1, "domain_max" => 1, "label" => "task relationship", "inverse_label" => "actor"]);
+            ["domain_min" => 1, "domain_max" => 1, "range_type" => "dependent",
+                "label" => "task relationship", "inverse_label" => "actor"]);
         $draft->createLinkType('acttask_to_task', $atType, $taskType,
-            ["range_min" => 1, "range_max" => 1, "label" => "task", "inverse_label" => "actor relationship"]);
+            ["range_min" => 1, "range_max" => 1, "domain_type" => "dependent",
+                "label" => "task", "inverse_label" => "actor relationship"]);
+        $draft->createLinkType('watched', $actorType, $movieType,
+            ["range_min" => 0, "domain_min" => 0,
+                "label" => "watched", "inverse_label" => "watched by"]);
 
         // this can't be set until the links are created.
         $atType->title_script = "record<-actor_to_acttask.name+' <-> '+record->acttask_to_task.name";

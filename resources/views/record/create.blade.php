@@ -1,7 +1,7 @@
 @extends('page')
 
 @section('title')
-    Create Record of type @title($record)
+    Create Record of type @title($record->recordType)
 @endsection
 @section( 'content')
     <form method="post" action="@url($record->recordType,'create-record')">

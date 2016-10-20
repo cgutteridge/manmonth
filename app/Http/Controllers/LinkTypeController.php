@@ -19,11 +19,13 @@ class LinkTypeController extends Controller
         $data = [
             "Links from" => [
                 "Record type" => $this->titleMaker->title($linkType->domain),
+                "Connection type" => $linkType->domain_type,
                 "Minimum links" => $linkType->domain_min,
                 "Maximum links" => ($linkType->domain_max == 0 ? "Unrestricted" : $linkType->domain_max)
             ],
             "Links to" => [
                 "Record type" => $this->titleMaker->title($linkType->range),
+                "Connection type" => $linkType->range_type,
                 "Minimum links" => $linkType->range_min,
                 "Maximum links" => ($linkType->range_max == 0 ? "Unrestricted" : $linkType->range_max)
             ],

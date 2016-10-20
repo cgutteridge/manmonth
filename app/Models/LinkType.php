@@ -36,6 +36,8 @@ so those links need some special term for this.
  * @property int range_max
  * @property mixed domain
  * @property mixed range
+ * @property string|null domain_type NULL, "component", "dependent"
+ * @property string|null range_type NULL, "component", "dependent"
  */
 class LinkType extends DocumentPart
 {
@@ -116,24 +118,42 @@ class LinkType extends DocumentPart
     public function validate()
     {
         // TODO check for duplicate codenames
+        // TODO check for looped components
+        // TODO component and dependent links can't be 0
         $validator = Validator::make(
             [
                 'name' => $this->name,
                 'domain_min' => $this->domain_min,
                 'domain_max' => $this->domain_max,
+                'domain_type' => $this->domain_type,
                 'range_min' => $this->range_min,
-                'range_max' => $this->range_max
+                'range_max' => $this->range_max,
+                'range_type' => $this->range_type
             ],
             [
                 'name' => 'required|codename|max:255',
                 'domain_min' => 'required|min:0,integer',
                 'domain_max' => 'min:1,integer',
+                'domain_type' => 'string|in:dependent,component',
                 'range_min' => 'required|min:0,integer',
-                'range_max' => 'min:1,integer'
+                'range_max' => 'min:1,integer',
+                'range_type' => 'string|in:dependent,component'
             ]);
 
         if ($validator->fails()) {
             throw $this->makeValidationException($validator);
+        }
+
+        // If some a record depends on a link to exist, then the minimum carinality is 1.
+        if (isset($this->domain_type) && ($this->domain_type == 'dependent' || $this->domain_type == "component")) {
+            if ($this->range_min == 0) {
+                throw new DataStructValidationException("Validation fail in linktype.data: range_min can't be 0 if domain is a " . $this->range_type);
+            }
+        }
+        if (isset($this->range_type) && ($this->range_type == 'dependent' || $this->range_type == "component")) {
+            if ($this->domain_min == 0) {
+                throw new DataStructValidationException("Validation fail in linktype.data: domain_min can't be 0 if range is a " . $this->range_type);
+            }
         }
 
         if (isset($this->domain_min) && isset($this->domain_max)
@@ -177,6 +197,10 @@ class LinkType extends DocumentPart
             $this->domain_max = $properties["domain_max"];
         }
 
+        if (array_key_exists("domain_type", $properties)) {
+            $this->domain_type = $properties["domain_type"];
+        }
+
         if (array_key_exists("range_min", $properties)) {
             if (isset($properties["range_min"]) && $properties["range_min"] !== null) {
                 $this->range_min = $properties["range_min"];
@@ -187,6 +211,10 @@ class LinkType extends DocumentPart
 
         if (array_key_exists("range_max", $properties)) {
             $this->range_max = $properties["range_max"];
+        }
+
+        if (array_key_exists("range_type", $properties)) {
+            $this->range_type = $properties["range_type"];
         }
 
         if (array_key_exists("label", $properties)) {
