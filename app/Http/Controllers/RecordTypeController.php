@@ -43,7 +43,8 @@ class RecordTypeController extends Controller
                 "data" => $recordController->recordDataBlock($record),
                 "links" => [],
                 "returnURL" => $this->linkMaker->url($recordType, "records"),
-                "record" => $record
+                "record" => $record,
+                "swimLanes" => false
             ];
         }
         return view('recordType.records', [
