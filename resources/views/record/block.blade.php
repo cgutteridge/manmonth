@@ -1,4 +1,4 @@
-<table class="mm-record">
+<table class="mm-record mm-record-entity mm-record-{{$record->id}}">
     <thead>
     <tr>
         <th>
@@ -10,31 +10,53 @@
                 <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
             </a>
         </th>
-        @foreach( $links as $link )
-            <th>{{$link["title"]}}</th>
-        @endforeach
+        @if( $swimLanes )
+            @foreach( $links as $link )
+                <th>{{$link["title"]}}</th>
+            @endforeach
+        @endif
     </tr>
     </thead>
     <tbody>
     <tr>
-        <td style='cursor:pointer;'
-            onclick="document.location.href = '@url($record, 'edit', ["_mmreturn"=>$returnURL])';">
+        <td>
             <table class="mm-record-data">
                 @foreach( $data as $field )
-                    <tr>
+                    <tr style='cursor:pointer;'
+                        data-toggle="tooltip"
+                        title="Click to edit"
+                        onclick="document.location.href = '@url($record, 'edit', ["_mmreturn"=>$returnURL])';">
                         <th>{{$field["title"]}}:</th>
                         <td>{{$field["value"]}}</td>
                     </tr>
                 @endforeach
+                @foreach( $links as $link )
+                    <tr>
+                        <th>{{$link["title"]}}:</th>
+                        <td>
+                            @foreach( $link["records"] as $subrecord)
+                                <a
+                                        href="@url($subrecord["record"])"
+                                        data-rid="{{$subrecord["record"]->id}}"
+                                        class="mm-record-stub mm-record-entity mm-record-{{$subrecord["record"]->id}}"
+                                >
+                                    @title( $subrecord["record"])
+                                </a>
+                            @endforeach
+                        </td>
+                    </tr>
+                @endforeach
             </table>
         </td>
-        @foreach( $links as $link )
-            <td>
-                @foreach( $link["records"] as $record)
-                    @include( "record.block", $record )
-                @endforeach
-            </td>
-        @endforeach
+        @if( $swimLanes )
+            @foreach( $links as $link )
+                <td>
+                    @foreach( $link["records"] as $record)
+                        @include( "record.block", $record )
+                    @endforeach
+                </td>
+            @endforeach
+        @endif
     </tr>
     </tbody>
 </table>

@@ -27,7 +27,7 @@ class RecordController extends Controller
 
         return view('record.show', [
             "record" => $record,
-            "recordBlock" => $this->recordBlock($record, 'all', [], $this->linkMaker->url($record)),
+            "recordBlock" => $this->recordBlock($record, 'all', [], $this->linkMaker->url($record), true),
             "reports" => $reports,
             "nav" => $this->navigationMaker->documentRevisionNavigation($record->documentRevision)
         ]);
@@ -38,14 +38,16 @@ class RecordController extends Controller
      * @param string $followLink all, single or none
      * @param integer[] $seen
      * @param string $returnURL
+     * @param bool $swimLanes if true add linked objects in swim lanes style view
      * @return array
      */
-    private function recordBlock(Record $record, $followLink, $seen, $returnURL)
+    private function recordBlock(Record $record, $followLink, $seen, $returnURL, $swimLanes = false)
     {
         $block = [
             "data" => $this->recordDataBlock($record),
             "links" => [],
             "returnURL" => $returnURL,
+            "swimLanes" => $swimLanes,
             "record" => $record      // should really pass all the rendered bits instead
         ];
         $seen[$record->id] = true;
@@ -114,12 +116,14 @@ class RecordController extends Controller
     {
         $list = [];
         foreach ($records as $linkedRecord) {
+            /*
             if (array_key_exists($linkedRecord->id, $seen)) {
                 continue;
             }
+            */
             $list[] = $this->recordBlock(
                 $linkedRecord,
-                "single",
+                "once",
                 $seen,
                 $returnURL);
         }

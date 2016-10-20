@@ -63,7 +63,7 @@ class DatabaseSeeder extends Seeder
                 "label" => "watched", "inverse_label" => "watched by"]);
 
         // this can't be set until the links are created.
-        $atType->title_script = "record<-actor_to_acttask.name+' <-> '+record->acttask_to_task.name";
+        $atType->title_script = "record<-actor_to_acttask.name+' <'+record.type+'> '+record->acttask_to_task.name";
         $atType->save();
 
 

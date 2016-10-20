@@ -302,6 +302,7 @@ table.mm-record-data th {
     padding-right: 0.5em;
     text-align: right;
     font-weight: normal;
+    vertical-align: top;
 }
 
 table.mm-record-data td {
@@ -309,4 +310,35 @@ table.mm-record-data td {
     background-color: #eee;
     padding: 0px 5px;
     border: solid 1px #ccc;
+    vertical-align: top;
 }
+
+.mm-record-stub:hover {
+    text-decoration: none;
+    color: #000;
+}
+
+.mm-record-stub {
+    color: #000;
+    display: inline-block;
+    margin: 3px 0px;
+    background-color: #adc3d3;
+    border: solid 1px #000;
+    padding: 1px 10px;
+    font-size: 80%;
+    border-radius: 10px;
+}
+
+.mm-record-stub.mm-highlight {
+    background-color: #6787a4;
+}
+
+.mm-record.mm-highlight > thead > tr > th {
+    background-color: #6787a4;
+}
+
+.mm-record.mm-highlight > thead > tr > th a {
+    color: #fff;
+}
+
+/* end record block */

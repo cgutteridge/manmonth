@@ -14,6 +14,18 @@
             $('[data-submenu]').submenupicker();
             $('[data-toggle="tooltip"]').tooltip()
         });
+
+        /* block hover highlight */
+        $(document).ready(function () {
+            $(".mm-record-entity").hover(function () {
+                var rid = $(this).attr("data-rid");
+                $(".mm-record-" + rid).addClass("mm-highlight");
+            }, function () {
+                var rid = $(this).attr("data-rid");
+                $(".mm-record-" + rid).removeClass("mm-highlight");
+            })
+        });
+
     </script>
 </head>
 <body>
