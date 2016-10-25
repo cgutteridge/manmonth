@@ -62,15 +62,17 @@ class RecordTypeController extends Controller
      */
     public function createRecord(Request $request, RecordType $recordType)
     {
+        $mmReturn = $this->requestProcessor->returnURL($request);
+
         $record = new Record();
         $record->documentRevision()->associate($recordType->documentRevision);
         $record->record_type_sid = $recordType->sid;
-        $record->updateData($this->requestProcessor->fromOldRequest($request, $record->recordType->fields()));
+        $record->updateData($this->requestProcessor->fromOldFieldsRequest($request, $record->recordType->fields(), "field_"));
 
         return view('record.create', [
             "record" => $record,
             "idPrefix" => "",
-            "returnTo" => $request->get("_mmreturn", ""),
+            "returnTo" => $mmReturn,
             "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)
         ]);
         // TODO different returnTo for cancel to success?
@@ -87,7 +89,9 @@ class RecordTypeController extends Controller
     public function storeRecord(Request $request, RecordType $recordType)
     {
         $action = $request->get("_mmaction", "");
-        $returnLink = $request->get("_mmreturn", $this->linkMaker->url($recordType, "records"));
+        $mmReturn = $this->requestProcessor->returnURL($request);
+
+        $returnLink = $mmReturn;
         if ($action == "cancel") {
             return Redirect::to($returnLink);
         }
@@ -97,7 +101,7 @@ class RecordTypeController extends Controller
         $record = new Record();
         $record->documentRevision()->associate($recordType->documentRevision);
         $record->record_type_sid = $recordType->sid;
-        $record->updateData($this->requestProcessor->fromRequest($request, $recordType->fields()));
+        $record->updateData($this->requestProcessor->fromFieldsRequest($request, $recordType->fields(), "field_"));
 
         try {
             $record->validate();

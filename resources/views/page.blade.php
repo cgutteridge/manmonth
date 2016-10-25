@@ -9,24 +9,7 @@
     <script src="/bootstrap.min.js"></script>
     <script src="/bootstrap-submenu.min.js" defer></script>
     <script src="/hover.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('[data-submenu]').submenupicker();
-            $('[data-toggle="tooltip"]').tooltip()
-        });
-
-        /* block hover highlight */
-        $(document).ready(function () {
-            $(".mm-record-entity").hover(function () {
-                var rid = $(this).attr("data-rid");
-                $(".mm-record-" + rid).addClass("mm-highlight");
-            }, function () {
-                var rid = $(this).attr("data-rid");
-                $(".mm-record-" + rid).removeClass("mm-highlight");
-            })
-        });
-
-    </script>
+    <script src="/manmonth.js"></script>
 </head>
 <body>
 

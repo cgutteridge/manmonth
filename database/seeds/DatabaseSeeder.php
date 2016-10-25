@@ -53,13 +53,13 @@ class DatabaseSeeder extends Seeder
             ]]
         ]);
         $draft->createLinkType('actor_to_acttask', $actorType, $atType,
-            ["domain_min" => 1, "domain_max" => 1, "range_type" => "dependent",
+            ["range_min" => 1, "range_max" => 1, "range_type" => "dependent",
                 "label" => "task relationship", "inverse_label" => "actor"]);
         $draft->createLinkType('acttask_to_task', $atType, $taskType,
-            ["range_min" => 1, "range_max" => 1, "domain_type" => "dependent",
+            ["domain_min" => 1, "domain_max" => 1, "domain_type" => "dependent",
                 "label" => "task", "inverse_label" => "actor relationship"]);
         $draft->createLinkType('watched', $actorType, $movieType,
-            ["range_min" => 0, "domain_min" => 0,
+            ["domain_min" => 0, "range_min" => 0, "domain_max" => 3,
                 "label" => "watched", "inverse_label" => "watched by"]);
 
         // this can't be set until the links are created.
@@ -68,6 +68,12 @@ class DatabaseSeeder extends Seeder
 
 
         // Add records
+        $movieType->createRecord(["name" => "Phantom"]);
+        $movieType->createRecord(["name" => "Clones"]);
+        $movieType->createRecord(["name" => "Revenge"]);
+        $movieType->createRecord(["name" => "Hope"]);
+        $movieType->createRecord(["name" => "Empire"]);
+        $movieType->createRecord(["name" => "Jedi"]);
 
         $alice = $actorType->createRecord(["name" => "Alice Aardvark", "group" => "badgers", "penguins" => 7]);
         $bobby = $actorType->createRecord(["name" => "Bobby Bananas", "group" => "wombats", "penguins" => 2, "newbie" => true]);

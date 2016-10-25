@@ -43,6 +43,9 @@
                                     @title( $subrecord["record"])
                                 </a>
                             @endforeach
+                            <a class="mm-button" href="{{$link["createLink"]}}">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            </a>
                         </td>
                     </tr>
                 @endforeach

@@ -22,7 +22,9 @@ footer.navbar {
     min-height: 25px;
 }
 
-/* stuff*/
+/* end core bits */
+
+/* stuff */
 
 .mm_loading:first-child {
     border-left: solid 1px black;
@@ -138,7 +140,7 @@ footer.navbar {
 
 .mm-links-table td {
     border: solid 1px #999;
-    padding: 0px;
+    padding: 0;
 }
 
 /* DATA TABLE (overrides links table options) */
@@ -161,6 +163,10 @@ footer.navbar {
     border: solid 1px #999;
     background-color: #eee;
 }
+
+/* End, er, stuff */
+
+
 
 /* inspect record */
 /*
@@ -196,8 +202,50 @@ footer.navbar {
 
 /* forms */
 
-.form-check-input {
+.mm-form-checkbox-input {
     padding: 10px;
+}
+
+.mm-record-stub.mm-chopping-block {
+    background-color: #ccc;
+    border-color: #999;
+    color: #999;
+    text-decoration: #000 line-through;
+}
+
+ul.mm-link-edit-list li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul.mm-link-edit-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.mm-form-action {
+    display: none;
+}
+
+.mm-form-buttons {
+    margin-top: 1em;
+}
+
+.mm-form-fields th {
+    text-align: right;
+    padding: 0 0 0.5em 0;
+    vertical-align: top;
+}
+
+.mm-form-fields th::after {
+    content: ":";
+    padding-right: 0.5em;
+}
+
+.mm-form-fields td {
+    padding: 0 0 0.5em 0;
 }
 
 /* end forms */
@@ -213,7 +261,7 @@ footer.navbar {
     overflow: hidden;
     transform-origin: left top 0;
     position: absolute;
-    left: 0em;
+    left: 0;
     top: 350px;
     text-align: right;
 }
@@ -308,7 +356,7 @@ table.mm-record-data th {
 table.mm-record-data td {
     width: 100%;
     background-color: #eee;
-    padding: 0px 5px;
+    padding: 0 5px;
     border: solid 1px #ccc;
     vertical-align: top;
 }
@@ -321,7 +369,7 @@ table.mm-record-data td {
 .mm-record-stub {
     color: #000;
     display: inline-block;
-    margin: 3px 0px;
+    margin: 3px 0;
     background-color: #adc3d3;
     border: solid 1px #000;
     padding: 1px 10px;
@@ -342,3 +390,45 @@ table.mm-record-data td {
 }
 
 /* end record block */
+
+/* button */
+
+.mm-button {
+    color: #000;
+    display: inline-block;
+    margin: 3px 0;
+    background-color: #adc3d3;
+    border: solid 1px #000;
+    padding: 1px 3px;
+    font-size: 80%;
+    border-radius: 10px;
+}
+
+.mm-button:hover {
+    text-decoration: none;
+    background-color: #6787a4;
+    cursor: pointer;
+    color: #000;
+}
+
+.mm-button-remove {
+    background-color: #de4235;
+    color: #fff;
+}
+
+.mm-button-remove:hover {
+    background-color: #9e2f24;
+    color: #fff;
+}
+
+.mm-button-add {
+    background-color: #54de3f;
+    color: #000;
+}
+
+.mm-button-add:hover {
+    background-color: #2c9e29;
+    color: #000;
+}
+
+/* end button */

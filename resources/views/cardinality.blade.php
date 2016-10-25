@@ -1,7 +1,9 @@
+<span class="mm-cardinality">
 @if( !isset( $max ) )
-    {{$min}}..n
+        {{$min}}..*
 @elseif($min==$max)
     {{$min}}
 @else
     {{$min}}..{{$max}}
 @endif
+</span>

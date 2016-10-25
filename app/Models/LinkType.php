@@ -146,32 +146,32 @@ class LinkType extends DocumentPart
 
         // If some a record depends on a link to exist, then the minimum carinality is 1.
         if (isset($this->domain_type) && ($this->domain_type == 'dependent' || $this->domain_type == "component")) {
-            if ($this->range_min == 0) {
-                throw new DataStructValidationException("Validation fail in linktype.data: range_min can't be 0 if domain is a " . $this->range_type);
+            if ($this->domain_min == 0) {
+                throw new DataStructValidationException("domain_min can't be 0 if domain is a " . $this->domain_type);
             }
         }
         if (isset($this->range_type) && ($this->range_type == 'dependent' || $this->range_type == "component")) {
-            if ($this->domain_min == 0) {
-                throw new DataStructValidationException("Validation fail in linktype.data: domain_min can't be 0 if range is a " . $this->range_type);
+            if ($this->range_min == 0) {
+                throw new DataStructValidationException("range_min can't be 0 if range is a " . $this->range_type);
             }
         }
 
         if (isset($this->domain_min) && isset($this->domain_max)
             && $this->domain_min > $this->domain_max
         ) {
-            throw new DataStructValidationException("Validation fail in linktype.data: domain_min can't be greater than domain_max");
+            throw new DataStructValidationException("domain_min can't be greater than domain_max");
         }
         if (isset($this->range_min) && isset($this->range_max)
             && $this->range_min > $this->range_max
         ) {
-            throw new DataStructValidationException("Validation fail in linktype.data: range_min can't be greater than range_max");
+            throw new DataStructValidationException("range_min can't be greater than range_max");
         }
 
         if (isset($this->domain_max)
             && isset($this->range_max)
             && $this->range_max == 1 && $this->domain_max == 1
         ) {
-            throw new DataStructValidationException("Validation fail in linktype.data: range_max and domain_max can't be both one as that confuses me.");
+            throw new DataStructValidationException("range_max and domain_max can't be both one as that confuses me.");
         }
 
     }

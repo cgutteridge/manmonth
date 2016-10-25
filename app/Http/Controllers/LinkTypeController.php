@@ -2,8 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\DataStructValidationException;
+use App\Models\Link;
 use App\Models\LinkType;
-use Response;
+use Exception;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Redirect;
+
 
 class LinkTypeController extends Controller
 {
@@ -52,5 +59,72 @@ class LinkTypeController extends Controller
             "nav" => $this->navigationMaker->documentRevisionNavigation($linkType->documentRevision)]);
     }
 
+    /**
+     * @param Request $request
+     * @param LinkType $linkType
+     * @return Response
+     */
+    public function createLink(Request $request, LinkType $linkType)
+    {
+        $link = new Link();
+        $link->documentRevision()->associate($linkType->documentRevision);
+        $link->link_type_sid = $linkType->sid;
+        $data = $this->requestProcessor->fromLinkRequest($request);
+        $mmReturn = $this->requestProcessor->returnURL($request);
+
+        if (isset($data["subject"])) {
+            $link->subject_sid = $data["subject"];
+        }
+        if (isset($data["object"])) {
+            $link->object_sid = $data["object"];
+        }
+        return view('link.create', [
+            "link" => $link,
+            "idPrefix" => "",
+            "returnTo" => $mmReturn,
+            "nav" => $this->navigationMaker->documentRevisionNavigation($linkType->documentRevision)
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @param LinkType $linkType
+     * @return RedirectResponse
+     * @throws Exception
+     */
+    public function storeLink(Request $request, LinkType $linkType)
+    {
+        $action = $request->get("_mmaction", "");
+        $returnLink = $request->get("_mmreturn",
+            $this->linkMaker->url($linkType->documentRevision));
+        if ($action == "cancel") {
+            return Redirect::to($returnLink);
+        }
+        if ($action != "save") {
+            throw new Exception("Unknown action '$action'");
+        }
+
+        $link = new Link();
+        $link->documentRevision()->associate($linkType->documentRevision);
+        $link->link_type_sid = $linkType->sid;
+        $data = $this->requestProcessor->fromLinkRequest($request);
+        if (isset($data["subject"])) {
+            $link->subject_sid = $data["subject"];
+        }
+        if (isset($data["object"])) {
+            $link->object_sid = $data["object"];
+        }
+
+        try {
+            $link->validate();
+        } catch (DataStructValidationException $exception) {
+            return Redirect::to($this->linkMaker->url($linkType, 'create-link'))
+                ->withInput()
+                ->withErrors($exception->getMessage());
+        }
+        $link->save();
+        return Redirect::to($returnLink)
+            ->with("message", "Link created.");
+    }
 
 }

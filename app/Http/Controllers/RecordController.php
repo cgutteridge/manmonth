@@ -58,8 +58,20 @@ class RecordController extends Controller
                     || (isset($linkType->range_max) && $linkType->range_max == 1)
                 ) {
                     $records = $record->forwardLinkedRecords($linkType);
+                    if ($linkType->range_type == 'dependent') {
+                        $createLink = $this->linkMaker->url($linkType->range, "create-record", [
+                            "subject" => $record->sid,// needs to be clever TODO
+                            "_mmreturn" => $returnURL
+                        ]);
+                    } else {
+                        $createLink = $this->linkMaker->url($linkType, "create-link", [
+                            "subject" => $record->sid,
+                            "_mmreturn" => $returnURL
+                        ]);
+                    }
                     $block["links"][] = [
                         "title" => $this->titleMaker->title($linkType),
+                        "createLink" => $createLink,
                         "records" => $this->linkedRecords($records, $seen, $returnURL)
                     ];
                 }
@@ -69,8 +81,20 @@ class RecordController extends Controller
                     || (isset($linkType->domain_max) && $linkType->domain_max == 1)
                 ) {
                     $records = $record->backLinkedRecords($linkType);
+                    if ($linkType->domain_type == 'dependent') {
+                        $createLink = $this->linkMaker->url($linkType->domain, "create-record", [
+                            "object" => $record->sid,// needs to be clever TODO
+                            "_mmreturn" => $returnURL
+                        ]);
+                    } else {
+                        $createLink = $this->linkMaker->url($linkType, "create-link", [
+                            "object" => $record->sid,
+                            "_mmreturn" => $returnURL
+                        ]);
+                    }
                     $block["links"][] = [
                         "title" => $this->titleMaker->title($linkType, "inverse"),
+                        "createLink" => $createLink,
                         "records" => $this->linkedRecords($records, $seen, $returnURL)
                     ];
                 }
@@ -139,7 +163,7 @@ class RecordController extends Controller
      */
     public function edit(Request $request, Record $record)
     {
-        $record->updateData($this->requestProcessor->fromOldRequest($request, $record->recordType->fields()));
+        $record->updateData($this->requestProcessor->fromOldFieldsRequest($request, $record->recordType->fields(), "field_"));
         return view('record.edit', [
             "record" => $record,
             "idPrefix" => "",
@@ -156,11 +180,10 @@ class RecordController extends Controller
      * @return RedirectResponse
      * @throws Exception
      */
-    public
-    function update(Request $request, Record $record)
+    public function update(Request $request, Record $record)
     {
         $action = $request->get("_mmaction", "");
-        $returnLink = $request->get("_mmreturn", $this->linkMaker->url($record));
+        $returnLink = $this->requestProcessor->returnURL($request, $this->linkMaker->url($record));
         if ($action == "cancel") {
             return Redirect::to($returnLink);
         }
@@ -168,7 +191,7 @@ class RecordController extends Controller
             throw new Exception("Unknown action '$action'");
         }
         $record->updateData(
-            $this->requestProcessor->fromRequest($request, $record->recordType->fields()));
+            $this->requestProcessor->fromFieldsRequest($request, $record->recordType->fields(), "field_"));
         try {
             $record->validate();
         } catch (Exception $exception) {
