@@ -49,7 +49,8 @@ class DatabaseSeeder extends Seeder
             "label" => "Actor/Task relationship",
             "data" => ["fields" => [
                 ["name" => "type", "label" => "Relationship Type", "type" => "string", "required" => true],
-                ["name" => "ratio", "Type" => "Ratio", "type" => "decimal", "default" => 1.0,],
+                ["name" => "ratio", "label" => "Ratio", "type" => "decimal", "default" => 1.0,],
+                ["name" => "notes",  "label"=>"Notes", "type"=>"string" ]
             ]]
         ]);
         $draft->createLinkType('actor_to_acttask', $actorType, $atType,
