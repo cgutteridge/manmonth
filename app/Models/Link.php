@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Exceptions\DataStructValidationException;
+use App\Exceptions\MMValidationException;
 use App\Http\TitleMaker;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -50,17 +50,17 @@ class Link extends DocumentPart
     }
 
     /**
-     * @throws DataStructValidationException
+     * @throws MMValidationException
      */
     public function validate()
     {
         $titleMaker = new TitleMaker();
 
         if (!isset($this->subjectRecord)) {
-            throw new DataStructValidationException("Validation failed, no link subject");
+            throw new MMValidationException("Validation failed, no link subject");
         }
         if (!isset($this->objectRecord)) {
-            throw new DataStructValidationException("Validation failed, no link object");
+            throw new MMValidationException("Validation failed, no link object");
         }
 
         $forwardPeers = $this->subjectRecord->forwardLinks;
@@ -80,7 +80,7 @@ class Link extends DocumentPart
             if ($peer->subject_sid == $this->subject_sid
                 && $peer->object_sid == $this->object_sid
             ) {
-                throw new DataStructValidationException("Link already exists");
+                throw new MMValidationException("Link already exists");
             }
         }
         foreach ($backPeers as $peer) {
@@ -94,23 +94,23 @@ class Link extends DocumentPart
         }
 
         if ($forwardCount < $this->linkType->domain_min) {
-            throw new DataStructValidationException("Too few links of this type on subject");
+            throw new MMValidationException("Too few links of this type on subject");
         }
         if ($backCount < $this->linkType->range_min) {
-            throw new DataStructValidationException("Too few links of this type on object");
+            throw new MMValidationException("Too few links of this type on object");
         }
         if (isset($this->linkType->domain_max) && $forwardCount > $this->linkType->domain_max) {
-            throw new DataStructValidationException("Too many links of this type on subject");
+            throw new MMValidationException("Too many links of this type on subject");
         }
         if (isset($this->linkType->range_max) && $backCount > $this->linkType->range_max) {
-            throw new DataStructValidationException("Too many links of this type on object $backCount/" . $this->linkType->domain_max);
+            throw new MMValidationException("Too many links of this type on object $backCount/" . $this->linkType->domain_max);
         }
 
         if ($this->subjectRecord->record_type_sid != $this->linkType->domain_sid) {
-            throw new DataStructValidationException("Subject of link should be a " . $titleMaker->title($this->linkType->domain));
+            throw new MMValidationException("Subject of link should be a " . $titleMaker->title($this->linkType->domain));
         }
         if ($this->objectRecord->record_type_sid != $this->linkType->range_sid) {
-            throw new DataStructValidationException("Target of link should be a " . $titleMaker->title($this->linkType->range));
+            throw new MMValidationException("Target of link should be a " . $titleMaker->title($this->linkType->range));
         }
     }
 

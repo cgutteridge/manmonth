@@ -2,7 +2,7 @@
 
 namespace App\Fields;
 
-use App\Exceptions\DataStructValidationException;
+use App\Exceptions\MMValidationException;
 use App\MMScript\Values\Value;
 use Exception;
 use Validator;
@@ -91,13 +91,13 @@ abstract class Field
 
     /**
      * Check this field is valid
-     * @throws DataStructValidationException
+     * @throws MMValidationException
      */
     public function validate()
     {
         $validator = Validator::make($this->data, $this->fieldValidationArray());
         if ($validator->fails()) {
-            throw new DataStructValidationException("Validation fail in field: " . join(", ", $validator->errors()->all()));
+            throw new MMValidationException("Validation fail in field: " . join(", ", $validator->errors()->all()));
         }
     }
 

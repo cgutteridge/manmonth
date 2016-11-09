@@ -235,13 +235,8 @@ ul.mm-link-edit-list {
 
 .mm-form-fields th {
     text-align: right;
-    padding: 0 0 0.5em 0;
+    padding: 0 0.5em 0.5em 0;
     vertical-align: top;
-}
-
-.mm-form-fields th::after {
-    content: ":";
-    padding-right: 0.5em;
 }
 
 .mm-form-fields td {

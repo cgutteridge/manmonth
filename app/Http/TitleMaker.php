@@ -9,8 +9,8 @@
 namespace App\Http;
 
 /* return URLs for models */
-use App\Exceptions\DataStructValidationException;
 use App\Exceptions\MMScriptRuntimeException;
+use App\Exceptions\MMValidationException;
 use App\Fields\Field;
 use App\Models\Document;
 use App\Models\DocumentRevision;
@@ -30,7 +30,7 @@ class TitleMaker
      * @param MMModel|Field $item
      * @param string $mode
      * @return string
-     * @throws DataStructValidationException
+     * @throws MMValidationException
      * @throws Exception
      */
     public function title($item, $mode = "default")
@@ -58,7 +58,7 @@ class TitleMaker
                 $title = $item->recordType->name . "#" . $item->sid;
             } else {
                 if ($script->type() != "string") {
-                    throw new DataStructValidationException("If a record type has a title it should be an MMScript which returns a string. This returned a " . $script->type());
+                    throw new MMValidationException("If a record type has a title it should be an MMScript which returns a string. This returned a " . $script->type());
                 }
                 try {
                     $result = $script->execute(["record" => $item]);

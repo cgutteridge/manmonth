@@ -46,13 +46,14 @@ $(document).ready(function () {
         });
         block.find("li.mm-link-edit-list-add").each(function () {
             var li = $(this);
+            var idPrefix = li.attr("data-mm-idprefix");
             var addButton = li.find('.mm-button-add');
             var select = li.find('select');
             addButton.click(function () {
                 var id = select.val();
                 var name = select.find(">option:selected").html();
                 var stubclass = "mm-record-stub mm-record-entity mm-record-" + id;
-                var code = 'bartlefnk_add_' + id;
+                var code = idPrefix + 'add_' + id;
                 var newRow = $('<li><a class="' + stubclass + '">' + name + '</a> </li>');
                 newRow.append($('<input name="' + code + '" style="display:none" value="1" /> '));
                 var removeButton = $('<a class="mm-button mm-button-remove"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>');

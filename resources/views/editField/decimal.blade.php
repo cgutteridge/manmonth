@@ -1,6 +1,6 @@
 <tr>
     <th>
-        <label for="{{$idPrefix}}_{{$field->data["name"]}}">@title($field)</label>
+        <label for="{{$idPrefix}}_{{$field->data["name"]}}">@title($field)</label>:
     </th>
     <td>
         <input

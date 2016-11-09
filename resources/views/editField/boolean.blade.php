@@ -1,7 +1,7 @@
 <tr>
 
     <th>
-        <label for="{{ $idPrefix }}">@title($field)</label>
+        <label for="{{ $idPrefix }}">@title($field)</label>:
     </th>
     <td>
         <input

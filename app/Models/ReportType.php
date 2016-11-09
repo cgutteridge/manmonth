@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use App\Exceptions\DataStructValidationException;
-use Validator;
+use App\Exceptions\MMValidationException;
 use App\RecordReport;
+use Validator;
 
 /**
  * @property int base_record_type_sid
@@ -16,31 +16,7 @@ use App\RecordReport;
 class ReportType extends DocumentPart
 {
     /**
-     * @return array[Rule]
-     */
-    public function rules()
-    {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->documentRevision->rules()
-            ->where("report_type_sid", $this->sid)
-            ->orderBy('rank')
-            ->get();
-    }
-
-    /**
-     * note that this is NOT a laravel relation
-     * @return RecordType
-     */
-    public function baseRecordType()
-    {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->documentRevision->recordTypes()
-            ->where("sid", $this->base_record_type_sid)
-            ->first();
-    }
-
-    /**
-     * @throws DataStructValidationException
+     * @throws MMValidationException
      */
     public function validateName()
     {
@@ -50,12 +26,12 @@ class ReportType extends DocumentPart
             ['name' => 'required|alpha_dash|min:2|max:255']);
 
         if ($validator->fails()) {
-            throw new DataStructValidationException("Validation fail in reportType.name: " . join(", ", $validator->errors()));
+            throw new MMValidationException("Validation fail in reportType.name: " . join(", ", $validator->errors()));
         }
     }
 
     /**
-     * @throws DataStructValidationException
+     * @throws MMValidationException
      */
     public function validateData()
     {
@@ -66,7 +42,7 @@ class ReportType extends DocumentPart
         );
 
         if ($validator->fails()) {
-            throw new DataStructValidationException("Validation fail in reportType.data: " . join(", ", $validator->errors()));
+            throw new MMValidationException("Validation fail in reportType.data: " . join(", ", $validator->errors()));
         }
     }
 
@@ -97,6 +73,17 @@ class ReportType extends DocumentPart
         return $rule;
     }
 
+    /**
+     * @return array[Rule]
+     */
+    public function rules()
+    {
+        /** @noinspection PhpUndefinedMethodInspection */
+        return $this->documentRevision->rules()
+            ->where("report_type_sid", $this->sid)
+            ->orderBy('rank')
+            ->get();
+    }
 
     /**
      * Run this report type on the current document revision and produce a report object.
@@ -113,6 +100,18 @@ class ReportType extends DocumentPart
         return $report;
     }
 
+    /**
+     * note that this is NOT a laravel relation
+     * @return RecordType
+     */
+    public function baseRecordType()
+    {
+        /** @noinspection PhpUndefinedMethodInspection */
+        return $this->documentRevision->recordTypes()
+            ->where("sid", $this->base_record_type_sid)
+            ->first();
+    }
+
 
     /*
      * for each rule get all possible contexts based on this record and the rule type 'route'
@@ -120,6 +119,7 @@ class ReportType extends DocumentPart
      * @param Record $record
      * @return RecordReport
      */
+
     function recordReport($record)
     {
         $recordReport = new RecordReport();

@@ -8,7 +8,7 @@
 
 namespace App\Models;
 
-use App\Exceptions\DataStructValidationException;
+use App\Exceptions\MMValidationException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Validator;
 
@@ -22,7 +22,7 @@ abstract class MMModel extends Model
      * Helper function.
      *
      * @param Validator $validator
-     * @return DataStructValidationException
+     * @return MMValidationException
      */
     protected function makeValidationException($validator)
     {
@@ -32,7 +32,7 @@ abstract class MMModel extends Model
             $msg .= " " . join(", ", $list);
             $msg .= " The $fieldName field had value " . json_encode($validator->getData()[$fieldName]) . ".";
         }
-        return new DataStructValidationException($msg);
+        return new MMValidationException($msg);
     }
 
 }

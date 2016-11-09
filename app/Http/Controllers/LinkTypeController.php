@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\DataStructValidationException;
+use App\Exceptions\MMValidationException;
 use App\Models\Link;
 use App\Models\LinkType;
 use Exception;
@@ -69,8 +69,8 @@ class LinkTypeController extends Controller
         $link = new Link();
         $link->documentRevision()->associate($linkType->documentRevision);
         $link->link_type_sid = $linkType->sid;
-        $data = $this->requestProcessor->fromLinkRequest($request);
-        $mmReturn = $this->requestProcessor->returnURL($request);
+        $data = $this->requestProcessor->fromLinkRequest();
+        $mmReturn = $this->requestProcessor->returnURL();
 
         if (isset($data["subject"])) {
             $link->subject_sid = $data["subject"];
@@ -107,7 +107,7 @@ class LinkTypeController extends Controller
         $link = new Link();
         $link->documentRevision()->associate($linkType->documentRevision);
         $link->link_type_sid = $linkType->sid;
-        $data = $this->requestProcessor->fromLinkRequest($request);
+        $data = $this->requestProcessor->fromLinkRequest();
         if (isset($data["subject"])) {
             $link->subject_sid = $data["subject"];
         }
@@ -117,7 +117,7 @@ class LinkTypeController extends Controller
 
         try {
             $link->validate();
-        } catch (DataStructValidationException $exception) {
+        } catch (MMValidationException $exception) {
             return Redirect::to($this->linkMaker->url($linkType, 'create-link'))
                 ->withInput()
                 ->withErrors($exception->getMessage());

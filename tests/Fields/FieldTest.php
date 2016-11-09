@@ -366,7 +366,7 @@ class FieldTest extends TestCase
             "type" => "decimal",
             "name" => "x"
         ]);
-        $this->setExpectedException(\App\Exceptions\DataStructValidationException::class);
+        $this->setExpectedException(\App\Exceptions\MMValidationException::class);
         $field->validate();
     }
 
@@ -376,7 +376,7 @@ class FieldTest extends TestCase
             "type" => "decimal",
             "name" => "xwer werwer"
         ]);
-        $this->setExpectedException(\App\Exceptions\DataStructValidationException::class);
+        $this->setExpectedException(\App\Exceptions\MMValidationException::class);
         $field->validate();
     }
 
@@ -386,7 +386,7 @@ class FieldTest extends TestCase
             "type" => "decimal",
             "name" => "1xwerwerwer"
         ]);
-        $this->setExpectedException(\App\Exceptions\DataStructValidationException::class);
+        $this->setExpectedException(\App\Exceptions\MMValidationException::class);
         $field->validate();
     }
 
@@ -397,7 +397,7 @@ class FieldTest extends TestCase
             "default" => "fish",
             "min" => true
         ]);
-        $this->setExpectedException(\App\Exceptions\DataStructValidationException::class);
+        $this->setExpectedException(\App\Exceptions\MMValidationException::class);
         $field->validate();
     }
 

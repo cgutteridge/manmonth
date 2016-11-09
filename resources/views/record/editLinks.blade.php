@@ -2,7 +2,7 @@
 @foreach( $record->recordType->forwardLinkTypes as $linkType )
     @include("editField.link",[
     "title"=>$titleMaker->title($linkType),
-    "idPrefix"=>$idPrefix."link_".$linkType->id."_",
+    "idPrefix"=>$idPrefix."fwd_".$linkType->sid."_",
     "min"=>$linkType->domain_min,
     "max"=>$linkType->domain_max,
     "records"=>$record->forwardLinkedRecords($linkType),
@@ -13,7 +13,7 @@
 @foreach( $record->recordType->backLinkTypes as $linkType )
     @include("editField.link",[
     "title"=>$titleMaker->title($linkType,"inverse"),
-    "idPrefix"=>$idPrefix."link_".$linkType->id."_",
+    "idPrefix"=>$idPrefix."bck_".$linkType->sid."_",
     "min"=>$linkType->range_min,
     "max"=>$linkType->range_max,
     "records"=>$record->backLinkedRecords($linkType),

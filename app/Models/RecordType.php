@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Exceptions\DataStructValidationException;
+use App\Exceptions\MMValidationException;
 use App\Fields\Field;
 use App\MMScript;
 use Illuminate\Database\Eloquent\Collection;
@@ -158,7 +158,7 @@ class RecordType extends DocumentPart
     }
 
     /**
-     * @throws DataStructValidationException
+     * @throws MMValidationException
      */
     public function validate()
     {
@@ -179,7 +179,7 @@ class RecordType extends DocumentPart
             ]);
 
         if ($validator->fails()) {
-            throw new DataStructValidationException("RecordType", "data", $this->data, $validator->errors());
+            throw new MMValidationException("RecordType", "data", $this->data, $validator->errors());
         }
         foreach ($this->fields() as $field) {
             $field->validate();
@@ -189,7 +189,7 @@ class RecordType extends DocumentPart
 
             $script = $this->titleScript();
             if ($script->type() != "string") {
-                throw new DataStructValidationException("If a record type has a title it should be an MMScript which returns a string. This returned a " . $script->type());
+                throw new MMValidationException("If a record type has a title it should be an MMScript which returns a string. This returned a " . $script->type());
             }
         }
 

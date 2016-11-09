@@ -15,28 +15,38 @@ class RequestProcessor
 {
 
     /**
-     * This method is the compliment to the link.blade template.
+     * RequestProcessor constructor.
+     * All these methods need access to request so we might as well load it in the
+     * constructor.
      * @param Request $request
+     */
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
+
+    /**
+     * This method is the compliment to the link/form template.
      * @param $idPrefix
      * @return array
      */
-    public function fromLinkRequest(Request $request, $idPrefix = "")
+    public function fromLinkRequest($idPrefix = "")
     {
         $data = [];
-        $value = $request->get($idPrefix . "subject");
+        $value = $this->request->get($idPrefix . "subject");
         if ($value !== null) {
             $data["subject"] = $value;
         } else {
-            $value = $request->old($idPrefix . "subject");
+            $value = $this->request->old($idPrefix . "subject");
             if ($value !== null) {
                 $data["subject"] = $value;
             }
         }
-        $value = $request->get($idPrefix . "object");
+        $value = $this->request->get($idPrefix . "object");
         if ($value !== null) {
             $data["object"] = $value;
         } else {
-            $value = $request->old($idPrefix . "object");
+            $value = $this->request->old($idPrefix . "object");
             if ($value !== null) {
                 $data["object"] = $value;
             }
@@ -45,29 +55,27 @@ class RequestProcessor
     }
 
     /**
-     * @param Request $request
      * @param null|string $otherwise
      * @return null|string
      */
-    public function returnURL(Request $request, $otherwise = null)
+    public function returnURL($otherwise = null)
     {
-        $value = $request->get("_mmreturn");
-        if ($value !== null) {
+        $value = $this->request->get("_mmreturn");
+        if (!empty($value)) {
             return $value;
         }
-        return $request->old("_mmreturn", $otherwise);
+        return $this->request->old("_mmreturn", $otherwise);
     }
 
     /**
      * This method is the compliment to the editFields.blade template.
-     * @param Request $request
      * @param array $fields
      * @param string $idPrefix
      * @return array
      */
-    public function fromFieldsRequest(Request $request, array $fields, $idPrefix = "")
+    public function fromFieldsRequest(array $fields, $idPrefix = "")
     {
-        return $this->_fromFieldsRequest($request, $fields, $idPrefix,
+        return $this->_fromFieldsRequest($fields, $idPrefix,
             function (Request $request, $param) {
                 return $request->get($param);
             }
@@ -76,13 +84,12 @@ class RequestProcessor
 
     /**
      * This method is the compliment to the editFields.blade template.
-     * @param Request $request
      * @param array $fields
      * @param $idPrefix
      * @param callable $getParam
      * @return array
      */
-    protected function _fromFieldsRequest(Request $request, array $fields, $idPrefix, callable $getParam)
+    protected function _fromFieldsRequest(array $fields, $idPrefix, callable $getParam)
     {
         $data = [];
         foreach ($fields as $field) {
@@ -90,14 +97,14 @@ class RequestProcessor
 
             //  TODO candidate for classes, but only boolean is a special case SO FAR....
             if ($field->data["type"] == 'boolean') {
-                if ($getParam($request, $fieldId . "_exists")) {
+                if ($getParam($this->request, $fieldId . "_exists")) {
                     // set to a boolean
-                    $data[$field->data["name"]] = true == $getParam($request, $fieldId);
+                    $data[$field->data["name"]] = true == $getParam($this->request, $fieldId);
                 }
                 continue;
             }
 
-            $value = $getParam($request, $fieldId);
+            $value = $getParam($this->request, $fieldId);
             if ($value !== null) {
                 $data[$field->data["name"]] = $value;
             }
@@ -108,17 +115,40 @@ class RequestProcessor
     /**
      * This method is the compliment to the editFields.blade template, but
      * uses old() instead of get() to get values.
-     * @param Request $request
      * @param array $fields
      * @param string $idPrefix
      * @return array
      */
-    public function fromOldFieldsRequest(Request $request, array $fields, $idPrefix = "")
+    public function fromOldFieldsRequest(array $fields, $idPrefix = "")
     {
-        return $this->_fromFieldsRequest($request, $fields, $idPrefix,
+        return $this->_fromFieldsRequest($fields, $idPrefix,
             function (Request $request, $param) {
                 return $request->old($param);
             }
         );
+    }
+
+    /**
+     * Pull the additions and removals requested to this link from this form.
+     * This is a compliment to the editField/link template
+     * @param string $idPrefix
+     * @return array
+     */
+    public function fromLinkFieldRequest($idPrefix = "")
+    {
+        $result = ["add" => [], "remove" => []];
+        $gets = $this->request->all();
+        foreach ($gets as $key => $value) {
+            if (preg_match('/^' . $idPrefix . 'remove_(\d+)$/', $key, $bits) && $value) {
+                $result["remove"][$bits[1]] = true;
+            }
+            if (preg_match('/^' . $idPrefix . 'add_(\d+)$/', $key, $bits) && $value) {
+                $result["add"][$bits[1]] = true;
+            }
+        }
+        $result["add"] = array_keys($result["add"]);
+        $result["remove"] = array_keys($result["remove"]);
+
+        return $result;
     }
 }

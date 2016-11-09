@@ -60,7 +60,7 @@ class DatabaseSeeder extends Seeder
             ["domain_min" => 1, "domain_max" => 1, "domain_type" => "dependent",
                 "label" => "task", "inverse_label" => "actor relationship"]);
         $draft->createLinkType('watched', $actorType, $movieType,
-            ["domain_min" => 0, "range_min" => 0, "domain_max" => 3,
+            ["domain_min" => 1, "range_min" => 1, "domain_max" => 3,
                 "label" => "watched", "inverse_label" => "watched by"]);
 
         // this can't be set until the links are created.
@@ -190,11 +190,14 @@ class DatabaseSeeder extends Seeder
         $draft3 = $doc->createDraftRevision();
 
 #\Event::listen('Illuminate\Database\Events\QueryExecuted', function ($query) { print $query->sql." - ".json_encode( $query->bindings )."\n"; });
+
         // inspect
+        /*
         $actorType = $draft3->recordTypes()->where('name', 'actor')->first();
         foreach ($actorType->records as $actor) {
             print $actor->dumpText();
         }
+        */
         // $this->call(UsersTableSeeder::class);
     }
 }

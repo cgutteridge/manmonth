@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\DataStructValidationException;
+use App\Exceptions\MMValidationException;
 use App\Models\Record;
 use App\Models\RecordType;
 use Exception;
@@ -67,7 +67,7 @@ class RecordTypeController extends Controller
         $record = new Record();
         $record->documentRevision()->associate($recordType->documentRevision);
         $record->record_type_sid = $recordType->sid;
-        $record->updateData($this->requestProcessor->fromOldFieldsRequest($request, $record->recordType->fields(), "field_"));
+        $record->updateData($this->requestProcessor->fromOldFieldsRequest($record->recordType->fields(), "field_"));
 
         return view('record.create', [
             "record" => $record,
@@ -101,11 +101,11 @@ class RecordTypeController extends Controller
         $record = new Record();
         $record->documentRevision()->associate($recordType->documentRevision);
         $record->record_type_sid = $recordType->sid;
-        $record->updateData($this->requestProcessor->fromFieldsRequest($request, $recordType->fields(), "field_"));
+        $record->updateData($this->requestProcessor->fromFieldsRequest($recordType->fields(), "field_"));
 
         try {
             $record->validate();
-        } catch (DataStructValidationException $exception) {
+        } catch (MMValidationException $exception) {
             return Redirect::to($this->linkMaker->url($recordType, 'create-record'))
                 ->withInput()
                 ->withErrors($exception->getMessage());

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Exceptions\DataStructValidationException;
+use App\Exceptions\MMValidationException;
 use App\Fields\Field;
 use App\MMAction\Action;
 use App\MMAction\AlterTarget;
@@ -13,8 +13,8 @@ use App\MMAction\SetStringColumn;
 use App\MMAction\SetTarget;
 use App\MMScript;
 use App\RecordReport;
-use Exception;
 use DB;
+use Exception;
 use Validator;
 
 /** @noinspection PhpUndefinedClassInspection */
@@ -32,18 +32,6 @@ use Validator;
 class Rule extends DocumentPart
 {
     /**
-     * Relationship
-     * @return ReportType
-     */
-    public function reportType()
-    {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->hasOne('App\Models\ReportType', 'sid', 'report_type_sid')
-            ->where('document_revision_id', $this->document_revision_id);
-    }
-
-    // there's probably a cleverer laravel way of doing this...
-    /**
      * @var array
      */
     static protected $actions = [
@@ -55,39 +43,27 @@ class Rule extends DocumentPart
         SetDecimalColumn::class,
     ];
 
+    // there's probably a cleverer laravel way of doing this...
     /**
      * @var array[Action]
      */
     static protected $actionCache;
+    protected $scripts = [];
+    protected $abstractContext;
 
     /**
-     * @return array
+     * Relationship
+     * @return ReportType
      */
-    public static function actions()
+    public function reportType()
     {
-        if (self::$actionCache) {
-            return self::$actionCache;
-        }
-        self::$actionCache = [];
-        foreach (self::$actions as $class) {
-            $action = new $class();
-            self::$actionCache[$action->name] = $action;
-        }
-        return self::$actionCache;
+        /** @noinspection PhpUndefinedMethodInspection */
+        return $this->hasOne('App\Models\ReportType', 'sid', 'report_type_sid')
+            ->where('document_revision_id', $this->document_revision_id);
     }
 
     /**
-     * @param string $actionName
-     * @return \App\MMAction\Action
-     */
-    public static function actionFactory($actionName)
-    {
-        $actions = self::actions();
-        return $actions[$actionName];
-    }
-
-    /**
-     * @throws DataStructValidationException,Exception
+     * @throws MMValidationException,Exception
      */
     public function validate()
     {
@@ -102,7 +78,7 @@ class Rule extends DocumentPart
                 'params' => 'array']);
 
         if ($validator->fails()) {
-            throw new DataStructValidationException("Validation fail in rule.data: " . join(", ", $validator->errors()));
+            throw new MMValidationException("Validation fail in rule.data: " . join(", ", $validator->errors()));
         }
 
         // run this function just to let it throw an exception
@@ -113,7 +89,7 @@ class Rule extends DocumentPart
             $type = $trigger->type();
             if ($type != "boolean") {
                 // TODO better class of exception?
-                throw new DataStructValidationException("Trigger must either be unset or evaluate to true/false. Currently evaluates to $type");
+                throw new MMValidationException("Trigger must either be unset or evaluate to true/false. Currently evaluates to $type");
             }
         }
         $action = $this->getAction();
@@ -121,7 +97,7 @@ class Rule extends DocumentPart
         foreach ($action->fields as $field) {
             if (!array_key_exists($field->data["name"], $this->data["params"])) {
                 if ($field->required()) {
-                    throw new DataStructValidationException("Action " . $action->name . " requires param '" . $field->data["name"] . "'");
+                    throw new MMValidationException("Action " . $action->name . " requires param '" . $field->data["name"] . "'");
                 }
                 continue;
             }
@@ -138,41 +114,11 @@ class Rule extends DocumentPart
             }
 
             if (!$typeMatch) {
-                throw new DataStructValidationException("Action " . $action->name . " param '" . $field->data["name"] . "' requires a value of type '" . $field->data["type"] . "' but got given '$type'");
+                throw new MMValidationException("Action " . $action->name . " param '" . $field->data["name"] . "' requires a value of type '" . $field->data["type"] . "' but got given '$type'");
             }
         }
     }
 
-    /**
-     * Return the action associated with this rule.
-     * @return Action
-     */
-    public function getAction()
-    {
-        return Rule::actionFactory($this->data["action"]);
-    }
-
-    protected $scripts = [];
-
-    /**
-     * @param string $scriptText
-     * @return MMScript
-     */
-    function script($scriptText)
-    {
-        if (isset($this->scripts[$scriptText])) {
-            return $this->scripts[$scriptText];
-        }
-        $this->scripts[$scriptText] = new MMScript(
-            $scriptText,
-            $this->documentRevision,
-            $this->abstractContext());
-        return $this->scripts[$scriptText];
-    }
-
-    protected $abstractContext;
-    // get the absract context for this rule. Returns record & link types,
-    // not specific records and links
     /**
      * @return array
      * @throws Exception
@@ -235,6 +181,59 @@ class Rule extends DocumentPart
         }
 
         return $this->abstractContext;
+    }
+
+    /**
+     * @param string $scriptText
+     * @return MMScript
+     */
+    function script($scriptText)
+    {
+        if (isset($this->scripts[$scriptText])) {
+            return $this->scripts[$scriptText];
+        }
+        $this->scripts[$scriptText] = new MMScript(
+            $scriptText,
+            $this->documentRevision,
+            $this->abstractContext());
+        return $this->scripts[$scriptText];
+    }
+
+    /**
+     * Return the action associated with this rule.
+     * @return Action
+     */
+    public function getAction()
+    {
+        return Rule::actionFactory($this->data["action"]);
+    }
+
+    /**
+     * @param string $actionName
+     * @return \App\MMAction\Action
+     */
+    public static function actionFactory($actionName)
+    {
+        $actions = self::actions();
+        return $actions[$actionName];
+    }
+    // get the absract context for this rule. Returns record & link types,
+    // not specific records and links
+
+    /**
+     * @return array
+     */
+    public static function actions()
+    {
+        if (self::$actionCache) {
+            return self::$actionCache;
+        }
+        self::$actionCache = [];
+        foreach (self::$actions as $class) {
+            $action = new $class();
+            self::$actionCache[$action->name] = $action;
+        }
+        return self::$actionCache;
     }
 
     /**

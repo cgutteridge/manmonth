@@ -1,4 +1,4 @@
-<table class="mm-record mm-record-entity mm-record-{{$record->id}}">
+<table class="mm-record mm-record-entity mm-record-{{$record->sid}}">
     <thead>
     <tr>
         <th>
@@ -37,8 +37,8 @@
                             @foreach( $link["records"] as $subrecord)
                                 <a
                                         href="@url($subrecord["record"])"
-                                        data-rid="{{$subrecord["record"]->id}}"
-                                        class="mm-record-stub mm-record-entity mm-record-{{$subrecord["record"]->id}}"
+                                        data-rid="{{$subrecord["record"]->sid}}"
+                                        class="mm-record-stub mm-record-entity mm-record-{{$subrecord["record"]->sid}}"
                                 >
                                     @title( $subrecord["record"])
                                 </a>
