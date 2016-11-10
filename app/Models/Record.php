@@ -421,8 +421,13 @@ class Record extends DocumentPart
             $link = new Link();
             $link->documentRevision()->associate($linkType->documentRevision);
             $link->link_type_sid = $linkType->sid;
-            $link->subject_sid = $this->sid;
-            $link->object_sid = $add;
+            if ($isForwards) {
+                $link->subject_sid = $this->sid;
+                $link->object_sid = $add;
+            } else {
+                $link->subject_sid = $add;
+                $link->object_sid = $this->sid;
+            }
             $link->save();
         }
 
