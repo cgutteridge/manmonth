@@ -207,8 +207,25 @@ class Record extends DocumentPart
     }
 
     /**
+     * Reads the requested changes to links and checks they are valid.
+     * @param array $linkChanges
+     */
+    private function validateLinkChanges($linkChanges)
+    {
+        foreach ($linkChanges["fwd"] as $sid => $changes) {
+            $linkType = LinkType::find($sid);
+            $this->validateForwardLinkChanges($linkType, $changes);
+        }
+        foreach ($linkChanges["bck"] as $sid => $changes) {
+            $linkType = LinkType::find($sid);
+            $this->validatebackLinkChanges($linkType, $changes);
+        }
+    }
+
+    /**
      * @param LinkType $linkType
      * @param array $linkChanges
+     * @throws MMValidationException
      */
     public function validateForwardLinkChanges($linkType, $linkChanges)
     {
@@ -355,10 +372,26 @@ class Record extends DocumentPart
     /**
      * @param LinkType $linkType
      * @param array $linkChanges
+     * @throws MMValidationException
      */
     public function validateBackLinkChanges($linkType, $linkChanges)
     {
         return $this->_validateLinkChanges($linkType, $linkChanges, false);
+    }
+
+    /**
+     * @param array $linkChanges
+     */
+    private function applyLinkChanges($linkChanges)
+    {
+        foreach ($linkChanges["fwd"] as $sid => $changes) {
+            $linkType = LinkType::find($sid);
+            $this->applyForwardLinkChanges($linkType, $changes);
+        }
+        foreach ($linkChanges["bck"] as $sid => $changes) {
+            $linkType = LinkType::find($sid);
+            $this->applyBackLinkChanges($linkType, $changes);
+        }
     }
 
     /**

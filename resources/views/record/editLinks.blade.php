@@ -7,7 +7,8 @@
     "max"=>$linkType->domain_max,
     "records"=>$record->forwardLinkedRecords($linkType),
     "type"=>$linkType->range_type,
-    "recordType"=>$linkType->range
+    "recordType"=>$linkType->range,
+    "linkChanges"=>$linkChanges["fwd"]
 ])
 @endforeach
 @foreach( $record->recordType->backLinkTypes as $linkType )
@@ -18,6 +19,7 @@
     "max"=>$linkType->range_max,
     "records"=>$record->backLinkedRecords($linkType),
     "type"=>$linkType->domain_type,
-    "recordType"=>$linkType->domain
+    "recordType"=>$linkType->domain,
+    "linkChanges"=>$linkChanges["bck"]
 ])
 @endforeach

@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\MMValidationException;
 use App\Models\Record;
 use App\Models\RecordType;
 use Exception;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Redirect;
 use Response;
 
@@ -56,23 +54,26 @@ class RecordTypeController extends Controller
     /**
      * Display the form for creating a new record of this type.
      *
-     * @param Request $request
      * @param RecordType $recordType
      * @return Response
      */
-    public function createRecord(Request $request, RecordType $recordType)
+    public function createRecord(RecordType $recordType)
     {
-        $mmReturn = $this->requestProcessor->returnURL($request);
+        $returnLink = $this->requestProcessor->returnURL();
+
+        $dataChanges = $this->requestProcessor->fromFieldsRequest($recordType->fields(), "field_");
+        $linkChanges = $this->requestProcessor->getLinkChanges($recordType);
 
         $record = new Record();
         $record->documentRevision()->associate($recordType->documentRevision);
         $record->record_type_sid = $recordType->sid;
-        $record->updateData($this->requestProcessor->fromOldFieldsRequest($record->recordType->fields(), "field_"));
+        $record->updateData($dataChanges);
 
         return view('record.create', [
             "record" => $record,
             "idPrefix" => "",
-            "returnTo" => $mmReturn,
+            "returnTo" => $returnLink,
+            "linkChanges" => $linkChanges,
             "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)
         ]);
         // TODO different returnTo for cancel to success?
@@ -81,37 +82,44 @@ class RecordTypeController extends Controller
     /**
      * Store a newly created record  in storage.
      *
-     * @param  Request $request
      * @param RecordType $recordType
      * @return RedirectResponse
      * @throws Exception
      */
-    public function storeRecord(Request $request, RecordType $recordType)
+    public function storeRecord(RecordType $recordType)
     {
-        $action = $request->get("_mmaction", "");
-        $mmReturn = $this->requestProcessor->returnURL($request);
+        $action = $this->requestProcessor->get("_mmaction", "");
+        $returnLink = $this->requestProcessor->returnURL();
 
-        $returnLink = $mmReturn;
         if ($action == "cancel") {
             return Redirect::to($returnLink);
         }
         if ($action != "save") {
             throw new Exception("Unknown action '$action'");
         }
+
+        $dataChanges = $this->requestProcessor->fromFieldsRequest($recordType->fields(), "field_");
+
         $record = new Record();
         $record->documentRevision()->associate($recordType->documentRevision);
         $record->record_type_sid = $recordType->sid;
-        $record->updateData($this->requestProcessor->fromFieldsRequest($recordType->fields(), "field_"));
-
+        $record->updateData($dataChanges);
         try {
+            // validate changes to fields
             $record->validate();
-        } catch (MMValidationException $exception) {
+            $linkChanges = $this->requestProcessor->getLinkChanges($recordType);
+            $record->validateLinkChanges($linkChanges);
+        } catch (Exception $exception) {
             return Redirect::to($this->linkMaker->url($recordType, 'create-record'))
                 ->withInput()
                 ->withErrors($exception->getMessage());
         }
+
         $record->save();
-        return Redirect::to($this->linkMaker->url($record))
+
+        $record->applyLinkChanges($linkChanges);
+
+        return Redirect::to($returnLink)
             ->with("message", "Record created.");
     }
 

@@ -23,35 +23,39 @@ class RequestProcessor
     public function __construct(Request $request)
     {
         $this->request = $request;
+        $this->old = (count($request->old()) > 0);
     }
 
     /**
      * This method is the compliment to the link/form template.
-     * @param $idPrefix
+     * @param string $idPrefix
      * @return array
      */
     public function fromLinkRequest($idPrefix = "")
     {
         $data = [];
-        $value = $this->request->get($idPrefix . "subject");
+        $value = $this->get($idPrefix . "subject");
         if ($value !== null) {
             $data["subject"] = $value;
-        } else {
-            $value = $this->request->old($idPrefix . "subject");
-            if ($value !== null) {
-                $data["subject"] = $value;
-            }
         }
-        $value = $this->request->get($idPrefix . "object");
+        $value = $this->get($idPrefix . "object");
         if ($value !== null) {
             $data["object"] = $value;
-        } else {
-            $value = $this->request->old($idPrefix . "object");
-            if ($value !== null) {
-                $data["object"] = $value;
-            }
         }
         return $data;
+    }
+
+    /**
+     * @param string $term
+     * @param string|null $otherwise
+     * @return string
+     */
+    public function get($term, $otherwise = null)
+    {
+        if ($this->old) {
+            return $this->request->old($term, $otherwise);
+        }
+        return $this->request->get($term, $otherwise);
     }
 
     /**
@@ -60,11 +64,7 @@ class RequestProcessor
      */
     public function returnURL($otherwise = null)
     {
-        $value = $this->request->get("_mmreturn");
-        if (!empty($value)) {
-            return $value;
-        }
-        return $this->request->old("_mmreturn", $otherwise);
+        return $this->get("_mmreturn", $otherwise);
     }
 
     /**
@@ -73,38 +73,24 @@ class RequestProcessor
      * @param string $idPrefix
      * @return array
      */
-    public function fromFieldsRequest(array $fields, $idPrefix = "")
-    {
-        return $this->_fromFieldsRequest($fields, $idPrefix,
-            function (Request $request, $param) {
-                return $request->get($param);
-            }
-        );
-    }
-
-    /**
-     * This method is the compliment to the editFields.blade template.
-     * @param array $fields
-     * @param $idPrefix
-     * @param callable $getParam
-     * @return array
-     */
-    protected function _fromFieldsRequest(array $fields, $idPrefix, callable $getParam)
+    public function fromFieldsRequest(array $fields, $idPrefix)
     {
         $data = [];
         foreach ($fields as $field) {
             $fieldId = $idPrefix . $field->data["name"];
 
+            $value = $this->get($fieldId);
+
             //  TODO candidate for classes, but only boolean is a special case SO FAR....
             if ($field->data["type"] == 'boolean') {
-                if ($getParam($this->request, $fieldId . "_exists")) {
+                $exists = $this->get($fieldId . "_exists");
+                if ($exists) {
                     // set to a boolean
-                    $data[$field->data["name"]] = true == $getParam($this->request, $fieldId);
+                    $data[$field->data["name"]] = (true == $value);
                 }
                 continue;
             }
 
-            $value = $getParam($this->request, $fieldId);
             if ($value !== null) {
                 $data[$field->data["name"]] = $value;
             }
@@ -113,19 +99,29 @@ class RequestProcessor
     }
 
     /**
-     * This method is the compliment to the editFields.blade template, but
-     * uses old() instead of get() to get values.
-     * @param array $fields
-     * @param string $idPrefix
+     * get all the requested changes to links on this record.
+     * @param RecordType $recordType
      * @return array
      */
-    public function fromOldFieldsRequest(array $fields, $idPrefix = "")
+    public function getLinkChanges($recordType)
     {
-        return $this->_fromFieldsRequest($fields, $idPrefix,
-            function (Request $request, $param) {
-                return $request->old($param);
+        $allLinkChanges = ["fwd" => [], "bck" => []];
+        /** @var LinkType $linkType */
+        foreach ($recordType->forwardLinkTypes as $linkType) {
+            // only default types of link are handled on a record update
+            if (isset($linkType->range_type)) {
+                continue;
             }
-        );
+            $allLinkChanges["fwd"][$linkType->sid] = $this->fromLinkFieldRequest("link_fwd_" . $linkType->sid . "_");
+        }
+        foreach ($recordType->backLinkTypes as $linkType) {
+            // only default types of link are handled on a record update
+            if (isset($linkType->domain_type)) {
+                continue;
+            }
+            $allLinkChanges["bck"][$linkType->sid] = $this->fromLinkFieldRequest("link_bck_" . $linkType->sid . "_");
+        }
+        return $allLinkChanges;
     }
 
     /**
@@ -137,7 +133,7 @@ class RequestProcessor
     public function fromLinkFieldRequest($idPrefix = "")
     {
         $result = ["add" => [], "remove" => []];
-        $gets = $this->request->all();
+        $gets = $this->all();
         foreach ($gets as $key => $value) {
             if (preg_match('/^' . $idPrefix . 'remove_(\d+)$/', $key, $bits) && $value) {
                 $result["remove"][$bits[1]] = true;
@@ -151,4 +147,17 @@ class RequestProcessor
 
         return $result;
     }
+
+    /**
+     * @return array
+     */
+    public function all()
+    {
+        if ($this->old) {
+            return $this->request->old();
+        }
+        return $this->request->all();
+    }
+
+
 }

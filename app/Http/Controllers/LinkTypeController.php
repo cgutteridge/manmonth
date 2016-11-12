@@ -66,6 +66,7 @@ class LinkTypeController extends Controller
      */
     public function createLink(Request $request, LinkType $linkType)
     {
+        dd($request->old());
         $link = new Link();
         $link->documentRevision()->associate($linkType->documentRevision);
         $link->link_type_sid = $linkType->sid;
@@ -87,16 +88,16 @@ class LinkTypeController extends Controller
     }
 
     /**
-     * @param Request $request
      * @param LinkType $linkType
      * @return RedirectResponse
      * @throws Exception
      */
-    public function storeLink(Request $request, LinkType $linkType)
+    public function storeLink(LinkType $linkType)
     {
-        $action = $request->get("_mmaction", "");
-        $returnLink = $request->get("_mmreturn",
+        $action = $this->requestProcessor->get("_mmaction", "");
+        $returnLink = $this->requestProcessor->returnURL(
             $this->linkMaker->url($linkType->documentRevision));
+
         if ($action == "cancel") {
             return Redirect::to($returnLink);
         }

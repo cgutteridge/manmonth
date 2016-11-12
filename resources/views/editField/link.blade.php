@@ -4,6 +4,9 @@
         {{$title}}@if( $min>0 ) (required)@endif:
     </th>
     <td>
+        {{dump($linkChanges)}}
+    </td>
+    <td>
         @if( !isset($type) )
             <ul id="{{$idPrefix}}list" class="mm-link-edit-list">
                 @foreach( $records as $linkedRecord)

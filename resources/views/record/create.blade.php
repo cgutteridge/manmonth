@@ -13,7 +13,8 @@
             ])
             @include( 'record.editLinks' ,[
                 "values"=>$record->data,
-                "idPrefix"=>$idPrefix."link_"
+                "idPrefix"=>$idPrefix."link_",
+                "linkChanges"=>$linkChanges
             ])
             <tr>
                 <th>

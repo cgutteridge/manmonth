@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LinkType;
 use App\Models\Record;
 use Exception;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Redirect;
 
@@ -158,17 +156,18 @@ class RecordController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param Request $request
      * @param Record $record
      * @return Response
      */
-    public function edit(Request $request, Record $record)
+    public function edit(Record $record)
     {
-        $record->updateData($this->requestProcessor->fromOldFieldsRequest($record->recordType->fields(), "field_"));
+        $fieldChanges = $this->requestProcessor->fromFieldsRequest(
+            $record->recordType->fields(), "field_");
+        $record->updateData($fieldChanges);
         return view('record.edit', [
             "record" => $record,
             "idPrefix" => "",
-            "returnTo" => $request->get("_mmreturn", ""),
+            "returnTo" => $this->requestProcessor->returnURL(),
             "nav" => $this->navigationMaker->documentRevisionNavigation($record->documentRevision)
         ]);
     }
@@ -176,45 +175,28 @@ class RecordController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param Request $request
      * @param Record $record
      * @return RedirectResponse
      * @throws Exception
      */
-    public function update(Request $request, Record $record)
+    public function update(Record $record)
     {
-        $action = $request->get("_mmaction", "");
-        $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($record));
+        $action = $this->requestProcessor->get("_mmaction", "");
+        $returnLink = $this->requestProcessor->returnURL();
         if ($action == "cancel") {
             return Redirect::to($returnLink);
         }
         if ($action != "save") {
             throw new Exception("Unknown action '$action'");
         }
-        $record->updateData(
-            $this->requestProcessor->fromFieldsRequest($record->recordType->fields(), "field_"));
+
+        $dataChanges = $this->requestProcessor->fromFieldsRequest($record->recordType->fields(), "field_");
+        $record->updateData($dataChanges);
         try {
             // validate changes to fields
             $record->validate();
-
-            // validate changes to links
-            /** @var LinkType $linkType */
-            foreach ($record->recordType->forwardLinkTypes as $linkType) {
-                // only default types of link are handled on a record update
-                if (isset($linkType->range_type)) {
-                    continue;
-                }
-                $linkChanges = $this->requestProcessor->fromLinkFieldRequest("link_fwd_" . $linkType->sid . "_");
-                $record->validateForwardLinkChanges($linkType, $linkChanges);
-            }
-            foreach ($record->recordType->backLinkTypes as $linkType) {
-                // only default types of link are handled on a record update
-                if (isset($linkType->domain_type)) {
-                    continue;
-                }
-                $linkChanges = $this->requestProcessor->fromLinkFieldRequest("link_bck_" . $linkType->sid . "_");
-                $record->validateBackLinkChanges($linkType, $linkChanges);
-            }
+            $linkChanges = $this->getLinkChanges($record);
+            $this->validateLinkChanges($linkChanges);
         } catch (Exception $exception) {
             return Redirect::to('records/' . $record->id . "/edit")
                 ->withInput()
@@ -224,25 +206,10 @@ class RecordController extends Controller
         // apply changes to links
         $record->save();
 
-        /** @var LinkType $linkType */
-        foreach ($record->recordType->forwardLinkTypes as $linkType) {
-            // only default types of link are handled on a record update
-            if (isset($linkType->range_type)) {
-                continue;
-            }
-            $linkChanges = $this->requestProcessor->fromLinkFieldRequest("link_fwd_" . $linkType->sid . "_");
-            $record->applyForwardLinkChanges($linkType, $linkChanges);
-        }
-        foreach ($record->recordType->backLinkTypes as $linkType) {
-            // only default types of link are handled on a record update
-            if (isset($linkType->domain_type)) {
-                continue;
-            }
-            $linkChanges = $this->requestProcessor->fromLinkFieldRequest("link_bck_" . $linkType->sid . "_");
-            $record->applyBackLinkChanges($linkType, $linkChanges);
-        }
+        $this->applyLinkChanges($record, $linkChanges);
 
         return Redirect::to($returnLink)
             ->with("message", "Record updated.");
     }
+
 }
