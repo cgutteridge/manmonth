@@ -195,8 +195,8 @@ class RecordController extends Controller
         try {
             // validate changes to fields
             $record->validate();
-            $linkChanges = $this->getLinkChanges($record);
-            $this->validateLinkChanges($linkChanges);
+            $linkChanges = $this->requestProcessor->getLinkChanges($record->recordType);
+            $record->validateLinkChanges($linkChanges);
         } catch (Exception $exception) {
             return Redirect::to('records/' . $record->id . "/edit")
                 ->withInput()
@@ -206,7 +206,7 @@ class RecordController extends Controller
         // apply changes to links
         $record->save();
 
-        $this->applyLinkChanges($record, $linkChanges);
+        $record->applyLinkChanges($linkChanges);
 
         return Redirect::to($returnLink)
             ->with("message", "Record updated.");

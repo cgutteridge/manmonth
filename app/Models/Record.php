@@ -210,15 +210,16 @@ class Record extends DocumentPart
      * Reads the requested changes to links and checks they are valid.
      * @param array $linkChanges
      */
-    private function validateLinkChanges($linkChanges)
+    public function validateLinkChanges($linkChanges)
     {
+        /** @var LinkType $linkType */
         foreach ($linkChanges["fwd"] as $sid => $changes) {
             $linkType = LinkType::find($sid);
             $this->validateForwardLinkChanges($linkType, $changes);
         }
         foreach ($linkChanges["bck"] as $sid => $changes) {
             $linkType = LinkType::find($sid);
-            $this->validatebackLinkChanges($linkType, $changes);
+            $this->validateBackLinkChanges($linkType, $changes);
         }
     }
 
@@ -382,26 +383,18 @@ class Record extends DocumentPart
     /**
      * @param array $linkChanges
      */
-    private function applyLinkChanges($linkChanges)
+    public function applyLinkChanges($linkChanges)
     {
         foreach ($linkChanges["fwd"] as $sid => $changes) {
             $linkType = LinkType::find($sid);
-            $this->applyForwardLinkChanges($linkType, $changes);
+            $this->_applyLinkChanges($linkType, $changes, true);
         }
         foreach ($linkChanges["bck"] as $sid => $changes) {
             $linkType = LinkType::find($sid);
-            $this->applyBackLinkChanges($linkType, $changes);
+            $this->_applyLinkChanges($linkType, $changes, false);
         }
     }
 
-    /**
-     * @param LinkType $linkType
-     * @param array $linkChanges
-     */
-    public function applyForwardLinkChanges($linkType, $linkChanges)
-    {
-        return $this->_applyLinkChanges($linkType, $linkChanges, true);
-    }
 
     /**
      * @param LinkType $linkType
@@ -476,15 +469,5 @@ class Record extends DocumentPart
         }
 
     }
-
-    /**
-     * @param LinkType $linkType
-     * @param array $linkChanges
-     */
-    public function applyBackLinkChanges($linkType, $linkChanges)
-    {
-        return $this->_applyLinkChanges($linkType, $linkChanges, false);
-    }
-
 
 }

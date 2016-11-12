@@ -9,6 +9,7 @@
 namespace App\Http;
 
 // singleton for getting data from web forms
+use App\Models\RecordType;
 use Illuminate\Http\Request;
 
 class RequestProcessor
@@ -106,7 +107,6 @@ class RequestProcessor
     public function getLinkChanges($recordType)
     {
         $allLinkChanges = ["fwd" => [], "bck" => []];
-        /** @var LinkType $linkType */
         foreach ($recordType->forwardLinkTypes as $linkType) {
             // only default types of link are handled on a record update
             if (isset($linkType->range_type)) {
