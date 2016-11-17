@@ -212,26 +212,16 @@ class Record extends DocumentPart
      */
     public function validateLinkChanges($linkChanges)
     {
-        /** @var LinkType $linkType */
         foreach ($linkChanges["fwd"] as $sid => $changes) {
             $linkType = LinkType::find($sid);
-            $this->validateForwardLinkChanges($linkType, $changes);
+            $this->_validateLinkChanges($linkType, $changes, true);
         }
         foreach ($linkChanges["bck"] as $sid => $changes) {
             $linkType = LinkType::find($sid);
-            $this->validateBackLinkChanges($linkType, $changes);
+            $this->_validateLinkChanges($linkType, $changes, false);
         }
     }
 
-    /**
-     * @param LinkType $linkType
-     * @param array $linkChanges
-     * @throws MMValidationException
-     */
-    public function validateForwardLinkChanges($linkType, $linkChanges)
-    {
-        return $this->_validateLinkChanges($linkType, $linkChanges, true);
-    }
 
     /**
      * @param LinkType $linkType
@@ -245,6 +235,7 @@ class Record extends DocumentPart
             // forward
             $linkedRecords = $this->forwardLinkedRecords($linkType);
             $targetRecordTypeSid = $linkType->range_sid;
+            $targetRecordType = $linkType->range;
             $from_min = $linkType->domain_min;
             $from_max = $linkType->domain_max;
             $to_min = $linkType->range_min;
@@ -253,6 +244,7 @@ class Record extends DocumentPart
             // backwards
             $linkedRecords = $this->backLinkedRecords($linkType);
             $targetRecordTypeSid = $linkType->domain_sid;
+            $targetRecordType = $linkType->domain;
             $from_min = $linkType->range_min;
             $from_max = $linkType->range_max;
             $to_min = $linkType->domain_min;
@@ -280,7 +272,7 @@ class Record extends DocumentPart
             }
         }
 
-        foreach ($linkChanges["remove"] as $remove) {
+        foreach ($linkChanges["remove"] as $remove => $flag) {
             // does this link exist?
             if (
                 !array_key_exists($remove, $resultingLinkedRecordsInverseRecords)
@@ -296,7 +288,7 @@ class Record extends DocumentPart
         }
 
         // validate changes to links
-        foreach ($linkChanges["add"] as $add) {
+        foreach ($linkChanges["add"] as $add => $title) {
             /** @var Record $otherRecord */
             $otherRecord = Record::find($add);
             if ($otherRecord->record_type_sid != $targetRecordTypeSid) {
@@ -309,6 +301,7 @@ class Record extends DocumentPart
         // check cardinality of main record
         $titleMaker = new TitleMaker();
         $linkTypeName = $titleMaker->title($linkType);
+        $targetRecordTypeName = $titleMaker->title($targetRecordType);
 
         $from_n = count($resultingLinkedRecords);
         if ($from_n < $from_min) {
@@ -322,10 +315,10 @@ class Record extends DocumentPart
         foreach ($resultingLinkedRecordsInverseRecords as $linkedRecordSID => $inverseLinks) {
             $to_n = count($inverseLinks);
             if ($to_n < $from_min) {
-                throw new MMValidationException("Change would result in $to_n $linkTypeName links on a linked record; below the minimum of $to_min");
+                throw new MMValidationException("Change would result in $to_n $linkTypeName links on a linked $targetRecordTypeName record; below the minimum of $to_min");
             }
             if (isset($to_max) && $to_n > $to_max) {
-                throw new MMValidationException("Change would result in $to_n $linkTypeName links on a linked record; above the maximum of $to_max");
+                throw new MMValidationException("Change would result in $to_n $linkTypeName links on a linked $targetRecordTypeName record; above the maximum of $to_max");
             }
         }
         // changes to linktype seem OK
@@ -344,9 +337,14 @@ class Record extends DocumentPart
             ->pluck("links.object_sid");
         $records = [];
         foreach ($recordIds as $recordSid) {
-            $records [] = $this->documentRevision->records()->getQuery()
+            $record = $this->documentRevision->records()->getQuery()
                 ->where('sid', '=', $recordSid)
                 ->first();
+            if ($record != null) {
+                // TODO this is risky, we should give a warning if this happens.
+                // Warning, could not find back-linked record X
+                $records [] = $record;
+            }
         }
         return $records;
     }
@@ -365,19 +363,14 @@ class Record extends DocumentPart
         $records = [];
         foreach ($recordIds as $recordId) {
             /** @noinspection PhpUndefinedMethodInspection */
-            $records [] = $this->documentRevision->records()->where('sid', '=', $recordId)->first();
+            $record = $this->documentRevision->records()->where('sid', '=', $recordId)->first();
+            if ($record != null) {
+                // TODO this is risky, we should give a warning if this happens.
+                // Warning, could not find back-linked record X
+                $records [] = $record;
+            }
         }
         return $records;
-    }
-
-    /**
-     * @param LinkType $linkType
-     * @param array $linkChanges
-     * @throws MMValidationException
-     */
-    public function validateBackLinkChanges($linkType, $linkChanges)
-    {
-        return $this->_validateLinkChanges($linkType, $linkChanges, false);
     }
 
     /**
@@ -402,7 +395,7 @@ class Record extends DocumentPart
      * @param bool $isForwards false if this call is looking at inverse links
      * @throws MMValidationException
      */
-    protected function _applyLinkChanges($linkType, $linkChanges, $isForwards)
+    protected function _applyLinkChanges(LinkType $linkType, $linkChanges, $isForwards)
     {
         // MUST call validate before this method. It does no checking!
 
@@ -424,7 +417,7 @@ class Record extends DocumentPart
         foreach ($linkedRecords as $linkedRecord) {
             $alreadyLinkedRecords[$linkedRecord->sid] = true;
         }
-        foreach ($linkChanges["remove"] as $remove) {
+        foreach ($linkChanges["remove"] as $remove => $flag) {
             /** @var Link $link */
             foreach ($links as $link) {
                 if ($link->link_type_sid == $linkType->sid) {
@@ -438,10 +431,14 @@ class Record extends DocumentPart
             }
             unset($alreadyLinkedRecords[$remove]);
         }
-        foreach ($linkChanges["add"] as $add) {
+        foreach ($linkChanges["add"] as $add => $title) {
             // don't add it if it's already there
             if (array_key_exists($add, $alreadyLinkedRecords)) {
                 continue;
+            }
+            $otherRecord = Record::find($add);
+            if ($otherRecord->record_type_sid != $targetRecordTypeSid) {
+                throw new MMValidationException("Attempting to link record of wrong type for the link type.");
             }
 
             $link = new Link();
@@ -457,16 +454,6 @@ class Record extends DocumentPart
             $link->save();
         }
 
-        // validate changes to links
-        foreach ($linkChanges["add"] as $add) {
-            /** @var Record $otherRecord */
-            $otherRecord = Record::find($add);
-            // validation should have been done, but lets me sure...
-            if ($otherRecord->record_type_sid != $targetRecordTypeSid) {
-                throw new MMValidationException("Attempting to link record of wrong type for the link type.");
-            }
-            $alreadyLinkedRecords[$add] = true;
-        }
 
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\MMValidationException;
 use App\Models\Record;
 use Exception;
 use Illuminate\Http\RedirectResponse;
@@ -163,11 +164,14 @@ class RecordController extends Controller
     {
         $fieldChanges = $this->requestProcessor->fromFieldsRequest(
             $record->recordType->fields(), "field_");
+        $linkChanges = $this->requestProcessor->getLinkChanges(
+            $record->recordType);
         $record->updateData($fieldChanges);
         return view('record.edit', [
             "record" => $record,
             "idPrefix" => "",
             "returnTo" => $this->requestProcessor->returnURL(),
+            "linkChanges" => $linkChanges,
             "nav" => $this->navigationMaker->documentRevisionNavigation($record->documentRevision)
         ]);
     }
@@ -182,7 +186,7 @@ class RecordController extends Controller
     public function update(Record $record)
     {
         $action = $this->requestProcessor->get("_mmaction", "");
-        $returnLink = $this->requestProcessor->returnURL();
+        $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($record));
         if ($action == "cancel") {
             return Redirect::to($returnLink);
         }
@@ -197,7 +201,7 @@ class RecordController extends Controller
             $record->validate();
             $linkChanges = $this->requestProcessor->getLinkChanges($record->recordType);
             $record->validateLinkChanges($linkChanges);
-        } catch (Exception $exception) {
+        } catch (MMValidationException $exception) {
             return Redirect::to('records/' . $record->id . "/edit")
                 ->withInput()
                 ->withErrors($exception->getMessage());

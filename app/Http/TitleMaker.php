@@ -54,15 +54,17 @@ class TitleMaker
         if (is_a($item, Record::class)) {
             /** @var Record $item */
             $script = $item->recordType->titleScript();
-            if (!$script) {
-                $title = $item->recordType->name . "#" . $item->sid;
-            } else {
+            // fallback
+            $title = $item->recordType->name . "#" . $item->sid;
+            if ($script) {
                 if ($script->type() != "string") {
                     throw new MMValidationException("If a record type has a title it should be an MMScript which returns a string. This returned a " . $script->type());
                 }
                 try {
                     $result = $script->execute(["record" => $item]);
-                    $title = $result->value;
+                    if ($result->value) {
+                        $title = $result->value;
+                    }
                 } catch (MMScriptRuntimeException $e) {
                     $title = "[* mmscript failed: " . $e->getMessage() . " *]";
                 }

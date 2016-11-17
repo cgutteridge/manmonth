@@ -21,9 +21,10 @@ class RequestProcessor
      * constructor.
      * @param Request $request
      */
-    public function __construct(Request $request)
+    public function __construct(Request $request, TitleMaker $titleMaker)
     {
         $this->request = $request;
+        $this->titleMaker = $titleMaker;
         $this->old = (count($request->old()) > 0);
     }
 
@@ -112,38 +113,44 @@ class RequestProcessor
             if (isset($linkType->range_type)) {
                 continue;
             }
-            $allLinkChanges["fwd"][$linkType->sid] = $this->fromLinkFieldRequest("link_fwd_" . $linkType->sid . "_");
+            $allLinkChanges["fwd"][$linkType->sid] = $this->fromLinkFieldRequest($linkType->range, "link_fwd_" . $linkType->sid . "_");
         }
         foreach ($recordType->backLinkTypes as $linkType) {
             // only default types of link are handled on a record update
             if (isset($linkType->domain_type)) {
                 continue;
             }
-            $allLinkChanges["bck"][$linkType->sid] = $this->fromLinkFieldRequest("link_bck_" . $linkType->sid . "_");
+            $allLinkChanges["bck"][$linkType->sid] = $this->fromLinkFieldRequest($linkType->domain, "link_bck_" . $linkType->sid . "_");
         }
         return $allLinkChanges;
     }
 
     /**
      * Pull the additions and removals requested to this link from this form.
-     * This is a compliment to the editField/link template
+     * This is a compliment to the editField/link template.
+     * For additions
+     * @param RecordType $recordType
      * @param string $idPrefix
      * @return array
      */
-    public function fromLinkFieldRequest($idPrefix = "")
+    public function fromLinkFieldRequest(RecordType $recordType, $idPrefix = "")
     {
         $result = ["add" => [], "remove" => []];
         $gets = $this->all();
         foreach ($gets as $key => $value) {
             if (preg_match('/^' . $idPrefix . 'remove_(\d+)$/', $key, $bits) && $value) {
-                $result["remove"][$bits[1]] = true;
+                $sid = $bits[1];
+                $result["remove"][$sid] = true;
             }
             if (preg_match('/^' . $idPrefix . 'add_(\d+)$/', $key, $bits) && $value) {
-                $result["add"][$bits[1]] = true;
+                $sid = $bits[1];
+                $record = $recordType->record($sid);
+                if ($record) {
+                    # TODO give a warning if record is NULL
+                    $result["add"][$sid] = "FISH";
+                }
             }
         }
-        $result["add"] = array_keys($result["add"]);
-        $result["remove"] = array_keys($result["remove"]);
 
         return $result;
     }

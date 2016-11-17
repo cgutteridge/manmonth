@@ -89,7 +89,6 @@ class RecordTypeController extends Controller
     public function storeRecord(RecordType $recordType)
     {
         $action = $this->requestProcessor->get("_mmaction", "");
-        $returnLink = $this->requestProcessor->returnURL();
 
         if ($action == "cancel") {
             return Redirect::to($returnLink);
@@ -118,6 +117,8 @@ class RecordTypeController extends Controller
         $record->save();
 
         $record->applyLinkChanges($linkChanges);
+
+        $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($record));
 
         return Redirect::to($returnLink)
             ->with("message", "Record created.");

@@ -50,7 +50,15 @@ class RecordType extends DocumentPart
             ->where("range_sid", $this->sid);
     }
 
-    // TODO: passing in secondary records could be helpful later
+    /**
+     * @param int $recordSid
+     * @return Record
+     */
+    public function record($recordSid)
+    {
+        /** @noinspection PhpUndefinedMethodInspection */
+        return $this->records()->where("sid", (int)$recordSid)->first();
+    }
 
     /**
      * @return Record[]

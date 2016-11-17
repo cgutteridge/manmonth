@@ -8,7 +8,7 @@
     "records"=>$record->forwardLinkedRecords($linkType),
     "type"=>$linkType->range_type,
     "recordType"=>$linkType->range,
-    "linkChanges"=>$linkChanges["fwd"]
+    "linkChanges"=>( array_key_exists($linkType->sid,$linkChanges["fwd"]) ? $linkChanges["fwd"][$linkType->sid] : ["add"=>[],"remove"=>[]] )
 ])
 @endforeach
 @foreach( $record->recordType->backLinkTypes as $linkType )
@@ -20,6 +20,7 @@
     "records"=>$record->backLinkedRecords($linkType),
     "type"=>$linkType->domain_type,
     "recordType"=>$linkType->domain,
-    "linkChanges"=>$linkChanges["bck"]
+    "linkChanges"=>( array_key_exists($linkType->sid,$linkChanges["bck"]) ? $linkChanges["bck"][$linkType->sid] : ["add"=>[],"remove"=>[]] )
+
 ])
 @endforeach

@@ -28,10 +28,9 @@ $(document).ready(function () {
             var undoButton = li.find('.mm-button-undo');
             var actionInput = li.find('.mm-form-action');
             var recordStub = li.find('.mm-record-stub');
-
+            var showAsRemoved = li.attr('data-mm-remove') == "true";
             // ensure this input is initially what we expect
             actionInput.val(0);
-
             removeButton.click(mmRemove);
             undoButton.hide().click(mmUndo);
 
@@ -48,6 +47,11 @@ $(document).ready(function () {
                 recordStub.removeClass('mm-chopping-block');
                 actionInput.val(0);
             }
+
+            if (showAsRemoved) {
+                alert('remove')
+                mmRemove();
+            }
         });
 
         block.find("li.mm-link-edit-list-add").each(function () {
@@ -55,7 +59,10 @@ $(document).ready(function () {
             var idPrefix = li.attr("data-mm-idprefix");
             var addButton = li.find('.mm-button-add');
             var select = li.find('select');
-
+            var toAdd = [];
+            if (li.attr("data-mm-add")) {
+                toAdd = li.attr("data-mm-add").split(",");
+            }
             addButton.click(function () {
                 var id = select.val();
                 var name = select.find(">option:selected").html();

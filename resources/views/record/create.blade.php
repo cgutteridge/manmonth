@@ -27,9 +27,6 @@
                 </td>
             </tr>
         </table>
-        <input name="_token" type="hidden" value="{!! csrf_token() !!}"/>
-        <input name="_mmreturn" type="hidden" value="{{ $returnTo }}"/>
-
-
+        @include('form.commonBits', ["returnTo"=>$returnTo])
     </form>
 @endsection

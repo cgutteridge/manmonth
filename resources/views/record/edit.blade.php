@@ -14,7 +14,8 @@
             ])
             @include( 'record.editLinks' ,[
                 "values"=>$record->data,
-                "idPrefix"=>$idPrefix."link_"
+                "idPrefix"=>$idPrefix."link_",
+                "linkChanges"=>$linkChanges
             ])
             <tr>
                 <th>
@@ -27,8 +28,7 @@
                 </td>
             </tr>
         </table>
-        <input name="_token" type="hidden" value="{!! csrf_token() !!}"/>
         <input name="_method" type="hidden" value="PUT"/>
-        <input name="_mmreturn" type="hidden" value="{{ $returnTo }}"/>
+        @include('form.commonBits', ["returnTo"=>$returnTo])
     </form>
 @endsection

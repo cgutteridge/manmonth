@@ -4,13 +4,15 @@
         {{$title}}@if( $min>0 ) (required)@endif:
     </th>
     <td>
-        {{dump($linkChanges)}}
-    </td>
-    <td>
         @if( !isset($type) )
             <ul id="{{$idPrefix}}list" class="mm-link-edit-list">
                 @foreach( $records as $linkedRecord)
-                    <li class="mm-link-edit-list-existing">
+                    <li
+                            class="mm-link-edit-list-existing"
+                            @if( in_array($linkedRecord->sid,$linkChanges["remove"]))
+                            data-mm-remove="true"
+                            @endif
+                    >
                         <a
                                 data-rid="{{$linkedRecord->sid}}"
                                 class="mm-record-stub mm-record-entity mm-record-{{$linkedRecord->sid}}"
@@ -28,7 +30,11 @@
                         <input class="mm-form-action" name="{{$idPrefix}}remove_{{$linkedRecord->sid}}" value="0"/>
                     </li>
                 @endforeach
-                <li class="mm-link-edit-list-add" data-mm-idprefix="{{$idPrefix}}">
+                {{                dump($linkChanges)}}
+                <li class="mm-link-edit-list-add" data-mm-idprefix="{{$idPrefix}}"
+                    data-mm-add="{{ join( ",", $linkChanges["add"]) }}"
+                >
+                    {{                    dump($linkChanges["add"])}}
                     @include("record.field",[
                         "idPrefix"=>$idPrefix."add",
                         "recordType"=>$recordType
