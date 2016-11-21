@@ -91,6 +91,7 @@ class RecordTypeController extends Controller
         $action = $this->requestProcessor->get("_mmaction", "");
 
         if ($action == "cancel") {
+            $returnLink = $this->requestProcessor->returnURL(); // no default return link at this stage.
             return Redirect::to($returnLink);
         }
         if ($action != "save") {

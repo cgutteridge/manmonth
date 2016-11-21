@@ -20,6 +20,7 @@ class RequestProcessor
      * All these methods need access to request so we might as well load it in the
      * constructor.
      * @param Request $request
+     * @param TitleMaker $titleMaker
      */
     public function __construct(Request $request, TitleMaker $titleMaker)
     {
