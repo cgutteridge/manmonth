@@ -9,7 +9,7 @@
                 @foreach( $records as $linkedRecord)
                     <li
                             class="mm-link-edit-list-existing"
-                            @if( in_array($linkedRecord->sid,$linkChanges["remove"]))
+                            @if( array_key_exists($linkedRecord->sid,$linkChanges["remove"]))
                             data-mm-remove="true"
                             @endif
                     >
@@ -30,11 +30,12 @@
                         <input class="mm-form-action" name="{{$idPrefix}}remove_{{$linkedRecord->sid}}" value="0"/>
                     </li>
                 @endforeach
-                {{                dump($linkChanges)}}
                 <li class="mm-link-edit-list-add" data-mm-idprefix="{{$idPrefix}}"
-                    data-mm-add="{{ join( ",", $linkChanges["add"]) }}"
+                    data-mm-add="{{ join( ",", array_keys($linkChanges["add"])) }}"
+                    @foreach($linkChanges["add"] as $sid=>$addTitle )
+                    data-mm-add-{{$sid}}="{{$addTitle}}"
+                        @endforeach
                 >
-                    {{                    dump($linkChanges["add"])}}
                     @include("record.field",[
                         "idPrefix"=>$idPrefix."add",
                         "recordType"=>$recordType

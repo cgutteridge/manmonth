@@ -49,7 +49,6 @@ $(document).ready(function () {
             }
 
             if (showAsRemoved) {
-                alert('remove')
                 mmRemove();
             }
         });
@@ -63,11 +62,15 @@ $(document).ready(function () {
             if (li.attr("data-mm-add")) {
                 toAdd = li.attr("data-mm-add").split(",");
             }
-            addButton.click(function () {
+            addButton.click(mmAddFromSelect);
+            select.change(mmAddFromSelect);
+
+            function mmAddFromSelect() {
                 var id = select.val();
                 var name = select.find(">option:selected").html();
                 mmAddValue(id, name);
-            });
+            }
+
             function mmAddValue(id, name) {
                 var stubclass = "mm-record-stub mm-record-entity mm-record-" + id;
                 var code = idPrefix + 'add_' + id;
@@ -79,6 +82,12 @@ $(document).ready(function () {
                 });
                 newRow.append(removeButton);
                 li.before(newRow);
+            }
+
+            for (var i = 0; i < toAdd.length; ++i) {
+                var id = toAdd[i];
+                var name = li.attr("data-mm-add-" + id);
+                mmAddValue(id, name);
             }
         });
 

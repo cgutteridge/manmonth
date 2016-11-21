@@ -56,6 +56,7 @@ class ReportController extends Controller
     {
         /** @noinspection PhpUndefinedMethodInspection */
         $report = Report::find($id);
+        #TODO don't use find!!
         return view('report.show', ["report" => $report]);
     }
 

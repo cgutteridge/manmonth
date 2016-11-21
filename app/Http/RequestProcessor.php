@@ -147,7 +147,7 @@ class RequestProcessor
                 $record = $recordType->record($sid);
                 if ($record) {
                     # TODO give a warning if record is NULL
-                    $result["add"][$sid] = "FISH";
+                    $result["add"][$sid] = $this->titleMaker->title($record);
                 }
             }
         }

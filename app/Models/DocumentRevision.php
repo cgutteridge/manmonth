@@ -30,6 +30,16 @@ class DocumentRevision extends MMModel
     }
 
     /**
+     * @param int $recordSid
+     * @return Record
+     */
+    public function record($recordSid)
+    {
+        /** @noinspection PhpUndefinedMethodInspection */
+        return $this->records()->where("sid", (int)$recordSid)->first();
+    }
+
+    /**
      * The relationship to the records in this revision.
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -78,7 +88,7 @@ class DocumentRevision extends MMModel
 
     /**
      * @param string $name
-     * @return RecordType
+     * @return RecordType|null
      */
     public function recordTypeByName($name)
     {
@@ -112,6 +122,16 @@ class DocumentRevision extends MMModel
     public function linkTypes()
     {
         return $this->hasMany('App\Models\LinkType');
+    }
+
+    /**
+     * @param $linkTypeSid
+     * @return LinkType|null
+     */
+    public function linkType($linkTypeSid)
+    {
+        /** @noinspection PhpUndefinedMethodInspection */
+        return $this->linkTypes()->where("sid", (int)$linkTypeSid)->first();
     }
 
 
@@ -221,6 +241,5 @@ class DocumentRevision extends MMModel
 
         return $link_type;
     }
-
 
 }

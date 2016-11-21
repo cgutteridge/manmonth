@@ -213,11 +213,11 @@ class Record extends DocumentPart
     public function validateLinkChanges($linkChanges)
     {
         foreach ($linkChanges["fwd"] as $sid => $changes) {
-            $linkType = LinkType::find($sid);
+            $linkType = $this->documentRevision->linkType($sid);
             $this->_validateLinkChanges($linkType, $changes, true);
         }
         foreach ($linkChanges["bck"] as $sid => $changes) {
-            $linkType = LinkType::find($sid);
+            $linkType = $this->documentRevision->linkType($sid);
             $this->_validateLinkChanges($linkType, $changes, false);
         }
     }
@@ -229,7 +229,7 @@ class Record extends DocumentPart
      * @param bool $isForwards false if this call is looking at inverse links
      * @throws MMValidationException
      */
-    protected function _validateLinkChanges($linkType, $linkChanges, $isForwards)
+    protected function _validateLinkChanges(LinkType $linkType, $linkChanges, $isForwards)
     {
         if ($isForwards) {
             // forward
@@ -256,6 +256,7 @@ class Record extends DocumentPart
         // find all the back links of this type both TO and FROM those records, so we can check
         // changes to their cardinality
         $resultingLinkedRecordsInverseRecords = [];
+        /** @var Record $linkedRecord */
         foreach ($linkedRecords as $linkedRecord) {
             $resultingLinkedRecords[$linkedRecord->sid] = true;
 
@@ -290,7 +291,7 @@ class Record extends DocumentPart
         // validate changes to links
         foreach ($linkChanges["add"] as $add => $title) {
             /** @var Record $otherRecord */
-            $otherRecord = Record::find($add);
+            $otherRecord = $this->documentRevision->record($add);
             if ($otherRecord->record_type_sid != $targetRecordTypeSid) {
                 throw new MMValidationException("Attempting to link record of wrong type for the link type.");
             }
@@ -314,11 +315,13 @@ class Record extends DocumentPart
         // check cardinality of linked records
         foreach ($resultingLinkedRecordsInverseRecords as $linkedRecordSID => $inverseLinks) {
             $to_n = count($inverseLinks);
+            $otherRecord = $this->documentRevision->record($linkedRecordSID);
+            $otherRecordTitle = $titleMaker->title($otherRecord);
             if ($to_n < $from_min) {
-                throw new MMValidationException("Change would result in $to_n $linkTypeName links on a linked $targetRecordTypeName record; below the minimum of $to_min");
+                throw new MMValidationException("Change would result in $to_n $linkTypeName links on linked $targetRecordTypeName record '$otherRecordTitle'; below the minimum of $to_min");
             }
             if (isset($to_max) && $to_n > $to_max) {
-                throw new MMValidationException("Change would result in $to_n $linkTypeName links on a linked $targetRecordTypeName record; above the maximum of $to_max");
+                throw new MMValidationException("Change would result in $to_n $linkTypeName links on linked $targetRecordTypeName record '$otherRecordTitle'; above the maximum of $to_max");
             }
         }
         // changes to linktype seem OK
@@ -379,11 +382,11 @@ class Record extends DocumentPart
     public function applyLinkChanges($linkChanges)
     {
         foreach ($linkChanges["fwd"] as $sid => $changes) {
-            $linkType = LinkType::find($sid);
+            $linkType = $this->documentRevision->linkType($sid);
             $this->_applyLinkChanges($linkType, $changes, true);
         }
         foreach ($linkChanges["bck"] as $sid => $changes) {
-            $linkType = LinkType::find($sid);
+            $linkType = $this->documentRevision->linkType($sid);
             $this->_applyLinkChanges($linkType, $changes, false);
         }
     }
@@ -436,7 +439,7 @@ class Record extends DocumentPart
             if (array_key_exists($add, $alreadyLinkedRecords)) {
                 continue;
             }
-            $otherRecord = Record::find($add);
+            $otherRecord = $this->documentRevision->record($add);
             if ($otherRecord->record_type_sid != $targetRecordTypeSid) {
                 throw new MMValidationException("Attempting to link record of wrong type for the link type.");
             }
@@ -451,10 +454,9 @@ class Record extends DocumentPart
                 $link->subject_sid = $add;
                 $link->object_sid = $this->sid;
             }
+
             $link->save();
         }
-
-
     }
 
 }
