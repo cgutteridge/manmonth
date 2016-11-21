@@ -59,8 +59,10 @@ class RecordController extends Controller
                 ) {
                     $records = $record->forwardLinkedRecords($linkType);
                     if ($linkType->range_type == 'dependent') {
+                        // a forward link means the target will have a backlink
+                        // to this record.
                         $createLink = $this->linkMaker->url($linkType->range, "create-record", [
-                            "subject" => $record->sid,// needs to be clever TODO
+                            "link_bck_" . $linkType->sid . "_add_" . $record->sid => 1,
                             "_mmreturn" => $returnURL
                         ]);
                     } else {
@@ -82,8 +84,11 @@ class RecordController extends Controller
                 ) {
                     $records = $record->backLinkedRecords($linkType);
                     if ($linkType->domain_type == 'dependent') {
+                        // a back link means the target will have a fwdlink
+                        // to this record.
+                        // link_fwd_2_add_12
                         $createLink = $this->linkMaker->url($linkType->domain, "create-record", [
-                            "object" => $record->sid,// needs to be clever TODO
+                            "link_fwd_" . $linkType->sid . "_add_" . $record->sid => 1,
                             "_mmreturn" => $returnURL
                         ]);
                     } else {

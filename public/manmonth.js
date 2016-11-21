@@ -67,6 +67,9 @@ $(document).ready(function () {
 
             function mmAddFromSelect() {
                 var id = select.val();
+                if (id == "") {
+                    return;
+                }
                 var name = select.find(">option:selected").html();
                 mmAddValue(id, name);
             }
@@ -82,6 +85,7 @@ $(document).ready(function () {
                 });
                 newRow.append(removeButton);
                 li.before(newRow);
+                select.val("");
             }
 
             for (var i = 0; i < toAdd.length; ++i) {

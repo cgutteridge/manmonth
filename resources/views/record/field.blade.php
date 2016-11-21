@@ -1,7 +1,5 @@
 <select name="{{$idPrefix}}" id="{{$idPrefix}}">
-    @if(!isset($record))
-        <option value="">-- select --</option>
-    @endif
+    <option value="">-- select --</option>
     @foreach( $recordType->records as $item)
         <option value="{{$item->sid}}"
                 @if(isset($record) && $record->sid==$item->sid)

@@ -40,10 +40,12 @@
                         "idPrefix"=>$idPrefix."add",
                         "recordType"=>$recordType
                     ])
+                    <!--
                     <a class="mm-button mm-button-add">
                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                         ADD LINK
                     </a>
+                    -->
                 </li>
             </ul>
         @else
