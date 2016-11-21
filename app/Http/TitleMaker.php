@@ -72,13 +72,20 @@ class TitleMaker
         }
         if (is_a($item, LinkType::class)) {
             /** @var LinkType $item */
-            if ($mode == 'inverse') {
+            if ($mode == 'long') {
+                // forward link title with names of from and two recordtypes
+                $shortName = $this->title($item);
+                $from = $this->title($item->domain);
+                $to = $this->title($item->range);
+                $title = "$from $shortName $to";
+            } elseif ($mode == 'inverse') {
                 if (isset($item->inverse_label) && trim($item->inverse_label) != "") {
                     $title = $item->inverse_label;
                 } else {
                     $title = "is " . $this->title($item) . " of";
                 }
             } else {
+                // short forward link title
                 if (isset($item->label) && trim($item->label) != "") {
                     $title = $item->label;
                 } else {
