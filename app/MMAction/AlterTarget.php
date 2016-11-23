@@ -3,7 +3,6 @@
 namespace App\MMAction;
 
 use App\Exceptions\ReportingException;
-
 use App\RecordReport;
 
 class AlterTarget extends Action
@@ -41,7 +40,10 @@ class AlterTarget extends Action
         if (!$recordReport->hasLoadingTarget($params["target"])) {
             throw new ReportingException("Attempt to alter uninitialised target '" . $params["target"] . "'");
         }
-        $value = $recordReport->getLoadingTarget($params["value"]) + $params["factor"];
+        if (!isset($params["factor"])) {
+            throw new ReportingException("Attempt to alter target '" . $params["target"] . "' with null factor");
+        }
+        $value = $recordReport->getLoadingTarget($params["target"]) + $params["factor"];
         $recordReport->setLoadingTarget($params["target"], $value);
         $this->recordLog($recordReport, $params);
     }

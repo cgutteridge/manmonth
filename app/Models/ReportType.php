@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Exceptions\MMValidationException;
+use App\Exceptions\ReportingException;
+use App\Http\TitleMaker;
 use App\RecordReport;
 use Validator;
 
@@ -89,13 +91,20 @@ class ReportType extends DocumentPart
      * Run this report type on the current document revision and produce a report object.
      * Doesn't save the object.
      * @return Report
+     * @throws ReportingException
      */
     function makeReport()
     {
         $records = $this->baseRecordType()->records;
         $report = $this->documentRevision->makeReport(); // will be an object when I know what shape it is!
         foreach ($records as $record) {
-            $report->setRecordReport($record->sid, $this->recordReport($record));
+            try {
+                $recordReport = $this->recordReport($record);
+            } catch (ReportingException $e) {
+                $titleMaker = new TitleMaker();
+                throw new ReportingException("In record " . $titleMaker->title($record) . ": " . $e->getMessage(), 0, $e);
+            }
+            $report->setRecordReport($record->sid, $recordReport);
         }
         return $report;
     }
@@ -118,15 +127,23 @@ class ReportType extends DocumentPart
      * then apply the rule.
      * @param Record $record
      * @return RecordReport
+     * @throws ReportingException
      */
 
     function recordReport($record)
     {
+
         $recordReport = new RecordReport();
 
         foreach ($this->rules() as $rule) {
             // apply this rule to every possible context based on the route
-            $rule->apply($record, $recordReport);
+            /** @var Rule $rule */
+            try {
+                $rule->apply($record, $recordReport);
+            } catch (ReportingException $e) {
+                $titleMaker = new TitleMaker();
+                throw new ReportingException("In rule " . $titleMaker->title($rule) . ": " . $e->getMessage(), 0, $e);
+            }
         }
         return $recordReport;
     }

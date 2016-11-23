@@ -206,7 +206,7 @@ footer.navbar {
     padding: 10px;
 }
 
-.mm-record-stub.mm-chopping-block {
+.mm-link-edit-list .mm-chopping-block .mm-record-stub {
     background-color: #ccc;
     border-color: #999;
     color: #999;
@@ -217,6 +217,39 @@ ul.mm-link-edit-list li {
     list-style: none;
     margin: 0;
     padding: 0;
+}
+
+/* the order of these is important! */
+.mm-link-edit-list .mm-button-undo {
+    display: none;
+}
+
+.mm-link-edit-list .mm-chopping-block .mm-button-undo {
+    display: inline-block;
+}
+
+.mm-link-edit-list .mm-chopping-block .mm-button-remove {
+    display: none;
+}
+
+.mm-at-max .mm-link-edit-list-add,
+.mm-above-max .mm-link-edit-list-add {
+    display: none;
+}
+
+tr.mm-above-max th,
+tr.mm-above-max td,
+tr.mm-below-min th,
+tr.mm-below-min td {
+    background-color: #be8788;
+}
+
+.mm-link-edit-list.mm-at-max .mm-button-undo {
+    display: none;
+}
+
+.mm-link-edit-list.min .mm-button-remove {
+    display: none;
 }
 
 ul.mm-link-edit-list {
@@ -233,6 +266,9 @@ ul.mm-link-edit-list {
     margin-top: 1em;
 }
 
+.mm-form-fields {
+    width: 100%;
+}
 .mm-form-fields th {
     text-align: right;
     padding: 0 0.5em 0.5em 0;

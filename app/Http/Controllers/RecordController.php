@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\MMValidationException;
+use App\Exceptions\ReportingException;
 use App\Models\Record;
+use App\Models\ReportType;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
@@ -20,9 +22,15 @@ class RecordController extends Controller
      */
     public function show(Record $record)
     {
+        $errors = [];
         $reports = [];
         foreach ($record->recordType->reportTypes as $reportType) {
-            $reports [] = $reportType->recordReport($record);
+            /** @var ReportType $reportType */
+            try {
+                $reports [] = $reportType->recordReport($record);
+            } catch (ReportingException $e) {
+                $errors [] = $e->getMessage();
+            }
         }
 
         return view('record.show', [
@@ -30,7 +38,7 @@ class RecordController extends Controller
             "recordBlock" => $this->recordBlock($record, 'all', [], $this->linkMaker->url($record), true),
             "reports" => $reports,
             "nav" => $this->navigationMaker->documentRevisionNavigation($record->documentRevision)
-        ]);
+        ])->withErrors($errors);
     }
 
     /**
