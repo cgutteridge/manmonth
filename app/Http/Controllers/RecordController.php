@@ -8,7 +8,7 @@ use App\Models\Record;
 use App\Models\ReportType;
 use Exception;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Response;
+use Illuminate\View\View;
 use Redirect;
 
 class RecordController extends Controller
@@ -18,7 +18,7 @@ class RecordController extends Controller
      * Display the specified resource.
      *
      * @param Record $record
-     * @return Response
+     * @return View
      */
     public function show(Record $record)
     {
@@ -171,7 +171,7 @@ class RecordController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param Record $record
-     * @return Response
+     * @return View
      */
     public function edit(Record $record)
     {

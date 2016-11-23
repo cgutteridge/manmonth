@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\ReportingException;
 use App\Models\ReportType;
-use Illuminate\Http\Response;
+use Illuminate\View\View;
 
 class ReportTypeController extends Controller
 {
@@ -13,7 +13,7 @@ class ReportTypeController extends Controller
      * Display the specified resource.
      *
      * @param ReportType $reportType
-     * @return Response
+     * @return View
      */
     public function show(ReportType $reportType)
     {
