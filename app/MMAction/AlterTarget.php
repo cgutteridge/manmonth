@@ -40,10 +40,11 @@ class AlterTarget extends Action
         if (!$recordReport->hasLoadingTarget($params["target"])) {
             throw new ReportingException("Attempt to alter uninitialised target '" . $params["target"] . "'");
         }
-        if (!isset($params["factor"])) {
-            throw new ReportingException("Attempt to alter target '" . $params["target"] . "' with null factor");
+        if (!isset($params["change"])) {
+            dump($params);
+            throw new ReportingException("Attempt to alter target '" . $params["target"] . "' with null change");
         }
-        $value = $recordReport->getLoadingTarget($params["target"]) + $params["factor"];
+        $value = $recordReport->getLoadingTarget($params["target"]) + $params["change"];
         $recordReport->setLoadingTarget($params["target"], $value);
         $this->recordLog($recordReport, $params);
     }
