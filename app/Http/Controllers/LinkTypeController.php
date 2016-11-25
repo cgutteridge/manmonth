@@ -66,7 +66,6 @@ class LinkTypeController extends Controller
      */
     public function createLink(Request $request, LinkType $linkType)
     {
-        dd($request->old()); # TODO remove debug code!
         $link = new Link();
         $link->documentRevision()->associate($linkType->documentRevision);
         $link->link_type_sid = $linkType->sid;

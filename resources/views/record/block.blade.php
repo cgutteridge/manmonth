@@ -1,4 +1,3 @@
-{{dump($followLink,$links,$h)}}
 <table class="mm-record mm-record-entity mm-record-{{$record->sid}}">
     <thead>
     <tr>
