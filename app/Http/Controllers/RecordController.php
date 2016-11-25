@@ -56,60 +56,67 @@ class RecordController extends Controller
             "links" => [],
             "returnURL" => $returnURL,
             "swimLanes" => $swimLanes,
+            "followLink" => $followLink,
+            "h" => [],
             "record" => $record      // should really pass all the rendered bits instead
         ];
         $seen[$record->id] = true;
 
         if ($followLink != 'none') {
+
             foreach ($record->recordType->forwardLinkTypes as $linkType) {
+                $block["h"][] = ["dir" => "f", "lt" => $linkType, "dmax" => $linkType->domain_max, "rmax" => $linkType->range_max];
                 if ($followLink == 'all'
-                    || (isset($linkType->range_max) && $linkType->range_max == 1)
+                    || (isset($linkType->domain_max) && $linkType->domain_max == 1)
                 ) {
                     $records = $record->forwardLinkedRecords($linkType);
+                    $link = [
+                        "title" => $this->titleMaker->title($linkType),
+                        "records" => $this->linkedRecords($records, $seen, $returnURL)
+                    ];
                     if ($linkType->range_type == 'dependent') {
                         // a forward link means the target will have a backlink
                         // to this record.
-                        $createLink = $this->linkMaker->url($linkType->range, "create-record", [
+                        $link["createLink"] = $this->linkMaker->url($linkType->range, "create-record", [
                             "link_bck_" . $linkType->sid . "_add_" . $record->sid => 1,
                             "_mmreturn" => $returnURL
                         ]);
                     } else {
-                        $createLink = $this->linkMaker->url($linkType, "create-link", [
+                        $link["createLink"] = $this->linkMaker->url($linkType, "create-link", [
                             "subject" => $record->sid,
                             "_mmreturn" => $returnURL
                         ]);
                     }
-                    $block["links"][] = [
-                        "title" => $this->titleMaker->title($linkType),
-                        "createLink" => $createLink,
-                        "records" => $this->linkedRecords($records, $seen, $returnURL)
-                    ];
+                    $block["links"][] = $link;
                 }
             }
             foreach ($record->recordType->backLinkTypes as $linkType) {
+                $block["h"][] = ["dir" => "b", "lt" => $linkType, "dmax" => $linkType->domain_max, "rmax" => $linkType->range_max];
+
                 if ($followLink == 'all'
-                    || (isset($linkType->domain_max) && $linkType->domain_max == 1)
+                    || (isset($linkType->range_max) && $linkType->range_max == 1)
                 ) {
                     $records = $record->backLinkedRecords($linkType);
+
+                    $link = [
+                        "title" => $this->titleMaker->title($linkType, "inverse"),
+                        "records" => $this->linkedRecords($records, $seen, $returnURL)
+                    ];
                     if ($linkType->domain_type == 'dependent') {
                         // a back link means the target will have a fwdlink
                         // to this record.
                         // link_fwd_2_add_12
-                        $createLink = $this->linkMaker->url($linkType->domain, "create-record", [
+                        $link["createLink"] = $this->linkMaker->url($linkType->domain, "create-record", [
                             "link_fwd_" . $linkType->sid . "_add_" . $record->sid => 1,
                             "_mmreturn" => $returnURL
                         ]);
                     } else {
-                        $createLink = $this->linkMaker->url($linkType, "create-link", [
+                        $link["createLink"] = $this->linkMaker->url($linkType, "create-link", [
                             "object" => $record->sid,
                             "_mmreturn" => $returnURL
                         ]);
                     }
-                    $block["links"][] = [
-                        "title" => $this->titleMaker->title($linkType, "inverse"),
-                        "createLink" => $createLink,
-                        "records" => $this->linkedRecords($records, $seen, $returnURL)
-                    ];
+                    $block["links"][] = $link;
                 }
             }
         }

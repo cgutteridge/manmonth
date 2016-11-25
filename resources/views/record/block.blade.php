@@ -1,3 +1,4 @@
+{{dump($followLink,$links,$h)}}
 <table class="mm-record mm-record-entity mm-record-{{$record->sid}}">
     <thead>
     <tr>
@@ -43,6 +44,7 @@
                                     @title( $subrecord["record"])
                                 </a>
                             @endforeach
+
                             <a class="mm-button" href="{{$link["createLink"]}}">
                                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                             </a>
