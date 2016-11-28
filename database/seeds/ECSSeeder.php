@@ -5,14 +5,14 @@ use Illuminate\Database\Seeder;
 class ECSSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Run the database seeds for the draft ECS set up.
      *
      * @return void
      */
     public function run()
     {
         $doc = new App\Models\Document();
-        $doc->name = "Department of Studies Staff Loadings, 2015-16";
+        $doc->name = "ECS Test Loadings, 2016-17";
         $doc->save();
         $doc->init(); // create default current revision
         $draft = $doc->createDraftRevision();
