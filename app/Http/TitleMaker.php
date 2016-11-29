@@ -11,6 +11,7 @@ namespace App\Http;
 /* return URLs for models */
 use App\Exceptions\MMScriptRuntimeException;
 use App\Exceptions\MMValidationException;
+use App\Exceptions\ScriptException;
 use App\Fields\Field;
 use App\Models\Document;
 use App\Models\DocumentRevision;
@@ -53,20 +54,26 @@ class TitleMaker
         }
         if (is_a($item, Record::class)) {
             /** @var Record $item */
-            $script = $item->recordType->titleScript();
+
             // fallback
             $title = $item->recordType->name . "#" . $item->sid;
+            $script = null;
+            try {
+                $script = $item->recordType->titleScript();
+            } catch (ScriptException $e) {
+                $title = "[* script failed: " . $e->getMessage() . " *]";
+            }
             if ($script) {
-                if ($script->type() != "string") {
-                    throw new MMValidationException("If a record type has a title it should be an MMScript which returns a string. This returned a " . $script->type());
-                }
                 try {
+                    if ($script->type() != "string") {
+                        throw new MMValidationException("If a record type has a title it should be an MMScript which returns a string. This returned a " . $script->type());
+                    }
                     $result = $script->execute(["record" => $item]);
                     if ($result->value) {
                         $title = $result->value;
                     }
                 } catch (MMScriptRuntimeException $e) {
-                    $title = "[* mmscript failed: " . $e->getMessage() . " *]";
+                    $title = "[* script failed: " . $e->getMessage() . " *]";
                 }
             }
         }
@@ -78,7 +85,9 @@ class TitleMaker
                 $from = $this->title($item->domain);
                 $to = $this->title($item->range);
                 $title = "$from $shortName $to";
-            } elseif ($mode == 'inverse') {
+            } elseif
+            ($mode == 'inverse'
+            ) {
                 if (isset($item->inverse_label) && trim($item->inverse_label) != "") {
                     $title = $item->inverse_label;
                 } else {
