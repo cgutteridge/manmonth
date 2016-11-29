@@ -27,7 +27,12 @@
                         title="Click to edit"
                         onclick="document.location.href = '@url($record, 'edit', ["_mmreturn"=>$returnURL])';">
                         <th>{{$field["title"]}}:</th>
-                        <td>{{$field["value"]}}</td>
+                        <td>@if(!empty($field['value']))
+                                {{$field["value"]}}
+                            @elseif(isset($field['default']))
+                                {{$field["default"]}} <span class="mm-default">Default</span>
+                            @endif
+                        </td>
                     </tr>
                 @endforeach
                 @foreach( $links as $link )

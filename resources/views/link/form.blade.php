@@ -1,5 +1,4 @@
 <div>
-
     @include("record.field",[
                 "idPrefix"=>$idPrefix."subject",
                 "recordType"=>$link->linkType->domain,

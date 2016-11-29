@@ -164,9 +164,20 @@ footer.navbar {
     background-color: #eee;
 }
 
+.mm-default {
+    font-size: 70%;
+    color: #888;
+}
+
+.mm-default:before {
+    content: '[';
+}
+
+.mm-default:after {
+    content: ']';
+}
+
 /* End, er, stuff */
-
-
 
 /* inspect record */
 /*
@@ -269,6 +280,7 @@ ul.mm-link-edit-list {
 .mm-form-fields {
     width: 100%;
 }
+
 .mm-form-fields th {
     text-align: right;
     padding: 0 0.5em 0.5em 0;
