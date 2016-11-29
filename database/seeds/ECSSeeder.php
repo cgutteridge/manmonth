@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Seeder;
 
 class ECSSeeder extends Seeder
@@ -210,5 +211,51 @@ class ECSSeeder extends Seeder
 
         $draft3 = $doc->createDraftRevision();
 
+
+        // Now make some faked import data
+
+
+        if (Schema::hasTable('imported_people')) {
+            Schema::drop('imported_people');
+        }
+        Schema::create('imported_people', function (Blueprint $table) {
+            $table->string('name');
+            $table->string('email');
+            $table->string('pinumber');
+        });
+        DB::table('imported_people')->insert(
+            ['name' => "Miss Alpha", 'email' => 'alpha@example.com', 'pinumber' => "1000"]);
+        DB::table('imported_people')->insert(
+            ['name' => "Miss Beta", 'email' => 'beta@example.com', 'pinumber' => "1001"]);
+        DB::table('imported_people')->insert(
+            ['name' => "Miss Gamma", 'email' => 'gamma@example.com', 'pinumber' => "1002"]);
+        DB::table('imported_people')->insert(
+            ['name' => "Miss Delta", 'email' => 'delta@example.com', 'pinumber' => "1003"]);
+        DB::table('imported_people')->insert(
+            ['name' => "Miss Epsilon", 'email' => 'epsilon@example.com', 'pinumber' => "1004"]);
+        DB::table('imported_people')->insert(
+            ['name' => "Miss Thingy", 'email' => 'thingy@example.com', 'pinumber' => "1005"]);
+
+
+        if (Schema::hasTable('imported_courses_2016')) {
+            Schema::drop('imported_courses_2016');
+        }
+        Schema::create('imported_courses_2016', function (Blueprint $table) {
+            $table->string('name');
+            $table->string('code');
+            $table->string('crn');
+            $table->integer('classsize');
+        });
+        DB::table('imported_courses_2016')->insert(
+            ['name' => "Aardvark Studies", "code" => "AAAA1111", "crn" => "11111", "classsize" => 10]);
+        DB::table('imported_courses_2016')->insert(
+            ['name' => "Badger Studies", "code" => "BBBB2222", "crn" => "22222", "classsize" => 20]);
+        DB::table('imported_courses_2016')->insert(
+            ['name' => "Crocodile Studies", "code" => "CCCC3333", "crn" => "33333", "classsize" => 30]);
+        DB::table('imported_courses_2016')->insert(
+            ['name' => "Dragon Studies", "code" => "DDDD4444", "crn" => "44444", "classsize" => 40]);
+        DB::table('imported_courses_2016')->insert(
+            ['name' => "Elephant Studies", "code" => "EEEE5555", "crn" => "55555", "classsize" => 50]);
     }
+
 }
