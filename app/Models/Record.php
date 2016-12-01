@@ -7,6 +7,7 @@ use App\Fields\Field;
 use App\Http\TitleMaker;
 use App\MMScript\Values\Value;
 use DB;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Validator;
 
@@ -35,6 +36,7 @@ class Record extends DocumentPart
     }
 
     /**
+     * Access via parameter
      * @return Collection (list of Link)
      */
     public function forwardLinks()
@@ -45,6 +47,7 @@ class Record extends DocumentPart
     }
 
     /**
+     * Access via parameter
      * @return Collection (list of Link)
      */
     public function backLinks()
@@ -457,6 +460,96 @@ class Record extends DocumentPart
 
             $link->save();
         }
+    }
+
+    /**
+     * @return bool
+     * @throws Exception
+     */
+    public function deleteWithDependencies()
+    {
+        $errors = $this->reasonsThisCantBeErased();
+        if (count($errors)) {
+            throw new Exception(join(", ", $errors));
+        }
+        // find all reasons not to continue.
+        // get all records that would be deleted
+        $recordsToDelete = $this->getDependentRecords();
+        $linksToDelete = new Collection();
+        /** @var Record $record */
+        foreach ($recordsToDelete as $record) {
+            foreach ($record->forwardLinks as $link) {
+                $linksToDelete->put($link->sid, $link);
+            }
+            foreach ($record->backLinks as $link) {
+                $linksToDelete->put($link->sid, $link);
+            }
+        }
+        $result = true;
+        /** @var Link $link */
+        foreach ($linksToDelete as $link) {
+            $result &= $link->delete();
+        }
+        foreach ($recordsToDelete as $record) {
+            $result &= $record->delete();
+        }
+        return $result;
+    }
+
+    /**
+     * @return array
+     */
+    public function reasonsThisCantBeErased()
+    {
+        // find all reasons not to continue.
+        // get all records that would be deleted
+        $recordsToDelete = $this->getDependentRecords();
+        $linksToDelete = new Collection();
+        /** @var Record $record */
+        foreach ($recordsToDelete as $record) {
+            foreach ($record->forwardLinks as $link) {
+                $linksToDelete->put($link->sid, $link);
+            }
+            foreach ($record->backLinks as $link) {
+                $linksToDelete->put($link->sid, $link);
+            }
+        }
+        $errors = [];
+        return $errors;
+    }
+
+    /**
+     * Return a collection containing this record and any records dependent on it.
+     * @param null|Collection $collected built up over recursion to prevent loops
+     * @return Collection
+     */
+    public function getDependentRecords($collected = null)
+    {
+        if ($collected != null) {
+            if ($collected->contains($this->sid)) {
+                return $collected;
+            }
+        } else {
+            $collected = new Collection();
+        }
+        $collected->put($this->sid, $this);
+
+        foreach ($this->forwardLinks as $link) {
+            $linkType = $link->linkType;
+            if ($linkType->range_type != 'dependent') {
+                continue;
+            }
+            $link->objectRecord->getDependentRecords($collected);
+        }
+
+        foreach ($this->backLinks as $link) {
+            $linkType = $link->linkType;
+            if ($linkType->domain_type != 'dependent') {
+                continue;
+            }
+            $link->subjectRecord->getDependentRecords($collected);
+        }
+        return $collected;
     }
 
 }

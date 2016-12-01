@@ -23,4 +23,9 @@
         @endforeach
     @endforeach
     @include("record.block",$recordBlock)
+    <p>
+        <a type="button" class="btn btn-primary" href="@url($record,'delete')">
+            Delete this @title($record->recordType)
+        </a>
+    </p>
 @endsection

@@ -55,12 +55,17 @@
     <div class="content">
         <h1 class="title">@yield('title')</h1>
 
-        @if (count($errors) > 0)
+        @if (count($errors) > 0 || !empty($renderErrors))
             <div class="alert alert-danger">
                 <ul>
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
+                    @if(!empty($renderErrors))
+                        @foreach ($renderErrors as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    @endif
                 </ul>
             </div>
         @endif

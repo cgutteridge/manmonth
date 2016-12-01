@@ -8,6 +8,7 @@ use App\Models\Record;
 use App\Models\ReportType;
 use Exception;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Redirect;
 
@@ -15,21 +16,74 @@ class RecordController extends Controller
 {
 
     /**
+     * Display the form to delete the record.
+     *
+     * @param Record $record
+     * @return View
+     */
+    public function deleteForm(Record $record)
+    {
+        $renderErrors = $record->reasonsThisCantBeErased();
+
+        // validate the impact of removing all those links
+        return view('record.delete', [
+            "record" => $record,
+            "renderErrors" => $renderErrors,
+            "returnTo" => $this->requestProcessor->returnURL(),
+            "nav" => $this->navigationMaker->documentRevisionNavigation($record->documentRevision)
+        ]);
+    }
+
+    /**
+     * Remove the specified resource from storage, and dependent records and links.
+     *
+     * @param Record $record
+     * @return RedirectResponse
+     * @throws Exception
+     */
+    public function delete(Record $record)
+    {
+        $action = $this->requestProcessor->get("_mmaction", "");
+        $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($record));
+        $recordType = $record->recordType;
+        if ($action == "cancel") {
+            return Redirect::to($returnLink);
+        }
+        if ($action != "delete") {
+            throw new Exception("Unknown action '$action'");
+        }
+
+        try {
+            // validate changes to fields
+            $record->deleteWithDependencies();
+        } catch (Exception $exception) {
+            return Redirect::to($returnLink)
+                ->withErrors($exception->getMessage());
+        }
+
+        $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($recordType));
+
+        // apply changes to links
+        return Redirect::to($returnLink)
+            ->with("message", "Record and dependencies removed.");
+    }
+
+    /**
      * Display the specified resource.
      *
      * @param Record $record
      * @return View
      */
-    public function show(Record $record)
+    public function show(Request $request, Record $record)
     {
-        $errors = [];
+        $renderErrors = [];
         $reports = [];
         foreach ($record->recordType->reportTypes as $reportType) {
             /** @var ReportType $reportType */
             try {
                 $reports [] = $reportType->recordReport($record);
             } catch (ReportingException $e) {
-                $errors [] = $e->getMessage();
+                $renderErrors [] = $e->getMessage();
             }
         }
 
@@ -37,8 +91,9 @@ class RecordController extends Controller
             "record" => $record,
             "recordBlock" => $this->recordBlock($record, 'all', [], $this->linkMaker->url($record), true),
             "reports" => $reports,
+            "renderErrors" => $renderErrors,
             "nav" => $this->navigationMaker->documentRevisionNavigation($record->documentRevision)
-        ])->withErrors($errors);
+        ]);
     }
 
     /**
@@ -222,7 +277,9 @@ class RecordController extends Controller
             $linkChanges = $this->requestProcessor->getLinkChanges($record->recordType);
             $record->validateLinkChanges($linkChanges);
         } catch (MMValidationException $exception) {
-            return Redirect::to('records/' . $record->id . "/edit")
+            $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($record));
+
+            return Redirect::to($this->linkMaker->url($record, "edit"))
                 ->withInput()
                 ->withErrors($exception->getMessage());
         }

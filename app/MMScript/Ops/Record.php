@@ -2,8 +2,8 @@
 
 namespace App\MMScript\Ops;
 
-use App\Exceptions\ScriptException;
 use App\Exceptions\MMScriptRuntimeException;
+use App\Exceptions\ScriptException;
 use App\MMScript\Values\RecordValue;
 use App\Models\RecordType;
 
@@ -38,7 +38,7 @@ class Record extends Op
             return $this->recordType;
         }
         if (!@$this->script->context[$this->value]) {
-            throw new ScriptException("Reference to non-existant item '" . $this->value . "' in the context of this script. Valid names are: " . join(", ", array_keys($this->script->context)) . ". " . $this->script->text);
+            throw new ScriptException("Reference to non-existant item '" . $this->value . "' in the context of this script. Valid names are: " . join(", ", array_keys($this->script->context)) . ". Script: " . $this->script->text);
         }
         $this->recordType = $this->script->context[$this->value];
         return $this->recordType;

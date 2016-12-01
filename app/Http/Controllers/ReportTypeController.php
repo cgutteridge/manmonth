@@ -17,7 +17,7 @@ class ReportTypeController extends Controller
      */
     public function show(ReportType $reportType)
     {
-        $errors = [];
+        $renderErrors = [];
         $reportData = [];
 
         try {
@@ -87,14 +87,15 @@ class ReportTypeController extends Controller
                 }
             }
         } catch (ReportingException $e) {
-            $errors [] = $e->getMessage();
+            $renderErrors [] = $e->getMessage();
         }
 
         return view('reportType.show', [
             "reportType" => $reportType,
             "reportData" => $reportData,
+            "renderErrors" => $renderErrors,
             "nav" => $this->navigationMaker->documentRevisionNavigation($reportType->documentRevision)
-        ])->withErrors($errors);
+        ]);
     }
 
 }

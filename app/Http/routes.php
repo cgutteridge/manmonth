@@ -41,6 +41,9 @@ Route::post('record-types/{recordType}/create-record', 'RecordTypeController@sto
 Route::get('records/{record}', 'RecordController@show');
 Route::get('records/{record}/edit', 'RecordController@edit');
 Route::put('records/{record}', 'RecordController@update');
+Route::get('records/{record}/delete', 'RecordController@deleteForm');
+Route::delete('records/{record}', 'RecordController@delete');
+
 // TODO future: destroy form/action
 
 Route::get('report-types/{reportType}', 'ReportTypeController@show');
@@ -53,6 +56,7 @@ Route::get('link-types/{linkType}', 'LinkTypeController@show');
 Route::get('link-types/{linkType}/links', 'LinkTypeController@links');
 Route::get('link-types/{linkType}/create-link', 'LinkTypeController@createLink');
 Route::post('link-types/{linkType}/create-link', 'LinkTypeController@storeLink');
+// TODO should these next two not belong to the link?
 Route::get('link-types/{linkType}/delete-link', 'LinkTypeController@deleteLinkForm');
 Route::post('link-types/{linkType}/delete-link', 'LinkTypeController@deleteLink');
 
