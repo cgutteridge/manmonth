@@ -60,6 +60,7 @@ class ReportTypeController extends Controller
                         "showTarget" => true,
                         "record" => $record,
                         "recordReport" => $recordReport,
+                        "units" => $recordReport->getLoadingOption($loadingType, "units"),
                         "loadings" => $recordReport->getLoadings($loadingType),
                         "scale" =>
                             max($maxLoading, $maxTarget) == 0 ?
@@ -73,6 +74,7 @@ class ReportTypeController extends Controller
                         "showTarget" => true,
                         "record" => $record,
                         "recordReport" => $recordReport,
+                        "units" => $recordReport->getLoadingOption($loadingType, "units"),
                         "loadings" => $recordReport->getLoadings($loadingType),
                         "scale" =>
                             $recordTarget * $maxRatio == 0 ?
@@ -86,6 +88,7 @@ class ReportTypeController extends Controller
                         "showTarget" => false,
                         "record" => $record,
                         "recordReport" => $recordReport,
+                        "units" => $recordReport->getLoadingOption($loadingType, "units"),
                         "loadings" => $recordReport->getLoadings($loadingType),
                         "scale" => $recordTotal == 0 ? 1 : 1 / $recordTotal,
                         "target" => $recordTarget,

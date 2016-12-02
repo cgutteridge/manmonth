@@ -12,7 +12,7 @@
     @if( $showTarget )
         <div class="mm_target_indicator_bar">
             <div class="mm_target_indicator" style="width: {{ 100*$target*$scale }}%">
-                Target {{ $target }} hours
+                Target {{ $target }} {{$units}}
             </div>
         </div>
     @endif
@@ -20,25 +20,25 @@
     <div class="mm_target_bar">
         @if( $total == $target )
             <div class="mm_target mm_target_alloc" style="width: {{ 100*$total*$scale }}%">
-                <div class="mm_target_inner">{{ $total }} hours allocated</div>
+                <div class="mm_target_inner">{{ $total }} {{$units}} allocated</div>
             </div>
         @endif
         @if( $target > $total )
             <div class="mm_target mm_target_alloc" style="width: {{ 100*$total*$scale }}%">
-                <div class="mm_target_inner">{{ $total }} hours allocated</div>
+                <div class="mm_target_inner">{{ $total }} {{$units}} allocated</div>
             </div>
             @if( $showFree )
                 <div class="mm_target mm_target_free" style="width: {{ 100*($target-$total)*$scale}}%">
-                    <div class="mm_target_inner">{{ $target-$total }} hours free</div>
+                    <div class="mm_target_inner">{{ $target-$total }} {{$units}} free</div>
                 </div>
             @endif
         @endif
         @if( $target < $total )
             <div class="mm_target mm_target_alloc" style="width: {{ 100*$target*$scale }}%">
-                <div class="mm_target_inner">{{ $target }} hours meets target</div>
+                <div class="mm_target_inner">{{ $target }} {{$units}} meets target</div>
             </div>
             <div class="mm_target mm_target_over" style="width: {{ 100*($total-$target)*$scale }}%">
-                <div class="mm_target_inner">{{ $total-$target }} hours overload</div>
+                <div class="mm_target_inner">{{ $total-$target }} {{$units}} overload</div>
             </div>
         @endif
     </div>
@@ -49,12 +49,12 @@
                 <div class="mm_hover_target mm_loading mm_cat_{{ $loading['category'] }}"
                      style="width: {{ 100*$loading['load']*$scale }}%">
                     <div class="mm_loading_inner">
-                        {{ $loading['description'] }} - {{ $loading['load']}} hours
+                        {{ $loading['description'] }} - {{ $loading['load']}} {{$units}}
                     </div>
                 </div>
                 <div class="mm_hover_message">
                     <div class="mm_loading_hover mm_cat_{{ $loading['category'] }}">
-                        {{ $loading['description'] }} - {{ $loading['load']}} hours
+                        {{ $loading['description'] }} - {{ $loading['load']}} {{$units}}
                     </div>
                 </div>
             </div>
@@ -70,7 +70,7 @@
     @if( $showTarget )
         <div class="mm_target_indicator_bar">
             <div class="mm_target_indicator" style="width: {{ 100*$target*$scale }}%">
-                Target {{ $target }} hours
+                Target {{ $target }} {{$units}}
             </div>
         </div>
     @endif

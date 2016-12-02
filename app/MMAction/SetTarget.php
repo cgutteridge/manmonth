@@ -29,6 +29,14 @@ class SetTarget extends Action
             "name" => "description",
             "type" => "string",
         ],
+        [
+            "name" => "unit",
+            "type" => "string",
+        ],
+        [
+            "name" => "units",
+            "type" => "string",
+        ]
     ];
 
     /**
@@ -38,6 +46,15 @@ class SetTarget extends Action
     public function execute($recordReport, $params)
     {
         $recordReport->setLoadingTarget($params["target"], $params["value"]);
+        if (array_key_exists("description", $params)) {
+            $recordReport->setLoadingOption($params["target"], "description", $params["description"]);
+        }
+        if (array_key_exists("unit", $params)) {
+            $recordReport->setLoadingOption($params["target"], "unit", $params["unit"]);
+        }
+        if (array_key_exists("units", $params)) {
+            $recordReport->setLoadingOption($params["target"], "units", $params["units"]);
+        }
         $this->recordLog($recordReport, $params);
     }
 }

@@ -4,7 +4,6 @@
     Report Type @title($reportType)
 @endsection
 @section( 'content')
-
     @foreach( $reportData as $loadingType=>$loadingData )
         <div class="panel panel-primary">
             <div class="panel-heading">

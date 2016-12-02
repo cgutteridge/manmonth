@@ -256,15 +256,15 @@ class ECSSeeder extends Seeder
         $moduleReportType->createRule([
             "title" => "Target leading",
             "action" => "set_target",
-            "params" => ["target" => "'leader'", "value" => 100]]);
+            "params" => ["target" => "'leader'", "value" => 100, "units" => "'percent'"]]);
         $moduleReportType->createRule([
             "title" => "Target teaching",
             "action" => "set_target",
-            "params" => ["target" => "'teacher'", "value" => 100]]);
+            "params" => ["target" => "'teacher'", "value" => 100, "units" => "'percent'"]]);
         $moduleReportType->createRule([
             "title" => "Target moderation",
             "action" => "set_target",
-            "params" => ["target" => "'moderator'", "value" => 100]]);
+            "params" => ["target" => "'moderator'", "value" => 100, "units" => "'percent'"]]);
 
         $moduleReportType->createRule([
             "title" => "Leaders",

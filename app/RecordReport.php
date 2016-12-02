@@ -17,6 +17,7 @@ class RecordReport
     private $columns = [];
     private $loading_targets = [];
     private $loading_totals = [];
+    private $loading_params = [];
     private $loadings = [];
     private $log = [];
 
@@ -27,6 +28,7 @@ class RecordReport
             $this->loading_targets = $data["loading_targets"];
             $this->loading_totals = $data["loading_totals"];
             $this->loadings = $data["loadings"];
+            $this->loading_params = $data["loading_params"];
             $this->log = $data["log"];
         }
     }
@@ -42,6 +44,7 @@ class RecordReport
             "columns" => $this->columns,
             "loading_targets" => $this->loading_targets,
             "loading_totals" => $this->loading_totals,
+            "loading_params" => $this->loading_params,
             "loadings" => $this->loadings,
             "log" => $this->log];
     }
@@ -206,5 +209,20 @@ class RecordReport
         $this->log [] = $logItem;
     }
 
+    public function setLoadingOption($loading, $option, $value)
+    {
+        $this->loading_params[$loading][$option] = $value;
+    }
+
+    public function getLoadingOption($loading, $option)
+    {
+        $value = @$this->loading_params[$loading][$option];
+        if (!isset($value)) {
+            if ($option == "units") {
+                return "drogna";
+            }
+        }
+        return $value;
+    }
 
 }
