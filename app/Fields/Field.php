@@ -122,5 +122,15 @@ abstract class Field
      */
     public abstract function makeValue($value);
 
+    public function getMode()
+    {
+        if (isset($this->data["mode"])) {
+            return $this->data["mode"];
+        }
+        if (isset($this->data['external'])) {
+            return "prefer_local";
+        }
+        return "only_local";
+    }
 }
 

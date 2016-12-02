@@ -132,9 +132,7 @@ class ReportType extends DocumentPart
 
     function recordReport($record)
     {
-
         $recordReport = new RecordReport();
-
         foreach ($this->rules() as $rule) {
             // apply this rule to every possible context based on the route
             /** @var Rule $rule */

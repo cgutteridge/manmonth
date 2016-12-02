@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Models\DocumentRevision;
 use App\RecordReport;
 use Illuminate\Console\Command;
-use App\Models\DocumentRevision;
 
 class LoadReport extends Command
 {
@@ -31,22 +31,24 @@ class LoadReport extends Command
     {
         /** @var DocumentRevision $docRev */
         /** @noinspection PhpUndefinedMethodInspection */
-        $docRev = DocumentRevision::query()->orderBy( 'id','desc' )->first();
+        $docRev = DocumentRevision::query()->orderBy('id', 'desc')->first();
 
-        $loadingReportType = $docRev->reportTypeByName( 'loading' );
+        $loadingReportType = $docRev->reportTypeByName('loading');
         $report = $loadingReportType->makeReport();
         $report->save();
         /** @var RecordReport $recordReport */
-        foreach($report->recordReports() as $recordReport) {
-            foreach( $recordReport->getColumns() as $key=>$value ) {
+        foreach ($report->recordReports() as $recordReport) {
+            foreach ($recordReport->getColumns() as $key => $value) {
                 print "$key: $value\n";
             }
-            foreach( $recordReport->getLoadingTargets() as $key=>$value ) {
-                print "$key .. Target($value) .. Value(".$recordReport->getLoadingTotal($key).")\n";
+            foreach ($recordReport->getLoadingTargets() as $key => $value) {
+                print "$key .. Target($value) .. Value(" . $recordReport->getLoadingTotal($key) . ")\n";
             }
             print "Loadings:\n";
-            foreach( $recordReport->getLoadings() as $loading ){
-                print $loading['load']." (".$loading['target'].".".@$loading['category'].") ".@$loading["description"]."\n";
+            foreach ($recordReport->getLoadings() as $target => $loadings) {
+                foreach ($loadings as $loading) {
+                    print $loading['load'] . " (" . $loading['target'] . "." . @$loading['category'] . ") " . @$loading["description"] . "\n";
+                }
             }
             // dump($recordReport);
             print "\n\n";

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\MMValidationException;
 use App\Exceptions\ReportingException;
+use App\Fields\Field;
 use App\Models\Record;
 use App\Models\ReportType;
 use Exception;
@@ -186,20 +187,16 @@ class RecordController extends Controller
     function recordDataBlock($record)
     {
         $block = [];
+        /** @var Field $field */
         foreach ($record->recordType->fields() as $field) {
-            $value = null;
-            $default = null;
-            // this will get more complicated when we have external data sources
-            if (array_key_exists($field->data["name"], $record->data)) {
-                $value = $record->data[$field->data["name"]];
-            }
-            if (array_key_exists("default", $field->data)) {
-                $default = $field->data["default"];
-            }
+            $fieldName = $field->data["name"];
             $block[] = [
                 "title" => $this->titleMaker->title($field),
-                "value" => $value,
-                "default" => $default
+                "source" => $record->getSource($fieldName),
+                "local" => $record->getLocal($fieldName),
+                "external" => $record->getExternal($fieldName),
+                "default" => $record->getDefault($fieldName),
+                "mode" => $field->getMode()
             ];
         }
         return $block;

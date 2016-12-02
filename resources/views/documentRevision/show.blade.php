@@ -49,7 +49,7 @@
                                 rule(s))</a>
                         </li>
                     @endforeach
-                    <li>TODO: Create new record type</li>
+                    <li>TODO: Create new report type</li>
                 </ul>
             </div>
         </div>

@@ -12,6 +12,8 @@
             "showTarget"=>true,
             "record"=>$record,
             "recordReport"=>$report,
+            "loadingType"=>$loadingType,
+            "loadings"=>$report->getLoadings($loadingType),
             "scale" =>
                 0 == 1/max( $report->getLoadingTotal($loadingType), $report->getLoadingTarget($loadingType) ) ?
                 1 :

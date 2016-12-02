@@ -42,6 +42,7 @@ class FieldOf extends BinaryOp
         $leftValue = $this->left->execute($context)->value;
         /** @var string $rightValue */
         $rightValue = $this->right->execute($context)->value;
-        return $leftValue->getValue($rightValue);
+        $result = $leftValue->getValue($rightValue);
+        return $result;
     }
 }

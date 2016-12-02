@@ -4,8 +4,9 @@
         @foreach( $recordReport->getColumns() as $colName=>$colValue)
             <b>{{ $colName }}:</b> {{ $colValue }} |
         @endforeach
-        <b>Allocated load:</b> {{ $total }} |
-        <b>Target load:</b> {{ $target }}
+        <b>Category:</b> {{ $loadingType }} |
+        <b>Allocated:</b> {{ $total }} |
+        <b>Target:</b> {{ $target }}
     </div>
 
     @if( $showTarget )
@@ -43,7 +44,7 @@
     </div>
 
     <div class="mm_loading_bar">
-        @foreach($recordReport->getLoadings() as $loading )
+        @foreach($loadings as $loading )
             <div class="mm_hover">
                 <div class="mm_hover_target mm_loading mm_cat_{{ $loading['category'] }}"
                      style="width: {{ 100*$loading['load']*$scale }}%">

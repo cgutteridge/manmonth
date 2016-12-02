@@ -25,6 +25,9 @@ use Validator;
 class Record extends DocumentPart
 {
 
+    private $external;
+    private $external_loaded = false;
+
     /**
      * @return RecordType
      */
@@ -61,10 +64,153 @@ class Record extends DocumentPart
      * Get the typed value (or null value object) from a field
      * @param string $fieldName
      * @return Value
+     * @throws Exception
      */
     public function getValue($fieldName)
     {
-        return $this->recordType->field($fieldName)->makeValue(@$this->data[$fieldName]);
+        $field = $this->recordType->field($fieldName);
+        $value = null;
+        $mode = $field->getMode();
+
+        if ($mode == 'prefer_local') {
+            // local, exernal, default
+            $value = $this->getLocal($fieldName);
+            if ($value === null || $value === "") {
+                $value = $this->getExternal($fieldName);
+            }
+        } elseif ($mode == 'prefer_external') {
+            // external, local, default
+            $value = $this->getExternal($fieldName);
+            if ($value === null || $value === "") {
+                $value = $this->getLocal($fieldName);
+            }
+        } elseif ($mode == 'only_local') {
+            // local, default
+            $value = $this->getLocal($fieldName);
+        } elseif ($mode == 'only_external') {
+            // external, default
+            $value = $this->getExternal($fieldName);
+        } else {
+            throw Exception("Unknown field mode: '" . $field->data["mode"] . "'");
+        }
+        if ($value === null || $value === "") {
+            $value = $this->getDefault($fieldName);
+        }
+
+        return $field->makeValue($value);
+    }
+
+    /**
+     * @param string $fieldName
+     * @return mixed
+     */
+    public function getLocal($fieldName)
+    {
+        $field = $this->recordType->field($fieldName);
+        if (array_key_exists($fieldName, $this->data)) {
+            return $this->data[$fieldName];
+        }
+        return null;
+    }
+
+    /**
+     * @param string $fieldName
+     * @return mixed
+     */
+    public function getExternal($fieldName)
+    {
+        $field = $this->recordType->field($fieldName);
+
+        if (!array_key_exists("external", $this->recordType->data)) {
+            return null;
+        }
+        if (!array_key_exists("external", $field->data)) {
+            return null;
+        }
+        $ext = $this->recordType->data["external"];
+        if (!$this->external_loaded) {
+            // load
+            $tableName = 'imported_' . $ext["table"];
+            $table = DB::table($tableName);
+            $row = $table->where(
+                $ext["key"],
+                $this->getLocal($ext["local_key"]))->first();
+            $this->external = $row;
+            $this->external_loaded = true;
+        }
+        try {
+            $localName = $field->data["external"];
+            return $this->external->$localName;
+        } catch (\ErrorException $e) {
+            // didn't exist
+        }
+        return null;
+    }
+
+    /**
+     * @param string $fieldName
+     * @return mixed
+     */
+    public function getDefault($fieldName)
+    {
+        $field = $this->recordType->field($fieldName);
+        if (isset($field->data['default'])) {
+            return $field->data['default'];
+        }
+        return null;
+    }
+
+    /**
+     * Return the source for a field's data.
+     * @param string $fieldName
+     * @return string
+     * @throws Exception
+     */
+    public function getSource($fieldName)
+    {
+        $field = $this->recordType->field($fieldName);
+        $value = null;
+        $mode = $field->getMode();
+        if ($mode == 'prefer_local') {
+            // local, exernal, default
+            $value = $this->getLocal($fieldName);
+            if ($value !== null || $value != "") {
+                return "local";
+            }
+            $value = $this->getExternal($fieldName);
+            if ($value !== null || $value != "") {
+                return "external";
+            }
+        } elseif ($mode == 'prefer_external') {
+            // external, local, default
+            $value = $this->getExternal($fieldName);
+            if ($value !== null || $value != "") {
+                return "external";
+            }
+            $value = $this->getLocal($fieldName);
+            if ($value !== null || $value != "") {
+                return "local";
+            }
+        } elseif ($mode == 'only_local') {
+            // local, default
+            $value = $this->getLocal($fieldName);
+            if ($value !== null || $value != "") {
+                return "local";
+            }
+        } elseif ($mode == 'only_external') {
+            // external, default
+            $value = $this->getExternal($fieldName);
+            if ($value !== null || $value != "") {
+                return "external";
+            }
+        } else {
+            throw Exception("Unknown field mode: '" . $field->data["mode"] . "'");
+        }
+        $value = $this->getDefault($fieldName);
+        if ($value !== null || $value != "") {
+            return "default";
+        }
+        return "none";
     }
 
     /**

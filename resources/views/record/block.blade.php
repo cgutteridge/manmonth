@@ -20,25 +20,48 @@
     <tbody>
     <tr>
         <td>
-            <table class="mm-record-data">
+            <table class="mm-record-data" style="width:100%">
                 @foreach( $data as $field )
                     <tr style='cursor:pointer;'
                         data-toggle="tooltip"
                         title="Click to edit"
                         onclick="document.location.href = '@url($record, 'edit', ["_mmreturn"=>$returnURL])';">
                         <th>{{$field["title"]}}:</th>
-                        <td>@if(!empty($field['value']))
-                                {{$field["value"]}}
-                            @elseif(isset($field['default']))
-                                {{$field["default"]}} <span class="mm-default">Default</span>
+                        @if( $field["source"] == 'default')
+                            <td colspan="2">{{$field["default"]}} <span class="mm-default">Default</span></td>
+                        @elseif( $field["source"] == 'none')
+                            <td colspan="2"><span class="mm-default">NULL</span></td>
+                        @elseif($field["mode"]=="prefer_local")
+                            @if( $field["source"] == 'local')
+                                <td style="width:40%">{{$field["local"]}}<span class="mm-default">Local</span></td>
+                                <td style="width:40%">{{$field["external"]}}<span class="mm-default">External</span>
+                                </td>
                             @endif
-                        </td>
+                            @if( $field["source"] == 'external')
+                                <td colspan="2">{{$field["external"]}}<span class="mm-default">External</span></td>
+                            @endif
+                        @elseif($field["mode"]=="prefer_external")
+                            @if( $field["source"] == 'external')
+                                <td style="width:40%">{{$field["external"]}} <span class="mm-default">External</span>
+                                </td>
+                                <td style="width:40%">{{$field["local"]}} <span class="mm-default">Local</span></td>
+                            @endif
+                            @if( $field["source"] == 'local')
+                                <td colspan="2">{{$field["local"]}} <span class="mm-default">Local</span></td>
+                            @endif
+                        @elseif($field["mode"]=="only_local")
+                            <td colspan="2">{{$field["local"]}}</td>
+                        @elseif($field["mode"]=="only_external")
+                            <td colspan="2">{{$field["external"]}}</td>
+                        @endif
+
+
                     </tr>
                 @endforeach
                 @foreach( $links as $link )
                     <tr>
                         <th>{{$link["title"]}}:</th>
-                        <td>
+                        <td colspan="2">
                             @foreach( $link["records"] as $subrecord)
                                 <a
                                         href="@url($subrecord["record"])"

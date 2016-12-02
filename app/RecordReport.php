@@ -165,9 +165,12 @@ class RecordReport
     /**
      * @return array
      */
-    public function getLoadings()
+    public function getLoadings($loading)
     {
-        return $this->loadings;
+        if (array_key_exists($loading, $this->loadings)) {
+            return $this->loadings[$loading];
+        }
+        return [];
     }
 
     /**
@@ -184,7 +187,7 @@ class RecordReport
      */
     public function appendLoading($loadItem)
     {
-        $this->loadings [] = $loadItem;
+        $this->loadings[$loadItem["target"]][] = $loadItem;
     }
 
     /**

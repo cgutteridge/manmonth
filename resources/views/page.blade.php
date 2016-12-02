@@ -25,7 +25,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">[MM]</a>
+            <a class="navbar-brand" href="/" style="font-weight: 100">ManMonth</a>
             @if( isset($nav["title"]) )
                 @if(isset($nav["title"]["url"]))
                     <a class="navbar-brand" href="{{$nav["title"]["url"]}}">{{$nav["title"]["label"]}}</a>

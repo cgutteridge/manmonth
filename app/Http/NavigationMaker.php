@@ -112,10 +112,18 @@ class NavigationMaker
             "label" => "Revision",
             "items" => $ritems];
 
-
+        $reportItems = [];
+        foreach ($documentRevision->reportTypes as $reportType) {
+            $reportItems [] = [
+                "href" => $this->linkMaker->url($reportType),
+                "label" => $this->titleMaker->title($reportType)
+            ];
+        }
         $nav["menus"][] = [
             "label" => "Reports",
-            "items" => []];
+            "items" => $reportItems];
+
+
 
         $nav["side"] = [];
         switch ($documentRevision->status) {

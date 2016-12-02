@@ -22,14 +22,17 @@ class ECSSeeder extends Seeder
 
         $actorType = $draft->createRecordType("actor", [
             "label" => "Loadee",
-            "data" => ["fields" => [
-                ["name" => "name", "label" => "Name", "type" => "string", "required" => true],
-                ["name" => "pinumber", "label"=>"ID Number", "type"=>"string"],
-                ["name" => "phdstudents", "label" => "PhD Students", "type" => "decimal", "min" => 0],
-                ["name" => "istutor", "label" => "Is Tutor?", "type" => "boolean", "default" => false],
-                ["name" => "firstyear", "label" => "First year of teaching?", "type" => "boolean", "default" => false],
-                ["name" => "secondyear", "label" => "Second year of teaching?", "type" => "boolean", "default" => false],
-            ]],
+            "data" => [
+                "external" => ["table" => "people", "key" => "pinumber", "local_key" => "pinumber"],
+                "fields" => [
+                    ["name" => "name", "label" => "Name", "type" => "string", "required" => true, "external" => "name", "mode" => "prefer_local"],
+                    ["name" => "email", "label" => "Email", "type" => "string", "external" => "email", "mode" => "only_external"],
+                    ["name" => "pinumber", "label" => "ID Number", "type" => "string"],
+                    ["name" => "phdstudents", "label" => "PhD Students", "type" => "decimal", "min" => 0, "external" => "phdstudents", "mode" => "prefer_external"],
+                    ["name" => "istutor", "label" => "Is Tutor?", "type" => "boolean", "default" => false],
+                    ["name" => "firstyear", "label" => "First year of teaching?", "type" => "boolean", "default" => false],
+                    ["name" => "secondyear", "label" => "Second year of teaching?", "type" => "boolean", "default" => false],
+                ]],
             "title_script" => "record.name"
         ]);
 
@@ -46,8 +49,8 @@ class ECSSeeder extends Seeder
             "label" => "Task relationship",
             "data" => ["fields" => [
                 ["name" => "ratio", "label" => "Ratio", "type" => "decimal", "default" => 1.0,],
-                ["name" => "validuntil", "label"=>"Valid until academic year starting", "type"=>"decimal"],
-                ["name" => "notes",  "label"=>"Notes", "type"=>"string" ]
+                ["name" => "validuntil", "label" => "Valid until academic year starting", "type" => "decimal"],
+                ["name" => "notes", "label" => "Notes", "type" => "string"]
             ]]
         ]);
         $draft->createLinkType('actor_to_acttask', $actorType, $atType,
@@ -61,10 +64,10 @@ class ECSSeeder extends Seeder
             "label" => "Module",
             "data" => ["fields" => [
                 ["name" => "name", "label" => "Name", "type" => "string", "required" => true],
-                ["name" => "code", "label" => "Module Code", "type" => "string" ],
-                ["name" => "semester", "label" => "Semester", "type" => "string" ],
-                ["name" => "crn", "label" => "CRN", "type" => "string" ],
-                ["name" => "students", "label" => "Class size", "type" => "decimal" ]
+                ["name" => "code", "label" => "Module Code", "type" => "string"],
+                ["name" => "semester", "label" => "Semester", "type" => "string"],
+                ["name" => "crn", "label" => "CRN", "type" => "string"],
+                ["name" => "students", "label" => "Class size", "type" => "decimal"]
             ]],
             "title_script" => "record.code + ' ' + record.name + ' ' + record.semester"
         ]);
@@ -74,8 +77,8 @@ class ECSSeeder extends Seeder
         $modleadType = $draft->createRecordType("modlead", [
             "label" => "Module leader relationship",
             "data" => ["fields" => [
-                ["name" => "ratio", "label" => "Ratio", "type" => "decimal", "default" => 1.0,],
-                ["name" => "notes",  "label"=>"Notes", "type"=>"string" ]
+                ["name" => "percent", "label" => "Percentage", "type" => "decimal", "default" => 100,],
+                ["name" => "notes", "label" => "Notes", "type" => "string"]
             ]]
         ]);
         $draft->createLinkType('actor_leads', $actorType, $modleadType,
@@ -90,8 +93,8 @@ class ECSSeeder extends Seeder
         $modteachType = $draft->createRecordType("modteach", [
             "label" => "Module teacher relationship",
             "data" => ["fields" => [
-                ["name" => "ratio", "label" => "Ratio", "type" => "decimal", "default" => 1.0,],
-                ["name" => "notes",  "label"=>"Notes", "type"=>"string" ]
+                ["name" => "percent", "label" => "Percentage", "type" => "decimal", "default" => 100,],
+                ["name" => "notes", "label" => "Notes", "type" => "string"]
             ]]
         ]);
         $draft->createLinkType('actor_teaches', $actorType, $modteachType,
@@ -106,8 +109,8 @@ class ECSSeeder extends Seeder
         $modmodType = $draft->createRecordType("modmoderate", [
             "label" => "Module moderator relationship",
             "data" => ["fields" => [
-                ["name" => "ratio", "label" => "Ratio", "type" => "decimal", "default" => 1.0,],
-                ["name" => "notes",  "label"=>"Notes", "type"=>"string" ]
+                ["name" => "percent", "label" => "Percentage", "type" => "decimal", "default" => 100,],
+                ["name" => "notes", "label" => "Notes", "type" => "string"]
             ]]
         ]);
         $draft->createLinkType('actor_mods', $actorType, $modmodType,
@@ -116,8 +119,6 @@ class ECSSeeder extends Seeder
         $draft->createLinkType('mods_module', $modmodType, $modType,
             ["domain_min" => 1, "domain_max" => 1, "domain_type" => "dependent",
                 "label" => "module", "inverse_label" => "moderator"]);
-
-
 
 
         // this can't be set until the links are created.
@@ -132,9 +133,13 @@ class ECSSeeder extends Seeder
 
         // Add records
 
-        $alice = $actorType->createRecord(["name" => "Alice Aardvark",  "phdstudents" => 7]);
-        $bobby = $actorType->createRecord(["name" => "Bobby Bananas", "phdstudents" => 2, "newbie" => true]);
-        $clara = $actorType->createRecord(["name" => "Clara Crumb", "firsteyear" => true]);
+        $alice = $actorType->createRecord(["name" => "Alice Aardvark", "phdstudents" => 7]);
+        $bobby = $actorType->createRecord(["name" => "Bobby Bananas", "phdstudents" => 2]);
+        $clara = $actorType->createRecord(["name" => "Clara Crumb", "firstyear" => true]);
+
+        $comp1234 = $modType->createRecord(["name" => "Fish studies", "code" => "comp1234", "semester" => "s1"]);
+        $comp1235 = $modType->createRecord(["name" => "Giraffe studies", "code" => "comp1235", "semester" => "s1"]);
+        $comp1236 = $modType->createRecord(["name" => "Hippo studies", "code" => "comp1236", "semester" => "s2"]);
         /*
 
         $small = $taskType->createRecord(["name" => "Small Job", "size" => 50]);
@@ -180,9 +185,27 @@ class ECSSeeder extends Seeder
                 "category" => "'teaching'",
                 "load" => 'acttask->acttask_to_task.size * acttask.ratio'
             ]]);
+        $loadingReportType->createRule([
+            "title" => "Loading from teaching a module",
+            "route" => ["actor_teaches"],
+            "action" => "assign_load",
+            "params" => [
+                "description" => '\'Teaching \'+modteach->teaches_module.code',
+                "target" => "'loading'",
+                "category" => "'teaching'",
+                "load" => '(modteach.percent/100)*200'
+            ]]);
+        $loadingReportType->createRule([
+            "title" => "Loading from moderating a module",
+            "route" => ["actor_mods"],
+            "action" => "assign_load",
+            "params" => [
+                "description" => '\'Moderating \'+modmoderate->mods_module.code',
+                "target" => "'loading'",
+                "category" => "'teaching'",
+                "load" => '(modmoderate.percent/100)*10'
+            ]]);
 
-
-        // people in the womats group get 3 units load per penguin
         $loadingReportType->createRule([
             "title" => "PhD supervision",
             "trigger" => "actor.phdstudents>0",
@@ -203,6 +226,78 @@ class ECSSeeder extends Seeder
                 "value" => 'actor.name'
             ]]);
 
+
+        $moduleReportType = $draft->createReportType('allocation', $modType, ['title' => 'Allocation Report']);
+
+
+        // set column 'name', to module.name
+        $moduleReportType->createRule([
+            "title" => "Set name column",
+            "action" => "set_string_column",
+            "params" => [
+                "column" => "'name'",
+                "value" => 'module.name'
+            ]]);
+        $moduleReportType->createRule([
+            "title" => "Set code column",
+            "action" => "set_string_column",
+            "params" => [
+                "column" => "'code'",
+                "value" => 'module.code'
+            ]]);
+        $moduleReportType->createRule([
+            "title" => "Set semester column",
+            "action" => "set_string_column",
+            "params" => [
+                "column" => "'semester'",
+                "value" => 'module.semester'
+            ]]);
+
+        $moduleReportType->createRule([
+            "title" => "Target leading",
+            "action" => "set_target",
+            "params" => ["target" => "'leader'", "value" => 100]]);
+        $moduleReportType->createRule([
+            "title" => "Target teaching",
+            "action" => "set_target",
+            "params" => ["target" => "'teacher'", "value" => 100]]);
+        $moduleReportType->createRule([
+            "title" => "Target moderation",
+            "action" => "set_target",
+            "params" => ["target" => "'moderator'", "value" => 100]]);
+
+        $moduleReportType->createRule([
+            "title" => "Leaders",
+            "route" => ["^leads_module"],
+            "action" => "assign_load",
+            "params" => [
+                "description" => "modlead<-actor_leads.name",
+                "target" => "'leader'",
+                "category" => "'teaching'",
+                "load" => 'modlead.percent'
+            ]]);
+        $moduleReportType->createRule([
+            "title" => "Teachers",
+            "route" => ["^teaches_module"],
+            "action" => "assign_load",
+            "params" => [
+                "description" => "modteach<-actor_teaches.name",
+                "target" => "'teacher'",
+                "category" => "'teaching'",
+                "load" => 'modteach.percent'
+            ]]);
+        $moduleReportType->createRule([
+            "title" => "Moderators",
+            "route" => ["^mods_module"],
+            "action" => "assign_load",
+            "params" => [
+                "description" => "modmoderate<-actor_mods.name",
+                "target" => "'moderator'",
+                "category" => "'teaching'",
+                "load" => 'modmoderate.percent'
+            ]]);
+
+
         $draft->publish();
 
         $draft2 = $doc->createDraftRevision();
@@ -222,19 +317,20 @@ class ECSSeeder extends Seeder
             $table->string('name');
             $table->string('email');
             $table->string('pinumber');
+            $table->integer('phdstudents')->nullable();
         });
         DB::table('imported_people')->insert(
-            ['name' => "Miss Alpha", 'email' => 'alpha@example.com', 'pinumber' => "1000"]);
+            ['name' => "Miss Alpha", 'email' => 'alpha@example.com', 'pinumber' => "1000", "phdstudents" => 5]);
         DB::table('imported_people')->insert(
-            ['name' => "Miss Beta", 'email' => 'beta@example.com', 'pinumber' => "1001"]);
+            ['name' => "Miss Beta", 'email' => 'beta@example.com', 'pinumber' => "1001", "phdstudents" => 5]);
         DB::table('imported_people')->insert(
-            ['name' => "Miss Gamma", 'email' => 'gamma@example.com', 'pinumber' => "1002"]);
+            ['name' => "Miss Gamma", 'email' => 'gamma@example.com', 'pinumber' => "1002", "phdstudents" => 5]);
         DB::table('imported_people')->insert(
-            ['name' => "Miss Delta", 'email' => 'delta@example.com', 'pinumber' => "1003"]);
+            ['name' => "Miss Delta", 'email' => 'delta@example.com', 'pinumber' => "1003", "phdstudents" => 5]);
         DB::table('imported_people')->insert(
-            ['name' => "Miss Epsilon", 'email' => 'epsilon@example.com', 'pinumber' => "1004"]);
+            ['name' => "Miss Epsilon", 'email' => 'epsilon@example.com', 'pinumber' => "1004", "phdstudents" => 5]);
         DB::table('imported_people')->insert(
-            ['name' => "Miss Thingy", 'email' => 'thingy@example.com', 'pinumber' => "1005"]);
+            ['name' => "Miss Thingy", 'email' => 'thingy@example.com', 'pinumber' => "1005", "phdstudents" => null]);
 
 
         if (Schema::hasTable('imported_courses_2016')) {

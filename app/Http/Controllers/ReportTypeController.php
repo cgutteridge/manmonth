@@ -27,6 +27,9 @@ class ReportTypeController extends Controller
                 $maxLoading = $report->maxLoading($loadingType);
                 $maxTarget = $report->maxTarget($loadingType);
                 $maxRatio = $report->maxLoadingRatio($loadingType);
+                if ($maxRatio == 0) {
+                    $maxRatio = 1;
+                }
 
                 $reportData[$loadingType] = [
                     "title" => $loadingType, // TODO better title
@@ -57,6 +60,7 @@ class ReportTypeController extends Controller
                         "showTarget" => true,
                         "record" => $record,
                         "recordReport" => $recordReport,
+                        "loadings" => $recordReport->getLoadings($loadingType),
                         "scale" =>
                             max($maxLoading, $maxTarget) == 0 ?
                                 1 :
@@ -69,6 +73,7 @@ class ReportTypeController extends Controller
                         "showTarget" => true,
                         "record" => $record,
                         "recordReport" => $recordReport,
+                        "loadings" => $recordReport->getLoadings($loadingType),
                         "scale" =>
                             $recordTarget * $maxRatio == 0 ?
                                 1 :
@@ -81,6 +86,7 @@ class ReportTypeController extends Controller
                         "showTarget" => false,
                         "record" => $record,
                         "recordReport" => $recordReport,
+                        "loadings" => $recordReport->getLoadings($loadingType),
                         "scale" => $recordTotal == 0 ? 1 : 1 / $recordTotal,
                         "target" => $recordTarget,
                         "total" => $recordTotal];
