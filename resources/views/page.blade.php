@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+@inject("navMaker","App\Http\NavigationMaker")
+        <!DOCTYPE html>
 <html>
 <head>
     <title>@yield('title')</title>
@@ -13,49 +14,13 @@
 </head>
 <body>
 
-<nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
+@include( 'header', [ "nav"=>(isset($nav)?$nav:$navMaker->defaultNavigation())])
 
-    <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/" style="font-weight: 100">ManMonth</a>
-            @if( isset($nav["title"]) )
-                @if(isset($nav["title"]["url"]))
-                    <a class="navbar-brand" href="{{$nav["title"]["url"]}}">{{$nav["title"]["label"]}}</a>
-                @else
-                    <span class="navbar-brand">{{$nav["title"]["label"]}}</span>
-                @endif
-            @endif
-        </div>
-        <div class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-                @if( array_key_exists('menus',$nav))
-                    @foreach( $nav['menus'] as $menu )
-                        @include( 'nav.menu', [ 'menu'=>$menu ])
-                    @endforeach
-                @endif
-            </ul>
-            @include( 'nav.userMenu')
-        </div>
-    </div><!-- /.container-fluid -->
-</nav>
-@if( array_key_exists("side",$nav))
-    <div class="mm_sidestatus mm_sidestatus_{{$nav['side']['status']}}">
-        {{ $nav['side']['label'] }}
-    </div>
-@endif
 <div class="container" style="margin-top: 50px">
     <div class="content">
         <h1 class="title">@yield('title')</h1>
 
-        @if (count($errors) > 0 || !empty($renderErrors))
+        @if ( (isset($errors) && count($errors) )||(isset($renderErrors) && count($renderErrors) ))
             <div class="alert alert-danger">
                 <ul>
                     @foreach ($errors->all() as $error)
@@ -77,15 +42,8 @@
         @yield('content')
     </div>
 </div>
-<footer class="navbar navbar-default">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#">[MM]</a>
-            <a class="navbar-brand">
-                ManMonth dev version. &copy;2016 University of Southampton.
-            </a>
-        </div>
-    </div>
-</footer>
+
+@include( 'footer', [ "nav"=>(isset($nav)?$nav:$navMaker->defaultNavigation())])
+
 </body>
 </html>
