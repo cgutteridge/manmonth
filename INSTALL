@@ -1,0 +1,37 @@
+At this point this is a pretty standard Laravel application.
+These instructions should get you a working environment.
+
+
+* checkout from git
+
+git clone git@github.com:cgutteridge/manmonth.git
+
+* composer
+
+cd manmonth
+composer update
+
+* env
+
+cp .env.example .env
+php artisan key:generate
+
+* mysql
+
+create database manmonth;
+create user 'manmonth'@'localhost' identified by 'mypassword';
+grant all on manmonth.* to 'manmonth'@'localhost';
+
+Then edit .env to add these values
+
+* set up database
+
+php artisan migrate
+
+* seed database with ECS example setup
+
+php artisan db:seed --class ECSSeeder
+
+* optional: set up local server
+
+php artisan serve --port 1234
