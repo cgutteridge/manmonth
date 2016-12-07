@@ -2,7 +2,7 @@
 
 @section('title')
     @title($documentRevision->document) rev #{{$documentRevision->id}} ({{$documentRevision->status}})
-    @endsetction
+@endsection
 
 @section('content')
 
