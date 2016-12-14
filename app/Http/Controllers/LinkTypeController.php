@@ -23,6 +23,8 @@ class LinkTypeController extends Controller
      */
     public function show(LinkType $linkType)
     {
+        $this->authorize('view', $linkType);
+
         $data = [
             "Links from" => [
                 "Record type" => $this->titleMaker->title($linkType->domain),
@@ -54,6 +56,8 @@ class LinkTypeController extends Controller
      */
     public function links(LinkType $linkType)
     {
+        $this->authorize('view', $linkType);
+
         return view('linkType.links', [
             "linkType" => $linkType,
             "nav" => $this->navigationMaker->documentRevisionNavigation($linkType->documentRevision)]);
@@ -66,6 +70,7 @@ class LinkTypeController extends Controller
      */
     public function createLink(Request $request, LinkType $linkType)
     {
+        $this->authorize('create', $linkType);
         $link = new Link();
         $link->documentRevision()->associate($linkType->documentRevision);
         $link->link_type_sid = $linkType->sid;
@@ -93,6 +98,7 @@ class LinkTypeController extends Controller
      */
     public function storeLink(LinkType $linkType)
     {
+        $this->authorize('create', $linkType);
         $action = $this->requestProcessor->get("_mmaction", "");
         $returnLink = $this->requestProcessor->returnURL(
             $this->linkMaker->url($linkType->documentRevision));

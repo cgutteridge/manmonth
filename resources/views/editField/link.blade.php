@@ -1,16 +1,16 @@
-<tr id="{{$idPrefix}}inline_edit"
-    data-mm-dynamic="inline-link-edit"
-    data-mm-min="{{$min}}"
-    @if( isset($max) )
-    data-mm-max="{{$max}}"
-        @endif
->
-    <th>
-        @include("cardinality",["min"=>$min,"max"=>$max])
-        {{$title}}@if( $min>0 ) (required)@endif:
-    </th>
-    <td>
-        @if( !isset($type) )
+@if( !isset($type) )
+    <tr id="{{$idPrefix}}inline_edit"
+        data-mm-dynamic="inline-link-edit"
+        data-mm-min="{{$min}}"
+        @if( isset($max) )
+        data-mm-max="{{$max}}"
+            @endif
+    >
+        <th>
+            @include("cardinality",["min"=>$min,"max"=>$max])
+            {{$title}}@if( $min>0 ) (required)@endif:
+        </th>
+        <td>
             <ul id="{{$idPrefix}}list"
                 class="mm-link-edit-list"
             >
@@ -57,9 +57,6 @@
                     -->
                 </li>
             </ul>
-        @else
-            This is a complex relationship where links require extra information. Such links can be modified
-            via the main record page. This mesage will be removed before v1.0
-        @endif
-    </td>
-</tr>
+        </td>
+    </tr>
+@endif

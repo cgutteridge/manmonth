@@ -159,7 +159,7 @@ class NavigationMaker
                         "glyph" => "file",
                         "label" => "Current",
                         "href" => $this->linkMaker->url($document, "current"),
-                        "allowed" => Auth::user()->can('view-published', $document)
+                        "allowed" => Auth::user()->can('view-current', $document)
                     ],
                     [
                         "glyph" => "file",

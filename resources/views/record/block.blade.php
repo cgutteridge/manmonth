@@ -24,8 +24,8 @@
                 @foreach( $data as $field )
                     <tr style='cursor:pointer;'
                         data-toggle="tooltip"
-                        title="Click to edit"
-                        onclick="document.location.href = '@url($record, 'edit', ["_mmreturn"=>$returnURL])';">
+                        title="Click to view"
+                        onclick="document.location.href = '@url($record)';">
                         <th>{{$field["title"]}}:</th>
                         @if( $field["source"] == 'default')
                             <td colspan="2">{{$field["default"]}} <span class="mm-default">Default</span></td>
@@ -71,7 +71,9 @@
                                     @title( $subrecord["record"])
                                 </a>
                             @endforeach
-
+                            @can('edit-data',$record)
+                                x
+                            @endcan
                             <a class="mm-button" href="{{$link["createLink"]}}">
                                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                             </a>

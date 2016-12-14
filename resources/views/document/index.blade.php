@@ -3,16 +3,13 @@
 @section('title','List Documents')
 
 @section( 'content')
-<ul>
-    @foreach( $list as $document )
-    <li>
-        @can( 'view-published', $document)
-            YES YOU CAN CAN CAN
-        @else
-            NOPE
-        @endcan
-        @link( $document ), Created @datetime($document->created_at).
-    </li>
-    @endforeach
-</ul>
+    <ul>
+        @foreach( $list as $document )
+            @can( 'view-current', $document)
+                <li>
+                    @link( $document ), Created @datetime($document->created_at).
+                </li>
+            @endcan
+        @endforeach
+    </ul>
 @endsection

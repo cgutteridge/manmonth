@@ -5,6 +5,7 @@ namespace App\Models;
 /**
  * @property int sid
  * @property int id
+ * @property DocumentRevision $documentRevision;
  */
 abstract class DocumentPart extends MMModel
 {

@@ -18,6 +18,8 @@ class DocumentRevisionController extends Controller
      */
     public function show(DocumentRevision $documentRevision)
     {
+        $this->authorize('view', $documentRevision);
+
         return view('documentRevision.show', [
             "documentRevision" => $documentRevision,
             'nav' => $this->navigationMaker->documentRevisionNavigation($documentRevision)

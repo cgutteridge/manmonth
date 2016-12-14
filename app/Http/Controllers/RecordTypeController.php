@@ -20,6 +20,8 @@ class RecordTypeController extends Controller
      */
     public function show(RecordType $recordType)
     {
+        $this->authorize('view', $recordType);
+
         return view('recordType.show', [
             "recordType" => $recordType,
             "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)]);
@@ -35,6 +37,8 @@ class RecordTypeController extends Controller
      */
     public function records(RecordController $recordController, RecordType $recordType)
     {
+        $this->authorize('view', $recordType);
+
         $recordBlocks = [];
         foreach ($recordType->records as $record) {
             $recordBlocks[] = [
@@ -59,6 +63,8 @@ class RecordTypeController extends Controller
      */
     public function createRecord(RecordType $recordType)
     {
+        $this->authorize('create', $recordType);
+
         $returnLink = $this->requestProcessor->returnURL();
 
         $dataChanges = $this->requestProcessor->fromFieldsRequest($recordType->fields(), "field_");
@@ -88,6 +94,8 @@ class RecordTypeController extends Controller
      */
     public function storeRecord(RecordType $recordType)
     {
+        $this->authorize('create', $recordType);
+
         $action = $this->requestProcessor->get("_mmaction", "");
 
         if ($action == "cancel") {

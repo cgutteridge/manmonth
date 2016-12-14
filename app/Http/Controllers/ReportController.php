@@ -15,6 +15,7 @@ class ReportController extends Controller
      */
     public function index()
     {
+        // permissions
         return view('featureNotDoneYet', [
             'nav' => $this->navigationMaker->defaultNavigation()
         ]);
@@ -49,24 +50,22 @@ class ReportController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int $id
+     * @param Report $report
      * @return Response
      */
-    public function show($id)
+    public function show(Report $report)
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        $report = Report::find($id);
-        #TODO don't use find!!
+        $this->authorize('view', $report);
         return view('report.show', ["report" => $report]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int $id
+     * @param Report $report
      * @return Response
      */
-    public function edit($id)
+    public function edit(Report $report)
     {
         return view('featureNotDoneYet', [
             'nav' => $this->navigationMaker->defaultNavigation()
@@ -76,11 +75,11 @@ class ReportController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  Request $request
-     * @param  int $id
+     * @param Request $request
+     * @param Report $report
      * @return Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Report $report)
     {
         return view('featureNotDoneYet', [
             'nav' => $this->navigationMaker->defaultNavigation()
@@ -91,10 +90,10 @@ class ReportController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param Report $report
      * @return Response
      */
-    public function destroy($id)
+    public function destroy(Report $report)
     {
         return view('featureNotDoneYet', [
             'nav' => $this->navigationMaker->defaultNavigation()

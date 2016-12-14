@@ -320,8 +320,10 @@ class ECSSeeder extends Seeder
         $adminRole->label = "Document Administrator";
         $adminRole->document()->associate($doc);
         $adminRole->save();
-        $adminRole->assign("view-published");
+        $adminRole->assign("view-current");
         $adminRole->assign("view-archive");
+        $adminRole->assign("view-draft");
+        $adminRole->assign("view-scrap");
         $adminRole->assign("edit-data");
         $adminRole->assign("edit-schema");
         $adminRole->assign("edit-reports");
@@ -331,8 +333,7 @@ class ECSSeeder extends Seeder
         $staffRole->label = "Staff";
         $staffRole->document()->associate($doc);
         $staffRole->save();
-        $staffRole->assign("view-published");
-
+        $staffRole->assign("view-current");
 
         /*
          * USERS
@@ -358,7 +359,7 @@ class ECSSeeder extends Seeder
         $alice->save();
         $alice->assign($staffRole);
 
-        // someone with now right to see anything.
+        // someone with no right to see anything.
         $edward = new User();
         $edward->name = "Edward Eagle";
         $edward->email = "edward@example.org";

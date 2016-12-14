@@ -6,7 +6,7 @@ use App\Exceptions\ReportingException;
 use App\Models\ReportType;
 use Illuminate\View\View;
 
-class ReportTypeController extends Controller
+class ReportTypeController extends DocumentPartController
 {
 
     /**
@@ -17,6 +17,8 @@ class ReportTypeController extends Controller
      */
     public function show(ReportType $reportType)
     {
+        $this->authorize('view', $reportType);
+
         $renderErrors = [];
         $reportData = [];
 

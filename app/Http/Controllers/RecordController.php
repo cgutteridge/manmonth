@@ -9,7 +9,6 @@ use App\Models\Record;
 use App\Models\ReportType;
 use Exception;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Redirect;
 
@@ -24,6 +23,8 @@ class RecordController extends Controller
      */
     public function deleteForm(Record $record)
     {
+        $this->authorize('edit', $record);
+
         $renderErrors = $record->reasonsThisCantBeErased();
 
         // validate the impact of removing all those links
@@ -44,6 +45,8 @@ class RecordController extends Controller
      */
     public function delete(Record $record)
     {
+        $this->authorize('edit', $record);
+
         $action = $this->requestProcessor->get("_mmaction", "");
         $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($record));
         $recordType = $record->recordType;
@@ -75,8 +78,10 @@ class RecordController extends Controller
      * @param Record $record
      * @return View
      */
-    public function show(Request $request, Record $record)
+    public function show(Record $record)
     {
+        $this->authorize('view', $record);
+
         $renderErrors = [];
         $reports = [];
         foreach ($record->recordType->reportTypes as $reportType) {
@@ -181,10 +186,11 @@ class RecordController extends Controller
     }
 
     /**
+     * Turn a record into a data structure to render with the block template.
      * @param Record $record
      * @return array
      */
-    function recordDataBlock($record)
+    public function recordDataBlock($record)
     {
         $block = [];
         /** @var Field $field */
@@ -234,6 +240,8 @@ class RecordController extends Controller
      */
     public function edit(Record $record)
     {
+        $this->authorize('edit', $record);
+
         $fieldChanges = $this->requestProcessor->fromFieldsRequest(
             $record->recordType->fields(), "field_");
         $linkChanges = $this->requestProcessor->getLinkChanges(
@@ -257,6 +265,8 @@ class RecordController extends Controller
      */
     public function update(Record $record)
     {
+        $this->authorize('edit', $record);
+
         $action = $this->requestProcessor->get("_mmaction", "");
         $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($record));
         if ($action == "cancel") {

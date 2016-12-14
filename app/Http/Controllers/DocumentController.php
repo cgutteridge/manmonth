@@ -58,7 +58,7 @@ class DocumentController extends Controller
      */
     public function show(Document $document)
     {
-        $this->authorize('view-published', $document);
+        $this->authorize('view-current', $document);
 
         return view('document.show', [
             'document' => $document,
@@ -73,7 +73,7 @@ class DocumentController extends Controller
      */
     public function current(Document $document)
     {
-        $this->authorize('view-published', $document);
+        $this->authorize('view-current', $document);
 
         $current = $document->currentRevision();
         return Redirect::to($this->linkMaker->url($current));

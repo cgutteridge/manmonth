@@ -60,8 +60,8 @@ class CreateRolesPermissionsTables extends Migration
         // permissions
 
         $perm = new Permission();
-        $perm->name = "view-published";
-        $perm->label = "View published document";
+        $perm->name = "view-current";
+        $perm->label = "View current published document";
         $perm->save();
 
         $perm = new Permission();
@@ -127,6 +127,11 @@ class CreateRolesPermissionsTables extends Migration
         $perm = new Permission();
         $perm->name = "edit-reports";
         $perm->label = "Edit reports";
+        $perm->save();
+
+        $perm = new Permission();
+        $perm->name = "edit-permissions";
+        $perm->label = "View and edit user roles and permissions on this document";
         $perm->save();
 
         /* GLOBAL PERMISSIONS */
