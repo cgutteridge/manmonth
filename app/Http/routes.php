@@ -65,6 +65,8 @@ Route::group(['middleware' => 'auth'], function () {
 // TODO Link
 // TODO Report
 
+    Route::get('permissions', 'PermissionController@index');
+
 
 });
 

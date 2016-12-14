@@ -26,9 +26,6 @@ class CreateRolesPermissionsTables extends Migration
             $table->string('name');
             $table->string('label')->nullable();
             $table->boolean('global')->default(false);
-            $table->integer('document_id'); // roles belong to a document
-            // maybe later there will be a document series to which
-            // roles are assigned?
         });
         Schema::create('permission_role', function (Blueprint $table) {
             $table->integer('role_id')->unsigned();
