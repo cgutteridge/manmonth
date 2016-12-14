@@ -27,7 +27,11 @@
                     @endforeach
                 @endif
             </ul>
-            @include( 'nav.userMenu')
+            @if( array_key_exists('usermenu',$nav))
+                <ul class="nav navbar-nav navbar-right">
+                    @include( 'nav.menu', [ 'menu'=>$nav['usermenu'] ])
+                </ul>
+            @endif
         </div>
     </div><!-- /.container-fluid -->
 </nav>

@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Seeder;
 
@@ -140,6 +142,7 @@ class ECSSeeder extends Seeder
         $comp1234 = $modType->createRecord(["name" => "Fish studies", "code" => "comp1234", "semester" => "s1"]);
         $comp1235 = $modType->createRecord(["name" => "Giraffe studies", "code" => "comp1235", "semester" => "s1"]);
         $comp1236 = $modType->createRecord(["name" => "Hippo studies", "code" => "comp1236", "semester" => "s2"]);
+
         /*
 
         $small = $taskType->createRecord(["name" => "Small Job", "size" => 50]);
@@ -307,8 +310,65 @@ class ECSSeeder extends Seeder
         $draft3 = $doc->createDraftRevision();
 
 
-        // Now make some faked import data
+        /*
+         * ROLES and PERMISSIONS
+         */
 
+
+        $adminRole = new Role();
+        $adminRole->name = "admin";
+        $adminRole->label = "Document Administrator";
+        $adminRole->document()->associate($doc);
+        $adminRole->save();
+        $adminRole->assign("view-published");
+        $adminRole->assign("view-archive");
+        $adminRole->assign("edit-data");
+        $adminRole->assign("edit-schema");
+        $adminRole->assign("edit-reports");
+
+        $staffRole = new Role();
+        $staffRole->name = "staff";
+        $staffRole->label = "Staff";
+        $staffRole->document()->associate($doc);
+        $staffRole->save();
+        $staffRole->assign("view-published");
+
+
+        /*
+         * USERS
+         */
+
+        // Erase all existing users. Could cause weirdness!
+        DB::table('users')->delete();
+
+        // an admin
+        $dave = new User();
+        $dave->name = "Dave Doberman";
+        $dave->email = "dave@example.org";
+        $dave->password = Hash::make("password");
+        $dave->save();
+        $dave->assign($adminRole);
+        $dave->assign($staffRole);
+
+        // a member of staff
+        $alice = new User();
+        $alice->name = "Alice Aardvark";
+        $alice->email = "alice@example.org";
+        $alice->password = Hash::make("password");
+        $alice->save();
+        $alice->assign($staffRole);
+
+        // someone with now right to see anything.
+        $edward = new User();
+        $edward->name = "Edward Eagle";
+        $edward->email = "edward@example.org";
+        $edward->password = Hash::make("password");
+        $edward->save();
+
+
+        /*
+         * FAKE IMPORTED DATA
+         */
 
         if (Schema::hasTable('imported_people')) {
             Schema::drop('imported_people');

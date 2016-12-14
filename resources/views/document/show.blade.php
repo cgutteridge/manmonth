@@ -9,6 +9,14 @@
         "created_at"=>$document->created_at,
         "updated_at"=>$document->updated_at,
     ]])
+
+
+    @can("view-published",$document)
+        Yay
+    @else
+        Boo
+    @endcan
+
     <div class="row">
         <div class="col-md-6">
             <div class="panel panel-primary">

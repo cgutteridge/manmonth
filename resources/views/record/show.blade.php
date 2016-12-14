@@ -14,6 +14,7 @@
             "recordReport"=>$report,
             "loadingType"=>$loadingType,
             "loadings"=>$report->getLoadings($loadingType),
+            "units" => $report->getLoadingOption($loadingType, "units"),
             "scale" =>
                 0 == 1/max( $report->getLoadingTotal($loadingType), $report->getLoadingTarget($loadingType) ) ?
                 1 :

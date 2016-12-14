@@ -58,6 +58,8 @@ class DocumentController extends Controller
      */
     public function show(Document $document)
     {
+        $this->authorize('view-published', $document);
+
         return view('document.show', [
             'document' => $document,
             'nav' => $this->navigationMaker->documentNavigation($document)
@@ -71,6 +73,8 @@ class DocumentController extends Controller
      */
     public function current(Document $document)
     {
+        $this->authorize('view-published', $document);
+
         $current = $document->currentRevision();
         return Redirect::to($this->linkMaker->url($current));
     }
@@ -82,6 +86,8 @@ class DocumentController extends Controller
      */
     public function draft(Document $document)
     {
+        $this->authorize('view-draft', $document);
+
         $draft = $document->draftRevision();
         if (!$draft) {
             return Redirect::to($this->linkMaker->url($document))

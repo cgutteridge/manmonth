@@ -28,7 +28,12 @@ class Controller extends BaseController
      * @param TitleMaker $titleMaker
      * @param RequestProcessor $requestProcessor
      */
-    public function __construct(NavigationMaker $navigationMaker, LinkMaker $linkMaker, TitleMaker $titleMaker, RequestProcessor $requestProcessor)
+    public function __construct(
+        NavigationMaker $navigationMaker,
+        LinkMaker $linkMaker,
+        TitleMaker $titleMaker,
+        RequestProcessor $requestProcessor
+    )
     {
         $this->navigationMaker = $navigationMaker;
         $this->linkMaker = $linkMaker;

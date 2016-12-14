@@ -12,6 +12,7 @@ namespace App\Http;
 use App\Models\Document;
 use App\Models\DocumentRevision;
 use App\Models\LinkType;
+use Auth;
 use Exception;
 
 /**
@@ -24,16 +25,6 @@ class NavigationMaker
     {
         $this->linkMaker = $linkMaker;
         $this->titleMaker = $titleMaker;
-    }
-
-    /**
-     * @return array
-     */
-    public function defaultNavigation()
-    {
-        return [
-            "title" => ["label" => "Man Month"]
-        ];
     }
 
     /**
@@ -123,8 +114,6 @@ class NavigationMaker
             "label" => "Reports",
             "items" => $reportItems];
 
-
-
         $nav["side"] = [];
         switch ($documentRevision->status) {
             case "current":
@@ -147,6 +136,7 @@ class NavigationMaker
                 throw new Exception("Unknown document status: " . $documentRevision->status);
         }
 
+
         return $nav;
     }
 
@@ -156,34 +146,60 @@ class NavigationMaker
      */
     public function documentNavigation(Document $document)
     {
-        return [
-            "title" => [
-                "label" => $document->name,
-                "href" => $this->linkMaker->url($document)
-            ],
-            "menus" => [
-                [
-                    "label" => "Document",
-                    "items" => [
-                        [
-                            "glyph" => "file",
-                            "label" => "Current",
-                            "href" => $this->linkMaker->url($document, "current")
-                        ],
-                        [
-                            "glyph" => "file",
-                            "label" => "Draft",
-                            "href" => $this->linkMaker->url($document, "draft")
-                        ],
-                        [
-                            "glyph" => "list",
-                            "label" => "All revisions",
-                            "href" => $this->linkMaker->url($document)
-                        ]
+        $nav = $this->defaultNavigation();
+        $nav["title"] = [
+            "label" => $document->name,
+            "href" => $this->linkMaker->url($document)
+        ];
+        $nav["menus"] = [
+            [
+                "label" => "Document",
+                "items" => [
+                    [
+                        "glyph" => "file",
+                        "label" => "Current",
+                        "href" => $this->linkMaker->url($document, "current"),
+                        "allowed" => Auth::user()->can('view-published', $document)
+                    ],
+                    [
+                        "glyph" => "file",
+                        "label" => "Draft",
+                        "href" => $this->linkMaker->url($document, "draft"),
+                        "allowed" => Auth::user()->can('view-draft', $document)
+                    ],
+                    [
+                        "glyph" => "list",
+                        "label" => "All revisions",
+                        "href" => $this->linkMaker->url($document),
+                        "allowed" => Auth::user()->can('view-archive', $document)
                     ]
                 ]
             ]
         ];
+        return $nav;
+    }
+
+    /**
+     * @return array
+     */
+    public function defaultNavigation()
+    {
+        $nav = [];
+        $nav["title"] = ["label" => "Man Month"];
+        if (Auth::check()) {
+            $nav["usermenu"] = [
+                "label" => Auth::user()->name,
+                "glyph" => "user",
+                "items" => [
+                    [
+                        "label" => "Logout",
+                        "href" => "/logout",
+                        "glyph" => "log-out"
+                    ]
+                ]
+            ];
+        }
+        return $nav;
     }
 
     // TODO scrap

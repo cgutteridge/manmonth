@@ -1,6 +1,9 @@
 @if(array_key_exists('items',$menu))
     <li class="dropdown">
         <a tabindex="0" data-toggle="dropdown" data-submenu>
+            @if( isset( $menu['glyph']) )
+                <span class="glyphicon glyphicon-{{ $menu['glyph'] }}"></span>
+            @endif
             {{$menu["label"]}}<span class="caret"></span>
         </a>
         <ul class="dropdown-menu">

@@ -189,7 +189,7 @@ class DatabaseSeeder extends Seeder
 
         $draft3 = $doc->createDraftRevision();
 
-#\Event::listen('Illuminate\Database\Events\QueryExecuted', function ($query) { print $query->sql." - ".json_encode( $query->bindings )."\n"; });
+#\Event::listen('Illuminate\Database\Events\QueryExecuted', function ($query) { dump( $query->sql,$query->bindings ); });
 
         // inspect
         /*
