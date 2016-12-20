@@ -30,6 +30,7 @@ footer.navbar {
     border-left: solid 1px black;
 }
 
+
 .mm_loading {
     overflow: hidden;
     background-color: lightgray;
@@ -476,3 +477,17 @@ table.mm-record-data td {
 }
 
 /* end button */
+
+/* Background images */
+
+.mm-status-draft {
+    background-image: url(/draft.png);
+}
+
+.mm-status-archive {
+    background-image: url(/archive.png);
+}
+
+.mm-status-scrap {
+    background-image: url(/scrap.png);
+}

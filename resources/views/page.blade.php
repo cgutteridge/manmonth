@@ -12,11 +12,17 @@
     <script src="/hover.js"></script>
     <script src="/manmonth.js"></script>
 </head>
-<body>
+<body
+        @if( isset($nav) && isset($nav['side']) )
+        class="mm-status-{{$nav['side']['status']}}"
+        @endif
+>
 
 @include( 'header', [ "nav"=>(isset($nav)?$nav:$navMaker->defaultNavigation())])
+$nav['side']['status']
+<div class="container" style="margin-top: 50px"
+>
 
-<div class="container" style="margin-top: 50px">
     <div class="content">
         <h1 class="title">@yield('title')</h1>
 
