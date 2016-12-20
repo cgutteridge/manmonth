@@ -6,7 +6,7 @@ use App\Exceptions\ReportingException;
 use App\Models\ReportType;
 use Illuminate\View\View;
 
-class ReportTypeController extends DocumentPartController
+class ReportTypeController extends Controller
 {
 
     /**
@@ -63,7 +63,7 @@ class ReportTypeController extends DocumentPartController
                         "record" => $record,
                         "recordReport" => $recordReport,
                         "units" => $recordReport->getLoadingOption($loadingType, "units"),
-                        "loadings" => $recordReport->getLoadings($loadingType),
+                        "loadings" => $recordReport->getLoading($loadingType),
                         "scale" =>
                             max($maxLoading, $maxTarget) == 0 ?
                                 1 :
@@ -77,7 +77,7 @@ class ReportTypeController extends DocumentPartController
                         "record" => $record,
                         "recordReport" => $recordReport,
                         "units" => $recordReport->getLoadingOption($loadingType, "units"),
-                        "loadings" => $recordReport->getLoadings($loadingType),
+                        "loadings" => $recordReport->getLoading($loadingType),
                         "scale" =>
                             $recordTarget * $maxRatio == 0 ?
                                 1 :
@@ -91,7 +91,7 @@ class ReportTypeController extends DocumentPartController
                         "record" => $record,
                         "recordReport" => $recordReport,
                         "units" => $recordReport->getLoadingOption($loadingType, "units"),
-                        "loadings" => $recordReport->getLoadings($loadingType),
+                        "loadings" => $recordReport->getLoading($loadingType),
                         "scale" => $recordTotal == 0 ? 1 : 1 / $recordTotal,
                         "target" => $recordTarget,
                         "total" => $recordTotal];

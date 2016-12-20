@@ -91,7 +91,7 @@ class Record extends DocumentPart
             // external, default
             $value = $this->getExternal($fieldName);
         } else {
-            throw Exception("Unknown field mode: '" . $field->data["mode"] . "'");
+            throw new Exception("Unknown field mode: '" . $field->data["mode"] . "'");
         }
         if ($value === null || $value === "") {
             $value = $this->getDefault($fieldName);
@@ -204,7 +204,7 @@ class Record extends DocumentPart
                 return "external";
             }
         } else {
-            throw Exception("Unknown field mode: '" . $field->data["mode"] . "'");
+            throw new Exception("Unknown field mode: '" . $field->data["mode"] . "'");
         }
         $value = $this->getDefault($fieldName);
         if ($value !== null || $value != "") {

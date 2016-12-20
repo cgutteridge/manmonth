@@ -43,17 +43,20 @@ class NavigationMaker
             $createItems [] = [
                 "glyph" => "plus-sign",
                 "label" => $this->titleMaker->title($recordType),
-                "href" => $this->linkMaker->url($recordType, "create-record")
+                "href" => $this->linkMaker->url($recordType, "create-record"),
+                "allowed" => Auth::user()->can('edit-data', $documentRevision->document)
             ];
             $browseItems [] = [
                 "glyph" => "list",
                 "label" => $this->titleMaker->title($recordType),
-                "href" => $this->linkMaker->url($recordType, "records")
+                "href" => $this->linkMaker->url($recordType, "records"),
+                "allowed" => Auth::user()->can('view', $documentRevision)
             ];
             $schemaItems [] = [
                 "glyph" => "cog",
                 "label" => $this->titleMaker->title($recordType),
-                "href" => $this->linkMaker->url($recordType)
+                "href" => $this->linkMaker->url($recordType),
+                "allowed" => Auth::user()->can('view', $documentRevision)
             ];
         }
         /** @var LinkType $linkType */
@@ -61,12 +64,14 @@ class NavigationMaker
             $browseItems [] = [
                 "glyph" => "list",
                 "label" => "LINK: " . $this->titleMaker->title($linkType->domain) . "&rarr;" . $this->titleMaker->title($linkType) . "&rarr;" . $this->titleMaker->title($linkType->range),
-                "href" => $this->linkMaker->url($linkType, "links")
+                "href" => $this->linkMaker->url($linkType, "links"),
+                "allowed" => Auth::user()->can('view', $documentRevision)
             ];
             $schemaItems [] = [
                 "glyph" => "cog",
                 "label" => $this->titleMaker->title($linkType),
-                "href" => $this->linkMaker->url($linkType)
+                "href" => $this->linkMaker->url($linkType),
+                "allowed" => Auth::user()->can('view', $documentRevision)
             ];
         }
 
@@ -74,30 +79,40 @@ class NavigationMaker
         $ritems [] = [
             "glyph" => "file",
             "label" => "View Revision",
-            "href" => $this->linkMaker->url($documentRevision)
+            "href" => $this->linkMaker->url($documentRevision),
+            "allowed" => Auth::user()->can('view', $documentRevision)
         ];
         $ritems [] = [
             "glyph" => "list",
             "label" => "Browse",
-            "items" => $browseItems];
+            "items" => $browseItems,
+            "allowed" => Auth::user()->can('view', $documentRevision)
+        ];
         $ritems [] = [
             "glyph" => "plus-sign",
             "label" => "Create",
-            "items" => $createItems];
-        $ritems [] = [
-            "glyph" => "circle-arrow-up",
-            "label" => "Publish",
-            "href" => $this->linkMaker->url($documentRevision, "publish")
+            "items" => $createItems,
+            "allowed" => Auth::user()->can('create', $documentRevision)
         ];
-        $ritems [] = [
-            "label" => "Scrap",
-            "glyph" => "circle-arrow-down",
-            "href" => $this->linkMaker->url($documentRevision, "scrap")
-        ];
+        if ($documentRevision->status == 'draft') {
+            $ritems [] = [
+                "glyph" => "circle-arrow-up",
+                "label" => "Publish Draft",
+                "href" => $this->linkMaker->url($documentRevision, "publish"),
+                "allowed" => Auth::user()->can('publish', $documentRevision->document)
+            ];
+            $ritems [] = [
+                "label" => "Scrap Draft",
+                "glyph" => "circle-arrow-down",
+                "href" => $this->linkMaker->url($documentRevision, "scrap"),
+                "allowed" => Auth::user()->can('scrap', $documentRevision->document)
+            ];
+        }
         $ritems [] = [
             "glyph" => "cog",
             "label" => "Schema",
-            "items" => $schemaItems
+            "items" => $schemaItems,
+            "allowed" => Auth::user()->can('view', $documentRevision)
         ];
         $nav["menus"][] = [
             "label" => "Revision",

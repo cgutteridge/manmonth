@@ -47,7 +47,7 @@ class User extends Authenticatable
     }
 
     /**
-     * @param Role $role
+     * @param Role|Collection $role
      * @param Document $document
      * @return bool
      */

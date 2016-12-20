@@ -44,22 +44,24 @@
     </div>
 
     <div class="mm_loading_bar">
-        @foreach($loadings as $loading )
-            <div class="mm_hover">
-                <div class="mm_hover_target mm_loading mm_cat_{{ $loading['category'] }}"
-                     style="width: {{ 100*$loading['load']*$scale }}%">
-                    <div class="mm_loading_inner">
-                        {{ $loading['description'] }} - {{ $loading['load']}} {{$units}}
+        @if($loadings)
+            @foreach($loadings as $loading )
+                <div class="mm_hover">
+                    <div class="mm_hover_target mm_loading mm_cat_{{ $loading['category'] }}"
+                         style="width: {{ 100*$loading['load']*$scale }}%">
+                        <div class="mm_loading_inner">
+                            {{ $loading['description'] }} - {{ $loading['load']}} {{$units}}
+                        </div>
+                    </div>
+                    <div class="mm_hover_message">
+                        <div class="mm_loading_hover mm_cat_{{ $loading['category'] }}">
+                            {{ $loading['description'] }} - {{ $loading['load']}} {{$units}}
+                        </div>
                     </div>
                 </div>
-                <div class="mm_hover_message">
-                    <div class="mm_loading_hover mm_cat_{{ $loading['category'] }}">
-                        {{ $loading['description'] }} - {{ $loading['load']}} {{$units}}
-                    </div>
-                </div>
-            </div>
+            @endforeach
+        @endif
 
-        @endforeach
         @if( $target > $total && $showFree )
             <div class="mm_loading mm_loading_free"
                  style="width: {{ (100*($target-$total)*$scale) }}%">

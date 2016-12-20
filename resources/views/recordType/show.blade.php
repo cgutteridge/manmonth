@@ -4,16 +4,15 @@
     View Record Type: @title($recordType)
 @endsection
 @section( 'content' )
-    <div class="panel panel-info mm-record-block">
-        <div class="panel-heading">
-            <a href="@url($recordType,'edit')" class="pull-right" title="edit"><span
-                        class="glyphicon glyphicon-edit" aria-hidden="true"></span></a>
-            &nbsp;
-        </div>
-        <table class="table mm-table">
-            @include('dataTable',['data'=>$recordType->data])
-        </table>
-    </div>
+    <h3>Schema</h3>
+    @can('edit',$recordType)
+        <p>
+            <a type="button" class="btn btn-primary" href="@url($recordType,'edit')">Edit Schema</a>
+        </p>
+    @endcan
+    <table class="table mm-datatable">
+        @include('dataTable',['data'=>$recordType->data])
+    </table>
 
     @if( count($recordType->forwardLinkTypes) )
         <h3>Links from @title($recordType)</h3>
@@ -40,8 +39,8 @@
         </ul>
     @endif
 
+    <h3>Report Types</h3>
     @if( count($recordType->reportTypes ))
-        <h3>Report Types</h3>
         <ul>
             @foreach( $recordType->reportTypes as $reportType )
                 <li>
@@ -49,9 +48,12 @@
                     on @link($reportType->baseRecordType()), {{$reportType->rules()->count()}} rule(s))
                 </li>
             @endforeach
-            <li>TODO: Create new record type</li>
         </ul>
+    @else
+        None.
     @endif
+
+    <li>TODO: Create new report type</li>
 
 @endsection
 

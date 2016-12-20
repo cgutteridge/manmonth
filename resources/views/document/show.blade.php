@@ -4,8 +4,8 @@
     @title($document)
 @endsection
 @section( 'content')
-    <table class="mm-datatable">
 
+    <table class="mm-datatable">
         @include( 'dataTable', [ "data"=>[
             "name"=>$document->name,
             "created_at"=>$document->created_at,

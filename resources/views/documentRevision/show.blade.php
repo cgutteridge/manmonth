@@ -13,7 +13,7 @@
         <div class="row panel-body">
             <div class="col-md-6">
                 <h3>Metadata</h3>
-                <table class="table">
+                <table class="mm-datatable">
                     @include( 'dataTable', [ "data"=>[
         "status"=>$documentRevision->status,
         "created_at"=>$documentRevision->created_at,
@@ -32,11 +32,6 @@
                     @endforeach
                 </ul>
             </div>
-            <div class="clearfix"></div>
-            <div class="col-md-6">
-                <h3>Saved Reports</h3>
-                <p>Coming "soon".</p>
-            </div>
             <div class="col-md-6">
                 <h3>Report Types</h3>
                 <ul>
@@ -49,7 +44,6 @@
                                 rule(s))</a>
                         </li>
                     @endforeach
-                    <li>TODO: Create new report type</li>
                 </ul>
             </div>
         </div>
@@ -68,7 +62,6 @@
                             @link($recordType)
                         </li>
                     @endforeach
-                    <li>TODO: Create new record type</li>
                 </ul>
             </div>
             <div class="col-md-6">
@@ -79,7 +72,6 @@
                             @link($linkType)
                         </li>
                     @endforeach
-                    <li>TODO: Create new record type</li>
                 </ul>
             </div>
         </div>

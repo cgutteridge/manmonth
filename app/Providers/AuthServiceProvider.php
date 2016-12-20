@@ -5,10 +5,13 @@ namespace App\Providers;
 use App\Models\Document;
 use App\Models\DocumentPart;
 use App\Models\DocumentRevision;
+use App\Models\Link;
 use App\Models\LinkType;
 use App\Models\Permission;
 use App\Models\Record;
 use App\Models\RecordType;
+use App\Models\ReportType;
+use App\Models\Rule;
 use App\Models\User;
 use Illuminate\Contracts\Auth\Access\Gate as GateContract;
 use Illuminate\Database\Eloquent\Collection;
@@ -131,20 +134,23 @@ class AuthServiceProvider extends ServiceProvider
          * an object to a permission is different. Code sits here so it
          * can do the draft-status-only check here rather than in the controllers.
          * @param User $user
-         * @param DocumentPart $documentPart
+         * @param DocumentPart|DocumentRevision $thing
          * @return boolean
          */
-        $fn = function ($user, $documentPart) {
-            $documentRevision = $documentPart->documentRevision;
-
+        $fn = function ($user, $thing) {
+            if (is_a($thing, DocumentRevision::class)) {
+                $documentRevision = $thing;
+            } else {
+                $documentRevision = $thing->documentRevision;
+            }
             // only things in draft revisions can be edited.
             if ($documentRevision->status != "draft") {
                 return false;
             }
-
             if (
-                is_a($documentPart, LinkType::class)
-                || is_a($documentPart, RecordType::class)
+                is_a($thing, LinkType::class)
+                || is_a($thing, RecordType::class)
+                || is_a($thing, DocumentRevision::class)
             ) {
                 return $user->can("edit-data", $documentRevision->document);
             } else {

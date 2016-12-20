@@ -168,12 +168,21 @@ class RecordReport
     /**
      * @return array
      */
-    public function getLoadings($loading)
+    public function getLoadings()
+    {
+        return $this->loadings;
+    }
+
+    /**
+     * @param string $loading
+     * @return array
+     */
+    public function getLoading($loading)
     {
         if (array_key_exists($loading, $this->loadings)) {
             return $this->loadings[$loading];
         }
-        return [];
+        return null;
     }
 
     /**
