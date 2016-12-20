@@ -27,8 +27,15 @@
     @endforeach
     @include("record.block",$recordBlock)
     <p>
-        <a type="button" class="btn btn-primary" href="@url($record,'delete')">
-            Delete this @title($record->recordType)
-        </a>
+        @can( 'edit', $record )
+            <a type="button" class="btn btn-primary" href="@url($record,'edit')">
+                Edit this @title($record->recordType)
+            </a>
+        @endcan
+        @can( 'delete-records', $record->documentRevision->document )
+            <a type="button" class="btn btn-primary" href="@url($record,'delete')">
+                Delete this @title($record->recordType)
+            </a>
+        @endcan
     </p>
 @endsection

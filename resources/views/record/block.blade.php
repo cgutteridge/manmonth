@@ -5,10 +5,12 @@
             <a href="@url($record)" data-toggle="tooltip" title="Focus on this @title($record->recordType)">
                 @title($record->recordType)
             </a>
-            <a href="@url($record, 'edit', ["_mmreturn"=>$returnURL])" class="pull-right" data-toggle="tooltip"
-               title="Edit this @title($record->recordType)">
-                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-            </a>
+            @can('edit',$record)
+                <a href="@url($record, 'edit', ["_mmreturn"=>$returnURL])" class="pull-right" data-toggle="tooltip"
+                   title="Edit this @title($record->recordType)">
+                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                </a>
+            @endcan
         </th>
         @if( $swimLanes )
             @foreach( $links as $link )
@@ -71,12 +73,11 @@
                                     @title( $subrecord["record"])
                                 </a>
                             @endforeach
-                            @can('edit-data',$record)
-                                x
+                            @can('edit',$record)
+                                <a class="mm-button" href="{{$link["createLink"]}}">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                </a>
                             @endcan
-                            <a class="mm-button" href="{{$link["createLink"]}}">
-                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                            </a>
                         </td>
                     </tr>
                 @endforeach
