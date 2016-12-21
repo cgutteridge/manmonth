@@ -29,9 +29,12 @@
                              class="tab-pane{{ (isset($view['first'])&&$view['first'])?"
                              active":"" }}" id="{{$loadingType}}_{{$viewId}}">
                             <h3>{{$view["title"]}}</h3>
-                            @foreach( $view['rows'] as $row )
-                                @include( 'reportType.recordRow', $row )
-                            @endforeach
+                            <table style="width:100%">
+
+                                @foreach( $view['rows'] as $row )
+                                    @include( 'reportType.recordRow', $row )
+                                @endforeach
+                            </table>
                         </div>
                     @endforeach
                 </div>

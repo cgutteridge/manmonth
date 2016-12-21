@@ -413,4 +413,127 @@ class FieldTest extends TestCase
         $field->validate();
     }
     */
+
+
+    /**************************************
+     * Validation for Options Field Type
+     **************************************/
+
+    function test_option_validation_code()
+    {
+        $field = App\Fields\Field::createFromData([
+            "type" => "option",
+            "name" => "test",
+            "options" => "a|Alpha\nb\nc"
+        ]);
+        $this->assertEquals("in:a,b,c|string", $field->valueValidationCode());
+    }
+
+    function test_option_validation_code_with_required()
+    {
+        $field = App\Fields\Field::createFromData([
+            "type" => "option",
+            "name" => "test",
+            "options" => "a|Alpha\nb\nc",
+            "required" => true,
+        ]);
+        $this->assertEquals("in:a,b,c|required|string", $field->valueValidationCode());
+    }
+
+    function test_option_get_options()
+    {
+        $field = App\Fields\Field::createFromData([
+            "type" => "option",
+            "name" => "test",
+            "options" => "a|Alpha\nb\nc"
+        ]);
+        $this->assertArraySubset(array("a", "b", "c"), $field->options());
+    }
+
+    function test_option_get_options_different_order()
+    {
+        $field = App\Fields\Field::createFromData([
+            "type" => "option",
+            "name" => "test",
+            "options" => "c\nb|Badger\na"
+        ]);
+        $this->assertArraySubset(array("c", "b", "a"), $field->options());
+    }
+
+
+    function test_option_get_labels()
+    {
+        $field = App\Fields\Field::createFromData([
+            "type" => "option",
+            "name" => "test",
+            "options" => "a|Alpha\nb|Badger\nc"
+        ]);
+        $this->assertArraySubset(array("a" => "Alpha", "b" => "Badger", "c" => "c"), $field->optionsWithLabels());
+    }
+
+    function test_option_check_empty_line_is_ignored()
+    {
+        $field = App\Fields\Field::createFromData([
+            "type" => "option",
+            "name" => "test",
+            "options" => "a|Alpha\n\n|\nb|Badger\nc"
+        ]);
+        $this->assertArraySubset(array("a" => "Alpha", "b" => "Badger", "c" => "c"), $field->optionsWithLabels());
+    }
+
+    function test_option_check_zero_length_code_with_label()
+    {
+        $field = App\Fields\Field::createFromData([
+            "type" => "option",
+            "name" => "test",
+            "options" => "a|Alpha\n|Zero\n|\nb|Badger\nc"
+        ]);
+        $this->assertArraySubset(array("a" => "Alpha", "" => "Zero", "b" => "Badger", "c" => "c"), $field->optionsWithLabels());
+    }
+
+    function test_option_check_duplicate_codes_fail_validation()
+    {
+        $field = App\Fields\Field::createFromData([
+            "type" => "option",
+            "name" => "test",
+            "options" => "a|Alpha\nb|Badger\nc\nb"
+        ]);
+        $this->setExpectedException(\App\Exceptions\MMValidationException::class);
+        $field->validate();
+    }
+
+
+    function test_option_check_duplicate_labels_fail_validation()
+    {
+        $field = App\Fields\Field::createFromData([
+            "type" => "option",
+            "name" => "test",
+            "options" => "a|Alpha\nb|Badger\nc\nb|Alpha"
+        ]);
+        $this->setExpectedException(\App\Exceptions\MMValidationException::class);
+        $field->validate();
+    }
+
+    function test_option_check_lack_of_any_codes_fails_validation()
+    {
+        $field = App\Fields\Field::createFromData([
+            "type" => "option",
+            "name" => "test",
+            "options" => ""
+        ]);
+        $this->setExpectedException(\App\Exceptions\MMValidationException::class);
+        $field->validate();
+    }
+
+
+    function test_option_check_comma_in_a_code_fails_validation()
+    {
+        $field = App\Fields\Field::createFromData([
+            "type" => "option",
+            "name" => "test",
+            "options" => "a|Alpha\nb,c|Badger"
+        ]);
+        $this->setExpectedException(\App\Exceptions\MMValidationException::class);
+        $field->validate();
+    }
 }

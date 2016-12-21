@@ -30,7 +30,16 @@ abstract class MMModel extends Model
         $errors = $validator->errors();
         foreach ($errors->getMessages() as $fieldName => $list) {
             $msg .= " " . join(", ", $list);
-            $msg .= " The $fieldName field had value " . json_encode($validator->getData()[$fieldName]) . ".";
+            /* commented out as it's a bit buggy. Sometimes fieldName seems to start one too high.
+            $data = $validator->getData();
+            $value = $data;
+            $codes = preg_split('/\./', $fieldName);
+            while ($code = array_shift($codes)) {
+                $value = $value[$code];
+            }
+            dump( $fieldName,$value);
+            $msg .= " The field identified as $fieldName had the invalid value '" . $value . "''.";
+            */
         }
         return new MMValidationException($msg);
     }

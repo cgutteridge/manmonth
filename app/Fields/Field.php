@@ -39,6 +39,8 @@ abstract class Field
             return new IntegerField($fieldData);
         } elseif ($fieldData["type"] == "boolean") {
             return new BooleanField($fieldData);
+        } elseif ($fieldData["type"] == "option") {
+            return new OptionField($fieldData);
         } else {
             throw new Exception("Unknown field type: '" . $fieldData["type"] . "'");
         }

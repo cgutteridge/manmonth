@@ -32,8 +32,7 @@ class ECSSeeder extends Seeder
                     ["name" => "pinumber", "label" => "ID Number", "type" => "string"],
                     ["name" => "phdstudents", "label" => "PhD Students", "type" => "decimal", "min" => 0, "external" => "phdstudents", "mode" => "prefer_external"],
                     ["name" => "istutor", "label" => "Is Tutor?", "type" => "boolean", "default" => false],
-                    ["name" => "firstyear", "label" => "First year of teaching?", "type" => "boolean", "default" => false],
-                    ["name" => "secondyear", "label" => "Second year of teaching?", "type" => "boolean", "default" => false],
+                    ["name" => "teaching_year", "label" => "Year of teaching", "type" => "option", "options" => "1|First\n2|Second\nother|Third or more", "default" => 'other']
                 ]],
             "title_script" => "record.name"
         ]);
@@ -137,7 +136,7 @@ class ECSSeeder extends Seeder
 
         $alice = $actorType->createRecord(["name" => "Alice Aardvark", "phdstudents" => 7]);
         $bobby = $actorType->createRecord(["name" => "Bobby Bananas", "phdstudents" => 2]);
-        $clara = $actorType->createRecord(["name" => "Clara Crumb", "firstyear" => true]);
+        $clara = $actorType->createRecord(["name" => "Clara Crumb", "teaching_year" => '1']);
 
         $comp1234 = $modType->createRecord(["name" => "Fish studies", "code" => "comp1234", "semester" => "s1"]);
         $comp1235 = $modType->createRecord(["name" => "Giraffe studies", "code" => "comp1235", "semester" => "s1"]);
@@ -170,12 +169,12 @@ class ECSSeeder extends Seeder
             "params" => ["target" => "'loading'", "value" => 500]]);
         $loadingReportType->createRule([
             "title" => "40% for year one teachers",
-            "trigger" => "actor.firstyear",
+            "trigger" => "actor.teaching_year='1'",
             "action" => "scale_target",
             "params" => ["target" => "'loading'", "factor" => 0.4]]);
         $loadingReportType->createRule([
             "title" => "70% for year two teachers",
-            "trigger" => "actor.secondyear",
+            "trigger" => "actor.teaching_year='2'",
             "action" => "scale_target",
             "params" => ["target" => "'loading'", "factor" => 0.7]]);
         $loadingReportType->createRule([

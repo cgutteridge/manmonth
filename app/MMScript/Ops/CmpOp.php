@@ -2,8 +2,8 @@
 
 namespace App\MMScript\Ops;
 
-use App\Exceptions\ScriptException;
 use App\Exceptions\MMScriptRuntimeException;
+use App\Exceptions\ScriptException;
 use App\MMScript\Values\BooleanValue;
 
 class CmpOp extends BinaryOp
@@ -15,6 +15,17 @@ class CmpOp extends BinaryOp
         }
         $lt = $this->left->type();
         $rt = $this->right->type();
+
+        // this might be better handled by making a isString()
+        // method on the ops, but for now treat option fields as
+        // strings
+        if ($lt == 'option') {
+            $lt = 'string';
+        }
+        if ($rt == 'option') {
+            $rt = 'string';
+        }
+
         if ($lt == 'string' && $rt == 'string') {
             $this->type = 'boolean';
             return $this->type;

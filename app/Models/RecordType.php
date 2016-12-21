@@ -175,7 +175,7 @@ class RecordType extends DocumentPart
             ['name' => 'required|codename|max:255']);
 
         if ($validator->fails()) {
-            $this->makeValidationException($validator);
+            throw $this->makeValidationException($validator);
         }
 
         $validator = Validator::make(
@@ -183,11 +183,11 @@ class RecordType extends DocumentPart
             [
                 'title' => 'string',
                 'fields' => 'required|array',
-                'fields.*.type' => 'required|in:boolean,integer,decimal,string'
+                'fields.*.type' => 'required|in:boolean,integer,decimal,string,option'
             ]);
 
         if ($validator->fails()) {
-            throw new MMValidationException("RecordType", "data", $this->data, $validator->errors());
+            throw $this->makeValidationException($validator);
         }
         foreach ($this->fields() as $field) {
             $field->validate();

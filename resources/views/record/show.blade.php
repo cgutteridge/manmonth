@@ -32,7 +32,7 @@
                 Edit this @title($record->recordType)
             </a>
         @endcan
-        @can( 'delete-records', $record->documentRevision->document )
+        @can( 'edit', $record )
             <a type="button" class="btn btn-primary" href="@url($record,'delete')">
                 Delete this @title($record->recordType)
             </a>
