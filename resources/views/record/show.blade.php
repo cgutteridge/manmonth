@@ -7,22 +7,24 @@
 @section( 'content')
     @foreach( $reports as $report )
         @foreach( $report->getLoadingTypes() as $loadingType )
-            @include( 'reportType.recordRow', [
-            "showFree"=>true,
-            "showTarget"=>true,
-            "record"=>$record,
-            "recordReport"=>$report,
-            "loadingType"=>$loadingType,
-            "loadings"=>$report->getLoading($loadingType),
-            "units" => $report->getLoadingOption($loadingType, "units"),
-            "scale" =>
-                0 == 1/max( $report->getLoadingTotal($loadingType), $report->getLoadingTarget($loadingType) ) ?
-                1 :
-                1/max( $report->getLoadingTotal($loadingType), $report->getLoadingTarget($loadingType) )
-            ,
-            "target" => $report->getLoadingTarget( $loadingType ),
-            "total" => $report->getLoadingTotal( $loadingType )
-            ])
+            <table style="width:100%">
+                @include( 'reportType.recordRow', [
+                "showFree"=>true,
+                "showTarget"=>true,
+                "record"=>$record,
+                "recordReport"=>$report,
+                "loadingType"=>$loadingType,
+                "loadings"=>$report->getLoading($loadingType),
+                "units" => $report->getLoadingOption($loadingType, "units"),
+                "scale" =>
+                    0 == 1/max( $report->getLoadingTotal($loadingType), $report->getLoadingTarget($loadingType) ) ?
+                    1 :
+                    1/max( $report->getLoadingTotal($loadingType), $report->getLoadingTarget($loadingType) )
+                ,
+                "target" => $report->getLoadingTarget( $loadingType ),
+                "total" => $report->getLoadingTotal( $loadingType )
+                ])
+            </table>
         @endforeach
     @endforeach
     @include("record.block",$recordBlock)
