@@ -99,6 +99,7 @@ class CreateRolesPermissionsTables extends Migration
         $perm->label = "Edit document data";
         $perm->save();
 
+        /*
         $perm = new Permission();
         $perm->name = "create-records";
         $perm->label = "Create new records";
@@ -118,6 +119,7 @@ class CreateRolesPermissionsTables extends Migration
         $perm->name = "delete-links";
         $perm->label = "Delete links";
         $perm->save();
+        */
 
         $perm = new Permission();
         $perm->name = "edit-schema";
