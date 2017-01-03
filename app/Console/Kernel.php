@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
          Commands\Inspire::class,
          Commands\DropTables::class,
+        Commands\SetAllPasswords::class,
          Commands\LoadReport::class,
     ];
 

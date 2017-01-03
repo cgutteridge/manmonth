@@ -30,8 +30,8 @@ class ECSSeeder extends Seeder
                     ["name" => "name", "label" => "Name", "type" => "string", "required" => true, "external" => "name", "mode" => "prefer_local"],
                     ["name" => "email", "label" => "Email", "type" => "string", "external" => "email", "mode" => "only_external"],
                     ["name" => "pinumber", "label" => "ID Number", "type" => "string"],
-                    ["name" => "phdstudents", "label" => "PhD Students", "type" => "decimal", "min" => 0, "external" => "phdstudents", "mode" => "prefer_external"],
-                    ["name" => "istutor", "label" => "Is Tutor?", "type" => "boolean", "default" => false],
+                    ["name" => "student_projects", "label" => "Students projects loading", "type" => "decimal", "min" => 0, "max" => 100],
+                    ["name" => "tutorials", "label" => "Tutorials?", "type" => "boolean", "default" => false],
                     ["name" => "teaching_year", "label" => "Year of teaching", "type" => "option", "options" => "1|First\n2|Second\nother|Third or more", "default" => 'other']
                 ]],
             "title_script" => "record.name"
@@ -66,35 +66,25 @@ class ECSSeeder extends Seeder
             "data" => ["fields" => [
                 ["name" => "name", "label" => "Name", "type" => "string", "required" => true],
                 ["name" => "code", "label" => "Module Code", "type" => "string"],
-                ["name" => "semester", "label" => "Semester", "type" => "string"],
+                ["name" => "semester", "label" => "Semester", "type" => "option", "options" => "s1|Semester 1\ns2|Semester 2\nboth|Semester 1 and 2\nother|Other or unknown"],
                 ["name" => "crn", "label" => "CRN", "type" => "string"],
-                ["name" => "students", "label" => "Class size", "type" => "decimal"]
+                ["name" => "students", "label" => "Class size", "type" => "integer"],
+                ["name" => "lect", "label" => "Number of lectures", "type" => "integer"],
+                ["name" => "cwk", "label" => "Coursework percentage", "type" => "decimal", "min" => 0, "max" => 100],
+                ["name" => "labwk", "label" => "Labwork percentage", "type" => "decimal", "min" => 0, "max" => 100],
+                ["name" => "exam", "label" => "Has exam", "type" => "boolean"]
             ]],
             "title_script" => "record.code + ' ' + record.name + ' ' + record.semester"
         ]);
-
-        // MODULE LEADER
-
-        $modleadType = $draft->createRecordType("modlead", [
-            "label" => "Module leader relationship",
-            "data" => ["fields" => [
-                ["name" => "percent", "label" => "Percentage", "type" => "decimal", "default" => 100,],
-                ["name" => "notes", "label" => "Notes", "type" => "string"]
-            ]]
-        ]);
-        $draft->createLinkType('actor_leads', $actorType, $modleadType,
-            ["range_min" => 1, "range_max" => 1, "range_type" => "dependent",
-                "label" => "leads", "inverse_label" => "lead by"]);
-        $draft->createLinkType('leads_module', $modleadType, $modType,
-            ["domain_min" => 1, "domain_max" => 1, "domain_type" => "dependent",
-                "label" => "module", "inverse_label" => "leader"]);
 
         // MODULE TEACHER
 
         $modteachType = $draft->createRecordType("modteach", [
             "label" => "Module teacher relationship",
             "data" => ["fields" => [
-                ["name" => "percent", "label" => "Percentage", "type" => "decimal", "default" => 100,],
+                ["name" => "percent", "label" => "Teaching Percentage", "type" => "decimal", "default" => 100,],
+                ["name" => "leader", "label" => "Is leader?", "type" => "boolean", "default" => false],
+                ["name" => "new", "label" => "New to teaching this?", "type" => "boolean", "default" => false],
                 ["name" => "notes", "label" => "Notes", "type" => "string"]
             ]]
         ]);
@@ -110,7 +100,6 @@ class ECSSeeder extends Seeder
         $modmodType = $draft->createRecordType("modmoderate", [
             "label" => "Module moderator relationship",
             "data" => ["fields" => [
-                ["name" => "percent", "label" => "Percentage", "type" => "decimal", "default" => 100,],
                 ["name" => "notes", "label" => "Notes", "type" => "string"]
             ]]
         ]);
@@ -125,8 +114,7 @@ class ECSSeeder extends Seeder
         // this can't be set until the links are created.
         $atType->title_script = "record<-actor_to_acttask.name+' <'+record.type+'> '+record->acttask_to_task.name";
         $atType->save();
-        $modleadType->title_script = "record<-actor_leads.name+' leads '+record->leads_module.name";
-        $modleadType->save();
+
         $modteachType->title_script = "record<-actor_teaches.name+' teaches '+record->teaches_module.name";
         $modteachType->save();
         $modmodType->title_script = "record<-actor_mods.name+' moderates '+record->mods_module.name";
@@ -134,15 +122,19 @@ class ECSSeeder extends Seeder
 
         // Add records
 
-        $alice = $actorType->createRecord(["name" => "Alice Aardvark", "phdstudents" => 7]);
-        $bobby = $actorType->createRecord(["name" => "Bobby Bananas", "phdstudents" => 2]);
+        $alice = $actorType->createRecord(["name" => "Alice Aardvark", "student_projects" => 100]);
+        $bobby = $actorType->createRecord(["name" => "Bobby Bananas", "student_projects" => 100, "tutorials" => true]);
         $clara = $actorType->createRecord(["name" => "Clara Crumb", "teaching_year" => '1']);
 
-        $comp1234 = $modType->createRecord(["name" => "Fish studies", "code" => "comp1234", "semester" => "s1"]);
-        $comp1235 = $modType->createRecord(["name" => "Giraffe studies", "code" => "comp1235", "semester" => "s1"]);
-        $comp1236 = $modType->createRecord(["name" => "Hippo studies", "code" => "comp1236", "semester" => "s2"]);
-
-        /*
+        $comp1234 = $modType->createRecord(["name" => "Fish studies", "code" => "comp1234", "semester" => "s1",
+            "students" => 101, "lect" => 10, "cwk" => 30, "labwk" => 0, "exam" => true
+        ]);
+        $comp1235 = $modType->createRecord(["name" => "Giraffe studies", "code" => "comp1235", "semester" => "s1",
+            "students" => 11, "lect" => 10, "cwk" => 50, "labwk" => 50, "exam" => false
+        ]);
+        $comp1236 = $modType->createRecord(["name" => "Hippo studies", "code" => "comp1236", "semester" => "s2",
+            "students" => 21, "lect" => 20, "cwk" => 0, "labwk" => 10, "exam" => true
+        ]);
 
         $small = $taskType->createRecord(["name" => "Small Job", "size" => 50]);
         $big = $taskType->createRecord(["name" => "Big Job", "size" => 100]);
@@ -158,7 +150,7 @@ class ECSSeeder extends Seeder
         $atType->createRecord(["type" => "leads"], ['acttask_to_task' => [$misc]], ['actor_to_acttask' => [$clara]]);
         $atType->createRecord(["type" => "works", "ratio" => 0.8], ['acttask_to_task' => [$misc]], ['actor_to_acttask' => [$clara]]);
         $atType->createRecord(["type" => "works", "ratio" => 0.2], ['acttask_to_task' => [$misc]], ['actor_to_acttask' => [$bobby]]);
-*/
+
         // add rules
 
         $loadingReportType = $draft->createReportType('loading', $actorType, ['title' => 'Loadings Report']);
@@ -195,8 +187,13 @@ class ECSSeeder extends Seeder
                 "description" => '\'Teaching \'+modteach->teaches_module.code',
                 "target" => "'loading'",
                 "category" => "'teaching'",
-                "load" => '(modteach.percent/100)*200'
+                "load" => '(modteach.percent/100)*(modteach->teaches_module.lect*2+modteach->teaches_module.students*(modteach->teaches_module.cwk*2+modteach->teaches_module.labwk))'
             ]]);
+
+        //basic unit load = LECT*2 + STUD*(CWK*2 + LABWK)
+        // plus exam:
+        //EXAM = 0 (if no exam) EXAM = STUD + EP (if there is an exam)
+
         $loadingReportType->createRule([
             "title" => "Loading from moderating a module",
             "route" => ["actor_mods"],
@@ -205,18 +202,27 @@ class ECSSeeder extends Seeder
                 "description" => '\'Moderating \'+modmoderate->mods_module.code',
                 "target" => "'loading'",
                 "category" => "'teaching'",
-                "load" => '(modmoderate.percent/100)*10'
+                "load" => '10'
             ]]);
-
         $loadingReportType->createRule([
-            "title" => "PhD supervision",
-            "trigger" => "actor.phdstudents>0",
+            "title" => "Student projects",
+            "trigger" => "actor.student_projects>0",
             "action" => "assign_load",
             "params" => [
-                "description" => "actor.phdstudents+' PhD Supervision(s)'",
+                "description" => "actor.student_projects+'% student projects'",
                 "target" => "'loading'",
-                "category" => "''",
-                "load" => '30 * actor.phdstudents'
+                "category" => "'teaching'",
+                "load" => '80 * (actor.student_projects/100)'
+            ]]);
+        $loadingReportType->createRule([
+            "title" => "Tutorials",
+            "trigger" => "actor.tutorials",
+            "action" => "assign_load",
+            "params" => [
+                "description" => "'Tutorials'",
+                "target" => "'loading'",
+                "category" => "'teaching'",
+                "load" => '25'
             ]]);
 
         // set column 'name', to actor.name
@@ -229,55 +235,26 @@ class ECSSeeder extends Seeder
             ]]);
 
 
-        $moduleReportType = $draft->createReportType('allocation', $modType, ['title' => 'Allocation Report']);
-
+        $moduleReportType = $draft->createReportType('teaching', $modType, ['title' => 'Teaching Allocation Report']);
 
         // set column 'name', to module.name
         $moduleReportType->createRule([
             "title" => "Set name column",
             "action" => "set_string_column",
-            "params" => [
-                "column" => "'name'",
-                "value" => 'module.name'
-            ]]);
+            "params" => ["column" => "'name'", "value" => 'module.name']]);
         $moduleReportType->createRule([
             "title" => "Set code column",
             "action" => "set_string_column",
-            "params" => [
-                "column" => "'code'",
-                "value" => 'module.code'
-            ]]);
+            "params" => ["column" => "'code'", "value" => 'module.code']]);
         $moduleReportType->createRule([
             "title" => "Set semester column",
             "action" => "set_string_column",
-            "params" => [
-                "column" => "'semester'",
-                "value" => 'module.semester'
-            ]]);
+            "params" => ["column" => "'semester'", "value" => 'string(module.semester)']]);
 
-        $moduleReportType->createRule([
-            "title" => "Target leading",
-            "action" => "set_target",
-            "params" => ["target" => "'leader'", "value" => 100, "units" => "'percent'"]]);
         $moduleReportType->createRule([
             "title" => "Target teaching",
             "action" => "set_target",
             "params" => ["target" => "'teacher'", "value" => 100, "units" => "'percent'"]]);
-        $moduleReportType->createRule([
-            "title" => "Target moderation",
-            "action" => "set_target",
-            "params" => ["target" => "'moderator'", "value" => 100, "units" => "'percent'"]]);
-
-        $moduleReportType->createRule([
-            "title" => "Leaders",
-            "route" => ["^leads_module"],
-            "action" => "assign_load",
-            "params" => [
-                "description" => "modlead<-actor_leads.name",
-                "target" => "'leader'",
-                "category" => "'teaching'",
-                "load" => 'modlead.percent'
-            ]]);
         $moduleReportType->createRule([
             "title" => "Teachers",
             "route" => ["^teaches_module"],
@@ -287,16 +264,6 @@ class ECSSeeder extends Seeder
                 "target" => "'teacher'",
                 "category" => "'teaching'",
                 "load" => 'modteach.percent'
-            ]]);
-        $moduleReportType->createRule([
-            "title" => "Moderators",
-            "route" => ["^mods_module"],
-            "action" => "assign_load",
-            "params" => [
-                "description" => "modmoderate<-actor_mods.name",
-                "target" => "'moderator'",
-                "category" => "'teaching'",
-                "load" => 'modmoderate.percent'
             ]]);
 
 
@@ -338,6 +305,8 @@ class ECSSeeder extends Seeder
          * USERS
          */
 
+        $password = $this->randomPassword();
+
         // Erase all existing users. Could cause weirdness!
         DB::table('users')->delete();
 
@@ -345,7 +314,7 @@ class ECSSeeder extends Seeder
         $dave = new User();
         $dave->name = "Dave Doberman";
         $dave->email = "dave@example.org";
-        $dave->password = Hash::make("password");
+        $dave->password = Hash::make($password);
         $dave->save();
         $dave->assign($adminRole);
         $dave->assign($staffRole);
@@ -354,7 +323,8 @@ class ECSSeeder extends Seeder
         $alice = new User();
         $alice->name = "Alice Aardvark";
         $alice->email = "alice@example.org";
-        $alice->password = Hash::make("password");
+        $alice->password = Hash::make($password);
+
         $alice->save();
         $alice->assign($staffRole);
 
@@ -362,9 +332,11 @@ class ECSSeeder extends Seeder
         $edward = new User();
         $edward->name = "Edward Eagle";
         $edward->email = "edward@example.org";
-        $edward->password = Hash::make("password");
+        $edward->password = Hash::make($password);
+
         $edward->save();
 
+        print "Created users with password '$password'.\n";
 
         /*
          * FAKE IMPORTED DATA
@@ -412,6 +384,18 @@ class ECSSeeder extends Seeder
             ['name' => "Dragon Studies", "code" => "DDDD4444", "crn" => "44444", "classsize" => 40]);
         DB::table('imported_courses_2016')->insert(
             ['name' => "Elephant Studies", "code" => "EEEE5555", "crn" => "55555", "classsize" => 50]);
+    }
+
+    function randomPassword()
+    {
+        $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+        $pass = array(); //remember to declare $pass as an array
+        $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
+        for ($i = 0; $i < 8; $i++) {
+            $n = rand(0, $alphaLength);
+            $pass[] = $alphabet[$n];
+        }
+        return implode($pass); //turn the array into a string
     }
 
 }
