@@ -1,0 +1,52 @@
+MMSCRIPT
+
+MMScript is the internal scripting language for the Manmonth system. It is used for:
+* the parameters of the action associated with a rule
+* the trigger that decides if a rule should run
+* the title of a record
+
+Each MMScript runs in a context where one or more records are available to query.
+Each record in the context will have been automatically assigned a name, eg 'user' or 'actor'.
+
+Order of precidence
+
+This is the order in which parts of an MMScript are resolved, like in mathematics when multiply and divide is always done before plus and minus.
+
+| : Boolean OR
+& : Boolean AND
+< > = <= >= <> : Comparisons. Greater than, less than, equals, smaller or equal, greater or equal, not equal
+! : Boolean NOT
+- : Unary minus. eg. -X. Not the same as subtraction, eg. X-Y
++ - : Addition and subtraction.
+* / : Multiplication and division
+^ : Power operator. eg. X^4 is the same as X*X*X*X
+( ) : Brackets
+-> <- : Follow a named link forward or back from a record. Can only be used when the result will be maximum 1 records based on the link min/max settings. eg. actor->group.name
+. : access a property of a record eg. user.name
+func() : Function calls
+, : List seperator
+
+Literals
+
+Literal values are any of
+boolean : eg. true, false
+string : eg. 'fish', 'hello world', ''
+integer : eg. 1234, 99, -100, 0
+decimal : eg. 1.123, 99.0, -23.0
+
+Functions
+
+Function allow for more complicated operations. New functions can be added into the App/MMScript/Funcs directory.
+
+Casting functions
+
+string( x ) : turns x into a string
+decimal( x ) : turns x into a decimal. Defaults to zero if it can't parse the value.
+
+Numerical functions
+
+floor( x ) : rounds a decimal down to the nearest smaller integer. 5=>5, 6.1=>6, 7.5=>7, 8.9=>8, 0=>0, -1.1=>-2.
+ceil( x ) : rounds a decimal down to the nearest larger integer. 5=>5, 6.1=>7, 7.5=>8, 8.9=>9, 0=>0, -1.1=>-1.
+round( x ) : rounds a decimal down to the nearest integer. 5=>5, 6.1=>6, 7.5=>8, 8.9=>9, 0=>0, -1.1=>-1.
+min( a,b,... ) : returns the smallest of a set of decimal/interger values.
+max( a,b,... ) : returns the largest of a set of decimal/interger values.
