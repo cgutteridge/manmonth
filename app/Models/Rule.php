@@ -78,7 +78,7 @@ class Rule extends DocumentPart
                 'params' => 'array']);
 
         if ($validator->fails()) {
-            throw new MMValidationException("Validation fail in rule.data: " . join(", ", $validator->errors()));
+            throw new MMValidationException("Validation fail in rule.data: " . implode(", ", $validator->errors()));
         }
 
         // run this function just to let it throw an exception
@@ -117,6 +117,22 @@ class Rule extends DocumentPart
                 throw new MMValidationException("Action " . $action->name . " param '" . $field->data["name"] . "' requires a value of type '" . $field->data["type"] . "' but got given '$type'");
             }
         }
+    }
+
+    /**
+     * @return array
+     */
+    public static function actions()
+    {
+        if (self::$actionCache) {
+            return self::$actionCache;
+        }
+        self::$actionCache = [];
+        foreach (self::$actions as $class) {
+            $action = new $class();
+            self::$actionCache[$action->name] = $action;
+        }
+        return self::$actionCache;
     }
 
     /**
@@ -207,6 +223,8 @@ class Rule extends DocumentPart
     {
         return Rule::actionFactory($this->data["action"]);
     }
+    // get the absract context for this rule. Returns record & link types,
+    // not specific records and links
 
     /**
      * @param string $actionName
@@ -216,24 +234,6 @@ class Rule extends DocumentPart
     {
         $actions = self::actions();
         return $actions[$actionName];
-    }
-    // get the absract context for this rule. Returns record & link types,
-    // not specific records and links
-
-    /**
-     * @return array
-     */
-    public static function actions()
-    {
-        if (self::$actionCache) {
-            return self::$actionCache;
-        }
-        self::$actionCache = [];
-        foreach (self::$actions as $class) {
-            $action = new $class();
-            self::$actionCache[$action->name] = $action;
-        }
-        return self::$actionCache;
     }
 
     /**

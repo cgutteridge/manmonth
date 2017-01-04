@@ -28,7 +28,7 @@ class ReportType extends DocumentPart
             ['name' => 'required|alpha_dash|min:2|max:255']);
 
         if ($validator->fails()) {
-            throw new MMValidationException("Validation fail in reportType.name: " . join(", ", $validator->errors()));
+            throw new MMValidationException("Validation fail in reportType.name: " . implode(", ", $validator->errors()));
         }
     }
 
@@ -44,7 +44,7 @@ class ReportType extends DocumentPart
         );
 
         if ($validator->fails()) {
-            throw new MMValidationException("Validation fail in reportType.data: " . join(", ", $validator->errors()));
+            throw new MMValidationException("Validation fail in reportType.data: " . implode(", ", $validator->errors()));
         }
     }
 
