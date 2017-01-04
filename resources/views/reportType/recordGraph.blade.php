@@ -1,11 +1,3 @@
-@if( $showTarget )
-    <div class="mm_target_indicator_bar">
-        <div class="mm_target_indicator" style="width: {{ 100*$target*$scale }}%">
-            Target {{ $target }} {{$units}}
-        </div>
-    </div>
-@endif
-
 <div class="mm_target_bar">
     @if( $total == $target )
         <div class="mm_target mm_target_alloc" style="width: {{ 100*$total*$scale }}%">
@@ -38,13 +30,23 @@
             <div class="mm_hover">
                 <div class="mm_hover_target mm_loading mm_cat_{{ $loading['category'] }}"
                      style="width: {{ 100*$loading['load']*$scale }}%">
-                    <div class="mm_loading_inner">
+                    <a
+                            @if(array_key_exists("record_id",$loading))
+                            href="@url( \App\Models\Record::find($loading["record_id"]) )"
+                            @endif
+                            class="mm_loading_inner">
                         {{ $loading['description'] }} - {{ $loading['load']}} {{$units}}
-                    </div>
+                    </a>
                 </div>
                 <div class="mm_hover_message">
                     <div class="mm_loading_hover mm_cat_{{ $loading['category'] }}">
-                        {{ $loading['description'] }} - {{ $loading['load']}} {{$units}}
+                        @if( !empty($loading['category']) )
+                            <div class="mm_loading_hover_category">Category "{{$loading['category']}}"</div>
+                        @endif
+                        <div class="mm_loading_hover_description">{{ $loading['description'] }}
+                            - {{ $loading['load']}} {{$units}}.
+                        </div>
+                        <div class="mm_loading_hover_rule">From rule "{{$loading['rule_title']}}"</div>
                     </div>
                 </div>
             </div>

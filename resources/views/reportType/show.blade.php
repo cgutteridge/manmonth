@@ -29,20 +29,32 @@
                              class="tab-pane{{ (isset($view['first'])&&$view['first'])?"
                              active":"" }}" id="{{$loadingType}}_{{$viewId}}">
                             <h3>{{$view["title"]}}</h3>
-                            <table style="width:100%">
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    @foreach( $view['rows'][0]['recordReport']->getColumns() as $colName=>$colValue)
-                                        <th>{{ $colName }}</th>
+                            <div class='mm_report_wrapper'>
+                                <table class='mm_report'>
+                                    <thead>
+                                    <tr>
+                                        <th class="mm_report_header_icon"></th>
+                                        <th class="mm_report_header_icon"></th>
+                                        @foreach( $view['rows'][0]['recordReport']->getColumns() as $colName=>$colValue)
+                                            <th class="mm_report_header_data">{{ $colName }}</th>
+                                        @endforeach
+                                        @if( count( $loadingData["categories"])>1)
+                                            @foreach( $loadingData["categories"] as $category )
+                                                <th class="mm_report_header_data">{{ $category }}</th>
+                                            @endforeach
+                                        @endif
+                                        <th class="mm_report_header_data">Total</th>
+                                        <th class="mm_report_header_data">Target</th>
+                                        <th class="mm_report_header_graph"></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach( $view['rows'] as $row )
+                                        @include( 'reportType.recordRow', $row )
                                     @endforeach
-                                    <th>Total</th>
-                                    <th>Target</th>
-                                </tr>
-                                @foreach( $view['rows'] as $row )
-                                    @include( 'reportType.recordRow', $row )
-                                @endforeach
-                            </table>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     @endforeach
                 </div>

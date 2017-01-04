@@ -3,6 +3,7 @@
 namespace App\MMAction;
 
 use App\Fields\Field;
+use App\Models\Rule;
 use App\RecordReport;
 
 /**
@@ -41,6 +42,15 @@ abstract class Action
     }
 
     /**
+     * @param RecordReport $recordReport
+     * @param Rule $rule
+     * @param array $context
+     * @param array $params
+     * @return
+     */
+    public abstract function execute($recordReport, $rule, $context, $params);
+
+    /**
      * @param \App\RecordReport $recordReport
      * @param $params - params for the action to be logged
      * @internal param $rreport - report to write log to
@@ -51,11 +61,5 @@ abstract class Action
             ["action" => $this->name, "params" => $params]
         );
     }
-
-    /**
-     * @param RecordReport $recordReport
-     * @param array $params
-     */
-    public abstract function execute($recordReport, $params);
 
 }

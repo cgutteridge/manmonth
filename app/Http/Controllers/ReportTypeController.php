@@ -32,9 +32,21 @@ class ReportTypeController extends Controller
                 if ($maxRatio == 0) {
                     $maxRatio = 1;
                 }
-
+                $categoryBase = [];
+                foreach ($reportType->baseRecordType()->records as $record) {
+                    $recordReport = $report->recordReport($record->sid);
+                    $loadings = $recordReport->getLoading($loadingType);
+                    foreach ($loadings as $loadItem) {
+                        if (array_key_exists("category", $loadItem)) {
+                            $categoryBase[$loadItem["category"]] = 0;
+                        }
+                    }
+                }
+                $categories = array_keys($categoryBase);
+                sort($categories);
                 $reportData[$loadingType] = [
                     "title" => $loadingType, // TODO better title
+                    "categories" => $categories,
                     "views" => [
                         "absolute" => [
                             "title" => "Absolute Scale",
@@ -57,13 +69,22 @@ class ReportTypeController extends Controller
                     $recordReport = $report->recordReport($record->sid);
                     $recordTarget = $recordReport->getLoadingTarget($loadingType);
                     $recordTotal = $recordReport->getLoadingTotal($loadingType);
+                    $loadings = $recordReport->getLoading($loadingType);
+                    $categoryTotals = $categoryBase;
+                    foreach ($loadings as $loadItem) {
+                        if (array_key_exists("category", $loadItem)) {
+                            $category = $loadItem["category"];
+                            $categoryTotals[$category] += $loadItem["load"];
+                        }
+                    }
                     $reportData[$loadingType]["views"]["absolute"]["rows"][] = [
                         "showFree" => true,
                         "showTarget" => true,
                         "record" => $record,
                         "recordReport" => $recordReport,
+                        "categoryTotals" => $categoryTotals,
                         "units" => $recordReport->getLoadingOption($loadingType, "units"),
-                        "loadings" => $recordReport->getLoading($loadingType),
+                        "loadings" => $loadings,
                         "scale" =>
                             max($maxLoading, $maxTarget) == 0 ?
                                 1 :
@@ -76,8 +97,9 @@ class ReportTypeController extends Controller
                         "showTarget" => true,
                         "record" => $record,
                         "recordReport" => $recordReport,
+                        "categoryTotals" => $categoryTotals,
                         "units" => $recordReport->getLoadingOption($loadingType, "units"),
-                        "loadings" => $recordReport->getLoading($loadingType),
+                        "loadings" => $loadings,
                         "scale" =>
                             $recordTarget * $maxRatio == 0 ?
                                 1 :
@@ -90,8 +112,9 @@ class ReportTypeController extends Controller
                         "showTarget" => false,
                         "record" => $record,
                         "recordReport" => $recordReport,
+                        "categoryTotals" => $categoryTotals,
                         "units" => $recordReport->getLoadingOption($loadingType, "units"),
-                        "loadings" => $recordReport->getLoading($loadingType),
+                        "loadings" => $loadings,
                         "scale" => $recordTotal == 0 ? 1 : 1 / $recordTotal,
                         "target" => $recordTarget,
                         "total" => $recordTotal];

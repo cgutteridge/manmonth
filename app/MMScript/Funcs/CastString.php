@@ -20,6 +20,8 @@ class CastString
 
     function execute($params)
     {
-        return $params[0]->castString();
+        /** @var \App\MMScript\Values\Value $param */
+        $param = $params[0];
+        return $param->castString();
     }
 }

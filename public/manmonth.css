@@ -10,6 +10,10 @@ body {
     min-height: 300px;
 }
 
+header .navbar-ident {
+    font-weight: 100;
+}
+
 footer .navbar-brand {
     font-size: 80%;
     height: 10px;
@@ -23,111 +27,6 @@ footer.navbar {
 }
 
 /* end core bits */
-
-/* stuff */
-
-.mm_loading:first-child {
-    border-left: solid 1px black;
-}
-
-
-.mm_loading {
-    overflow: hidden;
-    background-color: lightgray;
-
-    border-right: solid 1px black;
-    border-top: solid 1px black;
-    border-bottom: solid 1px black;
-    float: left;
-    margin: 0;
-    height: 25px;
-
-}
-
-.mm_hover_message {
-    display: none;
-}
-
-.mm_loading_hover {
-    padding: 0.5em;
-    border: solid 2px black;
-    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3)
-}
-
-.mm_loading_free {
-    background-image: url('/stripe.png');
-}
-
-.mm_loading_inner {
-    height: 24px;
-    font-size: 15px;
-    white-space: nowrap;
-    display: inline-block;
-    padding: 2px;
-}
-
-.mm_cat_teaching {
-    background-color: #8697a4;
-}
-
-.mm_cat_penguin {
-    background-color: #c09d88;
-}
-
-.mm_target_indicator_bar {
-    overflow: hidden;
-    clear: both;
-}
-
-.mm_target_indicator {
-    text-align: right;
-    overflow: hidden;
-    padding-right: 4px;
-    border-right: solid 1px #000;
-    color: #666;
-    font-size: 10px;
-}
-
-.mm_target_bar {
-    overflow: hidden;
-    clear: both;
-    height: 20px;
-}
-
-.mm_target {
-    overflow: hidden;
-    background-color: green;
-    float: left;
-    margin: 0;
-    font-size: 10px;
-}
-
-.mm_target_alloc {
-    background-color: #83de7a;
-}
-
-.mm_target_free {
-    background-color: #d3de60;
-}
-
-.mm_target_over {
-    background-color: #de5b64;
-}
-
-.mm_target:first-child {
-}
-
-.mm_target_inner {
-    white-space: nowrap;
-    display: inline-block;
-    padding: 4px;
-    height: 24px;
-}
-
-.mm_record_report {
-    clear: both;
-    margin: 1em 0;
-}
 
 /* LINKS TABLE (before data table) */
 
@@ -396,7 +295,13 @@ table.mm-record-data th {
     text-align: right;
     font-weight: normal;
     vertical-align: top;
+    border-bottom: solid 1px #bbc;
 }
+
+table.mm-record-data tr:last-child th {
+    border-bottom: none;
+}
+
 
 table.mm-record-data td {
     width: 100%;
@@ -491,3 +396,168 @@ table.mm-record-data td {
 .mm-status-scrap {
     background-image: url(/scrap.png);
 }
+
+/* REPORT */
+
+.mm_report_wrapper {
+    overflow-x: auto;
+}
+
+.mm_report {
+    width: 100%
+}
+
+.mm_report thead th {
+    border-bottom: solid 1px #eee;
+}
+
+.mm_report tbody td {
+    border-bottom: solid 1px #eee;
+    text-align: right;
+}
+
+.mm_report_header_data {
+    border-left: solid 1px #eeeeee;
+    padding: 0 0.5em;
+}
+
+.mm_record_report_data {
+    border-left: solid 1px #eeeeee;
+    padding: 0 0.5em;
+}
+
+.mm_record_report_icon {
+    padding: 0 0.5em;
+}
+
+.mm_record_report_graph {
+    width: 100%;
+}
+
+.mm_record_report {
+    clear: both;
+    margin: 1em 0;
+}
+
+/* END OF REPORT */
+
+/* REPORT GRAPH */
+
+.mm_loading:first-child {
+    border-left: solid 1px black;
+}
+
+.mm_loading {
+    overflow: hidden;
+    background-color: lightgray;
+    border-right: solid 1px black;
+    border-top: solid 1px black;
+    border-bottom: solid 1px black;
+    float: left;
+    margin: 0;
+    height: 25px;
+}
+
+.mm_hover_message {
+    display: none;
+}
+
+.mm_loading_hover_rule {
+    font-size: 80%;
+}
+
+.mm_loading_hover_description {
+    font-weight: bold;
+}
+
+.mm_loading_hover_category {
+    font-size: 80%;
+}
+
+.mm_loading_hover {
+    padding: 0.5em;
+    border: solid 2px black;
+    border-radius: 10px;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3)
+}
+
+.mm_loading_free {
+    background-image: url('/stripe.png');
+}
+
+.mm_loading_inner {
+    height: 24px;
+    font-size: 15px;
+    white-space: nowrap;
+    display: inline-block;
+    padding: 2px;
+    color: black;
+}
+
+.mm_loading_inner:hover {
+    text-decoration: none;
+    color: #000;
+}
+
+.mm_target_indicator_bar {
+    overflow: hidden;
+    clear: both;
+}
+
+.mm_target_indicator {
+    text-align: right;
+    overflow: hidden;
+    padding-right: 4px;
+    border-right: solid 1px #000;
+    color: #666;
+    font-size: 10px;
+}
+
+.mm_target_bar {
+    overflow: hidden;
+    clear: both;
+    height: 12px;
+}
+
+.mm_target {
+    overflow: hidden;
+    background-color: green;
+    float: left;
+    margin: 0;
+    font-size: 10px;
+}
+
+.mm_target_alloc {
+    background-color: #83de7a;
+}
+
+.mm_target_free {
+    background-color: #d3de60;
+}
+
+.mm_target_over {
+    background-color: #de5b64;
+}
+
+.mm_target:first-child {
+}
+
+.mm_target_inner {
+    white-space: nowrap;
+    display: inline-block;
+    padding: 0px 4px;
+    height: 24px;
+}
+
+/* END OF REPORT GRAPH */
+
+/* Stuff that needs to be removed in final version */
+.mm_cat_teaching {
+    background-color: #8697a4;
+}
+
+.mm_cat_admin {
+    background-color: #c09d88;
+}
+
+/* End of Stuff that needs to be removed in final version */

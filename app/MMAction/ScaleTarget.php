@@ -6,6 +6,7 @@ namespace App\MMAction;
 // a Rule.
 
 use App\Exceptions\ReportingException;
+use App\Models\Rule;
 use App\RecordReport;
 
 class ScaleTarget extends Action
@@ -35,10 +36,12 @@ class ScaleTarget extends Action
 
     /**
      * @param RecordReport $recordReport
-     * @param $params
+     * @param Rule $rule
+     * @param array $context
+     * @param array $params
      * @throws ReportingException
      */
-    public function execute($recordReport, $params)
+    public function execute($recordReport, $rule, $context, $params)
     {
         if (!$recordReport->hasLoadingTarget($params["target"])) {
             throw new ReportingException("Attempt to scale uninitialised target '" . $params["target"] . "'");

@@ -2,6 +2,7 @@
 
 namespace App\MMAction;
 
+use App\Models\Rule;
 use App\RecordReport;
 
 // these classes represent the actions that can be performed as a result of
@@ -41,9 +42,11 @@ class SetTarget extends Action
 
     /**
      * @param RecordReport $recordReport
+     * @param Rule $rule
+     * @param array $context
      * @param $params
      */
-    public function execute($recordReport, $params)
+    public function execute($recordReport, $rule, $context, $params)
     {
         $recordReport->setLoadingTarget($params["target"], $params["value"]);
         if (array_key_exists("description", $params)) {

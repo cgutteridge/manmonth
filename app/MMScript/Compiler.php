@@ -295,7 +295,7 @@ class Compiler
     {
         $object = $this->compileObject();
         if (!$this->tokenIs(["DOT"])) {
-            throw new ParseException("Expected dot but got " . $this->token()[1], $this->script->text, $this->token()[0]);
+            return $object;
         }
         $this->offset++;  // consume DOT
         if (!$this->tokenIs(["NAME"])) {

@@ -41,6 +41,8 @@ abstract class Field
             return new BooleanField($fieldData);
         } elseif ($fieldData["type"] == "option") {
             return new OptionField($fieldData);
+        } elseif ($fieldData["type"] == "record") {
+            return new RecordField($fieldData);
         } else {
             throw new Exception("Unknown field type: '" . $fieldData["type"] . "'");
         }

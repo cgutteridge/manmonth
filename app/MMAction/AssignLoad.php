@@ -2,6 +2,8 @@
 
 namespace App\MMAction;
 
+use App\Models\Record;
+use App\Models\Rule;
 use App\RecordReport;
 
 class AssignLoad extends Action
@@ -30,17 +32,29 @@ class AssignLoad extends Action
             "name" => "description",
             "type" => "string",
         ],
+        [
+            "name" => "link",
+            "type" => "record"
+        ]
     ];
 
     /**
      * @param RecordReport $recordReport
-     * @param $params
+     * @param Rule $rule
+     * @param array $context
+     * @param array $params
      */
-    public function execute($recordReport, $params)
+    public function execute($recordReport, $rule, $context, $params)
     {
         if ($params["load"] != 0) {
             $total = $recordReport->getLoadingTotal($params["target"]);
             $recordReport->setLoadingTotal($params["target"], $total + $params["load"]);
+            $params["rule_title"] = $rule->data['title'];
+            if (isset($params["link"])) {
+                /** @var Record $linkRecord */
+                $linkRecord = $params["link"];
+                $params["record_id"] = $linkRecord->id;
+            }
             $recordReport->appendLoading($params);
         }
         // always log that we got this far if we passed the trigger rule

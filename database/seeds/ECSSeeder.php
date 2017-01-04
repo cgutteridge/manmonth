@@ -42,7 +42,8 @@ class ECSSeeder extends Seeder
             "label" => "Task",
             "data" => ["fields" => [
                 ["name" => "name", "label" => "Name", "type" => "string", "required" => true],
-                ["name" => "size", "label" => "Hours per unit", "type" => "decimal", "required" => true]
+                ["name" => "size", "label" => "Hours per unit", "type" => "decimal", "required" => true],
+                ["name" => "type", "label" => "Task type", "type" => "option", "options" => "teaching|Teaching\nadmin|Administration", "default" => 'admin']
             ]],
             "title_script" => "record.name"
         ]);
@@ -70,8 +71,8 @@ class ECSSeeder extends Seeder
                 ["name" => "crn", "label" => "CRN", "type" => "string"],
                 ["name" => "students", "label" => "Class size", "type" => "integer"],
                 ["name" => "lect", "label" => "Number of lectures", "type" => "integer"],
-                ["name" => "cwk", "label" => "Coursework percentage", "type" => "decimal", "min" => 0, "max" => 100],
-                ["name" => "labwk", "label" => "Labwork percentage", "type" => "decimal", "min" => 0, "max" => 100],
+                ["name" => "cwk", "label" => "Coursework percentage", "type" => "decimal", "min" => 0, "max" => 100, "suffix" => "%"],
+                ["name" => "labwk", "label" => "Labwork percentage", "type" => "decimal", "min" => 0, "max" => 100, "suffix" => "%"],
                 ["name" => "exam", "label" => "Has exam", "type" => "boolean"]
             ]],
             "title_script" => "record.code + ' ' + record.name + ' ' + record.semester"
@@ -82,7 +83,7 @@ class ECSSeeder extends Seeder
         $modteachType = $draft->createRecordType("modteach", [
             "label" => "Module teacher relationship",
             "data" => ["fields" => [
-                ["name" => "percent", "label" => "Teaching Percentage", "type" => "decimal", "default" => 100,],
+                ["name" => "percent", "label" => "Teaching Percentage", "type" => "decimal", "default" => 100, "suffix" => "%"],
                 ["name" => "leader", "label" => "Is leader?", "type" => "boolean", "default" => false],
                 ["name" => "new", "label" => "New to teaching this?", "type" => "boolean", "default" => false],
                 ["name" => "notes", "label" => "Notes", "type" => "string"]
@@ -140,16 +141,16 @@ class ECSSeeder extends Seeder
         $big = $taskType->createRecord(["name" => "Big Job", "size" => 100]);
         $misc = $taskType->createRecord(["name" => "Misc Job", "size" => 100]);
 
-        $atType->createRecord(["type" => "leads"], ['acttask_to_task' => [$big]], ['actor_to_acttask' => [$alice]]);
-        $atType->createRecord(["type" => "works"], ['acttask_to_task' => [$big]], ['actor_to_acttask' => [$alice]]);
+        $atType->createRecord([], ['acttask_to_task' => [$big]], ['actor_to_acttask' => [$alice]]);
 
-        $atType->createRecord(["type" => "leads"], ['acttask_to_task' => [$small]], ['actor_to_acttask' => [$alice]]);
-        $atType->createRecord(["type" => "works", "ratio" => 0.5], ['acttask_to_task' => [$small]], ['actor_to_acttask' => [$alice]]);
-        $atType->createRecord(["type" => "works", "ratio" => 0.5], ['acttask_to_task' => [$small]], ['actor_to_acttask' => [$bobby]]);
+        $atType->createRecord(["units" => 1], ['acttask_to_task' => [$small]], ['actor_to_acttask' => [$alice]]);
+        $atType->createRecord(["units" => 2], ['acttask_to_task' => [$small]], ['actor_to_acttask' => [$bobby]]);
 
-        $atType->createRecord(["type" => "leads"], ['acttask_to_task' => [$misc]], ['actor_to_acttask' => [$clara]]);
-        $atType->createRecord(["type" => "works", "ratio" => 0.8], ['acttask_to_task' => [$misc]], ['actor_to_acttask' => [$clara]]);
-        $atType->createRecord(["type" => "works", "ratio" => 0.2], ['acttask_to_task' => [$misc]], ['actor_to_acttask' => [$bobby]]);
+        $atType->createRecord(["units" => 0.8], ['acttask_to_task' => [$misc]], ['actor_to_acttask' => [$clara]]);
+        $atType->createRecord(["units" => 0.2], ['acttask_to_task' => [$misc]], ['actor_to_acttask' => [$bobby]]);
+
+        $modteachType->createRecord(["percent" => 100, "new" => false, "leader" => true], ['teaches_module' => [$comp1234]], ['actor_teaches' => [$alice]]);
+        $modmodType->createRecord(["notes" => "Example notes..."], ['mods_module' => [$comp1234]], ['actor_mods' => [$bobby]]);
 
         // add rules
 
@@ -171,23 +172,24 @@ class ECSSeeder extends Seeder
             "params" => ["target" => "'loading'", "factor" => 0.7]]);
         $loadingReportType->createRule([
             "title" => "Loading from working on task",
-            "route" => ["actor_to_acttask"],
+            "route" => ["actor_to_acttask", "acttask_to_task"],
             "action" => "assign_load",
             "params" => [
-                "description" => '\'Working on \'+acttask->acttask_to_task.name',
+                "description" => '\'Working on \'+task.name',
                 "target" => "'loading'",
-                "category" => "'teaching'",
-                "load" => 'acttask->acttask_to_task.size * acttask.ratio'
+                "category" => "string(task.type)",
+                "load" => 'task.size * acttask.ratio'
             ]]);
         $loadingReportType->createRule([
             "title" => "Loading from teaching a module",
-            "route" => ["actor_teaches"],
+            "route" => ["actor_teaches", "teaches_module"],
             "action" => "assign_load",
             "params" => [
                 "description" => '\'Teaching \'+modteach->teaches_module.code',
                 "target" => "'loading'",
                 "category" => "'teaching'",
-                "load" => '(modteach.percent/100)*(modteach->teaches_module.lect*2+modteach->teaches_module.students*(modteach->teaches_module.cwk*2+modteach->teaches_module.labwk))'
+                "link" => "modteach",
+                "load" => 'floor((modteach.percent/100)*(module.lect*2+module.students*(module.cwk/100*2+module.labwk/100))+if( module.exam, module.students+7, 0))'
             ]]);
 
         //basic unit load = LECT*2 + STUD*(CWK*2 + LABWK)
@@ -196,12 +198,13 @@ class ECSSeeder extends Seeder
 
         $loadingReportType->createRule([
             "title" => "Loading from moderating a module",
-            "route" => ["actor_mods"],
+            "route" => ["actor_mods", "mods_module"],
             "action" => "assign_load",
             "params" => [
-                "description" => '\'Moderating \'+modmoderate->mods_module.code',
+                "description" => '\'Moderating \'+module.code',
                 "target" => "'loading'",
                 "category" => "'teaching'",
+                "link" => "modmoderate",
                 "load" => '10'
             ]]);
         $loadingReportType->createRule([
@@ -212,6 +215,7 @@ class ECSSeeder extends Seeder
                 "description" => "actor.student_projects+'% student projects'",
                 "target" => "'loading'",
                 "category" => "'teaching'",
+                "link" => "actor",
                 "load" => '80 * (actor.student_projects/100)'
             ]]);
         $loadingReportType->createRule([
@@ -221,6 +225,7 @@ class ECSSeeder extends Seeder
             "params" => [
                 "description" => "'Tutorials'",
                 "target" => "'loading'",
+                "link" => "actor",
                 "category" => "'teaching'",
                 "load" => '25'
             ]]);

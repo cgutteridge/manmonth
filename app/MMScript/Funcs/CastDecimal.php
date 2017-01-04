@@ -6,6 +6,7 @@ use App\Exceptions\CallException;
 use App\MMScript\Values\BooleanValue;
 use App\MMScript\Values\DecimalValue;
 use App\MMScript\Values\IntegerValue;
+use App\MMScript\Values\NullValue;
 use App\MMScript\Values\StringValue;
 
 // cast a value to integer

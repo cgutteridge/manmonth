@@ -345,7 +345,7 @@ class Rule extends DocumentPart
             $script = $this->script($paramCode);
             $params[$fieldName] = $script->execute($context)->value;
         }
-        $action->execute($recordReport, $params);
+        $action->execute($recordReport, $this, $context, $params);
     }
 
 }

@@ -1,7 +1,5 @@
-@if(!isset($value))
-    <span class="mm-default">NULL</span>
-@elseif(View::exists('showField.'.$field->data["type"]))
+@if(!empty($field->data["prefix"])){{$field->data["prefix"]}}@endif
+@if(!isset($value))<span class="mm-default">NULL</span>@elseif(View::exists('showField.'.$field->data["type"]))
     @include( "showField.".$field->data["type"], [ "field"=>$field,"value"=>$value])
-@else
-    {{$value}}
-@endif
+@else{{$value}}@endif
+@if(!empty($field->data["suffix"])){{$field->data["suffix"]}}@endif
