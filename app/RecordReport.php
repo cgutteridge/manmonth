@@ -228,7 +228,7 @@ class RecordReport
         $value = @$this->loading_params[$loading][$option];
         if (!isset($value)) {
             if ($option == "units") {
-                return "drogna";
+                return "hours";
             }
         }
         return $value;

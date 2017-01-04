@@ -1,0 +1,1 @@
+{{$field->optionsWithLabels()[$value]}}

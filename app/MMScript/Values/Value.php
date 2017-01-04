@@ -21,4 +21,12 @@ abstract class Value
     {
         $this->value = $value;
     }
+
+    /**
+     * @return StringValue
+     */
+    public function castString()
+    {
+        return new StringValue((string)($this->value));
+    }
 }

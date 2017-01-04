@@ -18,6 +18,7 @@
                 @if($field->description()!=null)
                 aria-describedby="{{ $idPrefix }}_help"
                 @endif
-                placeholder="{{$placeholder}}" value="{{$value}}">
+                placeholder="{{$placeholder}}"
+                value="{{$value}}">
     </td>
 </tr>

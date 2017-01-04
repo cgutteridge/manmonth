@@ -30,7 +30,15 @@
                              active":"" }}" id="{{$loadingType}}_{{$viewId}}">
                             <h3>{{$view["title"]}}</h3>
                             <table style="width:100%">
-
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    @foreach( $view['rows'][0]['recordReport']->getColumns() as $colName=>$colValue)
+                                        <th>{{ $colName }}</th>
+                                    @endforeach
+                                    <th>Total</th>
+                                    <th>Target</th>
+                                </tr>
                                 @foreach( $view['rows'] as $row )
                                     @include( 'reportType.recordRow', $row )
                                 @endforeach

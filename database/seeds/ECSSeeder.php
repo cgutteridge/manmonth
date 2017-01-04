@@ -112,7 +112,7 @@ class ECSSeeder extends Seeder
 
 
         // this can't be set until the links are created.
-        $atType->title_script = "record<-actor_to_acttask.name+' <'+record.type+'> '+record->acttask_to_task.name";
+        $atType->title_script = "record<-actor_to_acttask.name+' <'+record.ratio+'> '+record->acttask_to_task.name";
         $atType->save();
 
         $modteachType->title_script = "record<-actor_teaches.name+' teaches '+record->teaches_module.name";

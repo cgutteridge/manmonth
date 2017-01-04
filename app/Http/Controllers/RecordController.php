@@ -202,7 +202,8 @@ class RecordController extends Controller
                 "local" => $record->getLocal($fieldName),
                 "external" => $record->getExternal($fieldName),
                 "default" => $record->getDefault($fieldName),
-                "mode" => $field->getMode()
+                "mode" => $field->getMode(),
+                "field" => $field
             ];
         }
         return $block;

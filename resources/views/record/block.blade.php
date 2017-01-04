@@ -23,38 +23,63 @@
     <tr>
         <td>
             <table class="mm-record-data" style="width:100%">
-                @foreach( $data as $field )
+                @foreach( $data as $fieldValue )
                     <tr style='cursor:pointer;'
                         data-toggle="tooltip"
                         title="Click to view"
                         onclick="document.location.href = '@url($record)';">
-                        <th>{{$field["title"]}}:</th>
-                        @if( $field["source"] == 'default')
-                            <td colspan="2">{{$field["default"]}} <span class="mm-default">Default</span></td>
-                        @elseif( $field["source"] == 'none')
-                            <td colspan="2"><span class="mm-default">NULL</span></td>
-                        @elseif($field["mode"]=="prefer_local")
-                            @if( $field["source"] == 'local')
-                                <td style="width:40%">{{$field["local"]}}<span class="mm-default">Local</span></td>
-                                <td style="width:40%">{{$field["external"]}}<span class="mm-default">External</span>
+                        <th>{{$fieldValue["title"]}}:</th>
+                        @if( $fieldValue["source"] == 'default')
+                            <td colspan="2">
+                                @include('showField.field',["field"=>$fieldValue['field'],"value"=>$fieldValue["default"]])
+                                <span class="mm-default">Default</span>
+                            </td>
+                        @elseif( $fieldValue["source"] == 'none')
+                            <td colspan="2">
+                                @include('showField.field',["field"=>$fieldValue['field'],"value"=>null])
+                            </td>
+                        @elseif($fieldValue["mode"]=="prefer_local")
+                            @if( $fieldValue["source"] == 'local')
+                                <td style="width:40%">
+                                    @include('showField.field',["field"=>$fieldValue['field'],"value"=>$fieldValue["local"]])
+                                    <span class="mm-default">Local</span>
+                                </td>
+                                <td style="width:40%">
+                                    @include('showField.field',["field"=>$fieldValue['field'],"value"=>$fieldValue["external"]])
+                                    <span class="mm-default">External</span>
                                 </td>
                             @endif
-                            @if( $field["source"] == 'external')
-                                <td colspan="2">{{$field["external"]}}<span class="mm-default">External</span></td>
-                            @endif
-                        @elseif($field["mode"]=="prefer_external")
-                            @if( $field["source"] == 'external')
-                                <td style="width:40%">{{$field["external"]}} <span class="mm-default">External</span>
+                            @if( $fieldValue["source"] == 'external')
+                                <td colspan="2">
+                                    @include('showField.field',["field"=>$fieldValue['field'],"value"=>$fieldValue["external"]])
+                                    <span class="mm-default">External</span>
                                 </td>
-                                <td style="width:40%">{{$field["local"]}} <span class="mm-default">Local</span></td>
                             @endif
-                            @if( $field["source"] == 'local')
-                                <td colspan="2">{{$field["local"]}} <span class="mm-default">Local</span></td>
+                        @elseif($fieldValue["mode"]=="prefer_external")
+                            @if( $fieldValue["source"] == 'external')
+                                <td style="width:40%">
+                                    @include('showField.field',["field"=>$fieldValue['field'],"value"=>$fieldValue["external"]])
+                                    <span class="mm-default">External</span>
+                                </td>
+                                <td style="width:40%">
+                                    @include('showField.field',["field"=>$fieldValue['field'],"value"=>$fieldValue["local"]])
+                                    <span class="mm-default">Local</span>
+                                </td>
                             @endif
-                        @elseif($field["mode"]=="only_local")
-                            <td colspan="2">{{$field["local"]}}</td>
-                        @elseif($field["mode"]=="only_external")
-                            <td colspan="2">{{$field["external"]}}</td>
+                            @if( $fieldValue["source"] == 'local')
+                                <td colspan="2">
+                                    @include('showField.field',["field"=>$fieldValue['field'],"value"=>$fieldValue["local"]])
+                                    <span class="mm-default">Local</span>
+                                </td>
+                            @endif
+                        @elseif($fieldValue["mode"]=="only_local")
+                            <td colspan="2">
+                                @include('showField.field',["field"=>$fieldValue['field'],"value"=>$fieldValue["local"]])
+                            </td>
+                        @elseif($fieldValue["mode"]=="only_external")
+                            <td colspan="2">
+                                @include('showField.field',["field"=>$fieldValue['field'],"value"=>$fieldValue["external"]])
+                            </td>
                         @endif
 
 

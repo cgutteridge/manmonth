@@ -7,8 +7,8 @@
 @section( 'content')
     @foreach( $reports as $report )
         @foreach( $report->getLoadingTypes() as $loadingType )
-            <table style="width:100%">
-                @include( 'reportType.recordRow', [
+            <div>
+                @include( 'reportType.recordGraph', [
                 "showFree"=>true,
                 "showTarget"=>true,
                 "record"=>$record,
@@ -24,7 +24,7 @@
                 "target" => $report->getLoadingTarget( $loadingType ),
                 "total" => $report->getLoadingTotal( $loadingType )
                 ])
-            </table>
+            </div>
         @endforeach
     @endforeach
     @include("record.block",$recordBlock)

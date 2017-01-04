@@ -20,7 +20,6 @@ class CastString
 
     function execute($params)
     {
-        dd("TODO"); //TODO
-        return 23;
+        return $params[0]->castString();
     }
 }
