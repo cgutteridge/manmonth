@@ -3,7 +3,6 @@
 use DB;
 use Hash;
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputArgument;
 
 class SetAllPasswords extends Command
 {
@@ -65,18 +64,6 @@ class SetAllPasswords extends Command
 
         return;
     }
-
-    /**
-     * Get the console command arguments.
-     *
-     * @return array
-     */
-    protected function getArguments()
-    {
-        dd(23);
-        return [
-            ['password', InputArgument::OPTIONAL, 'An example argument.'],
-        ];
-    }
+    
 }
 
