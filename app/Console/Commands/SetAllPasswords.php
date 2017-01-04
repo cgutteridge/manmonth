@@ -3,6 +3,7 @@
 use DB;
 use Hash;
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Input\InputArgument;
 
 class SetAllPasswords extends Command
 {
@@ -11,7 +12,9 @@ class SetAllPasswords extends Command
      *
      * @var string
      */
-    protected $signature = 'setallpasswords';
+    protected $signature = 'setallpasswords 
+                            {password? : (optional) The password to set. If not set you will be prompted for it.}';
+
 
     /**
      * The console command description.
@@ -38,11 +41,14 @@ class SetAllPasswords extends Command
     {
         $this->comment(PHP_EOL . "This tool is intended for test systems only. It changes every user's password to the same thing." . PHP_EOL);
 
-        $password = $this->secret('What password do you want all users to have?');
-        $password2 = $this->secret('Please confirm password');
+        $password = $this->argument('password');
+        if (!isset($password)) {
+            $password = $this->secret('What password do you want all users to have?');
+            $password2 = $this->secret('Please confirm password');
 
-        if ($password != $password2) {
-            exit("Aborting, passwords did not match.\n");
+            if ($password != $password2) {
+                exit("Aborting, passwords did not match.\n");
+            }
         }
 
         $count = 0;
@@ -58,6 +64,19 @@ class SetAllPasswords extends Command
         $this->comment(PHP_EOL . "Reset $count password" . ($count == 1 ? "" : "s") . PHP_EOL);
 
         return;
+    }
+
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getArguments()
+    {
+        dd(23);
+        return [
+            ['password', InputArgument::OPTIONAL, 'An example argument.'],
+        ];
     }
 }
 
