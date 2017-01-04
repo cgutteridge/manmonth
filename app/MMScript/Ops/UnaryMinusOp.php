@@ -3,7 +3,8 @@
 namespace App\MMScript\Ops;
 
 use App\Exceptions\ScriptException;
-use App\MMScript\Values\BooleanValue;
+use App\MMScript\Values\DecimalValue;
+use App\MMScript\Values\IntegerValue;
 
 /**
  * Class UnaryMinusOp
@@ -37,10 +38,16 @@ class UnaryMinusOp extends UnaryOp
 
     /**
      * @param array $context
-     * @return BooleanValue
+     * @return DecimalValue|IntegerValue
      */
     function execute($context)
     {
-        return new BooleanValue(-$this->param->execute($context)->value);
+        $value = -$this->param->execute($context)->value;
+        if ($this->param->type() == 'integer') {
+            return new IntegerValue($value);
+        } else {
+            return new DecimalValue($value);
+        }
+        // doesn't catch runtime type issues
     }
 }

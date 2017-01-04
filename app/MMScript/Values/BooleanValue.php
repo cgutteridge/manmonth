@@ -10,4 +10,15 @@ namespace App\MMScript\Values;
 
 class BooleanValue extends Value
 {
+    /**
+     * @return StringValue
+     */
+    public function castString()
+    {
+        if ($this->value) {
+            return new StringValue("TRUE");
+        } else {
+            return new StringValue("FALSE");
+        }
+    }
 }

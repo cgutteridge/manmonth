@@ -32,18 +32,62 @@ class Compiler
         return $expression;
     }
 
-    protected function token()
+    public function compileExpression()
     {
-        if (!$this->moreTokens()) {
-            return [strlen($this->script->text), "END"];
-        }
-        return $this->tokens[$this->offset];
+        return $this->compileOr();
     }
 
-    protected function moreTokens()
+    public function compileOr()
     {
-        return $this->offset < sizeof($this->tokens);
+        $left = $this->compileAnd();
+        if ($this->moreTokens() && $this->tokenIs("OR")) {
+            $op = $this->token();
+            $this->offset++;
+            $right = $this->compileOr();
+            return new Ops\OrOp($this->script, $op, $left, $right);
+        }
+        return $left;
     }
+
+    public function compileAnd()
+    {
+        $left = $this->compileCmp();
+        if ($this->moreTokens() && $this->tokenIs("AND")) {
+            $op = $this->token();
+            $this->offset++;
+            $right = $this->compileAnd();
+            return new Ops\AndOp($this->script, $op, $left, $right);
+        }
+        return $left;
+    }
+
+    public function compileCmp()
+    {
+        $left = $this->compileNot();
+        if ($this->moreTokens() && $this->tokenIs(["EQ", "NEQ", "LEQ", "GEQ", "LT", "GT"])) {
+            $op = $this->token();
+            $this->offset++;
+            $right = $this->compileCmp();
+            return new Ops\CmpOp($this->script, $op, $left, $right);
+        }
+        return $left;
+    }
+
+
+    # <EXP>   = <OROP>
+
+    public function compileNot()
+    {
+        if ($this->tokenIs("NOT")) {
+            $op = $this->token();
+            $this->offset++;
+            $right = $this->compileNot();
+            return new Ops\NotOp($this->script, $op, $right);
+        }
+        return $this->compileUnaryMinus();
+    }
+
+    # <OROP>  = <ANDOP> [ "|" + <OROP> ]
 
     protected function tokenIs($ids)
     {
@@ -62,6 +106,119 @@ class Compiler
         }
         return false;
     }
+
+    # <ANDOP> = <CMPOP> [ "&" + <ANDOP> ]
+
+    protected function moreTokens()
+    {
+        return $this->offset < sizeof($this->tokens);
+    }
+
+    # <CMPOP> = <NOTOP> [ ( "=" | "<>" | ">=" | "<=" | ">" | "<" ) <CMPOP> ]
+
+    protected function token()
+    {
+        if (!$this->moreTokens()) {
+            return [strlen($this->script->text), "END"];
+        }
+        return $this->tokens[$this->offset];
+    }
+
+    # <NOTOP> = "!" <NOTOP> | <UMINUS>
+
+    public function compileUnaryMinus()
+    {
+        if ($this->tokenIs("MIN")) {
+            $op = $this->token();
+            $this->offset++;
+            $right = $this->compileUnaryMinus();
+            return new Ops\UnaryMinusOp($this->script, $op, $right);
+        }
+        return $this->compileAdd();
+    }
+
+    # <UMINUS> = "-" <NOTOP> | <ADDOP>
+
+    public function compileAdd()
+    {
+        $left = $this->compileMul();
+        if ($this->moreTokens() && $this->tokenIs(["PLUS", "MIN"])) {
+            $op = $this->token();
+            $this->offset++;
+            $right = $this->compileAdd();
+            return new Ops\AddOp($this->script, $op, $left, $right);
+        }
+        return $left;
+    }
+
+    # <ADDOP> = <MULOP> [ ("+"|"-") <ADDOP> ]
+
+    public function compileMul()
+    {
+        $left = $this->compilePow();
+        if ($this->moreTokens() && $this->tokenIs(["MUL", "DIV"])) {
+            $op = $this->token();
+            $this->offset++;
+            $right = $this->compileMul();
+            return new Ops\MulOp($this->script, $op, $left, $right);
+        }
+        return $left;
+    }
+
+    # <MULOP> = <POWOP> [ ("*"|"/") <MULOP> ]
+
+    public function compilePow()
+    {
+        $left = $this->compileBracket();
+        if ($this->moreTokens() && $this->tokenIs(["POW"])) {
+            $op = $this->token();
+            $this->offset++;
+            $right = $this->compilePow();
+            return new Ops\PowOp($this->script, $op, $left, $right);
+        }
+        return $left;
+    }
+
+    # <POWOP> = <BRAOP> [ "^" <POPOP> ]
+
+    public function compileBracket()
+    {
+        if ($this->tokenIs(["OBR"])) {
+            $this->offset++; // consume open bracket
+            $exp = $this->compileExpression();
+            if (!$this->tokenIs(["CBR"])) {
+                throw new ParseException("Expected close bracket", $this->script->text, $this->token()[0]);
+            }
+            $this->offset++; // consume close bracket
+            return $exp;
+        }
+
+        return $this->compileValue();
+    }
+
+    # <BRAOP> = "(" <EXP> ")" | <VALUE>
+
+    public function compileValue()
+    {
+        # <LITERAL> = "true" | "false" | [1-9][0-9]* | [0-9]+ "." [0-9]+ | "'" [^']* "'"
+        if ($this->tokenIs(["DEC", "INT", "BOOL", "STR", "NULL"])) {
+            $op = $this->token();
+            $this->offset++;
+            return new Ops\Literal($this->script, $op);
+        }
+
+        # look ahead one token to see if this is a function call, if not treat as a varibable
+        if ($this->tokenIs("NAME")) {
+            if ($this->nextTokenIs("OBR")) { # open bracket
+                return $this->compileFunction();
+            }
+            return $this->compileVar();
+        }
+
+        throw new ParseException("Unexpected stuff", $this->script->text, $this->token()[0]);
+    }
+
+    # <VALUE> = <LITERAL> | <VAR> | <FNNAME>
 
     protected function nextTokenIs($ids)
     {
@@ -82,158 +239,58 @@ class Compiler
         return false;
     }
 
-
-    # <EXP>   = <OROP>
-    public function compileExpression()
-    {
-        return $this->compileOr();
-    }
-
-    # <OROP>  = <ANDOP> [ "|" + <OROP> ]
-    public function compileOr()
-    {
-        $left = $this->compileAnd();
-        if ($this->moreTokens() && $this->tokenIs("OR")) {
-            $op = $this->token();
-            $this->offset++;
-            $right = $this->compileOr();
-            return new Ops\OrOp($this->script, $op, $left, $right);
-        }
-        return $left;
-    }
-
-    # <ANDOP> = <CMPOP> [ "&" + <ANDOP> ]
-    public function compileAnd()
-    {
-        $left = $this->compileCmp();
-        if ($this->moreTokens() && $this->tokenIs("AND")) {
-            $op = $this->token();
-            $this->offset++;
-            $right = $this->compileAnd();
-            return new Ops\AndOp($this->script, $op, $left, $right);
-        }
-        return $left;
-    }
-
-    # <CMPOP> = <NOTOP> [ ( "=" | "<>" | ">=" | "<=" | ">" | "<" ) <CMPOP> ]
-    public function compileCmp()
-    {
-        $left = $this->compileNot();
-        if ($this->moreTokens() && $this->tokenIs(["EQ", "NEQ", "LEQ", "GEQ", "LT", "GT"])) {
-            $op = $this->token();
-            $this->offset++;
-            $right = $this->compileCmp();
-            return new Ops\CmpOp($this->script, $op, $left, $right);
-        }
-        return $left;
-    }
-
-    # <NOTOP> = "!" <NOTOP> | <UMINUS>
-    public function compileNot()
-    {
-        if ($this->tokenIs("NOT")) {
-            $op = $this->token();
-            $this->offset++;
-            $right = $this->compileNot();
-            return new Ops\NotOp($this->script, $op, $right);
-        }
-        return $this->compileUnaryMinus();
-    }
-
-    # <UMINUS> = "-" <NOTOP> | <ADDOP>
-    public function compileUnaryMinus()
-    {
-        if ($this->tokenIs("MIN")) {
-            $op = $this->token();
-            $this->offset++;
-            $right = $this->compileUnaryMinus();
-            return new Ops\UnaryMinusOp($this->script, $op, $right);
-        }
-        return $this->compileAdd();
-    }
-
-    # <ADDOP> = <MULOP> [ ("+"|"-") <ADDOP> ]
-    public function compileAdd()
-    {
-        $left = $this->compileMul();
-        if ($this->moreTokens() && $this->tokenIs(["PLUS", "MIN"])) {
-            $op = $this->token();
-            $this->offset++;
-            $right = $this->compileAdd();
-            return new Ops\AddOp($this->script, $op, $left, $right);
-        }
-        return $left;
-    }
-
-    # <MULOP> = <POWOP> [ ("*"|"/") <MULOP> ]
-    public function compileMul()
-    {
-        $left = $this->compilePow();
-        if ($this->moreTokens() && $this->tokenIs(["MUL", "DIV"])) {
-            $op = $this->token();
-            $this->offset++;
-            $right = $this->compileMul();
-            return new Ops\MulOp($this->script, $op, $left, $right);
-        }
-        return $left;
-    }
-
-    # <POWOP> = <BRAOP> [ "^" <POPOP> ]
-    public function compilePow()
-    {
-        $left = $this->compileBracket();
-        if ($this->moreTokens() && $this->tokenIs(["POW"])) {
-            $op = $this->token();
-            $this->offset++;
-            $right = $this->compilePow();
-            return new Ops\PowOp($this->script, $op, $left, $right);
-        }
-        return $left;
-    }
-
-    # <BRAOP> = "(" <EXP> ")" | <VALUE>
-    public function compileBracket()
-    {
-        if ($this->tokenIs(["OBR"])) {
-            $this->offset++; // consume open bracket
-            $exp = $this->compileExpression();
-            if (!$this->tokenIs(["CBR"])) {
-                throw new ParseException("Expected close bracket", $this->script->text, $this->token()[0]);
-            }
-            $this->offset++; // consume close bracket
-            return $exp;
-        }
-
-        return $this->compileValue();
-    }
-
-    # <VALUE> = <LITERAL> | <VAR> | <FNNAME>
-
-
-    public function compileValue()
-    {
-        # <LITERAL> = "true" | "false" | [1-9][0-9]* | [0-9]+ "." [0-9]+ | "'" [^']* "'"
-        if ($this->tokenIs(["DEC", "INT", "BOOL", "STR"])) {
-            $op = $this->token();
-            $this->offset++;
-            return new Ops\Literal($this->script, $op);
-        }
-
-        # look ahead one token to see if this is a function call, if not treat as a varibable
-        if ($this->tokenIs("NAME")) {
-            if ($this->nextTokenIs("OBR")) { # open bracket
-                return $this->compileFunction();
-            }
-            return $this->compileVar();
-        }
-
-        throw new ParseException("Unexpected stuff", $this->script->text, $this->token()[0]);
-    }
-
     # <VAR>   = <OBJECT> "." <FIELD>
     # <OBJECT>= <OBJECTNAME> ( ("->"|"<-") <LINK> )*
     # <LINK>  = <NAME>
     # <OBJECTAME> = <NAME>
+
+    public function compileFunction()
+    {
+        if (!$this->tokenIs(["NAME"])) {
+            throw new ParseException("Expected object name got " . $this->token()[1], $this->script->text, $this->token()[0]);
+        }
+        $op = $this->token();
+        $this->offset++;  // consume NAME
+
+        if (!$this->tokenIs(["OBR"])) {
+            throw new ParseException("Expected open bracket", $this->script->text, $this->token()[0]);
+        }
+        $this->offset++; // consume open bracket
+
+        if ($this->tokenIs(["CBR"])) {
+            // if the next token is ")" then this is an empty list!
+            $list = new Ops\ExpList($this->script, $this->token(), []);
+        } else {
+            $list = $this->compileList();
+        }
+
+        if (!$this->tokenIs(["CBR"])) {
+            throw new ParseException("Expected close bracket", $this->script->text, $this->token()[0]);
+        }
+        $this->offset++; // consume close bracket
+
+        return new Ops\Call($this->script, $op, new Ops\Name($this->script, $op), $list);
+    }
+
+    public function compileList()
+    {
+        $op = $this->token();
+        $exp = $this->compileExpression();
+        $list = [$exp];
+        while ($this->moreTokens() && $this->tokenIs("COMMA")) {
+            $this->offset++; // consume comma
+            $exp = $this->compileExpression();
+            $list [] = $exp;
+        }
+
+        return new Ops\ExpList($this->script, $op, $list);
+    }
+
+
+# <FNCALL>= <FNNAME> "(" <LIST> ")"
+# <FNNAME>= <NAME>
+# <LIST>  = <EXP> [ "," <LIST> ]
+
     public function compileVar()
     {
         $object = $this->compileObject();
@@ -249,6 +306,7 @@ class Compiler
         return $r;
     }
 
+    # <LIST> = <EXP> [ "," <LIST> ]
 
     public function compileObject()
     {
@@ -269,49 +327,6 @@ class Compiler
             $r = new Ops\Link($this->script, $op, $r, new Ops\Name($this->script, $link));
         }
         return $r;
-    }
-
-
-# <FNCALL>= <FNNAME> "(" <LIST> ")"
-# <FNNAME>= <NAME>
-# <LIST>  = <EXP> [ "," <LIST> ]
-
-    public function compileFunction()
-    {
-        if (!$this->tokenIs(["NAME"])) {
-            throw new ParseException("Expected object name got " . $this->token()[1], $this->script->text, $this->token()[0]);
-        }
-        $op = $this->token();
-        $this->offset++;  // consume NAME
-
-        if (!$this->tokenIs(["OBR"])) {
-            throw new ParseException("Expected open bracket", $this->script->text, $this->token()[0]);
-        }
-        $this->offset++; // consume open bracket
-
-        $list = $this->compileList();
-
-        if (!$this->tokenIs(["CBR"])) {
-            throw new ParseException("Expected close bracket", $this->script->text, $this->token()[0]);
-        }
-        $this->offset++; // consume close bracket
-
-        return new Ops\Call($this->script, $op, new Ops\Name($this->script, $op), $list);
-    }
-
-    # <LIST> = <EXP> [ "," <LIST> ]
-    public function compileList()
-    {
-        $op = $this->token();
-        $exp = $this->compileExpression();
-        $list = [$exp];
-        while ($this->moreTokens() && $this->tokenIs("COMMA")) {
-            $this->offset++; // consume comma
-            $exp = $this->compileExpression();
-            $list [] = $exp;
-        }
-
-        return new Ops\ExpList($this->script, $op, $list);
     }
 
 
@@ -352,7 +367,7 @@ class Compiler
 # <OBJECT>= <OBJECTNAME> [ ( "->"|"<-" ) <LINK> ]*
 # <LINK>  = <NAME>
 # <OBJECTAME> = <NAME>
-# <LITERAL> = "true" | "false" | [1-9][0-9]* | [0-9]+ "." [0-9]+ | "'" [^']* "'"
+# <LITERAL> = "true" | "false" | "null" | [1-9][0-9]* | [0-9]+ "." [0-9]+ | "'" [^']* "'"
 # <FNCALL>= <FNNAME> "(" <LIST> ")"
 # <FNNAME>= <NAME>
 # <LIST>  = <EXP> [ "," <LIST> ]

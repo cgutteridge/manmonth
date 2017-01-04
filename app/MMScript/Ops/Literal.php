@@ -7,6 +7,7 @@ use App\Exceptions\ScriptException;
 use App\MMScript\Values\BooleanValue;
 use App\MMScript\Values\DecimalValue;
 use App\MMScript\Values\IntegerValue;
+use App\MMScript\Values\NullValue;
 use App\MMScript\Values\StringValue;
 
 /**
@@ -23,6 +24,8 @@ class Literal extends Op
     function execute($context)
     {
         switch ($this->type()) {
+            case "null":
+                return new NullValue();
             case "integer":
                 return new IntegerValue($this->value);
             case "decimal":
@@ -44,7 +47,7 @@ class Literal extends Op
         if (@$this->type) {
             return $this->type;
         }
-        $map = ['STR' => 'string', 'DEC' => 'decimal', 'INT' => 'integer', 'BOOL' => 'boolean'];
+        $map = ['STR' => 'string', 'DEC' => 'decimal', 'INT' => 'integer', 'BOOL' => 'boolean', 'NULL' => 'null'];
         if (!array_key_exists($this->opCode, $map)) {
             throw new ScriptException("Unknown literal type: " . $this->opCode);
         }

@@ -3,6 +3,7 @@
 namespace App\MMScript\Funcs;
 
 use App\Exceptions\CallException;
+use App\MMScript\Values\IntegerValue;
 
 class Floor
 {
@@ -21,7 +22,7 @@ class Floor
 
     function execute($params)
     {
-        dd("TODO");
-        return 23;
+        $outv = floor($params[0]->value);
+        return new IntegerValue($outv);
     }
 }

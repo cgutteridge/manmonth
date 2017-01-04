@@ -47,6 +47,10 @@ Numerical functions
 
 floor( x ) : rounds a decimal down to the nearest smaller integer. 5=>5, 6.1=>6, 7.5=>7, 8.9=>8, 0=>0, -1.1=>-2.
 ceil( x ) : rounds a decimal down to the nearest larger integer. 5=>5, 6.1=>7, 7.5=>8, 8.9=>9, 0=>0, -1.1=>-1.
-round( x ) : rounds a decimal down to the nearest integer. 5=>5, 6.1=>6, 7.5=>8, 8.9=>9, 0=>0, -1.1=>-1.
+round( x ) : rounds a decimal down to the nearest integer. 5=>5, 6.1=>6, 7.5=>8, 8.9=>9, 0=>0, -1.1=>-1. IMPORTANT: -1.5 rounds to -2.
 min( a,b,... ) : returns the smallest of a set of decimal/interger values.
 max( a,b,... ) : returns the largest of a set of decimal/interger values.
+
+Control functions
+
+if( test, a, b ) : returns a if the test is true, otherwise b.

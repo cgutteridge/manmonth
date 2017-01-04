@@ -3,6 +3,7 @@
 namespace App\MMScript\Funcs;
 
 use App\Exceptions\CallException;
+use App\MMScript\Values\IntegerValue;
 
 class Ceil
 {
@@ -21,7 +22,7 @@ class Ceil
 
     function execute($params)
     {
-        dd("TODO");
-        return 23;
+        $outv = ceil($params[0]->value);
+        return new IntegerValue($outv);
     }
 }

@@ -8,6 +8,7 @@ use App\MMScript\Funcs\CastString;
 use App\MMScript\Funcs\Ceil;
 use App\MMScript\Funcs\Floor;
 use App\MMScript\Funcs\Func;
+use App\MMScript\Funcs\IfThenElse;
 use App\MMScript\Funcs\Max;
 use App\MMScript\Funcs\Min;
 use App\MMScript\Funcs\Round;
@@ -36,60 +37,28 @@ class Call extends BinaryOp
         CastString::class,
         Min::class,
         Max::class,
+        IfThenElse::class,
     ];
 
     /**
      * @var Func[]
      */
     static protected $funcCache;
-
-    /**
-     * @return Func[]
-     */
-    public static function funcs()
-    {
-        if (self::$funcCache) {
-            return self::$funcCache;
-        }
-        self::$funcCache = [];
-        foreach (self::$funcs as $class) {
-            $func = new $class();
-            self::$funcCache[$func->name] = $func;
-        }
-        return self::$funcCache;
-    }
-
-    /**
-     * @param $funcName
-     * @return Func
-     */
-    public static function funcFactory($funcName)
-    {
-        $funcs = self::funcs();
-        return $funcs[$funcName];
-    }
-
     /**
      * @var Func
      */
     protected $func;
 
     /**
-     * @return Func
-     * @throws ScriptException
+     * @return null|RecordType
      */
-    function func()
+    function recordType()
     {
-        if (@$this->func) {
-            return $this->func;
+        if (!$this->type() == "record") {
+            return null;
         }
-
-        $funcName = $this->left->value;
-        $this->func = self::funcFactory($funcName);
-        if (!$this->func) {
-            throw new ScriptException("Unknown function call: $funcName");
-        }
-        return $this->func;
+        $func = $this->func();
+        return $func->recordType($this->paramTypes());
     }
 
     /**
@@ -112,6 +81,52 @@ class Call extends BinaryOp
     }
 
     /**
+     * @return Func
+     * @throws ScriptException
+     */
+    function func()
+    {
+        if (@$this->func) {
+            return $this->func;
+        }
+
+        $funcName = $this->left->value;
+        $this->func = self::funcFactory($funcName);
+        if (!$this->func) {
+            throw new ScriptException("Unknown function call: $funcName");
+        }
+        return $this->func;
+    }
+
+    /**
+     * @param $funcName
+     * @return Func
+     */
+    public static function funcFactory($funcName)
+    {
+        $funcs = self::funcs();
+        return $funcs[$funcName];
+    }
+
+    /**
+     * @return Func[]
+     */
+    public static function funcs()
+    {
+        if (self::$funcCache) {
+            return self::$funcCache;
+        }
+        self::$funcCache = [];
+        foreach (self::$funcs as $class) {
+            $func = new $class();
+            self::$funcCache[$func->name] = $func;
+        }
+        return self::$funcCache;
+    }
+
+    // might be needed if a function returns type 'record' later?
+
+    /**
      * @return string[]
      */
     function paramTypes()
@@ -121,19 +136,6 @@ class Call extends BinaryOp
             $types [] = $op->type();
         }
         return $types;
-    }
-
-    // might be needed if a function returns type 'record' later?
-    /**
-     * @return null|RecordType
-     */
-    function recordType()
-    {
-        if (!$this->type() == "record") {
-            return null;
-        }
-        $func = $this->func();
-        return $func->recordType($this->paramTypes());
     }
 
     /**

@@ -3,6 +3,8 @@
 namespace App\MMScript\Funcs;
 
 use App\Exceptions\CallException;
+use App\MMScript\Values\DecimalValue;
+use App\MMScript\Values\IntegerValue;
 
 class Min
 {
@@ -28,7 +30,19 @@ class Min
 
     function execute($params)
     {
-        dd("TODO");
-        return 23;
+        $outv = $params[0]->value;
+        $outtype = 'integer';
+        foreach ($params as $param) {
+            if ($param->value < $outv) {
+                $outv = $param->value;
+            }
+            if (is_a($param, DecimalValue::class)) {
+                $outtype = 'decimal';
+            }
+        }
+        if ($outtype == 'integer') {
+            return new IntegerValue($outv);
+        }
+        return new DecimalValue($outv);
     }
 }

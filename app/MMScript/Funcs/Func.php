@@ -16,6 +16,10 @@ abstract class Func
 
     abstract function type($types);
 
+    /**
+     * @param array $types
+     * @return null
+     */
     function recordType($types)
     {
         return null;

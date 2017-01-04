@@ -15,4 +15,9 @@ class NullValue extends Value
     {
         parent::__construct(null);
     }
+
+    function castString()
+    {
+        return new StringValue("NULL");
+    }
 }

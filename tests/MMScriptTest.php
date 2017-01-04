@@ -1,4 +1,5 @@
 <?php
+use App\MMScript\Values\DecimalValue;
 
 /**
  * Created by PhpStorm.
@@ -8,21 +9,22 @@
  */
 class MMScriptTest extends TestCase
 {
-    function makeMockDocRev()
+    function test_tree_text_code_kinda()
     {
-        $mockScript = $this->getMockBuilder(\App\Models\DocumentRevision::class)
-            ->disableOriginalConstructor()->getMock();
-        return $mockScript;
+        $script = new \App\MMScript("true & !false", $this->makeMockDocRev(), []);
+        $script->textTree();
     }
 
     /* Tree Text */
 
     // this just walks the code but that's better than nothing, right?
     // TODO add link, name, call etc.
-    function test_tree_text_code_kinda()
+
+    function makeMockDocRev()
     {
-        $script = new \App\MMScript("true & !false", $this->makeMockDocRev(), []);
-        $script->textTree();
+        $mockScript = $this->getMockBuilder(\App\Models\DocumentRevision::class)
+            ->disableOriginalConstructor()->getMock();
+        return $mockScript;
     }
 
     /* LITERAL */
@@ -74,6 +76,15 @@ class MMScriptTest extends TestCase
         $script = new \App\MMScript("true", $this->makeMockDocRev(), []);
         $this->assertEquals('boolean', $script->type());
         $this->assertEquals(true, $script->execute([])->value);
+    }
+
+    function test_null_literal()
+    {
+        $script = new \App\MMScript("null", $this->makeMockDocRev(), []);
+        $this->assertEquals('null', $script->type());
+        $result = $script->execute([]);
+        $this->assertInstanceOf(\App\MMScript\Values\NullValue::class, $result);
+        $this->assertEquals(null, $result->value);
     }
 
     function test_bogus_literal()
@@ -532,6 +543,22 @@ class MMScriptTest extends TestCase
         $script = new \App\MMScript("--242", $this->makeMockDocRev(), []);
         $this->assertEquals('integer', $script->type());
         $this->assertEquals(242, $script->execute([])->value);
+    }
+
+    function test_unary_minus_decimal()
+    {
+        $script = new \App\MMScript("-242.6", $this->makeMockDocRev(), []);
+        $this->assertEquals('decimal', $script->type());
+        $this->assertEquals(-242.6, $script->execute([])->value);
+    }
+
+    function test_unary_minus_decimal_actual_result_type()
+    {
+        $script = new \App\MMScript("-0.6", $this->makeMockDocRev(), []);
+        $this->assertEquals('decimal', $script->type());
+        $result = $script->execute([]);
+        $this->assertEquals(-0.6, $result->value);
+        $this->assertInstanceOf(DecimalValue::class, $result);
     }
 
 }

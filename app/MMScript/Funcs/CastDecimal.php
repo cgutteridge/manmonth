@@ -3,6 +3,10 @@
 namespace App\MMScript\Funcs;
 
 use App\Exceptions\CallException;
+use App\MMScript\Values\BooleanValue;
+use App\MMScript\Values\DecimalValue;
+use App\MMScript\Values\IntegerValue;
+use App\MMScript\Values\StringValue;
 
 // cast a value to integer
 class CastDecimal
@@ -14,15 +18,28 @@ class CastDecimal
         if (sizeof($types) != 1) {
             throw new CallException("decimal() expects exactly one perameter");
         }
-        if ($types[0] != "integer" && $types[0] != "decimal") {
-            throw new CallException("decimal() only operates on integers (actually also decimals, but why would you do that?) but was passed a " . $types[0]);
-        }
+
         return "decimal";
     }
 
     function execute($params)
     {
-        dd("TODO");
-        return 23;
+        $param = $params[0];
+        $outv = 0;
+        $val = $param->value;
+        if (is_a($param, DecimalValue::class) || is_a($param, IntegerValue::class)) {
+            $outv = $val;
+        } elseif (is_a($param, NullValue::class)) {
+            $outv = 0;
+        } elseif (is_a($param, BooleanValue::class) && $val == true) {
+            $outv = 1;
+        } elseif (is_a($param, BooleanValue::class) && $val == false) {
+            $outv = 0;
+        } elseif (is_a($param, StringValue::class)) {
+            // use php's conversion
+            $outv = floatval($val);
+        }
+
+        return new DecimalValue($outv);
     }
 }

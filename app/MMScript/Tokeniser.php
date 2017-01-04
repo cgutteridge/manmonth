@@ -164,6 +164,10 @@ class Tokeniser
                     $tokens [] = [$toff, "BOOL", 0];
                     continue;
                 }
+                if ($s == "null") {
+                    $tokens [] = [$toff, "NULL", null];
+                    continue;
+                }
                 // some other term
                 $tokens [] = [$toff, "NAME", $s];
                 continue;
