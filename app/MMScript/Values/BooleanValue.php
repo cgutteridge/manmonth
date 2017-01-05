@@ -21,4 +21,9 @@ class BooleanValue extends Value
             return new StringValue("FALSE");
         }
     }
+
+    public function myNull()
+    {
+        return false;
+    }
 }

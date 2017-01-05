@@ -87,6 +87,25 @@ class DocumentRevision extends MMModel
     }
 
     /**
+     * Return the configuration record
+     * @return Record
+     */
+    public function configRecord()
+    {
+        $crt = $this->configRecordType();
+        return $crt->records()->first();
+    }
+
+    /**
+     * Return the configuration schema
+     * @return RecordType
+     */
+    public function configRecordType()
+    {
+        return $this->recordTypeByName('config');
+    }
+
+    /**
      * @param string $name
      * @return RecordType|null
      */

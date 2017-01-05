@@ -146,6 +146,7 @@ class Rule extends DocumentPart
         }
 
         $this->abstractContext = [];
+        $this->abstractContext['config'] = $this->documentRevision->configRecordType();
 
         $baseRecordType = $this->reportType->baseRecordType();
         $this->abstractContext[$baseRecordType->name] = $baseRecordType;
@@ -193,7 +194,6 @@ class Rule extends DocumentPart
                 $i++;
             }
             $this->abstractContext[$name] = $iterativeRecordType;
-
         }
 
         return $this->abstractContext;
@@ -244,6 +244,7 @@ class Rule extends DocumentPart
     {
         $context = [];
         $baseRecordType = $this->reportType->baseRecordType();
+        $context['config'] = $this->documentRevision->configRecord();
         $context[$baseRecordType->name] = $record;
         $route = [];
         if (isset($this->data['route'])) {

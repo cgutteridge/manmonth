@@ -10,4 +10,8 @@ namespace App\MMScript\Values;
 
 class StringValue extends Value
 {
+    public function myNull()
+    {
+        return '';
+    }
 }

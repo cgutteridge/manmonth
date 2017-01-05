@@ -33,6 +33,7 @@ boolean : eg. true, false
 string : eg. 'fish', 'hello world', ''
 integer : eg. 1234, 99, -100, 0
 decimal : eg. 1.123, 99.0, -23.0
+null : eg. null
 
 Functions
 
@@ -54,3 +55,16 @@ max( a,b,... ) : returns the largest of a set of decimal/interger values.
 Control functions
 
 if( test, a, b ) : returns a if the test is true, otherwise b.
+
+Other functions
+
+set( x ) : returns true if x is not null at runtime.
+
+Equivalence
+
+Decimal & Integers may be compared, but some functions are more explicit. if() won't let you mix decimal and integer results.
+
+NULL
+
+The null literal can be compared to anything. Note that null is equal to '' and 0 and false.
+To detect a null explicitly, use isset(). This can be used to distinguish no data from unset data.

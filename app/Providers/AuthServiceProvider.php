@@ -150,7 +150,12 @@ class AuthServiceProvider extends ServiceProvider
             if (
                 is_a($thing, LinkType::class)
                 || is_a($thing, RecordType::class)
-                || is_a($thing, DocumentRevision::class)
+            ) {
+                if ($thing->isProtected()) {
+                    return false;
+                }
+                return $user->can("edit-data", $documentRevision->document);
+            } elseif (is_a($thing, DocumentRevision::class)
             ) {
                 return $user->can("edit-data", $documentRevision->document);
             } else {

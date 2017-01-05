@@ -20,10 +20,27 @@ class Document extends MMModel
             throw new Exception("Save document before calling init()");
         }
 
+        /* create a basic current revision */
         $rev = new DocumentRevision();
         $rev->document()->associate($this);
         $rev->status = "current";
         $rev->save();
+
+        /* add a config record type */
+
+        $configType = $rev->createRecordType("config", [
+            "label" => "Configuration",
+            "data" => [
+                "protected" => true,
+                "fields" => [
+                    ["name" => "comment", "label" => "Comment", "type" => "string", "required" => false, "protected" => true],
+                ]],
+            "title_script" => "'Configuration'"
+        ]);
+
+        $config = $configType->createRecord([
+            "comment" => "Example comment."
+        ]);
     }
 
     /**

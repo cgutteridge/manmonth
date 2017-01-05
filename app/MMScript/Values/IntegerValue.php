@@ -11,4 +11,8 @@ namespace App\MMScript\Values;
 
 class IntegerValue extends Value
 {
+    public function myNull()
+    {
+        return 0;
+    }
 }

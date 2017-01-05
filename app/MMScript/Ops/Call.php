@@ -2,12 +2,14 @@
 
 namespace App\MMScript\Ops;
 
+use App\Exceptions\CallException;
 use App\Exceptions\ScriptException;
 use App\MMScript\Funcs\CastDecimal;
 use App\MMScript\Funcs\CastString;
 use App\MMScript\Funcs\Ceil;
 use App\MMScript\Funcs\Floor;
 use App\MMScript\Funcs\Func;
+use App\MMScript\Funcs\FuncIsSet;
 use App\MMScript\Funcs\IfThenElse;
 use App\MMScript\Funcs\Max;
 use App\MMScript\Funcs\Min;
@@ -38,6 +40,7 @@ class Call extends BinaryOp
         Min::class,
         Max::class,
         IfThenElse::class,
+        FuncIsSet::class,
     ];
 
     /**
@@ -101,10 +104,14 @@ class Call extends BinaryOp
     /**
      * @param $funcName
      * @return Func
+     * @throws CallException
      */
     public static function funcFactory($funcName)
     {
         $funcs = self::funcs();
+        if (!array_key_exists($funcName, $funcs)) {
+            throw new CallException("Unknown function name '$funcName'.");
+        }
         return $funcs[$funcName];
     }
 

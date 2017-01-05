@@ -5,11 +5,13 @@
 @endsection
 
 @section( 'content' )
-    <p>
-        <a type="button" class="btn btn-primary" href="@url($recordType,'create-record')">
-            New @title($recordType)
-        </a>
-    </p>
+    @can('create',$recordType)
+        <p>
+            <a type="button" class="btn btn-primary" href="@url($recordType,'create-record')">
+                New @title($recordType)
+            </a>
+        </p>
+    @endcan
     @foreach( $records as $record )
         @include("record.block",$record)
     @endforeach

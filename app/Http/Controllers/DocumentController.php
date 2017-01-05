@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Document;
+use Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -59,6 +60,12 @@ class DocumentController extends Controller
     public function show(Document $document)
     {
         $this->authorize('view-current', $document);
+        if (!Auth::user()->can('view-draft', $document)
+            && !Auth::user()->can('view-archive', $document)
+        ) {
+            // if we can only see the current revision then redirect to that
+            return $this->current($document);
+        }
 
         return view('document.show', [
             'document' => $document,

@@ -5,6 +5,7 @@ namespace App\MMScript\Ops;
 use App\Exceptions\MMScriptRuntimeException;
 use App\Exceptions\ScriptException;
 use App\MMScript\Values\BooleanValue;
+use App\MMScript\Values\NullValue;
 
 class CmpOp extends BinaryOp
 {
@@ -37,14 +38,32 @@ class CmpOp extends BinaryOp
             return $this->type;
         }
 
+        if (($this->opCode == 'EQ' || $this->opCode == "NEQ") &&
+            ($lt == 'null' || $rt == 'null')
+        ) {
+            $this->type = 'boolean';
+            return $this->type;
+        }
+
         throw new ScriptException("Can't compare $lt and $rt in a " . $this->opCode . " operation");
     }
 
     function execute($context)
     {
         # "EQ","NEQ","LEQ","GEQ","LT","GT"
-        $leftValue = $this->left->execute($context)->value;
-        $rightValue = $this->right->execute($context)->value;
+        $left = $this->left->execute($context);
+        $right = $this->right->execute($context);
+
+        $leftValue = $left->value;
+        $rightValue = $right->value;
+
+        if (is_a($left, NullValue::class)) {
+            $leftValue = $right->myNull();
+        }
+
+        if (is_a($right, NullValue::class)) {
+            $rightValue = $left->myNull();
+        }
 
         if ($this->opCode == 'EQ') {
             return new BooleanValue($leftValue == $rightValue);

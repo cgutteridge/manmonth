@@ -26,9 +26,11 @@
                 <h3>Records</h3>
                 <ul>
                     @foreach( $documentRevision->recordTypes as $recordType )
-                        <li>
-                            <a href="@url( $recordType, 'records' )">@title($recordType)</a>
-                        </li>
+                        @if( !$recordType->isProtected() )
+                            <li>
+                                <a href="@url( $recordType, 'records' )">@title($recordType)</a>
+                            </li>
+                        @endif
                     @endforeach
                 </ul>
             </div>
@@ -37,11 +39,7 @@
                 <ul>
                     @foreach( $documentRevision->reportTypes as $reportType )
                         <li>
-                            <a href="@url($reportType)">@title($reportType)
-                                #{{$reportType->sid}}
-                                (runs
-                                on @title($reportType->baseRecordType()), {{$reportType->rules()->count()}}
-                                rule(s))</a>
+                            <a href="@url($reportType)">@title($reportType)</a>
                         </li>
                     @endforeach
                 </ul>

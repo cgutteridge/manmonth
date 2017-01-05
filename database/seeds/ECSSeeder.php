@@ -20,6 +20,29 @@ class ECSSeeder extends Seeder
         $doc->init(); // create default current revision
         $draft = $doc->createDraftRevision();
 
+        // modify configuration
+
+        $configType = $draft->configRecordType();
+        $fields = $configType->data["fields"];
+        $fields[] = [
+            "name" => "exampaper",
+            "label" => "Fixed hours for exam paper",
+            "type" => "decimal",
+            "required" => true,
+        ];
+        $fields[] = [
+            "name" => "yearstarting",
+            "label" => "Year of start of this allocation",
+            "type" => "integer",
+            "required" => true,
+        ];
+        $configType->setFields($fields);
+        $configType->save();
+
+        $config = $draft->configRecord();
+        $config->updateData(['exampaper' => 7, 'yearstarting' => 2017]);
+        $config->save();
+
         // add schema
 
         $actorType = $draft->createRecordType("actor", [
@@ -51,9 +74,9 @@ class ECSSeeder extends Seeder
             "label" => "Task relationship",
             "data" => ["fields" => [
                 ["name" => "ratio", "label" => "Ratio", "type" => "decimal", "default" => 1.0,],
-                ["name" => "validuntil", "label" => "Valid until academic year starting", "type" => "decimal"],
+                ["name" => "validthrough", "label" => "Valid until, and including, academic year starting", "type" => "integer"],
                 ["name" => "notes", "label" => "Notes", "type" => "string"]
-            ]]
+            ]],
         ]);
         $draft->createLinkType('actor_to_acttask', $actorType, $atType,
             ["range_min" => 1, "range_max" => 1, "range_type" => "dependent",
@@ -113,7 +136,7 @@ class ECSSeeder extends Seeder
 
 
         // this can't be set until the links are created.
-        $atType->title_script = "record<-actor_to_acttask.name+' <'+record.ratio+'> '+record->acttask_to_task.name";
+        $atType->title_script = "if( isset(record.validthrough) | record.validthrough < config.yearstarting , '**EXPIRED '+record.validthrough+'** ','' )+record<-actor_to_acttask.name+' <'+record.ratio+'> '+record->acttask_to_task.name";
         $atType->save();
 
         $modteachType->title_script = "record<-actor_teaches.name+' teaches '+record->teaches_module.name";
@@ -142,6 +165,8 @@ class ECSSeeder extends Seeder
         $misc = $taskType->createRecord(["name" => "Misc Job", "size" => 100]);
 
         $atType->createRecord([], ['acttask_to_task' => [$big]], ['actor_to_acttask' => [$alice]]);
+        $atType->createRecord(["validthrough" => 2012], ['acttask_to_task' => [$big]], ['actor_to_acttask' => [$bobby]]);
+        $atType->createRecord(["validthrough" => 2017], ['acttask_to_task' => [$big]], ['actor_to_acttask' => [$clara]]);
 
         $atType->createRecord(["units" => 1], ['acttask_to_task' => [$small]], ['actor_to_acttask' => [$alice]]);
         $atType->createRecord(["units" => 2], ['acttask_to_task' => [$small]], ['actor_to_acttask' => [$bobby]]);
@@ -159,24 +184,25 @@ class ECSSeeder extends Seeder
         $loadingReportType->createRule([
             "title" => "Default loading",
             "action" => "set_target",
-            "params" => ["target" => "'loading'", "value" => 500]]);
+            "params" => ["value" => 500]]);
         $loadingReportType->createRule([
             "title" => "40% for year one teachers",
             "trigger" => "actor.teaching_year='1'",
             "action" => "scale_target",
-            "params" => ["target" => "'loading'", "factor" => 0.4]]);
+            "params" => ["factor" => 0.4]]);
         $loadingReportType->createRule([
             "title" => "70% for year two teachers",
             "trigger" => "actor.teaching_year='2'",
             "action" => "scale_target",
-            "params" => ["target" => "'loading'", "factor" => 0.7]]);
+            "params" => ["factor" => 0.7]]);
+
         $loadingReportType->createRule([
             "title" => "Loading from working on task",
             "route" => ["actor_to_acttask", "acttask_to_task"],
+            "trigger" => "!isset(acttask.validthrough) | acttask.validthrough>=config.yearstarting",
             "action" => "assign_load",
             "params" => [
                 "description" => '\'Working on \'+task.name',
-                "target" => "'loading'",
                 "category" => "string(task.type)",
                 "load" => 'task.size * acttask.ratio'
             ]]);
@@ -186,10 +212,9 @@ class ECSSeeder extends Seeder
             "action" => "assign_load",
             "params" => [
                 "description" => '\'Teaching \'+modteach->teaches_module.code',
-                "target" => "'loading'",
                 "category" => "'teaching'",
                 "link" => "modteach",
-                "load" => 'floor((modteach.percent/100)*(module.lect*2+module.students*(module.cwk/100*2+module.labwk/100))+if( module.exam, module.students+7, 0))'
+                "load" => 'floor((modteach.percent/100)*(module.lect*2+module.students*(module.cwk/100*2+module.labwk/100))+if( module.exam, module.students+config.exampaper, 0.0))'
             ]]);
 
         //basic unit load = LECT*2 + STUD*(CWK*2 + LABWK)
@@ -202,7 +227,6 @@ class ECSSeeder extends Seeder
             "action" => "assign_load",
             "params" => [
                 "description" => '\'Moderating \'+module.code',
-                "target" => "'loading'",
                 "category" => "'teaching'",
                 "link" => "modmoderate",
                 "load" => '10'
@@ -213,7 +237,6 @@ class ECSSeeder extends Seeder
             "action" => "assign_load",
             "params" => [
                 "description" => "actor.student_projects+'% student projects'",
-                "target" => "'loading'",
                 "category" => "'teaching'",
                 "link" => "actor",
                 "load" => '80 * (actor.student_projects/100)'
@@ -224,7 +247,6 @@ class ECSSeeder extends Seeder
             "action" => "assign_load",
             "params" => [
                 "description" => "'Tutorials'",
-                "target" => "'loading'",
                 "link" => "actor",
                 "category" => "'teaching'",
                 "load" => '25'
@@ -259,15 +281,14 @@ class ECSSeeder extends Seeder
         $moduleReportType->createRule([
             "title" => "Target teaching",
             "action" => "set_target",
-            "params" => ["target" => "'teacher'", "value" => 100, "units" => "'percent'"]]);
+            "params" => ["value" => 100, "units" => "'percent'"]]);
         $moduleReportType->createRule([
             "title" => "Teachers",
-            "route" => ["^teaches_module"],
+            "route" => ["^teaches_module", "^actor_teaches"],
             "action" => "assign_load",
+            "link" => "actor",
             "params" => [
-                "description" => "modteach<-actor_teaches.name",
-                "target" => "'teacher'",
-                "category" => "'teaching'",
+                "description" => "actor.name",
                 "load" => 'modteach.percent'
             ]]);
 

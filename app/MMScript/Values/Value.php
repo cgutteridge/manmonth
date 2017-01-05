@@ -29,4 +29,9 @@ abstract class Value
     {
         return new StringValue((string)($this->value));
     }
+
+    public function myNull()
+    {
+        return null;
+    }
 }

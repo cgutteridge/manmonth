@@ -552,6 +552,11 @@ table.mm-record-data td {
 /* END OF REPORT GRAPH */
 
 /* Stuff that needs to be removed in final version */
+
+.mm_cat_null {
+    background-color: lightgrey;
+}
+
 .mm_cat_teaching {
     background-color: #8697a4;
 }

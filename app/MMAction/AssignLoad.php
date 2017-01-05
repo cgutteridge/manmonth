@@ -15,11 +15,6 @@ class AssignLoad extends Action
     // readable title etc.
     public $params = [
         [
-            "name" => "target",
-            "type" => "string",
-            "required" => true,
-        ],
-        [
             "name" => "category",
             "type" => "string",
         ],
@@ -47,13 +42,16 @@ class AssignLoad extends Action
     public function execute($recordReport, $rule, $context, $params)
     {
         if ($params["load"] != 0) {
-            $total = $recordReport->getLoadingTotal($params["target"]);
-            $recordReport->setLoadingTotal($params["target"], $total + $params["load"]);
+            $total = $recordReport->getLoadingTotal();
+            $recordReport->setLoadingTotal($total + $params["load"]);
             $params["rule_title"] = $rule->data['title'];
             if (isset($params["link"])) {
                 /** @var Record $linkRecord */
                 $linkRecord = $params["link"];
                 $params["record_id"] = $linkRecord->id;
+            }
+            if (!array_key_exists('category', $params)) {
+                $params['category'] = 'null';
             }
             $recordReport->appendLoading($params);
         }

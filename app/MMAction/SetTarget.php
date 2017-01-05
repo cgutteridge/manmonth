@@ -17,11 +17,6 @@ class SetTarget extends Action
     // readable title etc.
     public $params = [
         [
-            "name" => "target",
-            "type" => "string",
-            "required" => true,
-        ],
-        [
             "name" => "value",
             "type" => "decimal",
             "required" => true,
@@ -48,15 +43,15 @@ class SetTarget extends Action
      */
     public function execute($recordReport, $rule, $context, $params)
     {
-        $recordReport->setLoadingTarget($params["target"], $params["value"]);
+        $recordReport->setLoadingTarget($params["value"]);
         if (array_key_exists("description", $params)) {
-            $recordReport->setLoadingOption($params["target"], "description", $params["description"]);
+            $recordReport->setOption("description", $params["description"]);
         }
         if (array_key_exists("unit", $params)) {
-            $recordReport->setLoadingOption($params["target"], "unit", $params["unit"]);
+            $recordReport->setOption("unit", $params["unit"]);
         }
         if (array_key_exists("units", $params)) {
-            $recordReport->setLoadingOption($params["target"], "units", $params["units"]);
+            $recordReport->setOption("units", $params["units"]);
         }
         $this->recordLog($recordReport, $params);
     }

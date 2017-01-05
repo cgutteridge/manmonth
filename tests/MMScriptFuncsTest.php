@@ -10,14 +10,13 @@ use App\Models\DocumentRevision;
  */
 class MMScriptFuncsTest extends TestCase
 {
-    function test_cast_string_to_string()
-    {
-        $script = new \App\MMScript("string('Hello')", $this->makeMockDocRev(), []);
-        $this->assertEquals('string', $script->type());
-        $this->assertEquals('Hello', $script->execute([])->value);
-    }
 
-    // CastString */
+    function test_non_existent_function_fails()
+    {
+        $this->setExpectedException(\App\Exceptions\CallException::class);
+        $script = new \App\MMScript("fakefunction('2','3')", $this->makeMockDocRev(), []);
+        $script->type();
+    }
 
     function makeMockDocRev()
     {
@@ -25,6 +24,16 @@ class MMScriptFuncsTest extends TestCase
             ->disableOriginalConstructor()->getMock();
         return $mockScript;
     }
+
+    // CastString */
+
+    function test_cast_string_to_string()
+    {
+        $script = new \App\MMScript("string('Hello')", $this->makeMockDocRev(), []);
+        $this->assertEquals('string', $script->type());
+        $this->assertEquals('Hello', $script->execute([])->value);
+    }
+
 
     function test_cast_int_to_string()
     {
@@ -865,5 +874,63 @@ class MMScriptFuncsTest extends TestCase
         $this->assertInstanceOf(\App\MMScript\Values\IntegerValue::class, $result);
         $this->assertEquals(42, $result->value);
     }
+
+    /* isset */
+
+    function test_isset_with_false()
+    {
+        $script = new \App\MMScript("isset(false)", $this->makeMockDocRev(), []);
+        $this->assertEquals('boolean', $script->type());
+        $result = $script->execute([]);
+        $this->assertInstanceOf(\App\MMScript\Values\BooleanValue::class, $result);
+        $this->assertEquals(true, $result->value);
+    }
+
+
+    function test_isset_with_true()
+    {
+        $script = new \App\MMScript("isset(true)", $this->makeMockDocRev(), []);
+        $this->assertEquals('boolean', $script->type());
+        $result = $script->execute([]);
+        $this->assertInstanceOf(\App\MMScript\Values\BooleanValue::class, $result);
+        $this->assertEquals(true, $result->value);
+    }
+
+    function test_isset_with_zero()
+    {
+        $script = new \App\MMScript("isset(0)", $this->makeMockDocRev(), []);
+        $this->assertEquals('boolean', $script->type());
+        $result = $script->execute([]);
+        $this->assertInstanceOf(\App\MMScript\Values\BooleanValue::class, $result);
+        $this->assertEquals(true, $result->value);
+    }
+
+    function test_isset_with_empty_string()
+    {
+        $script = new \App\MMScript("isset('')", $this->makeMockDocRev(), []);
+        $this->assertEquals('boolean', $script->type());
+        $result = $script->execute([]);
+        $this->assertInstanceOf(\App\MMScript\Values\BooleanValue::class, $result);
+        $this->assertEquals(true, $result->value);
+    }
+
+    function test_isset_with_filled_string()
+    {
+        $script = new \App\MMScript("isset('junk')", $this->makeMockDocRev(), []);
+        $this->assertEquals('boolean', $script->type());
+        $result = $script->execute([]);
+        $this->assertInstanceOf(\App\MMScript\Values\BooleanValue::class, $result);
+        $this->assertEquals(true, $result->value);
+    }
+
+    function test_isset_with_null_is_false()
+    {
+        $script = new \App\MMScript("isset(null)", $this->makeMockDocRev(), []);
+        $this->assertEquals('boolean', $script->type());
+        $result = $script->execute([]);
+        $this->assertInstanceOf(\App\MMScript\Values\BooleanValue::class, $result);
+        $this->assertEquals(false, $result->value);
+    }
+
 
 }

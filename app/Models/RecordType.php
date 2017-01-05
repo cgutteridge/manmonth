@@ -166,6 +166,17 @@ class RecordType extends DocumentPart
     }
 
     /**
+     * @param array $fields
+     */
+    public function setFields($fields)
+    {
+        $data = $this->data;
+        $data['fields'] = $fields;
+        $this->data = $data;
+        unset($this->fieldsCache);
+    }
+
+    /**
      * @throws MMValidationException
      */
     public function validate()
@@ -218,7 +229,7 @@ class RecordType extends DocumentPart
         $this->titleScript = new MMScript(
             $this->title_script,
             $this->documentRevision,
-            ["record" => $this]);
+            ["record" => $this, "config" => $this->documentRevision->configRecordType()]);
         return $this->titleScript;
     }
 

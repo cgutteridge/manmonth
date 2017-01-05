@@ -20,10 +20,8 @@ class FieldOf extends BinaryOp
         if (@$this->type) {
             return $this->type;
         }
-
         $recordType = $this->left->recordType();
         $fieldname = $this->right->value;
-
         $field = $recordType->field($fieldname);
         if (!$field) {
             throw new ScriptException("Records of type " . $recordType->name . " do not have a field named '$fieldname'");
@@ -38,7 +36,7 @@ class FieldOf extends BinaryOp
      */
     function execute($context)
     {
-        /** @var Record $leftValue */
+        /** @var \App\Models\Record $leftValue */
         $leftValue = $this->left->execute($context)->value;
         /** @var string $rightValue */
         $rightValue = $this->right->execute($context)->value;

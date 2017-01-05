@@ -11,4 +11,8 @@ namespace App\MMScript\Values;
 
 class DecimalValue extends Value
 {
+    public function myNull()
+    {
+        return 0;
+    }
 }

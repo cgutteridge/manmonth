@@ -1,4 +1,5 @@
 <?php
+use App\MMScript\Values\BooleanValue;
 use App\MMScript\Values\DecimalValue;
 
 /**
@@ -9,23 +10,28 @@ use App\MMScript\Values\DecimalValue;
  */
 class MMScriptTest extends TestCase
 {
+    // TODO add link, name, call etc.
+
+
     function test_tree_text_code_kinda()
     {
         $script = new \App\MMScript("true & !false", $this->makeMockDocRev(), []);
         $script->textTree();
     }
 
+
+
     /* Tree Text */
 
     // this just walks the code but that's better than nothing, right?
-    // TODO add link, name, call etc.
 
     function makeMockDocRev()
     {
-        $mockScript = $this->getMockBuilder(\App\Models\DocumentRevision::class)
+        $mock = $this->getMockBuilder(\App\Models\DocumentRevision::class)
             ->disableOriginalConstructor()->getMock();
-        return $mockScript;
+        return $mock;
     }
+
 
     /* LITERAL */
 
@@ -516,6 +522,106 @@ class MMScriptTest extends TestCase
         $this->setExpectedException(\App\Exceptions\ScriptException::class);
         new \App\MMScript("'fish'>true", $this->makeMockDocRev(), []);
     }
+
+    function test_cmp_nulls()
+    {
+        $script = new \App\MMScript("null=null", $this->makeMockDocRev(), []);
+        $this->assertEquals('boolean', $script->type());
+    }
+
+    /*
+     * need more complex mocks to test this
+        function test_cmp_null_and_unset_object_var()
+        {
+            $script = new \App\MMScript("null=null", $this->makeMockDocRev(), []);
+            $this->assertEquals('boolean', $script->type());
+        }
+    */
+    function test_cmp_empty_string_and_null_is_true()
+    {
+        $script = new \App\MMScript("''=null", $this->makeMockDocRev(), []);
+        $this->assertEquals('boolean', $script->type());
+        $result = $script->execute([]);
+        $this->assertEquals(true, $result->value);
+        $this->assertInstanceOf(BooleanValue::class, $result);
+    }
+
+    function test_cmp_filled_string_and_null_is_false()
+    {
+        $script = new \App\MMScript("'junk'=null", $this->makeMockDocRev(), []);
+        $this->assertEquals('boolean', $script->type());
+        $result = $script->execute([]);
+        $this->assertEquals(false, $result->value);
+        $this->assertInstanceOf(BooleanValue::class, $result);
+    }
+
+    function test_cmp_one_and_null_is_false()
+    {
+        $script = new \App\MMScript("1=null", $this->makeMockDocRev(), []);
+        $this->assertEquals('boolean', $script->type());
+        $result = $script->execute([]);
+        $this->assertEquals(false, $result->value);
+        $this->assertInstanceOf(BooleanValue::class, $result);
+    }
+
+    function test_cmp_zero_and_null_is_true()
+    {
+        $script = new \App\MMScript("0=null", $this->makeMockDocRev(), []);
+        $this->assertEquals('boolean', $script->type());
+        $result = $script->execute([]);
+        $this->assertEquals(true, $result->value);
+        $this->assertInstanceOf(BooleanValue::class, $result);
+    }
+
+    function test_cmp_true_and_null_is_false()
+    {
+        $script = new \App\MMScript("true=null", $this->makeMockDocRev(), []);
+        $this->assertEquals('boolean', $script->type());
+        $result = $script->execute([]);
+        $this->assertEquals(false, $result->value);
+        $this->assertInstanceOf(BooleanValue::class, $result);
+    }
+
+    function test_cmp_false_and_null_is_true()
+    {
+        $script = new \App\MMScript("false=null", $this->makeMockDocRev(), []);
+        $this->assertEquals('boolean', $script->type());
+        $result = $script->execute([]);
+        $this->assertEquals(true, $result->value);
+        $this->assertInstanceOf(BooleanValue::class, $result);
+    }
+
+
+    function test_noteq_null_and_null_is_false()
+    {
+        $script = new \App\MMScript("null<>null", $this->makeMockDocRev(), []);
+        $this->assertEquals('boolean', $script->type());
+        $result = $script->execute([]);
+        $this->assertEquals(false, $result->value);
+        $this->assertInstanceOf(BooleanValue::class, $result);
+    }
+
+
+    function test_noteq_null_and_empty_string_is_false()
+    {
+        $script = new \App\MMScript("null<>''", $this->makeMockDocRev(), []);
+        $this->assertEquals('boolean', $script->type());
+        $result = $script->execute([]);
+        $this->assertEquals(false, $result->value);
+        $this->assertInstanceOf(BooleanValue::class, $result);
+    }
+
+
+    function test_noteq_null_and_filled_string_is_true()
+    {
+        $script = new \App\MMScript("null<>'foo'", $this->makeMockDocRev(), []);
+        $this->assertEquals('boolean', $script->type());
+        $result = $script->execute([]);
+        $this->assertEquals(true, $result->value);
+        $this->assertInstanceOf(BooleanValue::class, $result);
+    }
+
+
 
     /* UNARY MINUS */
 

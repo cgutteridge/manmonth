@@ -1,66 +1,64 @@
 @extends('page')
 
 @section('title')
-    Report Type @title($reportType)
+    @title($reportType)
 @endsection
 @section( 'content')
-    @foreach( $reportData as $loadingType=>$loadingData )
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <b>Report: {{$loadingData["title"]}}</b>
-            </div>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <b>Report</b>
+        </div>
 
-            <div class="panel-body">
-                <!-- Nav tabs -->
-                <ul class="nav nav-tabs" role="tablist">
-                    @foreach( $loadingData["views"] as $viewId=>$view)
-                        <li role="presentation"
-                            class="{{ (isset($view['first'])&&$view['first'])?"active":""}}"
-                        ><a href="#{{$loadingType}}_{{$viewId}}"
-                            aria-controls="{{$loadingType}}_{{$viewId}}"
-                            role="tab" data-toggle="tab">{{ $view["tabTitle"] }}</a>
-                    @endforeach
-                </ul>
+        <div class="panel-body">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                @foreach( $reportData["views"] as $viewId=>$view)
+                    <li role="presentation"
+                        class="{{ (isset($view['first'])&&$view['first'])?"active":""}}"
+                    ><a href="#{{$viewId}}"
+                        aria-controls="{{$viewId}}"
+                        role="tab" data-toggle="tab">{{ $view["tabTitle"] }}</a>
+                @endforeach
+            </ul>
 
-                <!-- Tab panes -->
-                <div class="tab-content">
-                    @foreach( $loadingData["views"] as $viewId=>$view)
-                        <div role="tabpanel"
-                             class="tab-pane{{ (isset($view['first'])&&$view['first'])?"
-                             active":"" }}" id="{{$loadingType}}_{{$viewId}}">
-                            <h3>{{$view["title"]}}</h3>
-                            <div class='mm_report_wrapper'>
-                                <table class='mm_report'>
-                                    <thead>
-                                    <tr>
-                                        <th class="mm_report_header_icon"></th>
-                                        <th class="mm_report_header_icon"></th>
-                                        @foreach( $view['rows'][0]['recordReport']->getColumns() as $colName=>$colValue)
-                                            <th class="mm_report_header_data">{{ $colName }}</th>
-                                        @endforeach
-                                        @if( count( $loadingData["categories"])>1)
-                                            @foreach( $loadingData["categories"] as $category )
-                                                <th class="mm_report_header_data">{{ $category }}</th>
-                                            @endforeach
-                                        @endif
-                                        <th class="mm_report_header_data">Total</th>
-                                        <th class="mm_report_header_data">Target</th>
-                                        <th class="mm_report_header_graph"></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @foreach( $view['rows'] as $row )
-                                        @include( 'reportType.recordRow', $row )
+            <!-- Tab panes -->
+            <div class="tab-content">
+                @foreach( $reportData["views"] as $viewId=>$view)
+                    <div role="tabpanel"
+                         class="tab-pane{{ (isset($view['first'])&&$view['first'])?"
+                             active":"" }}" id="{{$viewId}}">
+                        <h3>{{$view["title"]}}</h3>
+                        <div class='mm_report_wrapper'>
+                            <table class='mm_report'>
+                                <thead>
+                                <tr>
+                                    <th class="mm_report_header_icon"></th>
+                                    <th class="mm_report_header_icon"></th>
+                                    @foreach( $view['rows'][0]['recordReport']->getColumns() as $colName=>$colValue)
+                                        <th class="mm_report_header_data">{{ $colName }}</th>
                                     @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
+                                    @if( count( $reportData["categories"])>1)
+                                        @foreach( $reportData["categories"] as $category )
+                                            <th class="mm_report_header_data">{{ $category }}</th>
+                                        @endforeach
+                                    @endif
+                                    <th class="mm_report_header_data">Total</th>
+                                    <th class="mm_report_header_data">Target</th>
+                                    <th class="mm_report_header_graph"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach( $view['rows'] as $row )
+                                    @include( 'reportType.recordRow', $row )
+                                @endforeach
+                                </tbody>
+                            </table>
                         </div>
-                    @endforeach
-                </div>
+                    </div>
+                @endforeach
             </div>
         </div>
-    @endforeach
+    </div>
 
     <div class="panel panel-primary">
         <div class="panel-heading"><b>Rules</b></div>

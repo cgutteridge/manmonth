@@ -40,18 +40,20 @@ class NavigationMaker
         $browseItems = [];
         $schemaItems = [];
         foreach ($documentRevision->recordTypes as $recordType) {
-            $createItems [] = [
-                "glyph" => "plus-sign",
-                "label" => $this->titleMaker->title($recordType),
-                "href" => $this->linkMaker->url($recordType, "create-record"),
-                "allowed" => Auth::user()->can('edit-data', $documentRevision->document)
-            ];
-            $browseItems [] = [
-                "glyph" => "list",
-                "label" => $this->titleMaker->title($recordType),
-                "href" => $this->linkMaker->url($recordType, "records"),
-                "allowed" => Auth::user()->can('view', $documentRevision)
-            ];
+            if (!$recordType->isProtected()) {
+                $createItems [] = [
+                    "glyph" => "plus-sign",
+                    "label" => $this->titleMaker->title($recordType),
+                    "href" => $this->linkMaker->url($recordType, "create-record"),
+                    "allowed" => Auth::user()->can('edit-data', $documentRevision->document)
+                ];
+                $browseItems [] = [
+                    "glyph" => "list",
+                    "label" => $this->titleMaker->title($recordType),
+                    "href" => $this->linkMaker->url($recordType, "records"),
+                    "allowed" => Auth::user()->can('view', $documentRevision)
+                ];
+            }
             $schemaItems [] = [
                 "glyph" => "cog",
                 "label" => $this->titleMaker->title($recordType),
@@ -61,18 +63,16 @@ class NavigationMaker
         }
         /** @var LinkType $linkType */
         foreach ($documentRevision->linkTypes as $linkType) {
-            $browseItems [] = [
-                "glyph" => "list",
-                "label" => "LINK: " . $this->titleMaker->title($linkType->domain) . "&rarr;" . $this->titleMaker->title($linkType) . "&rarr;" . $this->titleMaker->title($linkType->range),
-                "href" => $this->linkMaker->url($linkType, "links"),
-                "allowed" => Auth::user()->can('view', $documentRevision)
-            ];
-            $schemaItems [] = [
-                "glyph" => "cog",
-                "label" => $this->titleMaker->title($linkType),
+            if (!$recordType->isProtected()) {
+                $browseItems [] = ["glyph" => "list",
+                    "label" => "LINK: " . $this->titleMaker->title($linkType->domain) . "&rarr;" . $this->titleMaker->title($linkType) . "&rarr;" . $this->titleMaker->title($linkType->range),
+                    "href" => $this->linkMaker->url($linkType, "links"),
+                    "allowed" => Auth::user()->can('view', $documentRevision)];
+            }
+            $schemaItems [] = ["glyph" => "cog",
+                "label" => "LINK: " . $this->titleMaker->title($linkType),
                 "href" => $this->linkMaker->url($linkType),
-                "allowed" => Auth::user()->can('view', $documentRevision)
-            ];
+                "allowed" => Auth::user()->can('view', $documentRevision)];
         }
 
         $ritems = [];
@@ -106,6 +106,19 @@ class NavigationMaker
                 "glyph" => "circle-arrow-down",
                 "href" => $this->linkMaker->url($documentRevision, "scrap"),
                 "allowed" => Auth::user()->can('scrap', $documentRevision->document)
+            ];
+            $ritems [] = [
+                "label" => "Configuration",
+                "glyph" => "cog",
+                "href" => $this->linkMaker->url($documentRevision->configRecord(), "edit"),
+                "allowed" => Auth::user()->can('edit', $documentRevision->configRecord())
+            ];
+        } else {
+            $ritems [] = [
+                "label" => "Configuration",
+                "glyph" => "cog",
+                "href" => $this->linkMaker->url($documentRevision->configRecord()),
+                "allowed" => Auth::user()->can('view', $documentRevision->configRecord())
             ];
         }
         $ritems [] = [
@@ -159,7 +172,8 @@ class NavigationMaker
      * @param Document $document
      * @return array
      */
-    public function documentNavigation(Document $document)
+    public
+    function documentNavigation(Document $document)
     {
         $nav = $this->defaultNavigation();
         $nav["title"] = [
@@ -197,7 +211,8 @@ class NavigationMaker
     /**
      * @return array
      */
-    public function defaultNavigation()
+    public
+    function defaultNavigation()
     {
         $nav = [];
         $nav["title"] = ["label" => "Man Month"];
@@ -217,7 +232,7 @@ class NavigationMaker
         return $nav;
     }
 
-    // TODO scrap
+// TODO scrap
 
-    // TODO publish
+// TODO publish
 }

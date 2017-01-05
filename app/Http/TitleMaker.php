@@ -68,7 +68,10 @@ class TitleMaker
                     if ($script->type() != "string") {
                         throw new MMValidationException("If a record type has a title it should be an MMScript which returns a string. This returned a " . $script->type());
                     }
-                    $result = $script->execute(["record" => $item]);
+                    $result = $script->execute([
+                        "record" => $item,
+                        "config" => $item->documentRevision->configRecord()
+                    ]);
                     if ($result->value) {
                         $title = $result->value;
                     }
@@ -108,7 +111,7 @@ class TitleMaker
         }
         if (is_a($item, ReportType::class)) {
             /** @var ReportType $item */
-            $title = $item->name;
+            $title = $item->data['title'];
         }
         if (is_a($item, Report::class)) {
             /** @var Report $item */

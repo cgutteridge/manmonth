@@ -6,26 +6,23 @@
 
 @section( 'content')
     @foreach( $reports as $report )
-        @foreach( $report->getLoadingTypes() as $loadingType )
-            <div>
-                @include( 'reportType.recordGraph', [
-                "showFree"=>true,
-                "showTarget"=>true,
-                "record"=>$record,
-                "recordReport"=>$report,
-                "loadingType"=>$loadingType,
-                "loadings"=>$report->getLoading($loadingType),
-                "units" => $report->getLoadingOption($loadingType, "units"),
-                "scale" =>
-                    0 == 1/max( $report->getLoadingTotal($loadingType), $report->getLoadingTarget($loadingType) ) ?
-                    1 :
-                    1/max( $report->getLoadingTotal($loadingType), $report->getLoadingTarget($loadingType) )
-                ,
-                "target" => $report->getLoadingTarget( $loadingType ),
-                "total" => $report->getLoadingTotal( $loadingType )
-                ])
-            </div>
-        @endforeach
+        <div>
+            @include( 'reportType.recordGraph', [
+            "showFree"=>true,
+            "showTarget"=>true,
+            "record"=>$record,
+            "recordReport"=>$report,
+            "loadings"=>$report->getLoadings(),
+            "units" => $report->getOption( "units"),
+            "scale" =>
+                0 == 1/max( $report->getLoadingTotal(), $report->getLoadingTarget() ) ?
+                1 :
+                1/max( $report->getLoadingTotal(), $report->getLoadingTarget() )
+            ,
+            "target" => $report->getLoadingTarget(),
+            "total" => $report->getLoadingTotal()
+            ])
+        </div>
     @endforeach
     @include("record.block",$recordBlock)
     <p>

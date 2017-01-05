@@ -10,8 +10,8 @@
     @foreach( $recordReport->getColumns() as $colName=>$colValue)
         <td class="mm_record_report_data">{{ $colValue }}</td>
     @endforeach
-    @if( count( $loadingData["categories"])>1)
-        @foreach( $loadingData["categories"] as $category )
+    @if( count( $reportData["categories"])>1)
+        @foreach( $reportData["categories"] as $category )
             <td class="mm_record_report_data">{{ $categoryTotals[$category] }}</td>
         @endforeach
     @endif

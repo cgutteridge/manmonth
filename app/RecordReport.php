@@ -15,8 +15,8 @@ class RecordReport
 {
 
     private $columns = [];
-    private $loading_targets = [];
-    private $loading_totals = [];
+    private $loading_target;
+    private $loading_total;
     private $loading_params = [];
     private $loadings = [];
     private $log = [];
@@ -25,8 +25,8 @@ class RecordReport
     {
         if (isset($data)) {
             $this->columns = $data["columns"];
-            $this->loading_targets = $data["loading_targets"];
-            $this->loading_totals = $data["loading_totals"];
+            $this->loading_target = $data["loading_target"];
+            $this->loading_total = $data["loading_total"];
             $this->loadings = $data["loadings"];
             $this->loading_params = $data["loading_params"];
             $this->log = $data["log"];
@@ -42,20 +42,11 @@ class RecordReport
     {
         return [
             "columns" => $this->columns,
-            "loading_targets" => $this->loading_targets,
-            "loading_totals" => $this->loading_totals,
+            "loading_target" => $this->loading_target,
+            "loading_total" => $this->loading_total,
             "loading_params" => $this->loading_params,
             "loadings" => $this->loadings,
             "log" => $this->log];
-    }
-
-    /**
-     * Return the list of loadings this report has a target or total for.
-     * @return array[string]
-     */
-    public function getLoadingTypes()
-    {
-        return array_unique(array_merge(array_keys($this->loading_targets), array_keys($this->loading_totals)), SORT_REGULAR);
     }
 
     /**
@@ -96,73 +87,33 @@ class RecordReport
     /**
      * @return array
      */
-    public function getLoadingTargets()
+    public function getLoadingTarget()
     {
-        return $this->loading_targets;
+        return $this->loading_target;
     }
 
     /**
-     * @param array $loading_targets
+     * @param array $target
      */
-    public function setLoadingTargets($loading_targets)
+    public function setLoadingTarget($target)
     {
-        $this->loading_targets = $loading_targets;
-    }
-
-    /**
-     * @param string $loading
-     * @return bool
-     */
-    public function hasLoadingTarget($loading)
-    {
-        return isset($this->loading_targets[$loading]);
-    }
-
-    /**
-     * @param string $loading
-     * @return float
-     */
-    public function getLoadingTarget($loading)
-    {
-        return $this->loading_targets[$loading];
-    }
-
-    /**
-     * @param string $loading
-     * @param float $value
-     */
-    public function setLoadingTarget($loading, $value)
-    {
-        $this->loading_targets[$loading] = $value;
+        $this->loading_target = $target;
     }
 
     /**
      * @return array
      */
-    public function getLoadingTotals()
+    public function getLoadingTotal()
     {
-        return $this->loading_totals;
+        return $this->loading_total;
     }
 
     /**
-     * @param string $loading
-     * @return float
-     */
-    public function getLoadingTotal($loading)
-    {
-        if (!isset($this->loading_totals[$loading])) {
-            return 0;
-        }
-        return $this->loading_totals[$loading];
-    }
-
-    /**
-     * @param string $loading
      * @param float $value
      */
-    public function setLoadingTotal($loading, $value)
+    public function setLoadingTotal($value)
     {
-        $this->loading_totals[$loading] = $value;
+        $this->loading_total = $value;
     }
 
     /**
@@ -173,33 +124,13 @@ class RecordReport
         return $this->loadings;
     }
 
-    /**
-     * @param string $loading
-     * @return array
-     */
-    public function getLoading($loading)
-    {
-        if (array_key_exists($loading, $this->loadings)) {
-            return $this->loadings[$loading];
-        }
-        return null;
-    }
-
-    /**
-     * @param string $loading
-     * @param float $value
-     */
-    public function setLoading($loading, $value)
-    {
-        $this->loadings[$loading] = $value;
-    }
 
     /**
      * @param $loadItem
      */
     public function appendLoading($loadItem)
     {
-        $this->loadings[$loadItem["target"]][] = $loadItem;
+        $this->loadings[] = $loadItem;
     }
 
     /**
@@ -218,14 +149,14 @@ class RecordReport
         $this->log [] = $logItem;
     }
 
-    public function setLoadingOption($loading, $option, $value)
+    public function setOption($option, $value)
     {
-        $this->loading_params[$loading][$option] = $value;
+        $this->loading_params[$option] = $value;
     }
 
-    public function getLoadingOption($loading, $option)
+    public function getOption($option)
     {
-        $value = @$this->loading_params[$loading][$option];
+        $value = @$this->loading_params[$option];
         if (!isset($value)) {
             if ($option == "units") {
                 return "hours";

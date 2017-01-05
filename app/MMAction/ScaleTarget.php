@@ -18,11 +18,6 @@ class ScaleTarget extends Action
     // readable title etc.
     public $params = [
         [
-            "name" => "target",
-            "type" => "string",
-            "required" => true,
-        ],
-        [
             "name" => "factor",
             "type" => "decimal",
             "required" => true,
@@ -43,11 +38,8 @@ class ScaleTarget extends Action
      */
     public function execute($recordReport, $rule, $context, $params)
     {
-        if (!$recordReport->hasLoadingTarget($params["target"])) {
-            throw new ReportingException("Attempt to scale uninitialised target '" . $params["target"] . "'");
-        }
-        $value = $recordReport->getLoadingTarget($params["target"]) * $params["factor"];
-        $recordReport->setLoadingTarget($params["target"], $value);
+        $value = $recordReport->getLoadingTarget() * $params["factor"];
+        $recordReport->setLoadingTarget($value);
         $this->recordLog($recordReport, $params);
     }
 }
