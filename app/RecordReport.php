@@ -181,4 +181,31 @@ class RecordReport
         return $this->loading_params;
     }
 
+    /**
+     * Return the options for categories on this recordreport
+     * @return array
+     */
+    function categories()
+    {
+        $categories = [];
+
+        $options = $this->options();
+        foreach ($options as $key => $value) {
+            if (preg_match('/^category_exists_(.*)$/', $key, $parts)) {
+                $category = $parts[1];
+                $categories[$category]['exists'] = true;
+                foreach ([
+                             'background_color',
+                             'text_color',
+                             'description',
+                             'label'] as $param) {
+                    $pkey = "category_" . $param . "_" . $category;
+                    if (array_key_exists($pkey, $options)) {
+                        $categories[$category][$param] = $options[$pkey];
+                    }
+                }
+            }
+        }
+        return $categories;
+    }
 }

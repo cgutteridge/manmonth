@@ -479,6 +479,7 @@ table.mm-record-data td {
     padding: 0.5em;
     border: solid 2px black;
     border-radius: 10px;
+    background-color: lightgray;
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3)
 }
 
@@ -551,19 +552,3 @@ table.mm-record-data td {
 }
 
 /* END OF REPORT GRAPH */
-
-/* Stuff that needs to be removed in final version */
-
-.mm_cat_null {
-    background-color: lightgrey;
-}
-
-.mm_cat_teaching {
-    background-color: #8697a4;
-}
-
-.mm_cat_admin {
-    background-color: #c09d88;
-}
-
-/* End of Stuff that needs to be removed in final version */

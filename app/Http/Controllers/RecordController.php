@@ -87,7 +87,11 @@ class RecordController extends Controller
         foreach ($record->recordType->reportTypes as $reportType) {
             /** @var ReportType $reportType */
             try {
-                $reports [] = $reportType->recordReport($record);
+                $recordReport = $reportType->recordReport($record);
+                $reports [] = [
+                    "report" => $recordReport,
+                    "categories" => $recordReport->categories()
+                ];
             } catch (ReportingException $e) {
                 $renderErrors [] = $e->getMessage();
             }

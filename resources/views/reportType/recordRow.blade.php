@@ -18,6 +18,6 @@
     <td class="mm_record_report_data">{{ $total }}</td>
     <td class="mm_record_report_data">{{ $target }}</td>
     <td class="mm_record_report_graph">
-        @include('reportType.recordGraph')
+        @include('reportType.recordGraph', ["categories"=>$reportData['categories']])
     </td>
 </tr>

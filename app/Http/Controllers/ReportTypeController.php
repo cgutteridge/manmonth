@@ -35,24 +35,14 @@ class ReportTypeController extends Controller
 
             foreach ($reportType->baseRecordType()->records as $record) {
                 $recordReport = $report->recordReport($record->sid);
-                // configured categories
-                $options = $recordReport->options();
-                foreach ($options as $key => $value) {
-                    if (preg_match('/^category_exists_(.*)$/', $key, $parts)) {
-                        $category = $parts[1];
-                        $categories[$category]['exists'] = true;
-                        foreach( [
-                                     'background_color',
-                                     'text_color',
-                                     'description',
-                                     'label' ] as $param )
-                        {
-                            $pkey = "category_".$param."_".$category;
-                            if( array_key_exists($pkey,$options))
-                            {
-                                $categories[$category][$param]=$options[$pkey];
-                            }
-                }
+
+                // if this is slow it could just run on the first recordreport?
+                $recordCategories = $recordReport->categories();
+                foreach( $recordCategories as $category=>$opts )
+                {
+                    foreach( $opts as $param=>$value)
+                    {
+                        $categories[$category][$param]=$value;
                     }
                 }
 
@@ -66,7 +56,6 @@ class ReportTypeController extends Controller
             }
             $categoryBase = [];
             foreach ($categories as $category => $options) {
-
                 $categoryBase[$category] = 0;
             }
 

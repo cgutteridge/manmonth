@@ -27,8 +27,8 @@
     @if($loadings)
         @foreach($loadings as $loading )
             @include( 'reportType.recordGraphItem', [
-            "opts"=>array_key_exists($loading['category'],$reportData['categories'])
-            ? $reportData['categories'][$loading['category']]
+            "opts"=>array_key_exists($loading['category'],$categories)
+            ? $categories[$loading['category']]
             : [] ])
         @endforeach
     @endif

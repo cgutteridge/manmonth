@@ -5,22 +5,23 @@
 @endsection
 
 @section( 'content')
-    @foreach( $reports as $report )
+    @foreach( $reports as $rinfo )
         <div>
             @include( 'reportType.recordGraph', [
             "showFree"=>true,
             "showTarget"=>true,
             "record"=>$record,
-            "recordReport"=>$report,
-            "loadings"=>$report->getLoadings(),
-            "units" => $report->getOption( "units"),
+            "recordReport"=>$rinfo["report"],
+            "loadings"=>$rinfo["report"]->getLoadings(),
+            "units" => $rinfo["report"]->getOption( "units"),
             "scale" =>
-                0 == 1/max( $report->getLoadingTotal(), $report->getLoadingTarget() ) ?
+                0 == 1/max( $rinfo["report"]->getLoadingTotal(), $rinfo["report"]->getLoadingTarget() ) ?
                 1 :
-                1/max( $report->getLoadingTotal(), $report->getLoadingTarget() )
+                1/max( $rinfo["report"]->getLoadingTotal(), $rinfo["report"]->getLoadingTarget() )
             ,
-            "target" => $report->getLoadingTarget(),
-            "total" => $report->getLoadingTotal()
+            "target" => $rinfo["report"]->getLoadingTarget(),
+            "total" => $rinfo["report"]->getLoadingTotal(),
+            "categories" => $rinfo["categories"]
             ])
         </div>
     @endforeach

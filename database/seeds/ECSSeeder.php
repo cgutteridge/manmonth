@@ -215,7 +215,7 @@ class ECSSeeder extends Seeder
             "action" => "add_category",
             "params" => [
                 "category" => "'teaching'",
-                "background_color" => "'#ffcccc'",
+                "background_color" => "'lightblue'",
                 "label" => "'Teaching'"
             ]
         ]);
@@ -224,8 +224,7 @@ class ECSSeeder extends Seeder
             "action" => "add_category",
             "params" => [
                 "category" => "'admin'",
-                "background_color" => "'yellow'",
-                "text_color" => "'red'",
+                "background_color" => "'lightgrey'",
                 "label" => "'Admin'"
             ]
         ]);
@@ -235,7 +234,7 @@ class ECSSeeder extends Seeder
             "trigger" => "!isset(acttask.validthrough) | acttask.validthrough>=config.yearstarting",
             "action" => "assign_load",
             "params" => [
-                "description" => '\'Working on \'+task.name',
+                "description" => 'task.name',
                 "category" => "string(task.type)",
                 "load" => 'task.size * acttask.ratio'
             ]]);
@@ -244,7 +243,7 @@ class ECSSeeder extends Seeder
             "route" => ["actor_teaches", "teaches_module"],
             "action" => "assign_load",
             "params" => [
-                "description" => '\'Teaching \'+modteach->teaches_module.code',
+                "description" => 'modteach->teaches_module.code+\' (Teaching)\'',
                 "category" => "'teaching'",
                 "link" => "modteach",
                 "load" => 'floor((modteach.percent/100)*(module.lect*2+module.students*(module.cwk/100*2+module.labwk/100))+if( module.exam, module.students+config.exampaper, 0.0))'
@@ -259,7 +258,7 @@ class ECSSeeder extends Seeder
             "route" => ["actor_mods", "mods_module"],
             "action" => "assign_load",
             "params" => [
-                "description" => '\'Moderating \'+module.code',
+                "description" => 'module.code+\' (Teaching)\'',
                 "category" => "'teaching'",
                 "link" => "modmoderate",
                 "load" => '10'
@@ -269,7 +268,7 @@ class ECSSeeder extends Seeder
             "trigger" => "actor.student_projects>0",
             "action" => "assign_load",
             "params" => [
-                "description" => "actor.student_projects+'% student projects'",
+                "description" => "'Projects (student) '+actor.student_projects+'% '",
                 "category" => "'teaching'",
                 "link" => "actor",
                 "load" => '80 * (actor.student_projects/100)'
