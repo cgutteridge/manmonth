@@ -66,8 +66,6 @@
             @foreach( $reportType->rules() as $rule )
                 <div class="panel panel-info mm-record-block">
                     <div class="panel-heading ">
-                        <a href="@url($rule,'edit')" class="pull-right" title="edit"><span
-                                    class="glyphicon glyphicon-edit"></span></a>
                         <b>Rule #{{ $rule->rank+1 }}</b>
                     </div>
                     <table class="table">
