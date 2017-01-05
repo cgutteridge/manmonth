@@ -20,7 +20,10 @@ class ECSSeeder extends Seeder
         $doc->init(); // create default current revision
         $draft = $doc->createDraftRevision();
 
-        // modify configuration
+
+        /*
+         * CREATE SCHEMA
+         */
 
         $configType = $draft->configRecordType();
         $fields = $configType->data["fields"];
@@ -38,12 +41,6 @@ class ECSSeeder extends Seeder
         ];
         $configType->setFields($fields);
         $configType->save();
-
-        $config = $draft->configRecord();
-        $config->updateData(['exampaper' => 7, 'yearstarting' => 2017]);
-        $config->save();
-
-        // add schema
 
         $actorType = $draft->createRecordType("actor", [
             "label" => "Loadee",
@@ -144,7 +141,22 @@ class ECSSeeder extends Seeder
         $modmodType->title_script = "record<-actor_mods.name+' moderates '+record->mods_module.name";
         $modmodType->save();
 
-        // Add records
+
+        /*
+         * DEFAULT CONFIGURATION
+         */
+
+        $config = $draft->configRecord();
+        $config->updateData([
+            'exampaper' => 7,
+            'yearstarting' => 2017
+        ]);
+        $config->save();
+
+
+        /*
+         * RECORDS AND LINKS
+         */
 
         $alice = $actorType->createRecord(["name" => "Alice Aardvark", "student_projects" => 100]);
         $bobby = $actorType->createRecord(["name" => "Bobby Bananas", "student_projects" => 100, "tutorials" => true]);
@@ -177,7 +189,10 @@ class ECSSeeder extends Seeder
         $modteachType->createRecord(["percent" => 100, "new" => false, "leader" => true], ['teaches_module' => [$comp1234]], ['actor_teaches' => [$alice]]);
         $modmodType->createRecord(["notes" => "Example notes..."], ['mods_module' => [$comp1234]], ['actor_mods' => [$bobby]]);
 
-        // add rules
+
+        /*
+         * REPORTS AND RULES
+         */
 
         $loadingReportType = $draft->createReportType('loading', $actorType, ['title' => 'Loadings Report']);
         // people have a basic target load of 100
@@ -195,7 +210,25 @@ class ECSSeeder extends Seeder
             "trigger" => "actor.teaching_year='2'",
             "action" => "scale_target",
             "params" => ["factor" => 0.7]]);
-
+        $loadingReportType->createRule([
+            "title" => "Teaching category",
+            "action" => "add_category",
+            "params" => [
+                "category" => "'teaching'",
+                "background_color" => "'#ffcccc'",
+                "label" => "'Teaching'"
+            ]
+        ]);
+        $loadingReportType->createRule([
+            "title" => "Admin category",
+            "action" => "add_category",
+            "params" => [
+                "category" => "'admin'",
+                "background_color" => "'yellow'",
+                "text_color" => "'red'",
+                "label" => "'Admin'"
+            ]
+        ]);
         $loadingReportType->createRule([
             "title" => "Loading from working on task",
             "route" => ["actor_to_acttask", "acttask_to_task"],
@@ -327,8 +360,9 @@ class ECSSeeder extends Seeder
         $staffRole->save();
         $staffRole->assign("view-current");
 
+
         /*
-         * USERS
+         * TEST USERS
          */
 
         $password = $this->randomPassword();
@@ -363,6 +397,7 @@ class ECSSeeder extends Seeder
         $edward->save();
 
         print "Created users with password '$password'.\n";
+
 
         /*
          * FAKE IMPORTED DATA

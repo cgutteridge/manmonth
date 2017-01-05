@@ -23,33 +23,13 @@
         </div>
     @endif
 </div>
-
 <div class="mm_loading_bar">
     @if($loadings)
         @foreach($loadings as $loading )
-            <div class="mm_hover">
-                <div class="mm_hover_target mm_loading mm_cat_{{ $loading['category'] }}"
-                     style="width: {{ 100*$loading['load']*$scale }}%">
-                    <a
-                            @if(array_key_exists("record_id",$loading))
-                            href="@url( \App\Models\Record::find($loading["record_id"]) )"
-                            @endif
-                            class="mm_loading_inner">
-                        {{ $loading['description'] }} - {{ $loading['load']}} {{$units}}
-                    </a>
-                </div>
-                <div class="mm_hover_message">
-                    <div class="mm_loading_hover mm_cat_{{ $loading['category'] }}">
-                        @if( !empty($loading['category']) )
-                            <div class="mm_loading_hover_category">Category "{{$loading['category']}}"</div>
-                        @endif
-                        <div class="mm_loading_hover_description">{{ $loading['description'] }}
-                            - {{ $loading['load']}} {{$units}}.
-                        </div>
-                        <div class="mm_loading_hover_rule">From rule "{{$loading['rule_title']}}"</div>
-                    </div>
-                </div>
-            </div>
+            @include( 'reportType.recordGraphItem', [
+            "opts"=>array_key_exists($loading['category'],$reportData['categories'])
+            ? $reportData['categories'][$loading['category']]
+            : [] ])
         @endforeach
     @endif
 
@@ -67,6 +47,4 @@
         </div>
     </div>
 @endif
-        
-        
-        
+

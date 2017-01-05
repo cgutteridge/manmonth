@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Exceptions\MMValidationException;
 use App\Fields\Field;
 use App\MMAction\Action;
+use App\MMAction\AddCategory;
 use App\MMAction\AlterTarget;
 use App\MMAction\AssignLoad;
 use App\MMAction\ScaleTarget;
@@ -41,6 +42,7 @@ class Rule extends DocumentPart
         AssignLoad::class,
         SetStringColumn::class,
         SetDecimalColumn::class,
+        AddCategory::class,
     ];
 
     // there's probably a cleverer laravel way of doing this...
@@ -78,7 +80,7 @@ class Rule extends DocumentPart
                 'params' => 'array']);
 
         if ($validator->fails()) {
-            throw new MMValidationException("Validation fail in rule.data: " . implode(", ", $validator->errors()));
+            throw new MMValidationException("Validation fail in rule.data: " . implode(", ", $validator->errors()->all()));
         }
 
         // run this function just to let it throw an exception

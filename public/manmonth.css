@@ -430,6 +430,8 @@ table.mm-record-data td {
 }
 
 .mm_record_report_graph {
+    border-left: solid 1px #eeeeee;
+    padding: 0 0.5em;
     width: 100%;
 }
 

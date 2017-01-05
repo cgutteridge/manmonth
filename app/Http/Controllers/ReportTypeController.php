@@ -31,18 +31,45 @@ class ReportTypeController extends Controller
             if ($maxRatio == 0) {
                 $maxRatio = 1;
             }
-            $categoryBase = [];
+            $categories = [];
+
             foreach ($reportType->baseRecordType()->records as $record) {
                 $recordReport = $report->recordReport($record->sid);
+                // configured categories
+                $options = $recordReport->options();
+                foreach ($options as $key => $value) {
+                    if (preg_match('/^category_exists_(.*)$/', $key, $parts)) {
+                        $category = $parts[1];
+                        $categories[$category]['exists'] = true;
+                        foreach( [
+                                     'background_color',
+                                     'text_color',
+                                     'description',
+                                     'label' ] as $param )
+                        {
+                            $pkey = "category_".$param."_".$category;
+                            if( array_key_exists($pkey,$options))
+                            {
+                                $categories[$category][$param]=$options[$pkey];
+                            }
+                }
+                    }
+                }
+
+                // implicit categories
                 $loadings = $recordReport->getLoadings();
                 foreach ($loadings as $loadItem) {
                     if (array_key_exists("category", $loadItem)) {
-                        $categoryBase[$loadItem["category"]] = 0;
+                        $categories[$loadItem['category']]['exists'] = true;
                     }
                 }
             }
-            $categories = array_keys($categoryBase);
-            sort($categories);
+            $categoryBase = [];
+            foreach ($categories as $category => $options) {
+
+                $categoryBase[$category] = 0;
+            }
+
             $reportData = [
                 "categories" => $categories,
                 "views" => [

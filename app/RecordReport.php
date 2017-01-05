@@ -149,11 +149,19 @@ class RecordReport
         $this->log [] = $logItem;
     }
 
+    /**
+     * @param string $option
+     * @param mixed $value
+     */
     public function setOption($option, $value)
     {
         $this->loading_params[$option] = $value;
     }
 
+    /**
+     * @param string $option
+     * @return mixed
+     */
     public function getOption($option)
     {
         $value = @$this->loading_params[$option];
@@ -163,6 +171,14 @@ class RecordReport
             }
         }
         return $value;
+    }
+
+    /**
+     * @return array
+     */
+    public function options()
+    {
+        return $this->loading_params;
     }
 
 }

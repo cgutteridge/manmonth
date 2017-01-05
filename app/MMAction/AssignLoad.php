@@ -49,6 +49,7 @@ class AssignLoad extends Action
                 /** @var Record $linkRecord */
                 $linkRecord = $params["link"];
                 $params["record_id"] = $linkRecord->id;
+                unset($params["link"]);
             }
             if (!array_key_exists('category', $params)) {
                 $params['category'] = 'null';

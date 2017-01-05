@@ -38,8 +38,8 @@
                                         <th class="mm_report_header_data">{{ $colName }}</th>
                                     @endforeach
                                     @if( count( $reportData["categories"])>1)
-                                        @foreach( $reportData["categories"] as $category )
-                                            <th class="mm_report_header_data">{{ $category }}</th>
+                                        @foreach( $reportData["categories"] as $category=>$opts )
+                                            <th class="mm_report_header_data">{{ array_key_exists('label',$opts)?$opts['label']:$category }}</th>
                                         @endforeach
                                     @endif
                                     <th class="mm_report_header_data">Total</th>

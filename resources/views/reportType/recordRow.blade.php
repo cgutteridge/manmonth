@@ -11,7 +11,7 @@
         <td class="mm_record_report_data">{{ $colValue }}</td>
     @endforeach
     @if( count( $reportData["categories"])>1)
-        @foreach( $reportData["categories"] as $category )
+        @foreach( $reportData["categories"] as $category=>$opts )
             <td class="mm_record_report_data">{{ $categoryTotals[$category] }}</td>
         @endforeach
     @endif
