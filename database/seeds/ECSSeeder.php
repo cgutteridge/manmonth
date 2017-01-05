@@ -258,7 +258,7 @@ class ECSSeeder extends Seeder
             "route" => ["actor_mods", "mods_module"],
             "action" => "assign_load",
             "params" => [
-                "description" => 'module.code+\' (Teaching)\'',
+                "description" => 'module.code+\' (Moderating)\'',
                 "category" => "'teaching'",
                 "link" => "modmoderate",
                 "load" => '10'
