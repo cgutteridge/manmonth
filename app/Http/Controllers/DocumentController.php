@@ -32,7 +32,6 @@ class DocumentController extends Controller
      */
     public function create()
     {
-        // TODO
         return view('featureNotDoneYet', [
             'nav' => $this->navigationMaker->defaultNavigation()
         ]);
@@ -46,7 +45,6 @@ class DocumentController extends Controller
      */
     public function store(Request $request)
     {
-        // TODO
         return view('featureNotDoneYet', [
             'nav' => $this->navigationMaker->defaultNavigation()
         ]);

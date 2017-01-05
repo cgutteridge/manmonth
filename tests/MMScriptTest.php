@@ -10,7 +10,6 @@ use App\MMScript\Values\DecimalValue;
  */
 class MMScriptTest extends TestCase
 {
-    // TODO add link, name, call etc.
 
 
     function test_tree_text_code_kinda()

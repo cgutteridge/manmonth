@@ -5,8 +5,6 @@ namespace App\Models;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 
-// TODO add a field that knows that a revision is replacing a specific current revision. That can allow unscrapping if the scrap could still replace the current.
-
 /**
  * @property string status
  * @property Document document

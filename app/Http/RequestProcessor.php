@@ -84,7 +84,8 @@ class RequestProcessor
 
             $value = $this->get($fieldId);
 
-            //  TODO candidate for classes, but only boolean is a special case SO FAR....
+            // This code is a candidate for classes per field type,
+            // but only boolean is a special case SO FAR....
             if ($field->data["type"] == 'boolean') {
                 $exists = $this->get($fieldId . "_exists");
                 if ($exists) {
@@ -147,8 +148,8 @@ class RequestProcessor
                 $sid = $bits[1];
                 $record = $recordType->record($sid);
                 if ($record) {
-                    # TODO give a warning if record is NULL
                     $result["add"][$sid] = $this->titleMaker->title($record);
+                    # could give a warning if record is NULL
                 }
             }
         }

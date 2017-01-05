@@ -53,8 +53,6 @@
         None.
     @endif
 
-    <li>TODO: Create new report type</li>
-
 @endsection
 
 

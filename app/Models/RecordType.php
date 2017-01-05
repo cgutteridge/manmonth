@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Validator;
 
-// TODO - sort out exception throwing
-
 /**
  * @property string name
  * @property string label

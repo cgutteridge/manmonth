@@ -232,7 +232,4 @@ class NavigationMaker
         return $nav;
     }
 
-// TODO scrap
-
-// TODO publish
 }

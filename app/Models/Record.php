@@ -283,7 +283,7 @@ class Record extends DocumentPart
             if (isset($links[$linkType->name])) {
                 foreach ($links[$linkType->name] as $record) {
                     $linkType->validateLinkObject($record);
-                    // TODO check $record can accept this additional incoming link
+                    // could/should check also  $record can accept this additional incoming link
                 }
             }
 
@@ -329,7 +329,7 @@ class Record extends DocumentPart
             if (@$links[$linkType->name]) {
                 foreach ($links[$linkType->name] as $record) {
                     $linkType->validateLinkSubject($record);
-                    // TODO check $record can accept this additional incoming link
+                    // could/should check also  $record can accept this additional incoming link
                 }
             }
             unset($unknownLinks[$linkType->name]);
@@ -493,7 +493,7 @@ class Record extends DocumentPart
                 ->where('sid', '=', $recordSid)
                 ->first();
             if ($record != null) {
-                // TODO this is risky, we should give a warning if this happens.
+                // this is risky, we should give a warning if this happens.
                 // Warning, could not find back-linked record X
                 $records [] = $record;
             }
@@ -517,7 +517,7 @@ class Record extends DocumentPart
             /** @noinspection PhpUndefinedMethodInspection */
             $record = $this->documentRevision->records()->where('sid', '=', $recordId)->first();
             if ($record != null) {
-                // TODO this is risky, we should give a warning if this happens.
+                // this is risky, we should give a warning if this happens.
                 // Warning, could not find back-linked record X
                 $records [] = $record;
             }

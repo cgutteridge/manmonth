@@ -8,19 +8,6 @@ use Illuminate\Http\Response;
 
 class ReportController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Response
-     */
-    public function index()
-    {
-        // permissions
-        return view('featureNotDoneYet', [
-            'nav' => $this->navigationMaker->defaultNavigation()
-        ]);
-        // TODO
-    }
 
     /**
      * Show the form for creating a new resource.
@@ -84,7 +71,6 @@ class ReportController extends Controller
         return view('featureNotDoneYet', [
             'nav' => $this->navigationMaker->defaultNavigation()
         ]);
-        // TODO
     }
 
     /**
@@ -98,6 +84,5 @@ class ReportController extends Controller
         return view('featureNotDoneYet', [
             'nav' => $this->navigationMaker->defaultNavigation()
         ]);
-        // TODO
     }
 }

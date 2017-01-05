@@ -103,9 +103,6 @@ class LinkType extends DocumentPart
      */
     public function validate()
     {
-        // TODO check for duplicate codenames
-        // TODO check for looped components
-        // TODO component and dependent links can't be 0
         $validator = Validator::make(
             [
                 'name' => $this->name,

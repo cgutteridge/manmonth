@@ -82,7 +82,6 @@ class RecordTypeController extends Controller
             "linkChanges" => $linkChanges,
             "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)
         ]);
-        // TODO different returnTo for cancel to success?
     }
 
     /**
@@ -134,5 +133,4 @@ class RecordTypeController extends Controller
     }
 
 
-    // TODO : other methods
 }

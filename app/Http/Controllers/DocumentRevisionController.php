@@ -34,7 +34,6 @@ class DocumentRevisionController extends Controller
      */
     public function publishForm(DocumentRevision $documentRevision)
     {
-        // TODO
         return view('featureNotDoneYet', [
             'nav' => $this->navigationMaker->defaultNavigation()
         ]);
@@ -49,7 +48,6 @@ class DocumentRevisionController extends Controller
      */
     public function publishAction(Request $request, DocumentRevision $documentRevision)
     {
-        // TODO
         return view('featureNotDoneYet', [
             'nav' => $this->navigationMaker->defaultNavigation()
         ]);
@@ -63,7 +61,6 @@ class DocumentRevisionController extends Controller
      */
     public function scrapForm(DocumentRevision $documentRevision)
     {
-        // TODO
         return view('featureNotDoneYet', [
             'nav' => $this->navigationMaker->defaultNavigation()
         ]);
@@ -78,7 +75,6 @@ class DocumentRevisionController extends Controller
      */
     public function scrapAction(Request $request, DocumentRevision $documentRevision)
     {
-        // TODO
         return view('featureNotDoneYet', [
             'nav' => $this->navigationMaker->defaultNavigation()
         ]);

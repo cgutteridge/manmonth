@@ -25,20 +25,17 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('documents', 'DocumentController@store');
     Route::get('documents/{document}/current', 'DocumentController@current');
     Route::get('documents/{document}/draft', 'DocumentController@draft');
-// TODO future features: retire, scrap, unscrap, clone, edit, update
 
     Route::get('revisions/{documentRevision}', 'DocumentRevisionController@show');
     Route::get('revisions/{documentRevision}/scrap', 'DocumentRevisionController@scrapForm');
     Route::post('revisions/{documentRevision}/scrap', 'DocumentRevisionController@scrapAction');
     Route::get('revisions/{documentRevision}/publish', 'DocumentRevisionController@publishForm');
     Route::post('revisions/{documentRevision}/publish', 'DocumentRevisionController@publishAction');
-// TODO future features: unscrap, edit, update, create recordType form/action, create linkType form/action, create reportType form/action, view all reports, enable/disable schema changes
 
     Route::get('record-types/{recordType}', 'RecordTypeController@show');
     Route::get('record-types/{recordType}/records', 'RecordTypeController@records');
     Route::get('record-types/{recordType}/create-record', 'RecordTypeController@createRecord');
     Route::post('record-types/{recordType}/create-record', 'RecordTypeController@storeRecord');
-// TODO future features: destroy form/action, edit form/action
 
     Route::get('records/{record}', 'RecordController@show');
     Route::get('records/{record}/edit', 'RecordController@edit');
@@ -46,24 +43,20 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('records/{record}/delete', 'RecordController@deleteForm');
     Route::delete('records/{record}', 'RecordController@delete');
 
-// TODO future: destroy form/action
-
     Route::get('report-types/{reportType}', 'ReportTypeController@show');
-// TODO future: list reports, create report, edit form/action, destroy form/action, create rule form/action
 
 // Route::get('rules/{rule}', 'RuleController@show');
-// TODO future: show, edit form/action, destroy form/action
 
     Route::get('link-types/{linkType}', 'LinkTypeController@show');
     Route::get('link-types/{linkType}/links', 'LinkTypeController@links');
     Route::get('link-types/{linkType}/create-link', 'LinkTypeController@createLink');
     Route::post('link-types/{linkType}/create-link', 'LinkTypeController@storeLink');
-// TODO should these next two not belong to the link?
+
+    /*
+     * routes for direct link removal. I'm not sure if we want to allow this.
     Route::get('link-types/{linkType}/delete-link', 'LinkTypeController@deleteLinkForm');
     Route::post('link-types/{linkType}/delete-link', 'LinkTypeController@deleteLink');
-
-// TODO Link
-// TODO Report
+*/
 
     Route::get('permissions', 'PermissionController@index');
 
@@ -72,7 +65,6 @@ Route::group(['middleware' => 'auth'], function () {
 
 /*
  * Add the default authentication routes.
- * TODO: maybe change this later if we don't want password reset routes?
  */
 Route::auth();
 

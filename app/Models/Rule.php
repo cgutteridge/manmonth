@@ -88,7 +88,6 @@ class Rule extends DocumentPart
             $trigger = $this->script($this->data["trigger"]);
             $type = $trigger->type();
             if ($type != "boolean") {
-                // TODO better class of exception?
                 throw new MMValidationException("Trigger must either be unset or evaluate to true/false. Currently evaluates to $type");
             }
         }

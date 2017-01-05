@@ -74,7 +74,7 @@ class ECSSeeder extends Seeder
             "label" => "Task relationship",
             "data" => ["fields" => [
                 ["name" => "ratio", "label" => "Ratio", "type" => "decimal", "default" => 1.0,],
-                ["name" => "validthrough", "label" => "Valid until, and including, academic year starting", "type" => "integer"],
+                ["name" => "validthrough", "label" => "Valid through year starting", "type" => "integer"],
                 ["name" => "notes", "label" => "Notes", "type" => "string"]
             ]],
         ]);
