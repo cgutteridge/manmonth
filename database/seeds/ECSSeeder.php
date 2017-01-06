@@ -84,17 +84,23 @@ class ECSSeeder extends Seeder
 
         $modType = $draft->createRecordType("module", [
             "label" => "Module",
-            "data" => ["fields" => [
-                ["name" => "name", "label" => "Name", "type" => "string", "required" => true],
-                ["name" => "code", "label" => "Module Code", "type" => "string"],
-                ["name" => "semester", "label" => "Semester", "type" => "option", "options" => "s1|Semester 1\ns2|Semester 2\nboth|Semester 1 and 2\nother|Other or unknown"],
-                ["name" => "crn", "label" => "CRN", "type" => "string"],
-                ["name" => "students", "label" => "Class size", "type" => "integer"],
-                ["name" => "lect", "label" => "Number of lectures", "type" => "integer"],
-                ["name" => "cwk", "label" => "Coursework percentage", "type" => "decimal", "min" => 0, "max" => 100, "suffix" => "%"],
-                ["name" => "labwk", "label" => "Labwork percentage", "type" => "decimal", "min" => 0, "max" => 100, "suffix" => "%"],
-                ["name" => "exam", "label" => "Has exam", "type" => "boolean"]
-            ]],
+            "data" => [
+                "external" => ["table" => "courses_2016", "key" => "CRN", "local_key" => "crn"],
+                "fields" => [
+                    ["name" => "name", "label" => "Name", "type" => "string", "external" => "COURSE_TITLE", "mode" => "prefer_external"],
+                    ["name" => "code", "label" => "Module Code", "type" => "string", "external" => "COURSE_CODE", "mode" => "prefer_external"],
+                    ["name" => "semester", "label" => "Semester", "type" => "option", "options" => "S1|Semester 1\nS2|Semester 2\n1|Semester 1 and 2\nNR|Other or unknown", "external" => "PTRM_CODE", "mode" => "prefer_local"],
+                    ["name" => "crn", "label" => "CRN", "type" => "string"],
+                    ["name" => "students", "label" => "Class size", "type" => "integer"],
+                    ["name" => "lect", "label" => "Number of lectures", "type" => "integer"],
+                    ["name" => "cwk", "label" => "Coursework percentage", "type" => "decimal", "min" => 0, "max" => 100, "suffix" => "%"],
+                    ["name" => "labwk", "label" => "Labwork percentage", "type" => "decimal", "min" => 0, "max" => 100, "suffix" => "%"],
+                    ["name" => "exam", "label" => "Has exam", "type" => "boolean"],
+                    ["name" => "credit_hours", "label" => "Credit hours", "type" => "decimal", "external" => "CREDIT_HOURS", "mode" => "only_external"],
+                    ["name" => "coll_code", "label" => "COLL CODE", "type" => "string", "external" => "COLL_CODE", "mode" => "only_external"],
+                    ["name" => "dept_code", "label" => "DEPT CODE", "type" => "string", "external" => "DEPT_CODE", "mode" => "only_external"],
+                    ["name" => "campus_code", "label" => "CAMPUS CODE", "type" => "string", "external" => "CAMPUS_CODE", "mode" => "only_external"],
+                ]],
             "title_script" => "record.code + ' ' + record.name + ' ' + record.semester"
         ]);
 
@@ -133,7 +139,7 @@ class ECSSeeder extends Seeder
 
 
         // this can't be set until the links are created.
-        $atType->title_script = "if( isset(record.validthrough) | record.validthrough < config.yearstarting , '**EXPIRED '+record.validthrough+'** ','' )+record<-actor_to_acttask.name+' <'+record.ratio+'> '+record->acttask_to_task.name";
+        $atType->title_script = "if( isset(record.validthrough) & record.validthrough < config.yearstarting , '**EXPIRED '+record.validthrough+'** ','' )+record<-actor_to_acttask.name+' <'+record.ratio+'> '+record->acttask_to_task.name";
         $atType->save();
 
         $modteachType->title_script = "record<-actor_teaches.name+' teaches '+record->teaches_module.name";
@@ -162,13 +168,13 @@ class ECSSeeder extends Seeder
         $bobby = $actorType->createRecord(["name" => "Bobby Bananas", "student_projects" => 100, "tutorials" => true]);
         $clara = $actorType->createRecord(["name" => "Clara Crumb", "teaching_year" => '1']);
 
-        $comp1234 = $modType->createRecord(["name" => "Fish studies", "code" => "comp1234", "semester" => "s1",
+        $comp1234 = $modType->createRecord(["name" => "Fish studies", "code" => "comp1234", "semester" => "S1",
             "students" => 101, "lect" => 10, "cwk" => 30, "labwk" => 0, "exam" => true
         ]);
-        $comp1235 = $modType->createRecord(["name" => "Giraffe studies", "code" => "comp1235", "semester" => "s1",
+        $comp1235 = $modType->createRecord(["name" => "Giraffe studies", "code" => "comp1235", "semester" => "S1",
             "students" => 11, "lect" => 10, "cwk" => 50, "labwk" => 50, "exam" => false
         ]);
-        $comp1236 = $modType->createRecord(["name" => "Hippo studies", "code" => "comp1236", "semester" => "s2",
+        $comp1236 = $modType->createRecord(["name" => "Hippo studies", "code" => "comp1236", "semester" => "S2",
             "students" => 21, "lect" => 20, "cwk" => 0, "labwk" => 10, "exam" => true
         ]);
 
@@ -424,26 +430,27 @@ class ECSSeeder extends Seeder
         DB::table('imported_people')->insert(
             ['name' => "Miss Thingy", 'email' => 'thingy@example.com', 'pinumber' => "1005", "phdstudents" => null]);
 
-
-        if (Schema::hasTable('imported_courses_2016')) {
-            Schema::drop('imported_courses_2016');
-        }
-        Schema::create('imported_courses_2016', function (Blueprint $table) {
-            $table->string('name');
-            $table->string('code');
-            $table->string('crn');
-            $table->integer('classsize');
-        });
-        DB::table('imported_courses_2016')->insert(
-            ['name' => "Aardvark Studies", "code" => "AAAA1111", "crn" => "11111", "classsize" => 10]);
-        DB::table('imported_courses_2016')->insert(
-            ['name' => "Badger Studies", "code" => "BBBB2222", "crn" => "22222", "classsize" => 20]);
-        DB::table('imported_courses_2016')->insert(
-            ['name' => "Crocodile Studies", "code" => "CCCC3333", "crn" => "33333", "classsize" => 30]);
-        DB::table('imported_courses_2016')->insert(
-            ['name' => "Dragon Studies", "code" => "DDDD4444", "crn" => "44444", "classsize" => 40]);
-        DB::table('imported_courses_2016')->insert(
-            ['name' => "Elephant Studies", "code" => "EEEE5555", "crn" => "55555", "classsize" => 50]);
+        /*
+                if (Schema::hasTable('imported_courses_2016')) {
+                    Schema::drop('imported_courses_2016');
+                }
+                Schema::create('imported_courses_2016', function (Blueprint $table) {
+                    $table->string('name');
+                    $table->string('code');
+                    $table->string('crn');
+                    $table->integer('classsize');
+                });
+                DB::table('imported_courses_2016')->insert(
+                    ['name' => "Aardvark Studies", "code" => "AAAA1111", "crn" => "11111", "classsize" => 10]);
+                DB::table('imported_courses_2016')->insert(
+                    ['name' => "Badger Studies", "code" => "BBBB2222", "crn" => "22222", "classsize" => 20]);
+                DB::table('imported_courses_2016')->insert(
+                    ['name' => "Crocodile Studies", "code" => "CCCC3333", "crn" => "33333", "classsize" => 30]);
+                DB::table('imported_courses_2016')->insert(
+                    ['name' => "Dragon Studies", "code" => "DDDD4444", "crn" => "44444", "classsize" => 40]);
+                DB::table('imported_courses_2016')->insert(
+                    ['name' => "Elephant Studies", "code" => "EEEE5555", "crn" => "55555", "classsize" => 50]);
+        */
     }
 
     function randomPassword()

@@ -1,6 +1,6 @@
 <tr>
     <th>
-        <label for="{{$idPrefix}}_{{$field->data["name"]}}">@title($field)</label>:
+        @include('editField.label')
     </th>
     <td>
         <input

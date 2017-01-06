@@ -1,0 +1,1 @@
+<label for="{{ $idPrefix }}">@title($field)@if($field->required()) (required)@endif</label>:
