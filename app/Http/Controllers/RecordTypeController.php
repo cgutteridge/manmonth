@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Record;
 use App\Models\RecordType;
+use DB;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Redirect;
@@ -54,6 +55,90 @@ class RecordTypeController extends Controller
             "records" => $recordBlocks,
             "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)]);
     }
+
+
+    /**
+     * Display the records of this type
+     *
+     * @param RecordType $recordType
+     * @return Response
+     */
+    public function externalRecords(RecordType $recordType)
+    {
+        $MAX_SIZE = 200;
+        $this->authorize('view', $recordType);
+
+        $issues = [];
+        $external_fields = $recordType->externalColumns();
+        if (count($external_fields) == 0) {
+            $issues [] = "External data not configured for this type of record.";
+        }
+        if (count($issues)) {
+            return Redirect::to($this->linkMaker->url($recordType))
+                ->withErrors($issues);
+        }
+
+        $filters = $this->requestProcessor->filters();
+
+        $ext = $recordType->data['external'];
+
+        $tableName = 'imported_' . $ext["table"];
+        $table = DB::table($tableName)->distinct();
+        $filteredTable = DB::table($tableName)->distinct();
+
+        $size = $table->count();
+        foreach ($filters as $filter => $value) {
+            if(!empty($value)) {
+                $filteredTable->where($filter,'like',$value);
+            }
+        }
+        $resultsSize = $filteredTable->count();
+
+        $rows = $filteredTable->select($external_fields)->take($MAX_SIZE)->get();
+        $records = $recordType->records;
+        $map = [];
+        foreach ($records as $record) {
+            /** @var Record $record */
+            $key = $record->getLocal($ext['local_key']);
+            if (isset ($key)) {
+                $map[$key] = $record;
+            }
+        }
+
+
+        foreach ($rows as $row) {
+            $keyname = $ext['key'];
+            if (property_exists($row, $keyname)) {
+                $key = $row->$keyname;
+                if (array_key_exists($key, $map)) {
+                    $row->_record = $map[$key];
+                } else {
+                    $row->_create = $this->linkMaker->url(
+                        $recordType,
+                        'create-record',
+                        [
+                            "field_" . $ext['local_key'] => $key,
+                            "_mmreturn" => $this->linkMaker->url(
+                                $recordType,
+                                "external-records",
+                                $this->requestProcessor->all())
+                        ]
+                    );
+                }
+            }
+        }
+
+        return view('recordType.externalRecords', [
+            "recordType" => $recordType,
+            "columns" => $external_fields,
+            "rows" => $rows,
+            "totalCount" => $size,
+            "resultsCount" => $resultsSize,
+            "maxSize" => $MAX_SIZE,
+            "filters" => $filters,
+            "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)]);
+    }
+
 
     /**
      * Display the form for creating a new record of this type.

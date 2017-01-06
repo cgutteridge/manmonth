@@ -47,9 +47,9 @@ class ECSSeeder extends Seeder
             "data" => [
                 "external" => ["table" => "people", "key" => "pinumber", "local_key" => "pinumber"],
                 "fields" => [
+                    ["name" => "pinumber", "label" => "ID Number", "type" => "string"],
                     ["name" => "name", "label" => "Name", "type" => "string", "required" => true, "external" => "name", "mode" => "prefer_local"],
                     ["name" => "email", "label" => "Email", "type" => "string", "external" => "email", "mode" => "only_external"],
-                    ["name" => "pinumber", "label" => "ID Number", "type" => "string"],
                     ["name" => "student_projects", "label" => "Students projects loading", "type" => "decimal", "min" => 0, "max" => 100],
                     ["name" => "tutorials", "label" => "Tutorials?", "type" => "boolean", "default" => false],
                     ["name" => "teaching_year", "label" => "Year of teaching", "type" => "option", "options" => "1|First\n2|Second\nother|Third or more", "default" => 'other']
@@ -87,10 +87,10 @@ class ECSSeeder extends Seeder
             "data" => [
                 "external" => ["table" => "courses_2016", "key" => "CRN", "local_key" => "crn"],
                 "fields" => [
+                    ["name" => "crn", "label" => "CRN", "type" => "string"],
                     ["name" => "name", "label" => "Name", "type" => "string", "external" => "COURSE_TITLE", "mode" => "prefer_external"],
                     ["name" => "code", "label" => "Module Code", "type" => "string", "external" => "COURSE_CODE", "mode" => "prefer_external"],
                     ["name" => "semester", "label" => "Semester", "type" => "option", "options" => "S1|Semester 1\nS2|Semester 2\n1|Semester 1 and 2\nNR|Other or unknown", "external" => "PTRM_CODE", "mode" => "prefer_local"],
-                    ["name" => "crn", "label" => "CRN", "type" => "string"],
                     ["name" => "students", "label" => "Class size", "type" => "integer"],
                     ["name" => "lect", "label" => "Number of lectures", "type" => "integer"],
                     ["name" => "cwk", "label" => "Coursework percentage", "type" => "decimal", "min" => 0, "max" => 100, "suffix" => "%"],

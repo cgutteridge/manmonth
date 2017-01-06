@@ -80,7 +80,7 @@ class LinkMaker
 
         $list = array();
         foreach ($params as $key => $value) {
-            $list [] = $key . "=" . $value;
+            $list [] = $key . "=" . urlencode($value);
         }
         return "?" . join("&", $list);
     }

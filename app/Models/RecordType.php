@@ -249,6 +249,28 @@ class RecordType extends DocumentPart
         }
     }
 
+
+    /**
+     * Return an array of the columns in the linked external database table.
+     * Incuding the key column.
+     * But not columns linked to other tables.
+     * @return array
+     */
+    public function externalColumns() {
+        if (!array_key_exists('external', $this->data)) {
+            return [];
+        }
+        $ext = $this->data['external'];
+        $external_fields = [];
+        $external_fields[] = $ext['key'];
+        foreach ($this->fields() as $field) {
+            if (array_key_exists('external', $field->data)) {
+                $external_fields[] = $field->data['external'];
+            }
+        }
+        return $external_fields;
+    }
+
 }
 
 

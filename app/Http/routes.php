@@ -34,6 +34,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('record-types/{recordType}', 'RecordTypeController@show');
     Route::get('record-types/{recordType}/records', 'RecordTypeController@records');
+    Route::get('record-types/{recordType}/external-records', 'RecordTypeController@externalRecords');
     Route::get('record-types/{recordType}/create-record', 'RecordTypeController@createRecord');
     Route::post('record-types/{recordType}/create-record', 'RecordTypeController@storeRecord');
 

@@ -157,6 +157,18 @@ class RequestProcessor
         return $result;
     }
 
+    public function filters()
+    {
+        $gets = $this->all();
+        $filters = [];
+        foreach ($gets as $key => $value) {
+            if (preg_match('/^filter_(.*)$/', $key, $parts)) {
+                $filters[$parts[1]] = $value;
+            }
+        }
+        return $filters;
+    }
+
     /**
      * @return array
      */
