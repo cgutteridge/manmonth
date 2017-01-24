@@ -3,7 +3,9 @@
 namespace App\Fields;
 
 use App\Exceptions\MMValidationException;
+use App\MMScript;
 use App\MMScript\Values\Value;
+use App\Models\RecordType;
 use Exception;
 use Validator;
 
@@ -103,6 +105,14 @@ abstract class Field
         if ($validator->fails()) {
             throw new MMValidationException("Validation fail in field: " . join(", ", $validator->errors()->all()));
         }
+
+        /* if there's a script, check that the script will return the right type .*/
+        if (isset($this->data["script"])) {
+            $script = $this->getScript();
+            if ($script->type() != $this->data["type"]) {
+                throw new MMValidationException("Script on field '".$this->data["name"]."' should return a '" . $this->data["type"] . "' but returned a " . $script->type());
+            }
+        }
     }
 
     /**
@@ -135,6 +145,32 @@ abstract class Field
             return "prefer_local";
         }
         return "only_local";
+    }
+
+
+    protected $script;
+
+    /**
+     * Give the compiled MMScript for this field, or null if it's a simple field.
+     * @param RecordType $recordType
+     * @return MMScript|null
+     */
+    public function getScript(RecordType $recordType)
+    {
+        if (!isset($this->script)) {
+            $documentRevision = $recordType->documentRevision;
+            $this->script = new MMScript(
+                $this->data["script"],
+                $documentRevision,
+                ["record" => $recordType, "config" => $documentRevision->configRecordType()]);
+        }
+
+        return $this->script;
+    }
+
+    public function hasScript()
+    {
+        return (isset($this->data["script"]));
     }
 }
 

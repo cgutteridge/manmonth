@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Exceptions\MMValidationException;
+use App\Exceptions\ScriptException;
 use App\Fields\Field;
 use App\Http\TitleMaker;
 use App\MMScript\Values\Value;
@@ -69,6 +70,7 @@ class Record extends DocumentPart
     public function getValue($fieldName)
     {
         $field = $this->recordType->field($fieldName);
+
         $value = null;
         $mode = $field->getMode();
 
@@ -101,12 +103,29 @@ class Record extends DocumentPart
     }
 
     /**
+     * If this field has a script which doesn't work it throws an exception rather
+     * than return a default value
      * @param string $fieldName
      * @return mixed
+     * @throws ScriptException
      */
     public function getLocal($fieldName)
     {
         $field = $this->recordType->field($fieldName);
+
+        if ($field->hasScript()) {
+            // failing scripts should pass exceptions upwards
+
+            $script = $field->getScript($this->recordType);
+
+            $result = $script->execute([
+                "record" => $this,
+                "config" => $this->documentRevision->configRecord()
+            ]);
+
+            return $result->value;
+        }
+
         if (array_key_exists($fieldName, $this->data)) {
             return $this->data[$fieldName];
         }

@@ -100,6 +100,7 @@ class ECSSeeder extends Seeder
                     ["name" => "coll_code", "label" => "COLL CODE", "type" => "string", "external" => "COLL_CODE", "mode" => "only_external"],
                     ["name" => "dept_code", "label" => "DEPT CODE", "type" => "string", "external" => "DEPT_CODE", "mode" => "only_external"],
                     ["name" => "campus_code", "label" => "CAMPUS CODE", "type" => "string", "external" => "CAMPUS_CODE", "mode" => "only_external"],
+                    ["name" => "func", "label" => "Calculated thing", "type" => "integer", "script"=>"record.students*2"],
                 ]],
             "title_script" => "record.code + ' ' + record.name + ' ' + record.semester"
         ]);
