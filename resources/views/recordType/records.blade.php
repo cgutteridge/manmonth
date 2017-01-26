@@ -10,6 +10,12 @@
             <a type="button" class="btn btn-primary" href="@url($recordType,'create-record')">
                 New @title($recordType)
             </a>
+
+            @if( count($recordType->externalColumns())>0 )
+                <a type="button" class="btn btn-primary" href="@url($recordType,'external-records')">
+                    New @title($recordType) from External Data
+                </a>
+            @endif
         </p>
     @endcan
     @foreach( $records as $record )
