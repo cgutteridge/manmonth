@@ -81,8 +81,6 @@
                                 @include('showField.field',["field"=>$fieldValue['field'],"value"=>$fieldValue["external"]])
                             </td>
                         @endif
-
-
                     </tr>
                 @endforeach
                 @foreach( $links as $link )

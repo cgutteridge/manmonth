@@ -13,14 +13,17 @@ abstract class Field
 {
     // need to make this non static? Maybe by making a fieldFactory singleton
     public $data;
+    public $recordType;
 
     /**
      * Field constructor.
      * @param $data
+     * @param RecordType $recordType
      */
-    public function __construct($data)
+    public function __construct($data, RecordType $recordType=null)
     {
         $this->data = $data;
+        $this->recordType = $recordType;
     }
 
     // this isn't written to the db so don't bother making data a json_encoded
@@ -28,23 +31,24 @@ abstract class Field
 
     /**
      * @param array $fieldData
+     * @param RecordType $recordType
      * @return Field
      * @throws Exception
      */
-    public static function createFromData($fieldData)
+    public static function createFromData($fieldData, RecordType $recordType=null)
     {
         if ($fieldData["type"] == "string") {
-            return new StringField($fieldData);
+            return new StringField($fieldData, $recordType);
         } elseif ($fieldData["type"] == "decimal") {
-            return new DecimalField($fieldData);
+            return new DecimalField($fieldData, $recordType);
         } elseif ($fieldData["type"] == "integer") {
-            return new IntegerField($fieldData);
+            return new IntegerField($fieldData, $recordType);
         } elseif ($fieldData["type"] == "boolean") {
-            return new BooleanField($fieldData);
+            return new BooleanField($fieldData, $recordType);
         } elseif ($fieldData["type"] == "option") {
-            return new OptionField($fieldData);
+            return new OptionField($fieldData, $recordType);
         } elseif ($fieldData["type"] == "record") {
-            return new RecordField($fieldData);
+            return new RecordField($fieldData, $recordType);
         } else {
             throw new Exception("Unknown field type: '" . $fieldData["type"] . "'");
         }
@@ -108,9 +112,12 @@ abstract class Field
 
         /* if there's a script, check that the script will return the right type .*/
         if (isset($this->data["script"])) {
-            $script = $this->getScript();
+            if( $this->recordType==null ){
+                throw new MMValidationException("Script on field '" . $this->data["name"] . "' can't be tested because the field doesn't belong to a record type.");
+            }
+            $script = $this->getScript($this->recordType);
             if ($script->type() != $this->data["type"]) {
-                throw new MMValidationException("Script on field '".$this->data["name"]."' should return a '" . $this->data["type"] . "' but returned a " . $script->type());
+                throw new MMValidationException("Script on field '" . $this->data["name"] . "' should return a '" . $this->data["type"] . "' but returned a " . $script->type());
             }
         }
     }
@@ -126,6 +133,8 @@ abstract class Field
             'label' => 'string',
             'description' => 'string',
             'required' => 'boolean',
+            'mode' => 'string|in:prefer_local,prefer_external,only_local,only_external',
+            'script' => 'string'
         ];
     }
 
@@ -136,6 +145,11 @@ abstract class Field
      */
     public abstract function makeValue($value);
 
+    /**
+     * Get the code indicating if the priority data source for this field is
+     * the local database or imported data.
+     * @return string
+     */
     public function getMode()
     {
         if (isset($this->data["mode"])) {
@@ -168,9 +182,103 @@ abstract class Field
         return $this->script;
     }
 
+    /**
+     * True if the field has a script to caclulate it's value.
+     * @return bool
+     */
     public function hasScript()
     {
         return (isset($this->data["script"]));
+    }
+
+    /**
+     * List of the metadata fields for this field's properties.
+     * @return Field[]
+     */
+    public function metaFields()
+    {
+        $metaFields = [];
+        foreach ($this->metaFieldDefitions() as $fieldData) {
+            $metaFields[] = Field::createFromData($fieldData);
+        }
+        return $metaFields;
+    }
+
+    /**
+     * Gives a list of field descriptions for the properties of this field.
+     */
+    protected function metaFieldDefitions()
+    {
+        return [
+            [
+                "name" => "type",
+                "required" => true,
+                "type" => "string",
+                "label" => "Field type",
+                "editable" => false,
+            ],
+            [
+                "name" => "label",
+                "type" => "string",
+                "label" => "Label"
+            ],
+            [
+                "name" => "protected",
+                "type" => "boolean",
+                "default" => false,
+                "editable" => false,
+                "label" => "Schema protected"
+            ],
+            [
+                "name" => "editable",
+                "type" => "boolean",
+                "default" => true,
+                "label" => "Field value can be altered"
+            ],
+            [
+                "name" => "description",
+                "type" => "string",
+                "label" => "Description"
+            ],
+            [
+                "name" => "required",
+                "type" => "boolean",
+                "label" => "Required",
+                "default" => false
+            ],
+            [
+                "name" => "mode",
+                "type" => "option",
+                "label" => "Data mode",
+                "options" => "prefer_local|Use local data, failing that use external daata\nUse external data, failing that use local data\nonly_local|Only use local data\nonly_external|Only use external data"
+            ],
+            [
+                "name" => "script",
+                "type" => "string", # should be a special type later on.
+                "label" => "Calculated value script",
+                # "config" => $documentRevision->configRecordType()
+            ],
+            [
+                "name" => "external_column",
+                "type" => "string",
+                "label" => "External data column"
+            ],
+            [
+                "name" => "external_table",
+                "type" => "string",
+                "label" => "External Data Table"
+            ],
+            [
+                "name" => "external_key",
+                "type" => "string",
+                "label" => "External Data Key"
+            ],
+            [
+                "name" => "external_local_key",
+                "type" => "string",
+                "label" => "External Data Local Key"
+            ]
+        ];
     }
 }
 

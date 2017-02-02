@@ -44,12 +44,15 @@ class ECSSeeder extends Seeder
 
         $actorType = $draft->createRecordType("actor", [
             "label" => "Loadee",
+            "external_table" => "people",
+            "external_local_key" => "pinumber",
+            "external_key" => "pinumber",
+       
             "data" => [
-                "external" => ["table" => "people", "key" => "pinumber", "local_key" => "pinumber"],
                 "fields" => [
                     ["name" => "pinumber", "label" => "ID Number", "type" => "string"],
-                    ["name" => "name", "label" => "Name", "type" => "string", "required" => true, "external" => "name", "mode" => "prefer_local"],
-                    ["name" => "email", "label" => "Email", "type" => "string", "external" => "email", "mode" => "only_external"],
+                    ["name" => "name", "label" => "Name", "type" => "string", "required" => true, "external_column" => "name", "mode" => "prefer_local"],
+                    ["name" => "email", "label" => "Email", "type" => "string", "external_column" => "email", "mode" => "only_external"],
                     ["name" => "student_projects", "label" => "Students projects loading", "type" => "decimal", "min" => 0, "max" => 100],
                     ["name" => "tutorials", "label" => "Tutorials?", "type" => "boolean", "default" => false],
                     ["name" => "teaching_year", "label" => "Year of teaching", "type" => "option", "options" => "1|First\n2|Second\nother|Third or more", "default" => 'other']
@@ -84,22 +87,24 @@ class ECSSeeder extends Seeder
 
         $modType = $draft->createRecordType("module", [
             "label" => "Module",
+            "external_table" => "courses_2016",
+            "external_local_key" => "crn",
+            "external_key" => "CRN",
             "data" => [
-                "external" => ["table" => "courses_2016", "key" => "CRN", "local_key" => "crn"],
                 "fields" => [
                     ["name" => "crn", "label" => "CRN", "type" => "string"],
-                    ["name" => "name", "label" => "Name", "type" => "string", "external" => "COURSE_TITLE", "mode" => "prefer_external"],
-                    ["name" => "code", "label" => "Module Code", "type" => "string", "external" => "COURSE_CODE", "mode" => "prefer_external"],
-                    ["name" => "semester", "label" => "Semester", "type" => "option", "options" => "S1|Semester 1\nS2|Semester 2\n1|Semester 1 and 2\nNR|Other or unknown", "external" => "PTRM_CODE", "mode" => "prefer_local"],
+                    ["name" => "name", "label" => "Name", "type" => "string", "external_column" => "COURSE_TITLE", "mode" => "prefer_external"],
+                    ["name" => "code", "label" => "Module Code", "type" => "string", "external_column" => "COURSE_CODE", "mode" => "prefer_external"],
+                    ["name" => "semester", "label" => "Semester", "type" => "option", "options" => "S1|Semester 1\nS2|Semester 2\n1|Semester 1 and 2\nNR|Other or unknown", "external_column" => "PTRM_CODE", "mode" => "prefer_local"],
                     ["name" => "students", "label" => "Class size", "type" => "integer"],
                     ["name" => "lect", "label" => "Number of lectures", "type" => "integer"],
                     ["name" => "cwk", "label" => "Coursework percentage", "type" => "decimal", "min" => 0, "max" => 100, "suffix" => "%"],
                     ["name" => "labwk", "label" => "Labwork percentage", "type" => "decimal", "min" => 0, "max" => 100, "suffix" => "%"],
                     ["name" => "exam", "label" => "Has exam", "type" => "boolean"],
-                    ["name" => "credit_hours", "label" => "Credit hours", "type" => "decimal", "external" => "CREDIT_HOURS", "mode" => "only_external"],
-                    ["name" => "coll_code", "label" => "COLL CODE", "type" => "string", "external" => "COLL_CODE", "mode" => "only_external"],
-                    ["name" => "dept_code", "label" => "DEPT CODE", "type" => "string", "external" => "DEPT_CODE", "mode" => "only_external"],
-                    ["name" => "campus_code", "label" => "CAMPUS CODE", "type" => "string", "external" => "CAMPUS_CODE", "mode" => "only_external"],
+                    ["name" => "credit_hours", "label" => "Credit hours", "type" => "decimal", "external_column" => "CREDIT_HOURS", "mode" => "only_external"],
+                    ["name" => "coll_code", "label" => "COLL CODE", "type" => "string", "external_column" => "COLL_CODE", "mode" => "only_external"],
+                    ["name" => "dept_code", "label" => "DEPT CODE", "type" => "string", "external_column" => "DEPT_CODE", "mode" => "only_external"],
+                    ["name" => "campus_code", "label" => "CAMPUS CODE", "type" => "string", "external_column" => "CAMPUS_CODE", "mode" => "only_external"],
                     ["name" => "func", "label" => "Calculated thing", "type" => "integer", "script"=>"record.students*2"],
                 ]],
             "title_script" => "record.code + ' ' + record.name + ' ' + record.semester"

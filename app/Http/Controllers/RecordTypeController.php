@@ -23,11 +23,62 @@ class RecordTypeController extends Controller
     {
         $this->authorize('view', $recordType);
 
-        return view('recordType.show', [
-            "recordType" => $recordType,
-            "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)]);
+        $pageinfo = [];
+        $pageinfo["recordType"] = $recordType;
+
+        $metavalues = [];
+        $metavalues["name"] = $recordType->name;
+        $metavalues["label"] = $recordType->label;
+        $metavalues["title_script"] = $recordType->title_script;
+        $metavalues["external_table"] = $recordType->external_table;
+        $metavalues["external_key"] = $recordType->external_key;
+        $metavalues["external_local_key"] = $recordType->external_local_key;
+
+        $pageinfo["meta"] = [
+            "fields" => $recordType->metaFields(),
+            "values" => $metavalues
+        ];
+
+        $pageinfo["nav"] = $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision);
+        $pageinfo["hasExternalLink"] = $recordType->isLinkedToExternalData();
+        if ($recordType->isLinkedToExternalData()) {
+            $pageinfo["externalLink"] = $recordType->data['external'];
+        }
+
+        $pageinfo["fields"] = [];
+        foreach ($recordType->fields() as $field) {
+            $pageinfo["fields"][] = [
+                "title" => $this->titleMaker->title($field),
+                "fields" => $field->metaFields(),
+                "values" => $field->data
+            ];
+        }
+        return view('recordType.show', $pageinfo);
     }
 
+    /**
+     * @param Field[] $fields
+     * @param $values
+     * Given a list of fields and values build a list suitable for a template.
+     * @return array
+     */
+    function makeFieldValueList($fields, $values)
+    {
+        $fvList = [];
+        foreach ($fields as $metafield) {
+            $metaname = $metafield->data["name"];
+            $value = null;
+            if (array_key_exists($metaname, $values)) {
+                $value = $values[$metaname];
+            }
+            $fvList [] = [
+                "field" => $metafield,
+                "value" => $value,
+                "title" => $this->titleMaker->title($metafield)
+            ];
+        }
+        return $fvList;
+    }
 
     /**
      * Display the records of this type
@@ -88,8 +139,8 @@ class RecordTypeController extends Controller
 
         $size = $table->count();
         foreach ($filters as $filter => $value) {
-            if(!empty($value)) {
-                $filteredTable->where($filter,'like',$value);
+            if (!empty($value)) {
+                $filteredTable->where($filter, 'like', $value);
             }
         }
         $resultsSize = $filteredTable->count();
@@ -217,5 +268,69 @@ class RecordTypeController extends Controller
             ->with("message", "Record created.");
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param RecordType $recordType
+     * @return View
+     */
+    public function edit(RecordType $recordType)
+    {
+        $this->authorize('edit', $recordType);
+
+        $fieldChanges = $this->requestProcessor->fromFieldsRequest(
+            $recordType->metaFields(), "field_");
+        $recordType->updateData($fieldChanges);
+        return view('recordType.edit', [
+            "recordType" => $recordType,
+            "idPrefix" => "",
+            "returnTo" => $this->requestProcessor->returnURL(),
+            "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param Record $record
+     * @return RedirectResponse
+     * @throws Exception
+     */
+    public function update(Record $record)
+    {
+        $this->authorize('edit', $record);
+
+        $action = $this->requestProcessor->get("_mmaction", "");
+        $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($record));
+        if ($action == "cancel") {
+            return Redirect::to($returnLink);
+        }
+        if ($action != "save") {
+            throw new Exception("Unknown action '$action'");
+        }
+
+        $dataChanges = $this->requestProcessor->fromFieldsRequest($record->recordType->fields(), "field_");
+        $record->updateData($dataChanges);
+        try {
+            // validate changes to fields
+            $record->validate();
+            $linkChanges = $this->requestProcessor->getLinkChanges($record->recordType);
+            $record->validateLinkChanges($linkChanges);
+        } catch (MMValidationException $exception) {
+            $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($record));
+
+            return Redirect::to($this->linkMaker->url($record, "edit"))
+                ->withInput()
+                ->withErrors($exception->getMessage());
+        }
+
+        // apply changes to links
+        $record->save();
+
+        $record->applyLinkChanges($linkChanges);
+
+        return Redirect::to($returnLink)
+            ->with("message", "Record updated.");
+    }
 
 }

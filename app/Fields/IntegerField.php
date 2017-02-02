@@ -49,5 +49,25 @@ class IntegerField extends Field
         }
         return new IntegerValue($value);
     }
+
+    /**
+     * Gives a list of field descriptions for the properties of this field.
+     */
+    protected function metaFieldDefinitions()
+    {
+        return array_merge(
+            parent::metaFieldDefinitions(),
+            [
+                "name" => "min",
+                "label" => "Minimum value",
+                "type" => "integer"
+            ],
+            [
+                "name" => "max",
+                "label" => "Maximum value",
+                "type" => "integer"
+            ]
+        );
+    }
 }
 

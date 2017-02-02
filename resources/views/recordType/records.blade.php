@@ -11,7 +11,7 @@
                 New @title($recordType)
             </a>
 
-            @if( count($recordType->externalColumns())>0 )
+            @if( $recordType->isLinkedToExternalData() )
                 <a type="button" class="btn btn-primary" href="@url($recordType,'external-records')">
                     New @title($recordType) from External Data
                 </a>

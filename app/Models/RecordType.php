@@ -19,6 +19,9 @@ use Validator;
  * @property Collection backLinkTypes
  * @property Collection records
  * @property Collection reportTypes
+ * @property string external_table
+ * @property string external_key
+ * @property string external_local_key
  */
 class RecordType extends DocumentPart
 {
@@ -150,6 +153,7 @@ class RecordType extends DocumentPart
     }
 
     /**
+     * Return the fields that make up this recordType
      * @return Field[]
      */
     public function fields()
@@ -157,10 +161,67 @@ class RecordType extends DocumentPart
         if (!$this->fieldsCache) {
             $this->fieldsCache = [];
             foreach ($this->data["fields"] as $fieldData) {
-                $this->fieldsCache [] = Field::createFromData($fieldData);
+                $this->fieldsCache [] = Field::createFromData($fieldData,$this);
             }
         }
         return $this->fieldsCache;
+    }
+
+
+    /**
+     * List of the metadata fields for this field's properties.
+     * @return Field[]
+     */
+    public function metaFields()
+    {
+        $metaFields = [];
+        foreach ($this->metaFieldDefitions() as $fieldData) {
+            $metaFields[] = Field::createFromData($fieldData);
+        }
+        return $metaFields;
+    }
+
+
+    /**
+     * Return the fields that describe the metadata of a recordType
+     * @return Field[]
+     */
+    public function metaFieldDefitions()
+    {
+        return [
+            [
+                "name" => "name",
+                "required" => true,
+                "type" => "string",
+                "label" => "Code name",
+                "editable" => false,
+            ],
+            [
+                "name" => "label",
+                "type" => "string",
+                "label" => "Label"
+            ],
+            [
+                "name" => "title_script",
+                "type" => "string",
+                "label" => "Title script",
+            ],
+            [
+                "name" => "external_table",
+                "type" => "string",
+                "label" => "External Data Table"
+            ],
+            [
+                "name" => "external_key",
+                "type" => "string",
+                "label" => "External Data Key"
+            ],
+            [
+                "name" => "external_local_key",
+                "type" => "string",
+                "label" => "External Data Local Key"
+            ],
+        ];
     }
 
     /**
@@ -256,7 +317,8 @@ class RecordType extends DocumentPart
      * But not columns linked to other tables.
      * @return array
      */
-    public function externalColumns() {
+    public function externalColumns()
+    {
         if (!array_key_exists('external', $this->data)) {
             return [];
         }
@@ -271,6 +333,41 @@ class RecordType extends DocumentPart
         return $external_fields;
     }
 
+    /**
+     * This function indicates if there is a linked external
+     * data table that can be used to create new records from.
+     * @return bool
+     */
+    public function isLinkedToExternalData()
+    {
+        if (!array_key_exists('external', $this->data)) {
+            return false;
+        }
+        $ext = $this->data['external'];
+        if (!array_key_exists('table', $ext)) {
+            return false;
+        }
+        if (empty($ext['table'])) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @param array $update
+     */
+    public function updateData(array $update)
+    {
+        /** @var Field $metaField */
+        foreach($this->metaFields() as $metaField )
+        {
+            $name = $metaField->data["name"];
+            if( array_key_exists($name,$update)) {
+                $this->$name = $update[$name];
+            }
+        }
+
+    }
 }
 
 

@@ -131,5 +131,21 @@ class OptionField extends Field
         }
         return $rv;
     }
+
+
+    /**
+     * @return array
+     */
+    protected function metaFieldsDefinitions()
+    {
+        return array_merge(
+            parent::metaFieldsDefinitions(),
+            [
+                "name" => "options",
+                "label" => "Options",
+                "type" => "string" # needs to be long text.
+            ]
+        );
+    }
 }
 

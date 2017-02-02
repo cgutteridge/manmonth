@@ -21,6 +21,10 @@ class CreateRecordTypesTable extends Migration
             $table->string('name');
             $table->string('label');
             $table->string('title_script');
+            $table->string('external_table');
+            $table->string('external_key');
+            $table->string('external_local_key');
+
             $table->text('data');
         });
     }

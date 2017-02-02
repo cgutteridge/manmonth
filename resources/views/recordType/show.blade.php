@@ -4,18 +4,25 @@
     View Record Type: @title($recordType)
 @endsection
 @section( 'content' )
-    <h3>Schema</h3>
+
+    <h3>Core information</h3>
     @can('edit',$recordType)
         <p>
             <a type="button" class="btn btn-primary" href="@url($recordType,'edit')">Edit Schema</a>
         </p>
     @endcan
-    <table class="table mm-datatable">
-        @include('dataTable',['data'=>$recordType->data])
-    </table>
 
+    <h3>Fields</h3>
+    @include('showField.list',$meta)
+
+    @foreach( $fields as $field)
+        <h4>{{ $field["title"] }}</h4>
+        @include('showField.list',$field)
+    @endforeach
+
+
+    <h3>Links from @title($recordType)</h3>
     @if( count($recordType->forwardLinkTypes) )
-        <h3>Links from @title($recordType)</h3>
         <ul>
             @foreach( $recordType->forwardLinkTypes as $linkType )
                 <li>
@@ -24,10 +31,12 @@
                 </li>
             @endforeach
         </ul>
+    @else
+        <p>None</p>
     @endif
 
+    <h3>Links to @title($recordType)</h3>
     @if( count($recordType->backLinkTypes) )
-        <h3>Links to @title($recordType)</h3>
         <ul>
             @foreach( $recordType->backLinkTypes as $linkType )
                 <li>
@@ -37,6 +46,8 @@
                 </li>
             @endforeach
         </ul>
+    @else
+        <p>None</p>
     @endif
 
     <h3>Report Types</h3>
