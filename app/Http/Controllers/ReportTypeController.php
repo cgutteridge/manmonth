@@ -38,11 +38,9 @@ class ReportTypeController extends Controller
 
                 // if this is slow it could just run on the first recordreport?
                 $recordCategories = $recordReport->categories();
-                foreach( $recordCategories as $category=>$opts )
-                {
-                    foreach( $opts as $param=>$value)
-                    {
-                        $categories[$category][$param]=$value;
+                foreach ($recordCategories as $category => $opts) {
+                    foreach ($opts as $param => $value) {
+                        $categories[$category][$param] = $value;
                     }
                 }
 
@@ -66,16 +64,22 @@ class ReportTypeController extends Controller
                         "title" => "Absolute Scale",
                         "tabTitle" => "Absolute",
                         "first" => true,
+                        "means" => $report->columnMeans(),
+                        "totals" => $report->columnTotals(),
                         "rows" => []
                     ],
                     "target" => [
                         "title" => "Scaled relative to target loading",
                         "tabTitle" => "Relative to target",
+                        "means" => $report->columnMeans(),
+                        "totals" => $report->columnTotals(),
                         "rows" => []
                     ],
                     "alloc" => [
                         "title" => "Scaled relative to allocated loading", "button" => "Relative to target",
                         "tabTitle" => "Relative to allocation",
+                        "means" => $report->columnMeans(),
+                        "totals" => $report->columnTotals(),
                         "rows" => []
                     ]]
             ];

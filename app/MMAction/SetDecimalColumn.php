@@ -36,6 +36,14 @@ class SetDecimalColumn extends Action
             "name" => "description",
             "type" => "string",
         ],
+        [
+            "name" => "total",
+            "type" => "boolean"
+        ],
+        [
+            "name" => "mean",
+            "type" => "boolean"
+        ]
     ];
 
     /**
@@ -46,7 +54,7 @@ class SetDecimalColumn extends Action
      */
     public function execute($recordReport, $rule, $context, $params)
     {
-        $recordReport->setColumn($params["column"], $params["value"]);
+        $recordReport->setColumn($params["column"], $params["value"], $params["total"], $params["mean"]);
         $this->recordLog($recordReport, $params);
     }
 }

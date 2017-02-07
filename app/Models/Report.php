@@ -34,15 +34,12 @@ class Report extends MMModel
      * @var RecordReport[]
      */
     protected $recordReportsCache;
+    protected $columnTotals;
+    protected $columnMeans;
     /**
      * @var float
      */
     private $maxLoading;
-
-    /*
-     * Return the maximum target loading
-     * @return float
-     */
     /**
      * @var float
      */
@@ -131,6 +128,55 @@ class Report extends MMModel
     }
 
     /**
+     * @return float[]
+     */
+    public function columnMeans()
+    {
+        if (!isset($this->columnMeans)) {
+            $this->columnMeans = [];
+            // we're treating null as not adding to the mean so counting all not null rows per column
+            $rowCounts = [];
+            $totals = [];
+            foreach ($this->recordReports() as $recordReport) {
+                $means = $recordReport->getMeanColumns();
+                foreach ($means as $columnName => $value) {
+                    if (!array_key_exists($columnName, $rowCounts)) {
+                        $rowCounts[$columnName] = 0;
+                        $totals[$columnName] = 0;
+                    }
+                    $rowCounts[$columnName] += 1;
+                    $totals[$columnName] += $value;
+                }
+            }
+            foreach ($rowCounts as $columnName => $columnCount) {
+                $this->columnMeans[$columnName] = $totals[$columnName] / $columnCount;
+            }
+        }
+        return $this->columnMeans;
+    }
+
+    /**
+     * @return float[]
+     */
+    public function columnTotals()
+    {
+        if (!isset($this->columnTotals)) {
+            $this->columnTotals = [];
+
+            foreach ($this->recordReports() as $recordReport) {
+                $totals = $recordReport->getTotalColumns();
+                foreach ($totals as $columnName => $value) {
+                    if (!array_key_exists($columnName, $this->columnTotals)) {
+                        $this->columnTotals[$columnName] = 0;
+                    }
+                    $this->columnTotals[$columnName] += $value;
+                }
+            }
+        }
+        return $this->columnTotals;
+    }
+
+    /**
      * @return float
      */
     public function maxLoadingRatio()
@@ -170,6 +216,8 @@ class Report extends MMModel
         // force cached values to decache
         $this->maxLoading = null;
         $this->maxLoadingRatio = null;
+        $this->columnMeans = null;
+        $this->columnTotals = null;
     }
 
 

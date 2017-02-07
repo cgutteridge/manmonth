@@ -15,6 +15,9 @@ class RecordReport
 {
 
     private $columns = [];
+    private $total_columns = [];
+    private $mean_columns = [];
+
     private $loading_target;
     private $loading_total;
     private $loading_params = [];
@@ -77,12 +80,49 @@ class RecordReport
     /**
      * @param string $columnName
      * @param mixed $value
+     * @param bool $total
+     * @param bool $mean
      */
-    public function setColumn($columnName, $value)
+    public function setColumn($columnName, $value, $total = false, $mean = false)
     {
         $this->columns[$columnName] = $value;
+        if ($total) {
+            $this->total_columns[$columnName] = true;
+        }
+        if ($mean) {
+            $this->mean_columns[$columnName] = true;
+        }
     }
 
+    /**
+     * Return values for columns that should have a mean calculated.
+     * @return array
+     */
+    public function getMeanColumns()
+    {
+        $values = [];
+        foreach ($this->mean_columns as $columnName => $duff) {
+            if (isset($this->columns[$columnName])) {
+                $values[$columnName] = $this->columns[$columnName];
+            }
+        }
+        return $values;
+    }
+
+    /**
+     * Return values for columns that should be totalled.
+     * @return array
+     */
+    public function getTotalColumns()
+    {
+        $values = [];
+        foreach ($this->total_columns as $columnName => $duff) {
+            if (isset($this->columns[$columnName])) {
+                $values[$columnName] = $this->columns[$columnName];
+            }
+        }
+        return $values;
+    }
 
     /**
      * @return array
@@ -174,14 +214,6 @@ class RecordReport
     }
 
     /**
-     * @return array
-     */
-    public function options()
-    {
-        return $this->loading_params;
-    }
-
-    /**
      * Return the options for categories on this recordreport
      * @return array
      */
@@ -207,5 +239,13 @@ class RecordReport
             }
         }
         return $categories;
+    }
+
+    /**
+     * @return array
+     */
+    public function options()
+    {
+        return $this->loading_params;
     }
 }

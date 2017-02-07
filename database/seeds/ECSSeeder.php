@@ -2,7 +2,6 @@
 
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Seeder;
 
 class ECSSeeder extends Seeder
@@ -95,7 +94,7 @@ class ECSSeeder extends Seeder
                     ["name" => "crn", "label" => "CRN", "type" => "string"],
                     ["name" => "name", "label" => "Name", "type" => "string", "external_column" => "COURSE_TITLE", "mode" => "prefer_external"],
                     ["name" => "code", "label" => "Module Code", "type" => "string", "external_column" => "COURSE_CODE", "mode" => "prefer_external"],
-                    ["name" => "semester", "label" => "Semester", "type" => "option", "options" => "S1|Semester 1\nS2|Semester 2\n1|Semester 1 and 2\nNR|Other or unknown", "external_column" => "PTRM_CODE", "mode" => "prefer_local"],
+                    ["name" => "semester", "label" => "Semester", "type" => "option", "options" => "|Unknown\nS1|Semester 1\nS2|Semester 2\n1|Semester 1 and 2\nNR|Other", "external_column" => "PTRM_CODE", "mode" => "prefer_local"],
                     ["name" => "students", "label" => "Class size", "type" => "integer"],
                     ["name" => "lect", "label" => "Number of lectures", "type" => "integer"],
                     ["name" => "cwk", "label" => "Coursework percentage", "type" => "decimal", "min" => 0, "max" => 100, "suffix" => "%"],
@@ -105,9 +104,12 @@ class ECSSeeder extends Seeder
                     ["name" => "coll_code", "label" => "COLL CODE", "type" => "string", "external_column" => "COLL_CODE", "mode" => "only_external"],
                     ["name" => "dept_code", "label" => "DEPT CODE", "type" => "string", "external_column" => "DEPT_CODE", "mode" => "only_external"],
                     ["name" => "campus_code", "label" => "CAMPUS CODE", "type" => "string", "external_column" => "CAMPUS_CODE", "mode" => "only_external"],
-                    ["name" => "func", "label" => "Calculated thing", "type" => "integer", "script"=>"record.students*2"],
+                    ["name" => "calculated_load", "label" => "Calculated load", "type" => "integer", "script" => "floor((record.lect*2+record.students*(record.cwk/100*2+record.labwk/100))+if( record.exam, record.students+config.exampaper, 0.0))"],
+                    ["name" => "load_override", "label" => "Load override", "type" => "integer", "min" => 0],
+                    ["name" => "actual_load", "label" => "Actual load", "type" => "integer", "script" => "if( isset(record.load_override), record.load_override, record.calculated_load)"]
+
                 ]],
-            "title_script" => "record.code + ' ' + record.name + ' ' + record.semester"
+            "title_script" => "record.code + ' ' + record.name + ' ' + record.semester + ' (' + record.actual_load + ')'"
         ]);
 
         // MODULE TEACHER
@@ -258,7 +260,7 @@ class ECSSeeder extends Seeder
                 "description" => 'modteach->teaches_module.code+\' (Teaching)\'',
                 "category" => "'teaching'",
                 "link" => "modteach",
-                "load" => 'floor((modteach.percent/100)*(module.lect*2+module.students*(module.cwk/100*2+module.labwk/100))+if( module.exam, module.students+config.exampaper, 0.0))'
+                "load" => 'floor((modteach.percent/100)*module.actual_load)',
             ]]);
 
         //basic unit load = LECT*2 + STUD*(CWK*2 + LABWK)
@@ -321,6 +323,10 @@ class ECSSeeder extends Seeder
             "title" => "Set semester column",
             "action" => "set_string_column",
             "params" => ["column" => "'semester'", "value" => 'string(module.semester)']]);
+        $moduleReportType->createRule([
+            "title" => "Set load column",
+            "action" => "set_decimal_column",
+            "params" => ["column" => "'loading'", "value" => 'module.actual_load', "total" => true, "mean" => true]]);
 
         $moduleReportType->createRule([
             "title" => "Target teaching",
@@ -383,8 +389,17 @@ class ECSSeeder extends Seeder
 
         // an admin
         $dave = new User();
-        $dave->name = "Dave Doberman";
-        $dave->email = "dave@example.org";
+        $dave->name = "Nick Harris";
+        $dave->email = "nrh@soton.ac.uk";
+        $dave->password = Hash::make($password);
+        $dave->save();
+        $dave->assign($adminRole);
+        $dave->assign($staffRole);
+
+        // an admin
+        $dave = new User();
+        $dave->name = "Mike Poppleton";
+        $dave->email = "mrp2@soton.ac.uk";
         $dave->password = Hash::make($password);
         $dave->save();
         $dave->assign($adminRole);
@@ -414,6 +429,7 @@ class ECSSeeder extends Seeder
          * FAKE IMPORTED DATA
          */
 
+        /*
         if (Schema::hasTable('imported_people')) {
             Schema::drop('imported_people');
         }
@@ -436,6 +452,7 @@ class ECSSeeder extends Seeder
         DB::table('imported_people')->insert(
             ['name' => "Miss Thingy", 'email' => 'thingy@example.com', 'pinumber' => "1005", "phdstudents" => null]);
 
+            */
         /*
                 if (Schema::hasTable('imported_courses_2016')) {
                     Schema::drop('imported_courses_2016');

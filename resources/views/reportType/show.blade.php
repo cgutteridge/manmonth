@@ -52,6 +52,32 @@
                                     @include( 'reportType.recordRow', $row )
                                 @endforeach
                                 </tbody>
+                                <tfoot>
+                                @if( count($view['means']) )
+                                    <tr>
+                                        <th colspan="2">Mean:</th>
+                                        @foreach( $view['rows'][0]['recordReport']->getColumns() as $colName=>$colValue)
+                                            <td class="mm_record_report_data">
+                                                @if( array_key_exists($colName,$view['means']) )
+                                                    {{ sprintf("%2.2f",$view['means'][$colName]) }}
+                                                @endif
+                                            </td>
+                                        @endforeach
+                                    </tr>
+                                @endif
+                                @if( count($view['totals']) )
+                                    <tr>
+                                        <th colspan="2">Total:</th>
+                                        @foreach( $view['rows'][0]['recordReport']->getColumns() as $colName=>$colValue)
+                                            <td class="mm_record_report_data">
+                                                @if( array_key_exists($colName,$view['totals']) )
+                                                    {{ $view['totals'][$colName] }}
+                                                @endif
+                                            </td>
+                                        @endforeach
+                                    </tr>
+                                @endif
+                                </tfoot>
                             </table>
                         </div>
                     </div>

@@ -27,7 +27,7 @@ class Compiler
         $this->offset = 0;
         $expression = $this->compileExpression();
         if ($this->moreTokens()) {
-            throw new ParseException("Expected additional symbols after end of expression", $this->script->text, $this->token()[0]);
+            throw new ParseException("Unexpected additional symbols after end of expression", $this->script->text, $this->token()[0]);
         }
         return $expression;
     }

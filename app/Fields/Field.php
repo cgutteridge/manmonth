@@ -140,31 +140,6 @@ abstract class Field
     public abstract function makeValue($value);
 
     /**
-     * Get the code indicating if the priority data source for this field is
-     * the local database or imported data.
-     * @return string
-     */
-    public function getMode()
-    {
-        if (isset($this->data["mode"])) {
-            return $this->data["mode"];
-        }
-        if (isset($this->data['external'])) {
-            return "prefer_local";
-        }
-        return "only_local";
-    }
-
-    /**
-     * True if the field has a script to caclulate it's value.
-     * @return bool
-     */
-    public function hasScript()
-    {
-        return (isset($this->data["script"]));
-    }
-
-    /**
      * List of the metadata fields for this field's properties.
      * @return Field[]
      */
@@ -280,14 +255,48 @@ abstract class Field
     }
 
     /**
+     * True if the value of this field can be edited.
+     * (not the properties of the field)
      * @return bool
      */
     public function editable()
     {
+        if ($this->getMode() == "only_external") {
+            return false;
+        }
+        if ($this->hasScript()) {
+            // can't edit calculated fields
+            return false;
+        }
         if (!isset($this->data["editable"])) {
             return true;
         }
         return (true == $this->data["editable"]);
+    }
+
+    /**
+     * Get the code indicating if the priority data source for this field is
+     * the local database or imported data.
+     * @return string
+     */
+    public function getMode()
+    {
+        if (isset($this->data["mode"])) {
+            return $this->data["mode"];
+        }
+        if (isset($this->data['external'])) {
+            return "prefer_local";
+        }
+        return "only_local";
+    }
+
+    /**
+     * True if the field has a script to caclulate it's value.
+     * @return bool
+     */
+    public function hasScript()
+    {
+        return (isset($this->data["script"]));
     }
 }
 
