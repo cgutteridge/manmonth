@@ -14,6 +14,10 @@ abstract class Field
     // need to make this non static? Maybe by making a fieldFactory singleton
     public $data;
     public $recordType;
+    protected $script;
+
+    // this isn't written to the db so don't bother making data a json_encoded
+    // param... but this is inconsistant with DocumentPart models.
 
     /**
      * Field constructor.
@@ -24,34 +28,6 @@ abstract class Field
     {
         $this->data = $data;
         $this->recordType = $recordType;
-    }
-
-    // this isn't written to the db so don't bother making data a json_encoded
-    // param... but this is inconsistant with DocumentPart models.
-
-    /**
-     * @param array $fieldData
-     * @param RecordType $recordType
-     * @return Field
-     * @throws Exception
-     */
-    public static function createFromData($fieldData, RecordType $recordType=null)
-    {
-        if ($fieldData["type"] == "string") {
-            return new StringField($fieldData, $recordType);
-        } elseif ($fieldData["type"] == "decimal") {
-            return new DecimalField($fieldData, $recordType);
-        } elseif ($fieldData["type"] == "integer") {
-            return new IntegerField($fieldData, $recordType);
-        } elseif ($fieldData["type"] == "boolean") {
-            return new BooleanField($fieldData, $recordType);
-        } elseif ($fieldData["type"] == "option") {
-            return new OptionField($fieldData, $recordType);
-        } elseif ($fieldData["type"] == "record") {
-            return new RecordField($fieldData, $recordType);
-        } else {
-            throw new Exception("Unknown field type: '" . $fieldData["type"] . "'");
-        }
     }
 
     /**
@@ -139,6 +115,24 @@ abstract class Field
     }
 
     /**
+     * Give the compiled MMScript for this field, or null if it's a simple field.
+     * @param RecordType $recordType
+     * @return MMScript|null
+     */
+    public function getScript(RecordType $recordType)
+    {
+        if (!isset($this->script)) {
+            $documentRevision = $recordType->documentRevision;
+            $this->script = new MMScript(
+                $this->data["script"],
+                $documentRevision,
+                ["record" => $recordType, "config" => $documentRevision->configRecordType()]);
+        }
+
+        return $this->script;
+    }
+
+    /**
      * Makes a MMScript value of this field type.
      * @param $value
      * @return Value
@@ -159,27 +153,6 @@ abstract class Field
             return "prefer_local";
         }
         return "only_local";
-    }
-
-
-    protected $script;
-
-    /**
-     * Give the compiled MMScript for this field, or null if it's a simple field.
-     * @param RecordType $recordType
-     * @return MMScript|null
-     */
-    public function getScript(RecordType $recordType)
-    {
-        if (!isset($this->script)) {
-            $documentRevision = $recordType->documentRevision;
-            $this->script = new MMScript(
-                $this->data["script"],
-                $documentRevision,
-                ["record" => $recordType, "config" => $documentRevision->configRecordType()]);
-        }
-
-        return $this->script;
     }
 
     /**
@@ -279,6 +252,42 @@ abstract class Field
                 "label" => "External Data Local Key"
             ]
         ];
+    }
+
+    /**
+     * @param array $fieldData
+     * @param RecordType $recordType
+     * @return Field
+     * @throws Exception
+     */
+    public static function createFromData($fieldData, RecordType $recordType = null)
+    {
+        if ($fieldData["type"] == "string") {
+            return new StringField($fieldData, $recordType);
+        } elseif ($fieldData["type"] == "decimal") {
+            return new DecimalField($fieldData, $recordType);
+        } elseif ($fieldData["type"] == "integer") {
+            return new IntegerField($fieldData, $recordType);
+        } elseif ($fieldData["type"] == "boolean") {
+            return new BooleanField($fieldData, $recordType);
+        } elseif ($fieldData["type"] == "option") {
+            return new OptionField($fieldData, $recordType);
+        } elseif ($fieldData["type"] == "record") {
+            return new RecordField($fieldData, $recordType);
+        } else {
+            throw new Exception("Unknown field type: '" . $fieldData["type"] . "'");
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function editable()
+    {
+        if (!isset($this->data["editable"])) {
+            return true;
+        }
+        return (true == $this->data["editable"]);
     }
 }
 

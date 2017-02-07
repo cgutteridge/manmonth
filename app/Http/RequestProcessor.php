@@ -81,7 +81,6 @@ class RequestProcessor
         $data = [];
         foreach ($fields as $field) {
             $fieldId = $idPrefix . $field->data["name"];
-
             $value = $this->get($fieldId);
 
             // This code is a candidate for classes per field type,
@@ -157,6 +156,17 @@ class RequestProcessor
         return $result;
     }
 
+    /**
+     * @return array
+     */
+    public function all()
+    {
+        if ($this->old) {
+            return $this->request->old();
+        }
+        return $this->request->all();
+    }
+
     public function filters()
     {
         $gets = $this->all();
@@ -167,17 +177,6 @@ class RequestProcessor
             }
         }
         return $filters;
-    }
-
-    /**
-     * @return array
-     */
-    public function all()
-    {
-        if ($this->old) {
-            return $this->request->old();
-        }
-        return $this->request->all();
     }
 
 

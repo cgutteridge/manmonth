@@ -9,6 +9,7 @@
 namespace App\Http;
 
 /* return URLs for models */
+use App\Fields\Field;
 use App\Models\Document;
 use App\Models\DocumentRevision;
 use App\Models\Link;
@@ -25,13 +26,13 @@ class LinkMaker
 {
     /**
      * Return the URL for a model, or an action on a model
-     * @param MMModel $model
+     * @param MMModel|Field $model
      * @param string|null $action
      * @param array $params CGI parameters
      * @return string
      * @throws Exception
      */
-    public function url(MMModel $model, $action = null, $params = [])
+    public function url($model, $action = null, $params = [])
     {
         $link = null;
         if (is_a($model, Document::class)) {
@@ -61,6 +62,13 @@ class LinkMaker
         if (is_a($model, Rule::class)) {
             $link = "/rules/" . $model->id;
         }
+        if (is_a($model, Field::class)) {
+            if (!isset($model->recordType)) {
+                throw new Exception("Can't create a URL for a field that has no associated recordType.");
+            }
+            $link = $this->url($model->recordType) . "/fields/" . $model->data["name"];
+        }
+
         if ($link == null) {
             throw new Exception("Could not make a link for model of class " . get_class($model));
         }

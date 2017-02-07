@@ -9,7 +9,7 @@
                 This field comes from an external source.
             </td>
         </tr>
-    @else
+    @elseif( $field->editable() )
         @include( "editField.".$field->data["type"], [
             "field"=>$field,
             "value"=>@$values[$field->data["name"]],
@@ -18,5 +18,10 @@
             :"Enter ".$titleMaker->title($field)),
             "idPrefix"=>$idPrefix.$field->data["name"],
         ])
+    @else
+        @include( "editField.uneditable", [
+            "field"=>$field,
+            "value"=>@$values[$field->data["name"]]
+            ])
     @endif
 @endforeach

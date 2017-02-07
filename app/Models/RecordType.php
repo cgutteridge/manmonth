@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Exceptions\MMValidationException;
+use App\Exceptions\ScriptException;
 use App\Fields\Field;
 use App\MMScript;
 use Illuminate\Database\Eloquent\Collection;
@@ -161,67 +162,10 @@ class RecordType extends DocumentPart
         if (!$this->fieldsCache) {
             $this->fieldsCache = [];
             foreach ($this->data["fields"] as $fieldData) {
-                $this->fieldsCache [] = Field::createFromData($fieldData,$this);
+                $this->fieldsCache [] = Field::createFromData($fieldData, $this);
             }
         }
         return $this->fieldsCache;
-    }
-
-
-    /**
-     * List of the metadata fields for this field's properties.
-     * @return Field[]
-     */
-    public function metaFields()
-    {
-        $metaFields = [];
-        foreach ($this->metaFieldDefitions() as $fieldData) {
-            $metaFields[] = Field::createFromData($fieldData);
-        }
-        return $metaFields;
-    }
-
-
-    /**
-     * Return the fields that describe the metadata of a recordType
-     * @return Field[]
-     */
-    public function metaFieldDefitions()
-    {
-        return [
-            [
-                "name" => "name",
-                "required" => true,
-                "type" => "string",
-                "label" => "Code name",
-                "editable" => false,
-            ],
-            [
-                "name" => "label",
-                "type" => "string",
-                "label" => "Label"
-            ],
-            [
-                "name" => "title_script",
-                "type" => "string",
-                "label" => "Title script",
-            ],
-            [
-                "name" => "external_table",
-                "type" => "string",
-                "label" => "External Data Table"
-            ],
-            [
-                "name" => "external_key",
-                "type" => "string",
-                "label" => "External Data Key"
-            ],
-            [
-                "name" => "external_local_key",
-                "type" => "string",
-                "label" => "External Data Local Key"
-            ],
-        ];
     }
 
     /**
@@ -263,9 +207,12 @@ class RecordType extends DocumentPart
             $field->validate();
         }
 
-        if (isset($this->data["title"])) {
-
+        try {
             $script = $this->titleScript();
+        } catch (ScriptException $e) {
+            throw new MMValidationException("Error in title script: " . $e->getMessage(), 0, $e);
+        }
+        if (isset($script)) {
             if ($script->type() != "string") {
                 throw new MMValidationException("If a record type has a title it should be an MMScript which returns a string. This returned a " . $script->type());
             }
@@ -292,24 +239,86 @@ class RecordType extends DocumentPart
         return $this->titleScript;
     }
 
-
     /**
      * Update this recordType from values in the data
      * @param array $properties
      */
     public function setProperties($properties)
     {
-        if (array_key_exists("label", $properties)) {
-            $this->label = $properties["label"];
-        }
-        if (array_key_exists("title_script", $properties)) {
-            $this->title_script = $properties["title_script"];
-        }
+        $this->updateValues($properties);
         if (array_key_exists("data", $properties)) {
             $this->data = $properties["data"];
         }
     }
 
+    /**
+     * @param array $update
+     */
+    public function updateValues(array $update)
+    {
+        /** @var Field $metaField */
+        foreach ($this->metaFields() as $metaField) {
+            $name = $metaField->data["name"];
+            if (isset($update[$name])) {
+                $this->$name = $update[$name];
+            }
+        }
+    }
+
+    /**
+     * List of the metadata fields for this field's properties.
+     * @return Field[]
+     */
+    public function metaFields()
+    {
+        $metaFields = [];
+        foreach ($this->metaFieldDefinitions() as $fieldData) {
+            $metaFields[] = Field::createFromData($fieldData);
+        }
+        return $metaFields;
+    }
+
+    /**
+     * Return the fields that describe the metadata of a recordType
+     * @return Field[]
+     */
+    public function metaFieldDefinitions()
+    {
+        return [
+            [
+                "name" => "name",
+                "required" => true,
+                "type" => "string",
+                "label" => "Code name",
+                "editable" => false,
+            ],
+            [
+                "name" => "label",
+                "type" => "string",
+                "label" => "Label"
+            ],
+            [
+                "name" => "title_script",
+                "type" => "string",
+                "label" => "Title script",
+            ],
+            [
+                "name" => "external_table",
+                "type" => "string",
+                "label" => "External Data Table"
+            ],
+            [
+                "name" => "external_key",
+                "type" => "string",
+                "label" => "External Data Key"
+            ],
+            [
+                "name" => "external_local_key",
+                "type" => "string",
+                "label" => "External Data Local Key"
+            ],
+        ];
+    }
 
     /**
      * Return an array of the columns in the linked external database table.
@@ -353,20 +362,14 @@ class RecordType extends DocumentPart
         return true;
     }
 
-    /**
-     * @param array $update
-     */
-    public function updateData(array $update)
+    public function metaValues()
     {
-        /** @var Field $metaField */
-        foreach($this->metaFields() as $metaField )
-        {
-            $name = $metaField->data["name"];
-            if( array_key_exists($name,$update)) {
-                $this->$name = $update[$name];
-            }
+        $metavalues = [];
+        foreach ($this->metaFields() as $field) {
+            $name = $field->data["name"];
+            $metavalues[$name] = $this->$name;
         }
-
+        return $metavalues;
     }
 }
 

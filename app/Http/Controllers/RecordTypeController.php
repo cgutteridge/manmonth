@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\MMValidationException;
 use App\Models\Record;
 use App\Models\RecordType;
 use DB;
@@ -26,17 +27,9 @@ class RecordTypeController extends Controller
         $pageinfo = [];
         $pageinfo["recordType"] = $recordType;
 
-        $metavalues = [];
-        $metavalues["name"] = $recordType->name;
-        $metavalues["label"] = $recordType->label;
-        $metavalues["title_script"] = $recordType->title_script;
-        $metavalues["external_table"] = $recordType->external_table;
-        $metavalues["external_key"] = $recordType->external_key;
-        $metavalues["external_local_key"] = $recordType->external_local_key;
-
         $pageinfo["meta"] = [
             "fields" => $recordType->metaFields(),
-            "values" => $metavalues
+            "values" => $recordType->metaValues()
         ];
 
         $pageinfo["nav"] = $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision);
@@ -49,6 +42,7 @@ class RecordTypeController extends Controller
         foreach ($recordType->fields() as $field) {
             $pageinfo["fields"][] = [
                 "title" => $this->titleMaker->title($field),
+                "edit" => $this->linkMaker->url($field),
                 "fields" => $field->metaFields(),
                 "values" => $field->data
             ];
@@ -280,10 +274,14 @@ class RecordTypeController extends Controller
 
         $fieldChanges = $this->requestProcessor->fromFieldsRequest(
             $recordType->metaFields(), "field_");
-        $recordType->updateData($fieldChanges);
+        $recordType->updateValues($fieldChanges);
         return view('recordType.edit', [
             "recordType" => $recordType,
-            "idPrefix" => "",
+            "meta" => [
+                "idPrefix" => "field_",
+                "fields" => $recordType->metaFields(),
+                "values" => $recordType->metaValues()
+            ],
             "returnTo" => $this->requestProcessor->returnURL(),
             "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)
         ]);
@@ -292,45 +290,41 @@ class RecordTypeController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param Record $record
+     * @param RecordType $recordType
      * @return RedirectResponse
      * @throws Exception
      */
-    public function update(Record $record)
+    public function update(RecordType $recordType)
     {
-        $this->authorize('edit', $record);
+        $this->authorize('edit', $recordType);
 
         $action = $this->requestProcessor->get("_mmaction", "");
-        $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($record));
+        $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($recordType));
         if ($action == "cancel") {
             return Redirect::to($returnLink);
         }
         if ($action != "save") {
             throw new Exception("Unknown action '$action'");
         }
+        $dataChanges = $this->requestProcessor->fromFieldsRequest($recordType->metaFields(), "field_");
+        $recordType->updateValues($dataChanges);
 
-        $dataChanges = $this->requestProcessor->fromFieldsRequest($record->recordType->fields(), "field_");
-        $record->updateData($dataChanges);
         try {
             // validate changes to fields
-            $record->validate();
-            $linkChanges = $this->requestProcessor->getLinkChanges($record->recordType);
-            $record->validateLinkChanges($linkChanges);
+            $recordType->validate();
         } catch (MMValidationException $exception) {
-            $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($record));
+            $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($recordType));
 
-            return Redirect::to($this->linkMaker->url($record, "edit"))
+            return Redirect::to($this->linkMaker->url($recordType, "edit"))
                 ->withInput()
                 ->withErrors($exception->getMessage());
         }
 
         // apply changes to links
-        $record->save();
-
-        $record->applyLinkChanges($linkChanges);
+        $recordType->save();
 
         return Redirect::to($returnLink)
-            ->with("message", "Record updated.");
+            ->with("message", "Record schema updated.");
     }
 
 }

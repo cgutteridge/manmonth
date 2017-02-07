@@ -5,19 +5,49 @@
 @endsection
 @section( 'content' )
 
-    <h3>Core information</h3>
-    @can('edit',$recordType)
-        <p>
-            <a type="button" class="btn btn-primary" href="@url($recordType,'edit')">Edit Schema</a>
-        </p>
-    @endcan
+    <table class="mm-record">
+        <thead>
+        <tr>
+            <th>Core information</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                @include('showField.list',$meta)
+                @can('edit',$recordType)
+                    <p>
+                        <a type="button" class="btn btn-primary" href="@url($recordType,'edit')">Edit</a>
+                    </p>
+                @endcan
+            </td>
+        </tr>
+        </tbody>
+
+    </table>
 
     <h3>Fields</h3>
-    @include('showField.list',$meta)
 
     @foreach( $fields as $field)
-        <h4>{{ $field["title"] }}</h4>
-        @include('showField.list',$field)
+        <table class="mm-record">
+            <thead>
+            <tr>
+                <th>{{ $field["title"] }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    @include('showField.list',$field)
+                    @can('edit',$recordType)
+                        <p>
+                            <a type="button" class="btn btn-primary" href="{{$field["edit"]}}">Edit</a>
+                        </p>
+                    @endcan
+                </td>
+            </tr>
+            </tbody>
+        </table>
     @endforeach
 
 

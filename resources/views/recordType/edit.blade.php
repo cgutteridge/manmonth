@@ -7,11 +7,7 @@
 @section( 'content')
     <form method="post" action="@url($recordType)">
         <table class='mm-form-fields'>
-            @include( 'editFields', [
-                "fields"=>$record->recordType->fields(),
-                "values"=>$record->data,
-                "idPrefix"=>$idPrefix."field_"
-            ])
+            @include( 'editField.index', $meta )
             <tr>
                 <th>
                 </th>
