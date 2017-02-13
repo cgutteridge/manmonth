@@ -35,43 +35,23 @@ class RecordTypeController extends Controller
         $pageinfo["nav"] = $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision);
         $pageinfo["hasExternalLink"] = $recordType->isLinkedToExternalData();
         if ($recordType->isLinkedToExternalData()) {
-            $pageinfo["externalLink"] = $recordType->data['external'];
+            $pageinfo["externalLink"] = [
+                "table" => $recordType->external_table,
+                "key" => $recordType->external_key,
+                "local_key" => $recordType->external_local_key
+            ];
         }
 
         $pageinfo["fields"] = [];
         foreach ($recordType->fields() as $field) {
             $pageinfo["fields"][] = [
                 "title" => $this->titleMaker->title($field),
-                "edit" => $this->linkMaker->url($field),
+                "edit" => $this->linkMaker->url($field,"edit"),
                 "fields" => $field->metaFields(),
                 "values" => $field->data
             ];
         }
         return view('recordType.show', $pageinfo);
-    }
-
-    /**
-     * @param Field[] $fields
-     * @param $values
-     * Given a list of fields and values build a list suitable for a template.
-     * @return array
-     */
-    function makeFieldValueList($fields, $values)
-    {
-        $fvList = [];
-        foreach ($fields as $metafield) {
-            $metaname = $metafield->data["name"];
-            $value = null;
-            if (array_key_exists($metaname, $values)) {
-                $value = $values[$metaname];
-            }
-            $fvList [] = [
-                "field" => $metafield,
-                "value" => $value,
-                "title" => $this->titleMaker->title($metafield)
-            ];
-        }
-        return $fvList;
     }
 
     /**
@@ -125,9 +105,7 @@ class RecordTypeController extends Controller
 
         $filters = $this->requestProcessor->filters();
 
-        $ext = $recordType->data['external'];
-
-        $tableName = 'imported_' . $ext["table"];
+        $tableName = 'imported_' . $recordType->external_table;
         $table = DB::table($tableName)->distinct();
         $filteredTable = DB::table($tableName)->distinct();
 
@@ -144,7 +122,7 @@ class RecordTypeController extends Controller
         $map = [];
         foreach ($records as $record) {
             /** @var Record $record */
-            $key = $record->getLocal($ext['local_key']);
+            $key = $record->getLocal($recordType->external_local_key);
             if (isset ($key)) {
                 $map[$key] = $record;
             }
@@ -152,7 +130,7 @@ class RecordTypeController extends Controller
 
 
         foreach ($rows as $row) {
-            $keyname = $ext['key'];
+            $keyname = $recordType->external_key;
             if (property_exists($row, $keyname)) {
                 $key = $row->$keyname;
                 if (array_key_exists($key, $map)) {
@@ -162,7 +140,7 @@ class RecordTypeController extends Controller
                         $recordType,
                         'create-record',
                         [
-                            "field_" . $ext['local_key'] => $key,
+                            "field_" . $recordType->external_key => $key,
                             "_mmreturn" => $this->linkMaker->url(
                                 $recordType,
                                 "external-records",

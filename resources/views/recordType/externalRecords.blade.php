@@ -5,6 +5,8 @@
 @endsection
 
 @section( 'content' )
+    <p><a href="{{$importUrl}}" class="btn btn-primary"  onclick="return confirm('WARNING: You are about to import {{$resultsCount}} records. There is no undo.')">Import all matches</a></p>
+
     <form>
         @if($totalCount>$maxSize)
             <p>
@@ -12,6 +14,7 @@
                 Use % character as a wildcard in filters.
             </p>
         @endif
+
         <table class="mm-datatable">
             <thead>
             <tr>
@@ -27,7 +30,7 @@
                     <th></th>
                     @foreach( $columns as $column)
                         <th style="text-align:left"><input name="filter_{{$column}}" size="8" placeholder="filter"
-                                                           @if( array_key_exists($column,$filters))value="{{$filters[$column]}}"@endif
+                             @if( array_key_exists($column,$filters))value="{{$filters[$column]}}"@endif
                             />
                         </th>
                     @endforeach

@@ -5,8 +5,8 @@
 @endsection
 
 @section( 'content' )
-    @can('create',$recordType)
-        <p>
+    <p>
+        @can('create',$recordType)
             <a type="button" class="btn btn-primary" href="@url($recordType,'create-record')">
                 New @title($recordType)
             </a>
@@ -16,8 +16,12 @@
                     New @title($recordType) from External Data
                 </a>
             @endif
-        </p>
-    @endcan
+        @endcan
+        <a type="button" class="btn btn-primary" href="@url($recordType)">
+            Schema
+        </a>
+    </p>
+
     @foreach( $records as $record )
         @include("record.block",$record)
     @endforeach

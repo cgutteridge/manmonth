@@ -140,25 +140,21 @@ class Record extends DocumentPart
     {
         $field = $this->recordType->field($fieldName);
 
-        if (!array_key_exists("external", $this->recordType->data)) {
+        if( empty( $this->recordType->external_table)) {
             return null;
         }
-        if (!array_key_exists("external", $field->data)) {
-            return null;
-        }
-        $ext = $this->recordType->data["external"];
         if (!$this->external_loaded) {
             // load
-            $tableName = 'imported_' . $ext["table"];
+            $tableName = 'imported_' . $this->recordType->external_table;
             $table = DB::table($tableName);
             $row = $table->where(
-                $ext["key"],
-                $this->getLocal($ext["local_key"]))->first();
+                $this->recordType->external_key,
+                $this->getLocal($this->recordType->external_local_key))->first();
             $this->external = $row;
             $this->external_loaded = true;
         }
         try {
-            $localName = $field->data["external"];
+            $localName = $field->data["external_column"];
             return $this->external->$localName;
         } catch (\ErrorException $e) {
             // didn't exist

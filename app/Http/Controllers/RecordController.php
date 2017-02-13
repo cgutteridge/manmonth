@@ -289,8 +289,6 @@ class RecordController extends Controller
             $linkChanges = $this->requestProcessor->getLinkChanges($record->recordType);
             $record->validateLinkChanges($linkChanges);
         } catch (MMValidationException $exception) {
-            $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($record));
-
             return Redirect::to($this->linkMaker->url($record, "edit"))
                 ->withInput()
                 ->withErrors($exception->getMessage());

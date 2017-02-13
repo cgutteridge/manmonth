@@ -2,7 +2,9 @@
 
 namespace App\Fields;
 
+use App\Exceptions\MMScriptRuntimeException;
 use App\Exceptions\MMValidationException;
+use App\Exceptions\ScriptException;
 use App\MMScript;
 use App\MMScript\Values\Value;
 use App\Models\RecordType;
@@ -24,10 +26,18 @@ abstract class Field
      * @param $data
      * @param RecordType $recordType
      */
-    public function __construct($data, RecordType $recordType=null)
+    public function __construct($data, RecordType $recordType = null)
     {
         $this->data = $data;
         $this->recordType = $recordType;
+    }
+
+    /**
+     * @return string
+     */
+    public function name()
+    {
+        return $this->data["name"];
     }
 
     /**
@@ -88,12 +98,16 @@ abstract class Field
 
         /* if there's a script, check that the script will return the right type .*/
         if (isset($this->data["script"])) {
-            if( $this->recordType==null ){
+            if ($this->recordType == null) {
                 throw new MMValidationException("Script on field '" . $this->data["name"] . "' can't be tested because the field doesn't belong to a record type.");
             }
-            $script = $this->getScript($this->recordType);
-            if ($script->type() != $this->data["type"]) {
-                throw new MMValidationException("Script on field '" . $this->data["name"] . "' should return a '" . $this->data["type"] . "' but returned a " . $script->type());
+            try {
+                $script = $this->getScript($this->recordType);
+                if ($script->type() != $this->data["type"]) {
+                    throw new MMValidationException("Script on field '" . $this->data["name"] . "' should return a '" . $this->data["type"] . "' but returned a " . $script->type());
+                }
+            } catch (ScriptException $e) {
+                throw new MMValidationException("Script on field '" . $this->data["name"] . "' has a problem: " . $e->getMessage(), 0, $e);
             }
         }
     }
@@ -181,7 +195,8 @@ abstract class Field
                 "name" => "editable",
                 "type" => "boolean",
                 "default" => true,
-                "label" => "Field value can be altered"
+                "label" => "Field value can be altered",
+                "editable" => false
             ],
             [
                 "name" => "description",
@@ -198,7 +213,7 @@ abstract class Field
                 "name" => "mode",
                 "type" => "option",
                 "label" => "Data mode",
-                "options" => "prefer_local|Use local data, failing that use external daata\nUse external data, failing that use local data\nonly_local|Only use local data\nonly_external|Only use external data"
+                "options" => "prefer_local|Use local data, failing that use external data\nUse external data, failing that use local data\nonly_local|Only use local data\nonly_external|Only use external data"
             ],
             [
                 "name" => "script",
@@ -298,5 +313,22 @@ abstract class Field
     {
         return (isset($this->data["script"]));
     }
+
+
+    /**
+     * @param array $update
+     */
+    public function updateData(array $update)
+    {
+        $data = $this->data;
+        foreach ($update as $key => $value) {
+            if ($value !== null) {
+                $data[$key] = ($value == "" ? null : $value);
+
+            }
+        }
+        $this->data = $data;
+    }
+
 }
 

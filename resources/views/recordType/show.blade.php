@@ -4,7 +4,11 @@
     View Record Type: @title($recordType)
 @endsection
 @section( 'content' )
-
+    <p>
+        <a type="button" class="btn btn-primary" href="@url($recordType,'records')">
+            List records
+        </a>
+    </p>
     <table class="mm-record">
         <thead>
         <tr>

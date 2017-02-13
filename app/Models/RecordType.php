@@ -176,8 +176,33 @@ class RecordType extends DocumentPart
         $data = $this->data;
         $data['fields'] = $fields;
         $this->data = $data;
-        unset($this->fieldsCache);
+        $this->fieldsCache=null;
     }
+
+    /**
+     * Add or update a field
+     * @param Field $field
+     */
+    public function setField(Field $field)
+    {
+        $data = $this->data;
+        $updated = false;
+        for( $i=0; $i<sizeof($data["fields"]); $i++ )
+        {
+            if( $field->data["name"] == $data["fields"][$i]["name"] ) {
+                $data["fields"][$i] = $field->data;
+                $updated=true;
+                break;
+            }
+        }
+        if( !$updated ) {
+            // append it to the end
+            $data["fields"][] = $field->data;
+        }
+        $this->data = $data;
+        $this->fieldsCache=null;
+    }
+
 
     /**
      * @throws MMValidationException
@@ -328,15 +353,14 @@ class RecordType extends DocumentPart
      */
     public function externalColumns()
     {
-        if (!array_key_exists('external', $this->data)) {
+        if( !isset( $this->external_table )){
             return [];
         }
-        $ext = $this->data['external'];
         $external_fields = [];
-        $external_fields[] = $ext['key'];
+        $external_fields[] = $this->external_key;
         foreach ($this->fields() as $field) {
-            if (array_key_exists('external', $field->data)) {
-                $external_fields[] = $field->data['external'];
+            if (array_key_exists('external_column', $field->data)) {
+                $external_fields[] = $field->data['external_column'];
             }
         }
         return $external_fields;
@@ -349,14 +373,7 @@ class RecordType extends DocumentPart
      */
     public function isLinkedToExternalData()
     {
-        if (!array_key_exists('external', $this->data)) {
-            return false;
-        }
-        $ext = $this->data['external'];
-        if (!array_key_exists('table', $ext)) {
-            return false;
-        }
-        if (empty($ext['table'])) {
+        if( empty( $this->external_table)) {
             return false;
         }
         return true;
