@@ -43,15 +43,17 @@ class ECSSeeder extends Seeder
 
         $actorType = $draft->createRecordType("actor", [
             "label" => "Loadee",
-            "external_table" => "people",
+            "external_table" => "people_2016",
             "external_local_key" => "pinumber",
             "external_key" => "pinumber",
-       
+
             "data" => [
                 "fields" => [
                     ["name" => "pinumber", "label" => "ID Number", "type" => "string"],
-                    ["name" => "name", "label" => "Name", "type" => "string", "required" => true, "external_column" => "name", "mode" => "prefer_local"],
-                    ["name" => "email", "label" => "Email", "type" => "string", "external_column" => "email", "mode" => "only_external"],
+                    ["name" => "name", "label" => "Name", "type" => "string", "external_column" => "name", "mode" => "prefer_local"],
+                    ["name" => "divsch", "label" => "School Code", "type" => "string", "external_column" => "divsch", "mode" => "only_external"],
+                    ["name" => "divname", "label" => "School", "type" => "string", "external_column" => "divname", "mode" => "only_external"],
+                    ["name" => "status", "label" => "Status", "type" => "option", "external_column" => "library", "mode" => "only_external", "options"=>"1|Staff\n2|Research Postgrad\n3|Taught Postgrad\n4|Undergrad" ],
                     ["name" => "student_projects", "label" => "Students projects loading", "type" => "decimal", "min" => 0, "max" => 100],
                     ["name" => "tutorials", "label" => "Tutorials?", "type" => "boolean", "default" => false],
                     ["name" => "teaching_year", "label" => "Year of teaching", "type" => "option", "options" => "1|First\n2|Second\nother|Third or more", "default" => 'other']
@@ -326,7 +328,7 @@ class ECSSeeder extends Seeder
         $moduleReportType->createRule([
             "title" => "Set load column",
             "action" => "set_decimal_column",
-            "params" => ["column" => "'loading'", "value" => 'module.actual_load', "total" => true, "mean" => true]]);
+            "params" => ["column" => "'loading'", "value" => 'module.actual_load', "total" => "true", "mean" => "true"]]);
 
         $moduleReportType->createRule([
             "title" => "Target teaching",
@@ -388,22 +390,31 @@ class ECSSeeder extends Seeder
         DB::table('users')->delete();
 
         // an admin
-        $dave = new User();
-        $dave->name = "Nick Harris";
-        $dave->email = "nrh@soton.ac.uk";
-        $dave->password = Hash::make($password);
-        $dave->save();
-        $dave->assign($adminRole);
-        $dave->assign($staffRole);
+        $u3 = new User();
+        $u3->name = "Christopher Gutteridge";
+        $u3->email = "totl@soton.ac.uk";
+        $u3->password = Hash::make($password);
+        $u3->save();
+        $u3->assign($adminRole);
+        $u3->assign($staffRole);
 
         // an admin
-        $dave = new User();
-        $dave->name = "Mike Poppleton";
-        $dave->email = "mrp2@soton.ac.uk";
-        $dave->password = Hash::make($password);
-        $dave->save();
-        $dave->assign($adminRole);
-        $dave->assign($staffRole);
+        $u2 = new User();
+        $u2->name = "Nick Harris";
+        $u2->email = "nrh@soton.ac.uk";
+        $u2->password = Hash::make($password);
+        $u2->save();
+        $u2->assign($adminRole);
+        $u2->assign($staffRole);
+
+        // an admin
+        $u1 = new User();
+        $u1->name = "Mike Poppleton";
+        $u1->email = "mrp2@soton.ac.uk";
+        $u1->password = Hash::make($password);
+        $u1->save();
+        $u1->assign($adminRole);
+        $u1->assign($staffRole);
 
         // a member of staff
         $alice = new User();
