@@ -155,7 +155,9 @@ class Record extends DocumentPart
         }
         try {
             $localName = $field->data["external_column"];
-            return $this->external->$localName;
+            if( !empty( $localName ) ) {
+                return $this->external->$localName;
+            }
         } catch (\ErrorException $e) {
             // didn't exist
         }
