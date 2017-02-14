@@ -359,19 +359,38 @@ class ECSSeeder extends Seeder
          */
 
 
+        // view all data, edit drafts, publish
+        $editorRole = new Role();
+        $editorRole->name = "editor";
+        $editorRole->label = "Document Editor";
+        $editorRole->save();
+
+        $editorRole->assign("view-current");
+        $editorRole->assign("view-archive");
+        $editorRole->assign("view-draft");
+        $editorRole->assign("view-scrap");
+        $editorRole->assign("edit-data");
+        $editorRole->assign("publish");
+        $editorRole->assign("scrap");
+
+
+        // Editor power plus edit schema and reports.
         $adminRole = new Role();
         $adminRole->name = "admin";
         $adminRole->label = "Document Administrator";
         $adminRole->document()->associate($doc);
         $adminRole->save();
-        $adminRole->assign("view-current");
+        $adminRole->assign("edit-schema");
+        $adminRole->assign("edit-reports");
+
         $adminRole->assign("view-archive");
         $adminRole->assign("view-draft");
         $adminRole->assign("view-scrap");
         $adminRole->assign("edit-data");
-        $adminRole->assign("edit-schema");
-        $adminRole->assign("edit-reports");
+        $adminRole->assign("publish");
+        $adminRole->assign("scrap");
 
+        // generic staff role; can only see current published version
         $staffRole = new Role();
         $staffRole->name = "staff";
         $staffRole->label = "Staff";
@@ -404,7 +423,7 @@ class ECSSeeder extends Seeder
         $u2->email = "nrh@soton.ac.uk";
         $u2->password = Hash::make($password);
         $u2->save();
-        $u2->assign($adminRole);
+        $u2->assign($editorRole);
         $u2->assign($staffRole);
 
         // an admin
@@ -413,7 +432,7 @@ class ECSSeeder extends Seeder
         $u1->email = "mrp2@soton.ac.uk";
         $u1->password = Hash::make($password);
         $u1->save();
-        $u1->assign($adminRole);
+        $u1->assign($editorRole);
         $u1->assign($staffRole);
 
         // a member of staff
