@@ -213,7 +213,7 @@ abstract class Field
                 "name" => "mode",
                 "type" => "option",
                 "label" => "Data mode",
-                "options" => "prefer_local|Use local data, failing that use external data\nUse external data, failing that use local data\nonly_local|Only use local data\nonly_external|Only use external data"
+                "options" => "prefer_local|Use local data, failing that use external data\nprefer_external|Use external data, failing that use local data\nonly_local|Only use local data\nonly_external|Only use external data"
             ],
             [
                 "name" => "script",
