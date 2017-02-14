@@ -159,7 +159,7 @@ class RecordTypeController extends Controller
             "resultsCount" => $resultsSize,
             "maxSize" => $MAX_SIZE,
             "filters" => $filters,
-            "importURL"=> $this->linkMaker->url( $recordType, 'external-records-bulk-import',$this->requestProcessor->all()),
+            "importUrl"=> $this->linkMaker->url( $recordType, 'external-records-bulk-import',$this->requestProcessor->all()),
             "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)]);
     }
 
