@@ -140,7 +140,7 @@ class RecordTypeController extends Controller
                         $recordType,
                         'create-record',
                         [
-                            "field_" . $recordType->external_key => $key,
+                            "field_" . $recordType->external_local_key => $key,
                             "_mmreturn" => $this->linkMaker->url(
                                 $recordType,
                                 "external-records",
