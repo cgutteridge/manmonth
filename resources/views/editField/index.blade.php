@@ -13,7 +13,7 @@
             <tr>
                 <th></th>
                 <td>External value:
-                    @include('showField.field',["field"=>$field,"value"=>@$externalValues[$field->data["name"]])
+                    @include('showField.field',["field"=>$field,"value"=>@$externalValues[$field->data["name"]]] )
                 </td>
             </tr>
         @endif
