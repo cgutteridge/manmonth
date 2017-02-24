@@ -328,6 +328,11 @@ class RecordType extends DocumentPart
                 "label" => "Title script",
             ],
             [
+                "name" => "external_column",
+                "type" => "string",
+                "label" => "External Data Column"
+            ],
+            [
                 "name" => "external_table",
                 "type" => "string",
                 "label" => "External Data Table"
@@ -346,7 +351,7 @@ class RecordType extends DocumentPart
     }
 
     /**
-     * Return an array of the columns in the linked external database table.
+     * Return an array of the columns in the primary linked external database table.
      * Incuding the key column.
      * But not columns linked to other tables.
      * @return array
@@ -360,7 +365,10 @@ class RecordType extends DocumentPart
         $external_fields[] = $this->external_key;
         foreach ($this->fields() as $field) {
             if (array_key_exists('external_column', $field->data) && !empty($field->data['external_column'])) {
-                $external_fields[] = $field->data['external_column'];
+                // only add this if it's on the primary external table
+                if( empty($field->data['external_table']) ) {
+                    $external_fields[] = $field->data['external_column'];
+                }
             }
         }
         return $external_fields;

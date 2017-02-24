@@ -9,5 +9,13 @@
             :"Enter ".$titleMaker->title($field)),
             "idPrefix"=>$idPrefix.$field->data["name"],
         ])
+        @if( $field->getMode() != "only_local")
+            <tr>
+                <th></th>
+                <td>External value:
+                    @include('showField.field',["field"=>$field,"value"=>@$externalValues[$field->data["name"]])
+                </td>
+            </tr>
+        @endif
     @endif
 @endforeach

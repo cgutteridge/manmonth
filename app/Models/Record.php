@@ -62,6 +62,26 @@ class Record extends DocumentPart
     }
 
     /**
+     * Return an array of the local values of fields
+     * @return array
+     */
+    public function localValues()
+    {
+        return $this->data;
+    }
+
+
+    public function externalValues()
+    {
+        $values = [];
+        foreach ($this->recordType->fields() as $field) {
+            $values[$field->name()] = $this->getExternal($field->name());
+        }
+        return $values;
+    }
+
+
+    /**
      * Get the typed value (or null value object) from a field
      * @param string $fieldName
      * @return Value
@@ -140,7 +160,32 @@ class Record extends DocumentPart
     {
         $field = $this->recordType->field($fieldName);
 
-        if( empty( $this->recordType->external_table)) {
+        // if this is a local value get it from the SQL
+        // candidate for caching if it's slow.
+        if (!empty($this->data['external_column'])
+            && !empty($this->data['external_table'])
+            && !empty($this->data['external_key'])
+            && !empty($this->data['external_local_key'])
+        ) {
+            // this is an external value from a table other than the primary one
+            $tableName = 'imported_' . $this->data['external_table'];
+            $table = DB::table($tableName);
+            $row = $table->where(
+                $this->data['external_key'],
+                $this->getLocal($this->data['external_local_key']))->first();
+            try {
+                $localName = $field->data["external_column"];
+                if (!empty($localName)) {
+                    return $row->$localName;
+                }
+            } catch (\ErrorException $e) {
+                // didn't exist
+            }
+            return null;
+        }
+
+
+        if (empty($this->recordType->external_table)) {
             return null;
         }
         if (!$this->external_loaded) {
@@ -155,7 +200,7 @@ class Record extends DocumentPart
         }
         try {
             $localName = $field->data["external_column"];
-            if( !empty( $localName ) ) {
+            if (!empty($localName)) {
                 return $this->external->$localName;
             }
         } catch (\ErrorException $e) {
@@ -245,8 +290,6 @@ class Record extends DocumentPart
         return $r;
     }
 
-
-    //
 
     /**
      * @throws MMValidationException

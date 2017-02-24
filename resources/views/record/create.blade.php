@@ -9,6 +9,7 @@
             @include( 'editField.index', [
                 "fields"=>$record->recordType->fields(),
                 "values"=>$record->data,
+                "externalValues"=>$record->externalValues(),
                 "idPrefix"=>$idPrefix."field_",
             ])
             @include( 'record.editLinks' ,[
