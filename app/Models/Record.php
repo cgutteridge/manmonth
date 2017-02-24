@@ -162,17 +162,17 @@ class Record extends DocumentPart
 
         // if this is a local value get it from the SQL
         // candidate for caching if it's slow.
-        if (!empty($this->data['external_column'])
-            && !empty($this->data['external_table'])
-            && !empty($this->data['external_key'])
-            && !empty($this->data['external_local_key'])
+        if (!empty($field->data['external_column'])
+            && !empty($field->data['external_table'])
+            && !empty($field->data['external_key'])
+            && !empty($field->data['external_local_key'])
         ) {
             // this is an external value from a table other than the primary one
-            $tableName = 'imported_' . $this->data['external_table'];
+            $tableName = 'imported_' . $field->data['external_table'];
             $table = DB::table($tableName);
             $row = $table->where(
-                $this->data['external_key'],
-                $this->getLocal($this->data['external_local_key']))->first();
+                $field->data['external_key'],
+                $this->getLocal($field->data['external_local_key']))->first();
             try {
                 $localName = $field->data["external_column"];
                 if (!empty($localName)) {
