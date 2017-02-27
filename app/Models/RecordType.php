@@ -328,11 +328,6 @@ class RecordType extends DocumentPart
                 "label" => "Title script",
             ],
             [
-                "name" => "external_column",
-                "type" => "string",
-                "label" => "External Data Column"
-            ],
-            [
                 "name" => "external_table",
                 "type" => "string",
                 "label" => "External Data Table"
