@@ -14,11 +14,11 @@
 </head>
 <body
         @if( isset($nav) && isset($nav['side']) )
-        class="mm-status-{{$nav['side']['status']}}"
+        class="mm-doc-status-{{$nav['side']['status']}} mm-site-status-{{\App::environment()}}"
         @endif
 >
-
 @include( 'header', [ "nav"=>(isset($nav)?$nav:$navMaker->defaultNavigation())])
+
 <div class="container" style="margin-top: 50px">
     <div class="content">
         <h1 class="title">@yield('title')</h1>

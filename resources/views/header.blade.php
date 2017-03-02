@@ -1,6 +1,6 @@
 <header>
     <nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
-
+        <div class="mm-status-banner"></div>
         <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
@@ -32,6 +32,11 @@
                     <ul class="nav navbar-nav navbar-right">
                         @include( 'nav.menu', [ 'menu'=>$nav['usermenu'] ])
                     </ul>
+                @endif
+                @if( array_key_exists('sitestatus',$nav))
+                    <div class="navbar-text navbar-right mm-site-status-text">
+                        {{$nav['sitestatus']}}
+                    </div>
                 @endif
             </div>
         </div><!-- /.container-fluid -->

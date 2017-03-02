@@ -26,6 +26,9 @@ footer.navbar {
 
 /* end core bits */
 
+/* dev banners */
+
+
 /* LINKS TABLE (before data table) */
 
 .mm-links-table {
@@ -382,15 +385,15 @@ table.mm-record-data td {
 
 /* Background images */
 
-.mm-status-draft {
+.mm-doc-status-draft {
     background-image: url(/draft.png);
 }
 
-.mm-status-archive {
+.mm-doc-status-archive {
     background-image: url(/archive.png);
 }
 
-.mm-status-scrap {
+.mm-doc-status-scrap {
     background-image: url(/scrap.png);
 }
 
@@ -560,3 +563,28 @@ table.mm-record-data td {
 }
 
 /* END OF REPORT GRAPH */
+
+/* site status banner  */
+
+.mm-site-status-local .mm-status-banner,
+.mm-site-status-pprd .mm-status-banner {
+    height: 10px;
+    background: url(hazard.png) repeat;
+}
+.mm-site-status-local header .navbar {
+    background-color: #093263;
+}.mm-site-status-pprd header .navbar {
+     background-color: #63370b;
+ }
+.mm-site-status-text {
+    background-color: #000;
+    color: #fff !important;
+    font-style: italic;
+    font-size: 12px; /* down 2px to fit border */
+    padding-left: 20px;
+    padding-right: 20px;
+    border: solid 1px #fff;
+    border-radius: 10px;
+}
+
+/* endsite status banner  */

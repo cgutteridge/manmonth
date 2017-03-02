@@ -46,7 +46,7 @@ class RecordTypeController extends Controller
         foreach ($recordType->fields() as $field) {
             $pageinfo["fields"][] = [
                 "title" => $this->titleMaker->title($field),
-                "edit" => $this->linkMaker->url($field,"edit"),
+                "edit" => $this->linkMaker->url($field, "edit"),
                 "fields" => $field->metaFields(),
                 "values" => $field->data
             ];
@@ -159,7 +159,7 @@ class RecordTypeController extends Controller
             "resultsCount" => $resultsSize,
             "maxSize" => $MAX_SIZE,
             "filters" => $filters,
-            "importUrl"=> $this->linkMaker->url( $recordType, 'external-records-bulk-import',$this->requestProcessor->all()),
+            "importUrl" => $this->linkMaker->url($recordType, 'external-records-bulk-import', $this->requestProcessor->all()),
             "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)]);
     }
 

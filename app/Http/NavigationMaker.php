@@ -9,6 +9,7 @@
 namespace App\Http;
 
 
+use App;
 use App\Models\Document;
 use App\Models\DocumentRevision;
 use App\Models\LinkType;
@@ -216,6 +217,13 @@ class NavigationMaker
     {
         $nav = [];
         $nav["title"] = ["label" => "Man Month"];
+        if (App::environment('prod')) {
+            ; // do nothing
+        } elseif(App::environment('pprd') ) {
+            $nav["sitestatus"] = "Pre-production instance";
+        } else {
+            $nav["sitestatus"] = "Development instance";
+        }
         if (Auth::check()) {
             $nav["usermenu"] = [
                 "label" => Auth::user()->name,
