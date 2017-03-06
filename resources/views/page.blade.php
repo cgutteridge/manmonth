@@ -12,10 +12,11 @@
     <script src="/hover.js"></script>
     <script src="/manmonth.js"></script>
 </head>
-<body
+<body class="mm-site-status-{{\App::environment()}}
         @if( isset($nav) && isset($nav['side']) )
-        class="mm-doc-status-{{$nav['side']['status']}} mm-site-status-{{\App::environment()}}"
+        mm-doc-status-{{$nav['side']['status']}}
         @endif
+        "
 >
 @include( 'header', [ "nav"=>(isset($nav)?$nav:$navMaker->defaultNavigation())])
 
