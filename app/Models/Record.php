@@ -25,7 +25,6 @@ use Validator;
  */
 class Record extends DocumentPart
 {
-    public $data = [];
     private $external;
     private $external_loaded = false;
 
