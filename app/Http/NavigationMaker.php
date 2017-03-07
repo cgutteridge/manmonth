@@ -177,13 +177,16 @@ class NavigationMaker
     function documentNavigation(Document $document)
     {
         $nav = $this->defaultNavigation();
+        /*
         $nav["title"] = [
             "label" => $document->name,
             "href" => $this->linkMaker->url($document)
         ];
+        */
         $nav["menus"] = [
             [
-                "label" => "Document",
+                "label" => $document->name,
+                "glyph" => "file",
                 "items" => [
                     [
                         "glyph" => "file",
@@ -216,7 +219,7 @@ class NavigationMaker
     function defaultNavigation()
     {
         $nav = [];
-        $nav["title"] = ["label" => "Man Month"];
+        $nav["title"] = ["label" => ""];
         if (App::environment('prod')) {
             ; // do nothing
         } elseif(App::environment('pprd') ) {

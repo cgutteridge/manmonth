@@ -25,7 +25,7 @@ use Validator;
  */
 class Record extends DocumentPart
 {
-
+    public $data = [];
     private $external;
     private $external_loaded = false;
 
@@ -78,78 +78,6 @@ class Record extends DocumentPart
             $values[$field->name()] = $this->getExternal($field->name());
         }
         return $values;
-    }
-
-
-    /**
-     * Get the typed value (or null value object) from a field
-     * @param string $fieldName
-     * @return Value
-     * @throws Exception
-     */
-    public function getValue($fieldName)
-    {
-        $field = $this->recordType->field($fieldName);
-
-        $value = null;
-        $mode = $field->getMode();
-
-        if ($mode == 'prefer_local') {
-            // local, exernal, default
-            $value = $this->getLocal($fieldName);
-            if ($value === null || $value === "") {
-                $value = $this->getExternal($fieldName);
-            }
-        } elseif ($mode == 'prefer_external') {
-            // external, local, default
-            $value = $this->getExternal($fieldName);
-            if ($value === null || $value === "") {
-                $value = $this->getLocal($fieldName);
-            }
-        } elseif ($mode == 'only_local') {
-            // local, default
-            $value = $this->getLocal($fieldName);
-        } elseif ($mode == 'only_external') {
-            // external, default
-            $value = $this->getExternal($fieldName);
-        } else {
-            throw new Exception("Unknown field mode: '" . $field->data["mode"] . "'");
-        }
-        if ($value === null || $value === "") {
-            $value = $this->getDefault($fieldName);
-        }
-
-        return $field->makeValue($value);
-    }
-
-    /**
-     * If this field has a script which doesn't work it throws an exception rather
-     * than return a default value
-     * @param string $fieldName
-     * @return mixed
-     * @throws ScriptException
-     */
-    public function getLocal($fieldName)
-    {
-        $field = $this->recordType->field($fieldName);
-
-        if ($field->hasScript()) {
-            // failing scripts should pass exceptions upwards
-
-            $script = $field->getScript($this->recordType);
-
-            $result = $script->execute([
-                "record" => $this,
-                "config" => $this->documentRevision->configRecord()
-            ]);
-
-            return $result->value;
-        }
-
-        if (array_key_exists($fieldName, $this->data)) {
-            return $this->data[$fieldName];
-        }
-        return null;
     }
 
     /**
@@ -207,6 +135,77 @@ class Record extends DocumentPart
             // didn't exist
         }
         return null;
+    }
+
+    /**
+     * If this field has a script which doesn't work it throws an exception rather
+     * than return a default value
+     * @param string $fieldName
+     * @return mixed
+     * @throws ScriptException
+     */
+    public function getLocal($fieldName)
+    {
+        $field = $this->recordType->field($fieldName);
+
+        if ($field->hasScript()) {
+            // failing scripts should pass exceptions upwards
+
+            $script = $field->getScript($this->recordType);
+
+            $result = $script->execute([
+                "record" => $this,
+                "config" => $this->documentRevision->configRecord()
+            ]);
+
+            return $result->value;
+        }
+
+        if (array_key_exists($fieldName, $this->data)) {
+            return $this->data[$fieldName];
+        }
+        return null;
+    }
+
+    /**
+     * Get the typed value (or null value object) from a field
+     * @param string $fieldName
+     * @return Value
+     * @throws Exception
+     */
+    public function getValue($fieldName)
+    {
+        $field = $this->recordType->field($fieldName);
+
+        $value = null;
+        $mode = $field->getMode();
+
+        if ($mode == 'prefer_local') {
+            // local, exernal, default
+            $value = $this->getLocal($fieldName);
+            if ($value === null || $value === "") {
+                $value = $this->getExternal($fieldName);
+            }
+        } elseif ($mode == 'prefer_external') {
+            // external, local, default
+            $value = $this->getExternal($fieldName);
+            if ($value === null || $value === "") {
+                $value = $this->getLocal($fieldName);
+            }
+        } elseif ($mode == 'only_local') {
+            // local, default
+            $value = $this->getLocal($fieldName);
+        } elseif ($mode == 'only_external') {
+            // external, default
+            $value = $this->getExternal($fieldName);
+        } else {
+            throw new Exception("Unknown field mode: '" . $field->data["mode"] . "'");
+        }
+        if ($value === null || $value === "") {
+            $value = $this->getDefault($fieldName);
+        }
+
+        return $field->makeValue($value);
     }
 
     /**
