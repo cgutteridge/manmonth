@@ -160,7 +160,7 @@ class Record extends DocumentPart
             return $result->value;
         }
 
-        if (array_key_exists($fieldName, $this->data)) {
+        if (!empty($this->data) && array_key_exists($fieldName, $this->data)) {
             return $this->data[$fieldName];
         }
         return null;
