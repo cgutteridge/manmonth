@@ -20,7 +20,7 @@ class CreateRulesTable extends Migration
 
             $table->integer('report_type_sid')->unsigned();
             $table->index(['document_revision_id', 'report_type_sid'],'report_type_rev_sid');
-            $table->text('rank');
+            $table->integer('rank');
             $table->text('data');
         });
     }
