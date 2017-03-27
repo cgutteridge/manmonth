@@ -156,11 +156,11 @@ class Compiler
     public function compileMul()
     {
         $left = $this->compilePow();
-        if ($this->moreTokens() && $this->tokenIs(["MUL", "DIV"])) {
+        while ($this->moreTokens() && $this->tokenIs(["MUL", "DIV"])) {
             $op = $this->token();
             $this->offset++;
-            $right = $this->compileMul();
-            return new Ops\MulOp($this->script, $op, $left, $right);
+            $right = $this->compilePow();
+            $left = new Ops\MulOp($this->script, $op, $left, $right);
         }
         return $left;
     }

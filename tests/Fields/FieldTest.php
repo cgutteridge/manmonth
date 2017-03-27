@@ -137,7 +137,9 @@ class FieldTest extends TestCase
                 'description' => 'string',
                 'required' => 'boolean',
                 'type' => 'required|in:boolean',
-                'default' => 'boolean'
+                'default' => 'boolean',
+                'mode' => 'string|in:prefer_local,prefer_external,only_local,only_external',
+                'script' => 'string'
             ],
             $field->fieldValidationArray());
     }
@@ -155,7 +157,9 @@ class FieldTest extends TestCase
                 'description' => 'string',
                 'required' => 'boolean',
                 'type' => 'required|in:string',
-                'default' => 'string'
+                'default' => 'string',
+                'mode' => 'string|in:prefer_local,prefer_external,only_local,only_external',
+                'script' => 'string'
             ],
             $field->fieldValidationArray());
     }
@@ -173,7 +177,9 @@ class FieldTest extends TestCase
                 'description' => 'string',
                 'required' => 'boolean',
                 'type' => 'required|in:integer',
-                'default' => 'integer'
+                'default' => 'integer',
+                'mode' => 'string|in:prefer_local,prefer_external,only_local,only_external',
+                'script' => 'string'
             ],
             $field->fieldValidationArray());
     }
@@ -191,7 +197,9 @@ class FieldTest extends TestCase
                 'description' => 'string',
                 'required' => 'boolean',
                 'type' => 'required|in:decimal',
-                'default' => 'numeric'
+                'default' => 'numeric',
+                'mode' => 'string|in:prefer_local,prefer_external,only_local,only_external',
+                'script' => 'string'
             ],
             $field->fieldValidationArray());
     }

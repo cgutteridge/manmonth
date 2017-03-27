@@ -666,4 +666,19 @@ class MMScriptTest extends TestCase
         $this->assertInstanceOf(DecimalValue::class, $result);
     }
 
+    function test_order_operations_are_resolved_bodmas()
+    {
+        $script = new \App\MMScript("1+2*3+4/5", $this->makeMockDocRev(), []);
+        $result = $script->execute([]);
+        $this->assertEquals(7.8, $result->value);
+    }
+
+    /* added due to this being a bug. This should result in 100
+    but not if it's working from right to left! */
+    function test_order_operations_are_resolved_for_multipy_and_divide()
+    {
+        $script = new \App\MMScript("100/10*2*5", $this->makeMockDocRev(), []);
+        $result = $script->execute([]);
+        $this->assertEquals(100, $result->value);
+    }
 }
