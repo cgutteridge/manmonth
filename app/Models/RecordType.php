@@ -359,12 +359,12 @@ class RecordType extends DocumentPart
         $external_fields = [];
         $external_fields[] = $this->external_key;
         foreach ($this->fields() as $field) {
-            if (array_key_exists('external_column', $field->data) && empty($field->data['external_table'])) {
-                // only add this if it's on the primary external table
-                if( empty($field->data['external_table']) ) {
-                    $external_fields[] = $field->data['external_column'];
-                }
-            }
+            if (array_key_exists('external_column', $field->data)
+                && !empty($field->data['external_column'])
+                && empty($field->data['external_table'])
+            ) {
+                $external_fields[] = $field->data['external_column'];
+            }   
         }
         return $external_fields;
     }
