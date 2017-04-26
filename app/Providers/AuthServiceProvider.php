@@ -16,6 +16,7 @@ use App\Models\User;
 use Illuminate\Contracts\Auth\Access\Gate as GateContract;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use PDOException;
 use Schema;
 
 class AuthServiceProvider extends ServiceProvider
@@ -167,8 +168,15 @@ class AuthServiceProvider extends ServiceProvider
 
     protected function getPermissions()
     {
-        // If the DB is not yet setup, we can't get any permissions!
-        if (!Schema::hasTable('permissions')) {
+        try {
+            // If the DB is not yet setup, we can't get any permissions!
+            if (!Schema::hasTable('permissions')) {
+                return new Collection();
+            }
+        }
+        catch( PDOException $exception ) {
+            // If we can't even find out if there's a permissions table
+            // then there's no permissions!
             return new Collection();
         }
 
