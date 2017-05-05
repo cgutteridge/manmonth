@@ -54,6 +54,7 @@ class User extends Authenticatable
     public function hasDocumentRole($role, $document)
     {
         if (is_string($role)) {
+            // this feature doesn't seem to be used yet.
             return $this->documentRoles($document)->contains('name', $role);
         }
 
@@ -61,13 +62,18 @@ class User extends Authenticatable
         return ($role->intersect($this->documentRoles($document))->count() > 0);
     }
 
+    private $documentRoles = [];
     /**
      * @param Document $document
      * @return Collection mixed
      */
     public function documentRoles($document)
     {
-        return $this->roles()->where('document_id', $document->id)->get();
+        if( !array_key_exists($document->id,$this->documentRoles) )
+        {
+            $this->documentRoles[$document->id] = $this->roles()->where('document_id', $document->id)->get();
+        }
+        return $this->documentRoles[$document->id];
     }
 
     /**
