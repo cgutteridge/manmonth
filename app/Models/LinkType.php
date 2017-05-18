@@ -32,14 +32,20 @@ class LinkType extends DocumentPart
         'domain_min' => 0,
         'range_min' => 0
     );
+    private $domainCache;
+    private $rangeCache;
+    private $linksCache;
 
     /**
      * @return RecordType
      */
     public function domain()
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->hasOne('App\Models\RecordType', 'sid', 'domain_sid')->where('document_revision_id', $this->document_revision_id);
+        if (!isset($this->domainCache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            $this->domainCache = $this->hasOne('App\Models\RecordType', 'sid', 'domain_sid')->where('document_revision_id', $this->document_revision_id);
+        }
+        return $this->domainCache;
     }
 
     /**
@@ -47,8 +53,11 @@ class LinkType extends DocumentPart
      */
     public function range()
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->hasOne('App\Models\RecordType', 'sid', 'range_sid')->where('document_revision_id', $this->document_revision_id);
+        if (!isset($this->rangeCache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            $this->rangeCache = $this->hasOne('App\Models\RecordType', 'sid', 'range_sid')->where('document_revision_id', $this->document_revision_id);
+        }
+        return $this->rangeCache;
     }
 
     /**
@@ -56,8 +65,11 @@ class LinkType extends DocumentPart
      */
     public function links()
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->documentRevision->links()->where("link_type_sid", $this->sid);
+        if (!isset($this->linksCache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            $this->linksCache = $this->documentRevision->links()->where("link_type_sid", $this->sid);
+        }
+        return $this->linksCache;
     }
 
     /**

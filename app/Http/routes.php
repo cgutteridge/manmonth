@@ -35,6 +35,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('record-types/{recordType}', 'RecordTypeController@show');
     Route::get('record-types/{recordType}/records', 'RecordTypeController@records');
     Route::get('record-types/{recordType}/external-records', 'RecordTypeController@externalRecords');
+    Route::get('record-types/{recordType}/external-records-bulk-import', 'RecordTypeController@bulkImportConfirm');
+    Route::post('record-types/{recordType}/external-records-bulk-import', 'RecordTypeController@bulkImport');
     Route::get('record-types/{recordType}/create-record', 'RecordTypeController@createRecord');
     Route::post('record-types/{recordType}/create-record', 'RecordTypeController@storeRecord');
     Route::get('record-types/{recordType}/edit', 'RecordTypeController@edit');
@@ -73,4 +75,12 @@ Route::group(['middleware' => 'auth'], function () {
  * Add the default authentication routes.
  */
 Route::auth();
+
+
+
+/*
+ * Turn this on to debug SQL.
+ */
+
+# \DB::listen(function($sql) { dump($sql->sql." [".join( ", ",$sql->bindings)."]"); });
 

@@ -7,9 +7,12 @@ use App\Models\Record;
 use App\Models\RecordType;
 use DB;
 use Exception;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Redirect;
-use Response;
+use View;
+
 
 class RecordTypeController extends Controller
 {
@@ -81,7 +84,6 @@ class RecordTypeController extends Controller
             "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)]);
     }
 
-
     /**
      * Display the records of this type
      *
@@ -91,44 +93,31 @@ class RecordTypeController extends Controller
     public function externalRecords(RecordType $recordType)
     {
         $MAX_SIZE = 200;
-        $this->authorize('view', $recordType);
+        $this->authorize('create', $recordType);
 
-        $issues = [];
-        $external_fields = $recordType->externalColumns();
-        if (count($external_fields) == 0) {
-            $issues [] = "External data not configured for this type of record.";
-        }
+        $issues = $this->externalRecordsIssues($recordType);
         if (count($issues)) {
             return Redirect::to($this->linkMaker->url($recordType))
                 ->withErrors($issues);
         }
 
-        $filters = $this->requestProcessor->filters();
+        $filteredTable = $this->externalRecordsFilteredTable($recordType);
 
-        $tableName = 'imported_' . $recordType->external_table;
-        $table = DB::table($tableName)->distinct();
-        $filteredTable = DB::table($tableName)->distinct();
-
-        $size = $table->count();
-        foreach ($filters as $filter => $value) {
-            if (!empty($value)) {
-                $filteredTable->where($filter, 'like', $value);
-            }
-        }
+        // This is a value of the rows matching, the actual number
+        // may be smaller because it only selects some columns and with
+        // a DISTINCT.
         $resultsSize = $filteredTable->count();
+        $rows = $filteredTable->take($MAX_SIZE)->get();
 
-        $rows = $filteredTable->select($external_fields)->take($MAX_SIZE)->get();
-        $records = $recordType->records;
-        $map = [];
-        foreach ($records as $record) {
-            /** @var Record $record */
-            $key = $record->getLocal($recordType->external_local_key);
-            if (isset ($key)) {
-                $map[$key] = $record;
-            }
-        }
+        /*
+         * $map is a list of records indexed by the value that links
+         * them to the import table (external_local_key)
+        */
+        $map = $this->recordsByLocalKey($recordType);
 
-
+        /* set up the URLs to create or view the record described
+         * by each row of the database.
+         */
         foreach ($rows as $row) {
             $keyname = $recordType->external_key;
             if (property_exists($row, $keyname)) {
@@ -151,18 +140,199 @@ class RecordTypeController extends Controller
             }
         }
 
+        $tableSize = $this->externalRecordsTable($recordType)->count();
+
         return view('recordType.externalRecords', [
             "recordType" => $recordType,
-            "columns" => $external_fields,
+            "columns" => $recordType->externalColumns(),
             "rows" => $rows,
-            "totalCount" => $size,
+            "totalCount" => $tableSize,
             "resultsCount" => $resultsSize,
             "maxSize" => $MAX_SIZE,
-            "filters" => $filters,
+            "filters" => $this->requestProcessor->filters(),
             "importUrl" => $this->linkMaker->url($recordType, 'external-records-bulk-import', $this->requestProcessor->all()),
             "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)]);
     }
 
+    /**
+     * @param RecordType $recordType
+     * @return array
+     * Returns a list of issues that would prevent the bulk importer
+     * working on this record type.
+     */
+    private function externalRecordsIssues(RecordType $recordType)
+    {
+        $external_fields = $recordType->externalColumns();
+
+        $issues = [];
+        if (count($external_fields) == 0) {
+            $issues [] = "External data not configured for this type of record.";
+        }
+        return $issues;
+    }
+
+    /**
+     * @param RecordType $recordType
+     * @return Builder
+     */
+    private function externalRecordsFilteredTable(RecordType $recordType)
+    {
+        $filters = $this->requestProcessor->filters();
+        $filteredTable = $this->externalRecordsTable($recordType);
+        foreach ($filters as $filter => $value) {
+            if (!empty($value)) {
+                $filteredTable->where($filter, 'like', $value);
+            }
+        }
+        $external_fields = $recordType->externalColumns();
+        $filteredTable->select($external_fields);
+        return $filteredTable;
+    }
+
+    /**
+     * @param RecordType $recordType
+     * @return Builder
+     */
+    private function externalRecordsTable(RecordType $recordType)
+    {
+        $tableName = 'imported_' . $recordType->external_table;
+        return DB::table($tableName)->distinct();
+    }
+
+    private function recordsByLocalKey(RecordType $recordType)
+    {
+        $map = [];
+        foreach ($recordType->records as $record) {
+            /** @var Record $record */
+            $key = $record->getLocal($recordType->external_local_key);
+            if (isset ($key)) {
+                $map[$key] = $record;
+            }
+        }
+        return $map;
+    }
+
+    /**
+     * Serve a continue/cancel form before doing a bulk import.
+     *
+     * @param RecordType $recordType
+     * @return Response
+     */
+    public function bulkImportConfirm(RecordType $recordType)
+    {
+        $this->authorize('create', $recordType);
+
+        $issues = $this->externalRecordsIssues($recordType);
+        if (count($issues)) {
+            return Redirect::to($this->linkMaker->url($recordType))
+                ->withErrors($issues);
+        }
+
+        $filteredTable = $this->externalRecordsFilteredTable($recordType);
+
+        $rows = $filteredTable->get();
+
+        /*
+         * $map is a list of records indexed by the value that links
+         * them to the import table (external_local_key)
+        */
+        $map = $this->recordsByLocalKey($recordType);
+
+        /* set up the URLs to create or view the record described
+         * by each row of the database.
+         */
+        $toImportCount = 0;
+        $wontImportCount = 0;
+        foreach ($rows as $row) {
+            $keyname = $recordType->external_key;
+            if (property_exists($row, $keyname)) {
+                $key = $row->$keyname;
+                if (array_key_exists($key, $map)) {
+                    $wontImportCount++;
+                } else {
+                    $toImportCount++;
+                }
+            }
+        }
+
+        return view('recordType.bulkImportConfirm', [
+            "recordType" => $recordType,
+            "wontImportCount" => $wontImportCount,
+            "toImportCount" => $toImportCount,
+            "filters" => $this->requestProcessor->filters(),
+            "importUrl" => $this->linkMaker->url($recordType, 'external-records-bulk-import'),
+            "cancelUrl" => $this->linkMaker->url($recordType, 'external-records', $this->requestProcessor->all()),
+            "importUrlParams" => $this->requestProcessor->all(),
+            "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)]);
+    }
+
+
+    /**
+     * Actually do a bulk import.
+     *
+     * @param RecordType $recordType
+     * @return Response
+     */
+    public function bulkImport(RecordType $recordType)
+    {
+        $this->authorize('create', $recordType);
+
+        $issues = $this->externalRecordsIssues($recordType);
+        if (count($issues)) {
+            return Redirect::to($this->linkMaker->url($recordType))
+                ->withErrors($issues);
+        }
+
+        $filteredTable = $this->externalRecordsFilteredTable($recordType);
+
+        $rows = $filteredTable->get();
+
+        /*
+         * $map is a list of records indexed by the value that links
+         * them to the import table (external_local_key)
+        */
+        $map = $this->recordsByLocalKey($recordType);
+
+        $returnLink = $this->requestProcessor->returnURL();
+
+        /* set up the URLs to create or view the record described
+         * by each row of the database.
+         */
+        $importCount = 0;
+        foreach ($rows as $row) {
+            $keyname = $recordType->external_key;
+            if (property_exists($row, $keyname)) {
+                $key = $row->$keyname;
+                if (array_key_exists($key, $map)) {
+                    continue;
+                }
+
+                $record = new Record();
+                $record->documentRevision()->associate($recordType->documentRevision);
+                $record->record_type_sid = $recordType->sid;
+                # force the $key to be a string not an integer
+                $dataChanges = [$recordType->external_local_key => "$key"];
+
+                $record->updateData($dataChanges);
+                try {
+                    // validate changes to fields
+                    $record->validate();
+                    $linkChanges = $this->requestProcessor->getLinkChanges($recordType);
+                    $record->validateLinkChanges($linkChanges);
+                } catch (Exception $exception) {
+                    /* maybe this should include how many messages were created too? */
+                    return Redirect::to($returnLink)
+                        ->withInput()
+                        ->withErrors($exception->getMessage());
+                }
+                $record->save();
+                $importCount++;
+            }
+        }
+
+        return Redirect::to($returnLink)
+            ->with("message", "Created $importCount record" . ($importCount == 1 ? "" : "s"));
+    }
 
     /**
      * Display the form for creating a new record of this type.

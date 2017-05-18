@@ -402,6 +402,9 @@ class Record extends DocumentPart
         }
     }
 
+    /**
+     * @param array $update
+     */
     public function updateData(array $update)
     {
         $data = $this->data;

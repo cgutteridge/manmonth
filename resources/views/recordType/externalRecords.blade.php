@@ -5,7 +5,7 @@
 @endsection
 
 @section( 'content' )
-    <p><a href="{{$importUrl}}" class="btn btn-primary"  onclick="return confirm('WARNING: You are about to import {{$resultsCount}} records. There is no undo.')">Import all matches</a></p>
+    <p><a href="{{$importUrl}}" class="btn btn-primary">Import all matches</a></p>
 
     <form>
         @if($totalCount>$maxSize)
@@ -64,7 +64,8 @@
             </tbody>
         </table>
         @if( $resultsCount>$maxSize )
-            <p>+{{$resultsCount-$maxSize}} additional record{{$resultsCount-$maxSize==1?"":"s"}}. You should use the
+            <p>Plus about {{$resultsCount-$maxSize}} additional record{{$resultsCount-$maxSize==1?"":"s"}}. You may use
+                the
                 filters option in
                 the top of the table.</p>
         @endif
