@@ -19,7 +19,6 @@ use Validator;
  * @property Collection forwardLinkTypes
  * @property Collection backLinkTypes
  * @property Collection records
- * @property Collection reportTypes
  * @property string external_table
  * @property string external_key
  * @property string external_local_key
@@ -37,9 +36,13 @@ class RecordType extends DocumentPart
      */
     public function forwardLinkTypes()
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->documentRevision->linkTypes()
-            ->where("domain_sid", $this->sid);
+        $relationCode = get_class($this) . "#" . $this->id . "->forwardLinkTypes";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            MMModel::$cache[$relationCode] = $this->documentRevision->linkTypes()
+                ->where("domain_sid", $this->sid);
+        }
+        return MMModel::$cache[$relationCode];
     }
 
     /**
@@ -47,9 +50,13 @@ class RecordType extends DocumentPart
      */
     public function backLinkTypes()
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->documentRevision->linkTypes()
-            ->where("range_sid", $this->sid);
+        $relationCode = get_class($this) . "#" . $this->id . "->backLinkTypes";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            MMModel::$cache[$relationCode] = $this->documentRevision->linkTypes()
+                ->where("range_sid", $this->sid);
+        }
+        return MMModel::$cache[$relationCode];
     }
 
     /**
@@ -58,8 +65,15 @@ class RecordType extends DocumentPart
      */
     public function record($recordSid)
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->records()->where("sid", (int)$recordSid)->first();
+        # TODO canidate for a more generic cache code for record from sid.
+        $relationCode = get_class($this) . "#" . $this->id . "->record/$recordSid";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            MMModel::$cache[$relationCode] = $this->documentRevision->records()
+                ->where("record_type_sid", $this->sid)
+                ->where("sid", (int)$recordSid)->first();
+        }
+        return MMModel::$cache[$relationCode];
     }
 
     /**
@@ -67,9 +81,12 @@ class RecordType extends DocumentPart
      */
     public function records()
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->documentRevision->records()
-            ->where("record_type_sid", $this->sid);
+        $relationCode = get_class($this) . "#" . $this->id . "->records";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            MMModel::$cache[$relationCode] = $this->documentRevision->records()->where("record_type_sid", $this->sid)->get();
+        }
+        return MMModel::$cache[$relationCode];
     }
 
     /**
@@ -77,9 +94,13 @@ class RecordType extends DocumentPart
      */
     public function reportTypes()
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->documentRevision->reportTypes()
-            ->where("base_record_type_sid", $this->sid);
+        $relationCode = get_class($this) . "#" . $this->id . "->reportTypes";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            MMModel::$cache[$relationCode] = $this->documentRevision->reportTypes()
+                ->where("base_record_type_sid", $this->sid)->get();
+        }
+        return MMModel::$cache[$relationCode];
     }
 
     /**

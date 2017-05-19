@@ -22,9 +22,14 @@
         </a>
     </p>
 
-    @foreach( $records as $record )
-        @include("record.block",$record)
-    @endforeach
+    <div class="mm-filtered">
+        @foreach( $records as $code=>$recordInList )
+            <div class="mm-filtered-item" data-mm-filter-code="{{$code}}"
+                 data-mm-filter-link="@url($recordInList['record'])">
+                @include("record.miniblock",$recordInList)
+            </div>
+        @endforeach
+    </div>
 @endsection
 
 

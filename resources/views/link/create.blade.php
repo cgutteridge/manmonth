@@ -1,7 +1,7 @@
 @extends('page')
 
 @section('title')
-    Create "@title($link->linkType->domain) @title($link->linkType) @title($link->linkType->range)" link
+    Create "@title($link->linkType->domain()) @title($link->linkType) @title($link->linkType->range())" link
 @endsection
 @section( 'content')
     <form method="post" action="@url($link->linkType,'create-link')">

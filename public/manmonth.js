@@ -4,6 +4,53 @@
 
 $(document).ready(function () {
 
+    /* filtered lists */
+    $('.mm-filtered').each(function (n, e) {
+        element = $(e);
+        var inputGroup = $('<div class="input-group"><span class="input-group-addon"><span class="glyphicon glyphicon-filter" aria-hidden="true"></span></span></div>');
+        var filterInput = $('<input type="text" class="form-control" placeholder="Filter list" />');
+        inputGroup.append(filterInput);
+        inputGroup.css('margin-bottom', '1em');
+        element.prepend(inputGroup);
+        filterInput.val("");
+        filterInput.focus();
+        filterInput.on("keyup", function (event) {
+
+            var filterTask = {
+                pattern: new RegExp(filterInput.val(), 'i'),
+                aMatch: null,
+                matches: 0
+            };
+
+            this.find('.mm-filtered-item').each(function (n2, item) {
+                /* log each item into the map. Assuming all items codes are unique */
+                item = $(item);
+                var code = item.attr('data-mm-filter-code');
+                if (this.pattern.test(code)) {
+                    item.show();
+                    this.aMatch = item;
+                    this.matches++;
+                } else {
+                    item.hide();
+                }
+            }.bind(filterTask));
+            if (filterTask.matches == 1) {
+                this.addClass('mm-filtered-one-match');
+                if (event.which == 13) {
+                    var url = filterTask.aMatch.attr('data-mm-filter-link');
+                    window.open(url, "_self");
+                }
+            }
+            else {
+                this.removeClass('mm-filtered-one-match');
+            }
+            if (event.which == 13) {
+                event.preventDefault();
+            }
+
+        }.bind(element))
+    });
+
     /* submenus */
     $('[data-submenu]').submenupicker();
 
@@ -123,7 +170,7 @@ $(document).ready(function () {
             function mmAddValue(sid, name) {
                 var stubclass = "mm-record-stub mm-record-entity mm-record-" + sid;
                 var code = idPrefix + 'add_' + sid;
-                var newRow = $('<li><a class="' + stubclass + '">' + name + '</a> </li>');
+                var newRow = $('<li><div class="' + stubclass + '"><table class="mm-record-stub"><tbody><tr><td class="mm-record-stub-title"><a>' + name + '</a></td></tr></tbody></table></div> </li>');
                 newRow.append($('<input name="' + code + '" style="display:none" value="1" /> '));
                 var removeButton = $('<a class="mm-button mm-button-remove"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>');
                 removeButton.click(function () {

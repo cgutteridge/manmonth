@@ -10,6 +10,7 @@ use Exception;
  */
 class Document extends MMModel
 {
+
     /**
      * Create an empty current revision. Documents must always have a current revision.
      * @throws Exception
@@ -92,8 +93,13 @@ class Document extends MMModel
      */
     public function draftRevision()
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->revisions()->where('status', 'draft')->first();
+        $relationCode = get_class($this) . "#" . $this->id . "->draftRevision";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            MMModel::$cache[$relationCode] = $this->revisions()->where('status', 'draft')->first();
+        }
+
+        return MMModel::$cache[$relationCode];
     }
 
     /**
@@ -111,14 +117,15 @@ class Document extends MMModel
      */
     public function currentRevision()
     {
-        // there must always be exactly one current revision so if there isn't
-        // this throws an exception
-        /** @noinspection PhpUndefinedMethodInspection */
-        $first = $this->revisions()->where('status', 'current')->first();
-        if (!$first) {
+        $relationCode = get_class($this) . "#" . $this->id . "->currentRevision";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            MMModel::$cache[$relationCode] = $this->revisions()->where('status', 'current')->first();
+        }
+        if (!MMModel::$cache[$relationCode]) {
             throw new Exception("Document has no current revision. That should not happen, ever.");
         }
-        return $first;
+        return MMModel::$cache[$relationCode];
     }
+
 
 }

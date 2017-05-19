@@ -18,13 +18,40 @@ use Illuminate\Validation\Validator;
  */
 abstract class MMModel extends Model
 {
+    static $cache = [];
+
+    /**
+     * Dynamically retrieve relations on the model.
+     *
+     * @param  string $key
+     * @return mixed
+     */
+    public function getRelationValue($key)
+    {
+        if (!isset($this->id)) {
+            # new object, probably shouldn't be asking for relations
+            return parent::getRelationValue($key);
+        }
+
+
+        /* cache the same select from different instances of the same db object */
+        $relationCode = get_class($this) . "#" . $this->id . "->" . $key;
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            MMModel::$cache[$relationCode] = parent::getRelationValue($key);
+        } else {
+        }
+        return MMModel::$cache[$relationCode];
+    }
+
+
     /**
      * Helper function.
      *
      * @param Validator $validator
      * @return MMValidationException
      */
-    protected function makeValidationException($validator)
+    protected
+    function makeValidationException($validator)
     {
         $msg = "Validation failure.";
         $errors = $validator->errors();

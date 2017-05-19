@@ -88,13 +88,7 @@
                         <th>{{$link["title"]}}:</th>
                         <td colspan="2">
                             @foreach( $link["records"] as $subrecord)
-                                <a
-                                        href="@url($subrecord["record"])"
-                                        data-rid="{{$subrecord["record"]->sid}}"
-                                        class="mm-record-stub mm-record-entity mm-record-{{$subrecord["record"]->sid}}"
-                                >
-                                    @title( $subrecord["record"])
-                                </a>
+                                @include( "record.miniblock", $subrecord )
                             @endforeach
                             @can('edit',$record)
                                 <a class="mm-button" href="{{$link["createLink"]}}">

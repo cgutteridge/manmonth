@@ -15,6 +15,7 @@ abstract class DocumentPart extends MMModel
     protected $casts = [
         "data" => "array"
     ];
+    protected $document_revision_id;
 
 
     /**
@@ -24,6 +25,25 @@ abstract class DocumentPart extends MMModel
     public function documentRevision()
     {
         return $this->belongsTo('App\Models\DocumentRevision');
+    }
+
+    /**
+     * @param string $key
+     * @return mixed
+     */
+    public function __get($key)
+    {
+        if ($key == 'documentRevision') {
+            $relationCode = 'DocumentRevision#' . $this->document_revision_id;
+            if (!array_key_exists($relationCode, MMModel::$cache)) {
+                MMModel::$cache[$relationCode] = parent::getRelationValue($key);
+            } else {
+            }
+
+            return MMModel::$cache[$relationCode];
+        }
+
+        return parent::__get($key);
     }
 
     /**

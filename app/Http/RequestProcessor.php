@@ -114,14 +114,14 @@ class RequestProcessor
             if (isset($linkType->range_type)) {
                 continue;
             }
-            $allLinkChanges["fwd"][$linkType->sid] = $this->fromLinkFieldRequest($linkType->range, "link_fwd_" . $linkType->sid . "_");
+            $allLinkChanges["fwd"][$linkType->sid] = $this->fromLinkFieldRequest($linkType->range(), "link_fwd_" . $linkType->sid . "_");
         }
         foreach ($recordType->backLinkTypes as $linkType) {
             // only default types of link are handled on a record update
             if (isset($linkType->domain_type)) {
                 continue;
             }
-            $allLinkChanges["bck"][$linkType->sid] = $this->fromLinkFieldRequest($linkType->domain, "link_bck_" . $linkType->sid . "_");
+            $allLinkChanges["bck"][$linkType->sid] = $this->fromLinkFieldRequest($linkType->domain(), "link_bck_" . $linkType->sid . "_");
         }
         return $allLinkChanges;
     }

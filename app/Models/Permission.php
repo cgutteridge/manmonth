@@ -17,12 +17,22 @@ class Permission extends Model
 
     public static function globalPermissions()
     {
-        return Permission::where('global', 1)->orderBy('name', 'desc')->get();
+        $relationCode = "Permission->globalPermissions";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            MMModel::$cache[$relationCode] = Permission::where('global', 1)->orderBy('name', 'desc')->get();
+        }
+        return MMModel::$cache[$relationCode];
     }
 
     public static function documentPermissions()
     {
-        return Permission::where('global', 0)->orderBy('name', 'desc')->get();
+        $relationCode = "Permission->documentPermissions";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            MMModel::$cache[$relationCode] = Permission::where('global', 0)->orderBy('name', 'desc')->get();
+        }
+        return MMModel::$cache[$relationCode];
     }
 
     public function roles()

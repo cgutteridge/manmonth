@@ -24,7 +24,6 @@ use Validator;
  * Class Rule
  * @property DocumentRevision documentRevision
  * @property int rank
- * @property ReportType reportType
  * @property int report_type_sid
  * @property array data
  * @property int document_revision_id
@@ -52,17 +51,6 @@ class Rule extends DocumentPart
     static protected $actionCache;
     protected $scripts = [];
     protected $abstractContext;
-
-    /**
-     * Relationship
-     * @return ReportType
-     */
-    public function reportType()
-    {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->hasOne('App\Models\ReportType', 'sid', 'report_type_sid')
-            ->where('document_revision_id', $this->document_revision_id);
-    }
 
     /**
      * @throws MMValidationException,Exception
@@ -149,7 +137,7 @@ class Rule extends DocumentPart
         $this->abstractContext = [];
         $this->abstractContext['config'] = $this->documentRevision->configRecordType();
 
-        $baseRecordType = $this->reportType->baseRecordType();
+        $baseRecordType = $this->reportType()->baseRecordType();
         $this->abstractContext[$baseRecordType->name] = $baseRecordType;
         // add all the other objects in the route
         $iterativeRecordType = $baseRecordType;
@@ -176,19 +164,19 @@ class Rule extends DocumentPart
                 if ($linkType->domain_sid != $iterativeRecordType->sid) {
                     throw new Exception("Domain of $linkName is not " . $iterativeRecordType->name);
                 }
-                $iterativeRecordType = $linkType->range;
+                $iterativeRecordType = $linkType->range();
             } else {
                 // backlink, so check range, set type to domain
                 if ($linkType->range_sid != $iterativeRecordType->sid) {
                     throw new Exception("Range of $linkName is not " . $iterativeRecordType->name);
                 }
-                $iterativeRecordType = $linkType->domain;
+                $iterativeRecordType = $linkType->domain();
             }
 
             $name = $iterativeRecordType->name;
 
             // in case we meet the same class twice, will fallback
-            // to class, class2, class3, etc.
+            // to class, class, class3, etc.
             $i = 2;
             while (array_key_exists($name, $this->abstractContext)) {
                 $name = $linkType->name . "$i";
@@ -198,6 +186,15 @@ class Rule extends DocumentPart
         }
 
         return $this->abstractContext;
+    }
+
+    /**
+     *
+     * @return ReportType
+     */
+    public function reportType()
+    {
+        return $this->documentRevision->reportType($this->report_type_sid);
     }
 
     /**
@@ -244,7 +241,7 @@ class Rule extends DocumentPart
     public function apply($record, $recordReport)
     {
         $context = [];
-        $baseRecordType = $this->reportType->baseRecordType();
+        $baseRecordType = $this->reportType()->baseRecordType();
         $context['config'] = $this->documentRevision->configRecord();
         $context[$baseRecordType->name] = $record;
         $route = [];

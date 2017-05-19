@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Exceptions\MMValidationException;
 use App\Http\TitleMaker;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Class Link
@@ -20,23 +19,30 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Link extends DocumentPart
 {
     /**
-     * @return HasOne
+     * @return LinkType
      */
     public function linkType()
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->hasOne('App\Models\LinkType', 'sid', 'link_type_sid')
-            ->where('document_revision_id', $this->document_revision_id);
+        $relationCode = get_class($this) . "#" . $this->id . "->linkType";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            MMModel::$cache[$relationCode] = $this->hasOne('App\Models\LinkType', 'sid', 'link_type_sid')
+                ->where('document_revision_id', $this->document_revision_id);
+        }
+        return MMModel::$cache[$relationCode];
     }
-
     /**
      * @return Record
      */
     public function subjectRecord()
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->hasOne('App\Models\Record', 'sid', 'subject_sid')
-            ->where('document_revision_id', $this->document_revision_id);
+        $relationCode = get_class($this) . "#" . $this->id . "->subjectRecord";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            MMModel::$cache[$relationCode] = $this->hasOne('App\Models\Record', 'sid', 'subject_sid')
+                ->where('document_revision_id', $this->document_revision_id);
+        }
+        return MMModel::$cache[$relationCode];
     }
 
     /**
@@ -44,9 +50,13 @@ class Link extends DocumentPart
      */
     public function objectRecord()
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->hasOne('App\Models\Record', 'sid', 'object_sid')
-            ->where('document_revision_id', $this->document_revision_id);
+        $relationCode = get_class($this) . "#" . $this->id . "->objectRecord";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            MMModel::$cache[$relationCode] = $this->hasOne('App\Models\Record', 'sid', 'object_sid')
+                ->where('document_revision_id', $this->document_revision_id);
+        }
+        return MMModel::$cache[$relationCode];
     }
 
     /**
@@ -107,10 +117,10 @@ class Link extends DocumentPart
         }
 
         if ($this->subjectRecord->record_type_sid != $this->linkType->domain_sid) {
-            throw new MMValidationException("Subject of link should be a " . $titleMaker->title($this->linkType->domain));
+            throw new MMValidationException("Subject of link should be a " . $titleMaker->title($this->linkType->domain()));
         }
         if ($this->objectRecord->record_type_sid != $this->linkType->range_sid) {
-            throw new MMValidationException("Target of link should be a " . $titleMaker->title($this->linkType->range));
+            throw new MMValidationException("Target of link should be a " . $titleMaker->title($this->linkType->range()));
         }
     }
 

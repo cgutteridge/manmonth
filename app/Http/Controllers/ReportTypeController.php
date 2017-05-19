@@ -33,7 +33,7 @@ class ReportTypeController extends Controller
             }
             $categories = [];
 
-            foreach ($reportType->baseRecordType()->records as $record) {
+            foreach ($reportType->baseRecordType()->records() as $record) {
                 $recordReport = $report->recordReport($record->sid);
 
                 // if this is slow it could just run on the first recordreport?
@@ -83,7 +83,7 @@ class ReportTypeController extends Controller
                         "rows" => []
                     ]]
             ];
-            foreach ($reportType->baseRecordType()->records as $record) {
+            foreach ($reportType->baseRecordType()->records() as $record) {
                 $recordReport = $report->recordReport($record->sid);
                 $recordTarget = $recordReport->getLoadingTarget();
                 $recordTotal = $recordReport->getLoadingTotal();

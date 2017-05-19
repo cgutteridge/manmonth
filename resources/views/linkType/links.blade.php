@@ -5,7 +5,7 @@
 @endsection
 
 @section( 'content' )
-    <p>Connects @link($linkType->domain) to @link($linkType->range)</p>
+    <p>Connects @link($linkType->domain()) to @link($linkType->range())</p>
     <ul>
         @foreach( $linkType->links as $link )
             <li>@link($link->subjectRecord) to @link($link->objectRecord)</li>

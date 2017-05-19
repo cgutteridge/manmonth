@@ -108,7 +108,7 @@
 
             <div class="panel-body">
                 <p>This is a list of every action triggered on every record.</p>
-                @foreach( $reportType->baseRecordType()->records as $record)
+                @foreach( $reportType->baseRecordType()->records() as $record)
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             @include( 'dataTable', ['data'=>$record->data ])

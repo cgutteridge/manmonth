@@ -65,7 +65,7 @@ class RecordController extends Controller
                 ->withErrors($exception->getMessage());
         }
 
-        $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($recordType));
+        $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($recordType, "records"));
 
         // apply changes to links
         return Redirect::to($returnLink)
@@ -84,7 +84,7 @@ class RecordController extends Controller
 
         $renderErrors = [];
         $reports = [];
-        foreach ($record->recordType->reportTypes as $reportType) {
+        foreach ($record->recordType->reportTypes() as $reportType) {
             /** @var ReportType $reportType */
             try {
                 $recordReport = $reportType->recordReport($record);
@@ -142,7 +142,7 @@ class RecordController extends Controller
                     if ($linkType->range_type == 'dependent') {
                         // a forward link means the target will have a backlink
                         // to this record.
-                        $link["createLink"] = $this->linkMaker->url($linkType->range, "create-record", [
+                        $link["createLink"] = $this->linkMaker->url($linkType->range(), "create-record", [
                             "link_bck_" . $linkType->sid . "_add_" . $record->sid => 1,
                             "_mmreturn" => $returnURL
                         ]);
@@ -171,7 +171,7 @@ class RecordController extends Controller
                         // a back link means the target will have a fwdlink
                         // to this record.
                         // link_fwd_2_add_12
-                        $link["createLink"] = $this->linkMaker->url($linkType->domain, "create-record", [
+                        $link["createLink"] = $this->linkMaker->url($linkType->domain(), "create-record", [
                             "link_fwd_" . $linkType->sid . "_add_" . $record->sid => 1,
                             "_mmreturn" => $returnURL
                         ]);

@@ -66,7 +66,7 @@ class NavigationMaker
         foreach ($documentRevision->linkTypes as $linkType) {
             if (!$recordType->isProtected()) {
                 $browseItems [] = ["glyph" => "list",
-                    "label" => "LINK: " . $this->titleMaker->title($linkType->domain) . "&rarr;" . $this->titleMaker->title($linkType) . "&rarr;" . $this->titleMaker->title($linkType->range),
+                    "label" => "LINK: " . $this->titleMaker->title($linkType->domain()) . "&rarr;" . $this->titleMaker->title($linkType) . "&rarr;" . $this->titleMaker->title($linkType->range()),
                     "href" => $this->linkMaker->url($linkType, "links"),
                     "allowed" => Auth::user()->can('view', $documentRevision)];
             }
@@ -240,6 +240,7 @@ class NavigationMaker
                 ]
             ];
         }
+
         return $nav;
     }
 

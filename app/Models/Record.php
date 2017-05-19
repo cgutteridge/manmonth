@@ -28,14 +28,20 @@ class Record extends DocumentPart
     private $external;
     private $external_loaded = false;
 
+    public function __get($key)
+    {
+        if ($key == 'recordType') {
+            return $this->recordType();
+        }
+        return parent::__get($key);
+    }
+
     /**
      * @return RecordType
      */
     public function recordType()
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->hasOne('App\Models\RecordType', 'sid', 'record_type_sid')
-            ->where('document_revision_id', $this->document_revision_id);
+        return $this->documentRevision->recordType($this->record_type_sid);
     }
 
     /**
@@ -44,9 +50,13 @@ class Record extends DocumentPart
      */
     public function forwardLinks()
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->hasMany('App\Models\Link', 'subject_sid', 'sid')
-            ->where('document_revision_id', $this->document_revision_id);
+        $relationCode = get_class($this) . "#" . $this->id . "->forwardLinks";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            MMModel::$cache[$relationCode] = $this->hasMany('App\Models\Link', 'subject_sid', 'sid')
+                ->where('document_revision_id', $this->document_revision_id);
+        }
+        return MMModel::$cache[$relationCode];
     }
 
     /**
@@ -55,9 +65,13 @@ class Record extends DocumentPart
      */
     public function backLinks()
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->hasMany('App\Models\Link', 'object_sid', 'sid')
-            ->where('document_revision_id', $this->document_revision_id);
+        $relationCode = get_class($this) . "#" . $this->id . "->backLinks";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            MMModel::$cache[$relationCode] = $this->hasMany('App\Models\Link', 'object_sid', 'sid')
+                ->where('document_revision_id', $this->document_revision_id);
+        }
+        return MMModel::$cache[$relationCode];
     }
 
     /**
@@ -95,11 +109,15 @@ class Record extends DocumentPart
             && !empty($field->data['external_local_key'])
         ) {
             // this is an external value from a table other than the primary one
+            $localKeyValue = $this->getLocal($field->data['external_local_key']);
+            if (empty($localKeyValue)) {
+                return null;
+            }
             $tableName = 'imported_' . $field->data['external_table'];
             $table = DB::table($tableName);
             $row = $table->where(
                 $field->data['external_key'],
-                $this->getLocal($field->data['external_local_key']))->first();
+                $localKeyValue)->first();
             try {
                 $localName = $field->data["external_column"];
                 if (!empty($localName)) {
@@ -115,13 +133,19 @@ class Record extends DocumentPart
         if (empty($this->recordType->external_table)) {
             return null;
         }
+        $localKeyValue = $this->getLocal($this->recordType->external_local_key);
+
+        if (empty($localKeyValue)) {
+            return null;
+        }
+
         if (!$this->external_loaded) {
             // load
             $tableName = 'imported_' . $this->recordType->external_table;
             $table = DB::table($tableName);
             $row = $table->where(
                 $this->recordType->external_key,
-                $this->getLocal($this->recordType->external_local_key))->first();
+                $localKeyValue)->first();
             $this->external = $row;
             $this->external_loaded = true;
         }
@@ -445,7 +469,7 @@ class Record extends DocumentPart
             // forward
             $linkedRecords = $this->forwardLinkedRecords($linkType);
             $targetRecordTypeSid = $linkType->range_sid;
-            $targetRecordType = $linkType->range;
+            $targetRecordType = $linkType->range();
             $from_min = $linkType->domain_min;
             $from_max = $linkType->domain_max;
             $to_min = $linkType->range_min;
@@ -454,7 +478,7 @@ class Record extends DocumentPart
             // backwards
             $linkedRecords = $this->backLinkedRecords($linkType);
             $targetRecordTypeSid = $linkType->domain_sid;
-            $targetRecordType = $linkType->domain;
+            $targetRecordType = $linkType->domain();
             $from_min = $linkType->range_min;
             $from_max = $linkType->range_max;
             $to_min = $linkType->domain_min;

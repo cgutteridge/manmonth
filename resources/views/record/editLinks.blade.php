@@ -7,7 +7,7 @@
     "max"=>$linkType->domain_max,
     "records"=>$record->forwardLinkedRecords($linkType),
     "type"=>$linkType->range_type,
-    "recordType"=>$linkType->range,
+    "recordType"=>$linkType->range(),
     "linkChanges"=>( array_key_exists($linkType->sid,$linkChanges["fwd"]) ? $linkChanges["fwd"][$linkType->sid] : ["add"=>[],"remove"=>[]] )
 ])
 @endforeach
@@ -19,7 +19,7 @@
     "max"=>$linkType->range_max,
     "records"=>$record->backLinkedRecords($linkType),
     "type"=>$linkType->domain_type,
-    "recordType"=>$linkType->domain,
+    "recordType"=>$linkType->domain(),
     "linkChanges"=>( array_key_exists($linkType->sid,$linkChanges["bck"]) ? $linkChanges["bck"][$linkType->sid] : ["add"=>[],"remove"=>[]] )
 
 ])

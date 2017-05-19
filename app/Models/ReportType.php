@@ -80,11 +80,15 @@ class ReportType extends DocumentPart
      */
     public function rules()
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->documentRevision->rules()
-            ->where("report_type_sid", $this->sid)
-            ->orderBy('rank')
-            ->get();
+        $relationCode = get_class($this) . "#" . $this->id . "->rules";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            MMModel::$cache[$relationCode] = $this->documentRevision->rules()
+                ->where("report_type_sid", $this->sid)
+                ->orderBy('rank')
+                ->get();
+        }
+        return MMModel::$cache[$relationCode];
     }
 
     /**
@@ -95,7 +99,7 @@ class ReportType extends DocumentPart
      */
     function makeReport()
     {
-        $records = $this->baseRecordType()->records;
+        $records = $this->baseRecordType()->records();
         $report = $this->documentRevision->makeReport(); // will be an object when I know what shape it is!
         foreach ($records as $record) {
             try {
@@ -115,12 +119,8 @@ class ReportType extends DocumentPart
      */
     public function baseRecordType()
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        return $this->documentRevision->recordTypes()
-            ->where("sid", $this->base_record_type_sid)
-            ->first();
+        return $this->documentRevision->recordType($this->base_record_type_sid);
     }
-
 
     /*
      * for each rule get all possible contexts based on this record and the rule type 'route'

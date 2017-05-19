@@ -20,8 +20,6 @@ use Validator;
  * @property int domain_max
  * @property int range_min
  * @property int range_max
- * @property mixed domain
- * @property mixed range
  * @property string|null domain_type NULL, "component", "dependent"
  * @property string|null range_type NULL, "component", "dependent"
  */
@@ -32,20 +30,13 @@ class LinkType extends DocumentPart
         'domain_min' => 0,
         'range_min' => 0
     );
-    private $domainCache;
-    private $rangeCache;
-    private $linksCache;
 
     /**
      * @return RecordType
      */
     public function domain()
     {
-        if (!isset($this->domainCache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            $this->domainCache = $this->hasOne('App\Models\RecordType', 'sid', 'domain_sid')->where('document_revision_id', $this->document_revision_id);
-        }
-        return $this->domainCache;
+        return $this->documentRevision->recordType($this->domain_sid);
     }
 
     /**
@@ -53,11 +44,7 @@ class LinkType extends DocumentPart
      */
     public function range()
     {
-        if (!isset($this->rangeCache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            $this->rangeCache = $this->hasOne('App\Models\RecordType', 'sid', 'range_sid')->where('document_revision_id', $this->document_revision_id);
-        }
-        return $this->rangeCache;
+        return $this->documentRevision->recordType($this->range_sid);
     }
 
     /**
@@ -65,11 +52,12 @@ class LinkType extends DocumentPart
      */
     public function links()
     {
-        if (!isset($this->linksCache)) {
+        $relationCode = get_class($this) . "#" . $this->id . "->links";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            $this->linksCache = $this->documentRevision->links()->where("link_type_sid", $this->sid);
+            MMModel::$cache[$relationCode] = $this->documentRevision->links()->where("link_type_sid", $this->sid);
         }
-        return $this->linksCache;
+        return MMModel::$cache[$relationCode];
     }
 
     /**
@@ -77,7 +65,8 @@ class LinkType extends DocumentPart
      * @param $object
      * @return Link
      */
-    public function createLink($subject, $object)
+    public
+    function createLink($subject, $object)
     {
         $this->validateLinkSubject($subject);
         $this->validateLinkObject($object);
@@ -98,7 +87,8 @@ class LinkType extends DocumentPart
      * @param $subject
      * @throws MMValidationException
      */
-    public function validateLinkSubject($subject)
+    public
+    function validateLinkSubject($subject)
     {
     }
 
@@ -106,14 +96,16 @@ class LinkType extends DocumentPart
      * @param $object
      * @throws MMValidationException
      */
-    public function validateLinkObject($object)
+    public
+    function validateLinkObject($object)
     {
     }
 
     /**
      * @throws MMValidationException
      */
-    public function validate()
+    public
+    function validate()
     {
         $validator = Validator::make(
             [
@@ -175,7 +167,8 @@ class LinkType extends DocumentPart
      * Update this LinkType from values in the data
      * @param array $properties
      */
-    public function setProperties($properties)
+    public
+    function setProperties($properties)
     {
         // defaults to zero if empty or null is passed in, but not
         // if it's not set. Fun for testing! Much varied null. Wow!

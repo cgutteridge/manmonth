@@ -69,8 +69,11 @@ class RecordTypeController extends Controller
         $this->authorize('view', $recordType);
 
         $recordBlocks = [];
-        foreach ($recordType->records as $record) {
-            $recordBlocks[] = [
+        foreach ($recordType->records() as $record) {
+            # create a sort key. Add ID to the end so we don't lose items with the
+            # same name.
+            $sortKey = strtoupper($this->titleMaker->title($record)) . "#" . $record->sid;
+            $recordBlocks[$sortKey] = [
                 "data" => $recordController->recordDataBlock($record),
                 "links" => [],
                 "returnURL" => $this->linkMaker->url($recordType, "records"),
@@ -78,6 +81,7 @@ class RecordTypeController extends Controller
                 "swimLanes" => false
             ];
         }
+        ksort($recordBlocks);
         return view('recordType.records', [
             "recordType" => $recordType,
             "records" => $recordBlocks,
@@ -202,7 +206,7 @@ class RecordTypeController extends Controller
     private function recordsByLocalKey(RecordType $recordType)
     {
         $map = [];
-        foreach ($recordType->records as $record) {
+        foreach ($recordType->records() as $record) {
             /** @var Record $record */
             $key = $record->getLocal($recordType->external_local_key);
             if (isset ($key)) {

@@ -22,12 +22,7 @@
                             data-mm-remove="true"
                             @endif
                     >
-                        <a
-                                data-rid="{{$linkedRecord->sid}}"
-                                class="mm-record-stub mm-record-entity mm-record-{{$linkedRecord->sid}}"
-                        >
-                            @title( $linkedRecord )
-                        </a>
+                        @include( "record.miniblock", ["record"=>$linkedRecord])
 
                         <a class="mm-button mm-button-remove">
                             <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>

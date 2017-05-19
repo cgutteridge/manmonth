@@ -52,13 +52,13 @@ class Link extends BinaryOp
             if ($link->domain_sid != $leftType->sid) {
                 throw new ScriptException("Domain of $linkName is not " . $leftType->name);
             }
-            $this->recordType = $link->range;
+            $this->recordType = $link->range();
         } else {
             // backlink, so check range, set type to domain
             if ($link->range_sid != $leftType->sid) {
                 throw new ScriptException("Range of $linkName is not " . $leftType->name);
             }
-            $this->recordType = $link->domain;
+            $this->recordType = $link->domain();
         }
 
         $this->type = $this->recordType->name;
