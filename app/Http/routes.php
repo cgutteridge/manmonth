@@ -77,21 +77,27 @@ Route::group(['middleware' => 'auth'], function () {
 Route::auth();
 
 
-
 /*
  * Turn this on to debug SQL.
  */
-//\DB::listen(function($sql) { dump($sql->sql." [".join( ", ",$sql->bindings)."]"); });
+if (false) {
+    \DB::listen(function ($sql) {
+        dump($sql->sql . " [" . join(", ", $sql->bindings) . "]");
+    });
+}
 
 /* turn this on to count SQL queries */
-global $dbQueries;
-$dbQueries = 0;
-\DB::listen(function ($sql) {
+if (false) {
     global $dbQueries;
-    ++$dbQueries;
-});
-register_shutdown_function(function () {
-    global $dbQueries;
-    dump("SQL QUERIES: $dbQueries");
-});
+    $dbQueries = 0;
+    \DB::listen(function ($sql) {
+        global $dbQueries;
+        ++$dbQueries;
+    });
+    register_shutdown_function(function () {
+        global $dbQueries;
+        dump("SQL QUERIES: $dbQueries");
+    });
+}
+
 
