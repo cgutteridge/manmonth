@@ -85,9 +85,9 @@
     @endif
 
     <h3>Report Types</h3>
-    @if( count($recordType->reportTypes ))
+    @if( count($recordType->reportTypes() ))
         <ul>
-            @foreach( $recordType->reportTypes as $reportType )
+            @foreach( $recordType->reportTypes() as $reportType )
                 <li>
                     @link($reportType) (runs
                     on @link($reportType->baseRecordType()), {{$reportType->rules()->count()}} rule(s))
