@@ -174,7 +174,7 @@ abstract class Field
     public function metaFields()
     {
         $metaFields = [];
-        foreach ($this->metaFieldsDefinitions() as $fieldData) {
+        foreach ($this->metaFieldDefinitions() as $fieldData) {
             $metaFields[] = Field::createFromData($fieldData);
         }
         return $metaFields;
@@ -183,7 +183,7 @@ abstract class Field
     /**
      * Gives a list of field descriptions for the properties of this field.
      */
-    protected function metaFieldsDefinitions()
+    protected function metaFieldDefinitions()
     {
         return [
             [

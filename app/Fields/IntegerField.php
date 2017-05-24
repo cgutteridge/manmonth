@@ -53,7 +53,7 @@ class IntegerField extends Field
     /**
      * Gives a list of field descriptions for the properties of this field.
      */
-    protected function metaFieldsDefinitions()
+    protected function metaFieldDefinitions()
     {
         return array_merge(
             parent::metaFieldDefinitions(),

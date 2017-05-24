@@ -136,10 +136,10 @@ class OptionField extends Field
     /**
      * @return array
      */
-    protected function metaFieldsDefinitions()
+    protected function metaFieldDefinitions()
     {
         return array_merge(
-            parent::metaFieldsDefinitions(),
+            parent::metaFieldDefinitions(),
             [
                 [
                     "name" => "options",
