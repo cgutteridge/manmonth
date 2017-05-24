@@ -231,6 +231,9 @@ class Rule extends DocumentPart
     public static function actionFactory($actionName)
     {
         $actions = self::actions();
+        if( !array_key_exists($actionName, $actions)){
+            throw new Exception("Rule has unknown action: \"".$actionName."\"");
+        }
         return $actions[$actionName];
     }
 
