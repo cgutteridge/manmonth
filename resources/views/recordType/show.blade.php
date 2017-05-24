@@ -11,19 +11,17 @@
     </p>
     <table class="mm-record">
         <thead>
-        <tr>
+        <tr style="font-size: 150%">
             <th>Core information</th>
+            @can('edit',$recordType)
+                <th class="mm-record-action"><a href="@url($recordType,'edit')"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></a></th>
+            @endcan
         </tr>
         </thead>
         <tbody>
         <tr>
-            <td>
+            <td colspan="2">
                 @include('showField.list',$meta)
-                @can('edit',$recordType)
-                    <p>
-                        <a type="button" class="btn btn-primary" href="@url($recordType,'edit')">Edit</a>
-                    </p>
-                @endcan
             </td>
         </tr>
         </tbody>
@@ -35,19 +33,17 @@
     @foreach( $fields as $field)
         <table class="mm-record">
             <thead>
-            <tr>
+            <tr style="font-size: 150%">
                 <th>{{ $field["title"] }}</th>
+                @can('edit',$recordType)
+                    <th class="mm-record-action"><a href="{{$field["edit"]}}"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></a></th>
+                @endcan
             </tr>
             </thead>
             <tbody>
             <tr>
-                <td>
+                <td colspan="2">
                     @include('showField.list',$field)
-                    @can('edit',$recordType)
-                        <p>
-                            <a type="button" class="btn btn-primary" href="{{$field["edit"]}}">Edit</a>
-                        </p>
-                    @endcan
                 </td>
             </tr>
             </tbody>

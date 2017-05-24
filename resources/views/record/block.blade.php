@@ -25,8 +25,6 @@
             <table class="mm-record-data" style="width:100%">
                 @foreach( $data as $fieldValue )
                     <tr style='cursor:pointer;'
-                        data-toggle="tooltip"
-                        title="Click to view"
                         onclick="document.location.href = '@url($record)';">
                         <th>{{$fieldValue["title"]}}:</th>
                         @if( $fieldValue["source"] == 'default')
