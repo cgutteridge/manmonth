@@ -57,14 +57,16 @@ class DecimalField extends Field
         return array_merge(
             parent::metaFieldDefinitions(),
             [
-                "name" => "min",
-                "label" => "Minimum value",
-                "type" => "decimal"
-            ],
-            [
-                "name" => "max",
-                "label" => "Maximum value",
-                "type" => "decimal"
+                [
+                    "name" => "min",
+                    "label" => "Minimum value",
+                    "type" => "decimal"
+                ],
+                [
+                    "name" => "max",
+                    "label" => "Maximum value",
+                    "type" => "decimal"
+                ]
             ]
         );
     }

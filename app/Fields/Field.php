@@ -160,7 +160,7 @@ abstract class Field
     public function metaFields()
     {
         $metaFields = [];
-        foreach ($this->metaFieldDefitions() as $fieldData) {
+        foreach ($this->metaFieldsDefinitions() as $fieldData) {
             $metaFields[] = Field::createFromData($fieldData);
         }
         return $metaFields;
@@ -169,7 +169,7 @@ abstract class Field
     /**
      * Gives a list of field descriptions for the properties of this field.
      */
-    protected function metaFieldDefitions()
+    protected function metaFieldsDefinitions()
     {
         return [
             [
@@ -254,6 +254,8 @@ abstract class Field
     {
         if ($fieldData["type"] == "string") {
             return new StringField($fieldData, $recordType);
+        } elseif ($fieldData["type"] == "longtext") {
+            return new LongTextField($fieldData, $recordType);
         } elseif ($fieldData["type"] == "decimal") {
             return new DecimalField($fieldData, $recordType);
         } elseif ($fieldData["type"] == "integer") {

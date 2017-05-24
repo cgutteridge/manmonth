@@ -58,14 +58,16 @@ class IntegerField extends Field
         return array_merge(
             parent::metaFieldDefinitions(),
             [
-                "name" => "min",
-                "label" => "Minimum value",
-                "type" => "integer"
-            ],
-            [
-                "name" => "max",
-                "label" => "Maximum value",
-                "type" => "integer"
+                [
+                    "name" => "min",
+                    "label" => "Minimum value",
+                    "type" => "integer"
+                ],
+                [
+                    "name" => "max",
+                    "label" => "Maximum value",
+                    "type" => "integer"
+                ]
             ]
         );
     }

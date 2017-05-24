@@ -312,7 +312,7 @@ class RecordType extends DocumentPart
     }
 
     /**
-     * List of the metadata fields for this field's properties.
+     * List of the metadata fields for this record type's properties.
      * @return Field[]
      */
     public function metaFields()
