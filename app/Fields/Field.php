@@ -2,7 +2,6 @@
 
 namespace App\Fields;
 
-use App\Exceptions\MMScriptRuntimeException;
 use App\Exceptions\MMValidationException;
 use App\Exceptions\ScriptException;
 use App\MMScript;
@@ -93,21 +92,21 @@ abstract class Field
     {
         $validator = Validator::make($this->data, $this->fieldValidationArray());
         if ($validator->fails()) {
-            throw new MMValidationException("Validation fail in field: " . join(", ", $validator->errors()->all()));
+            throw $this->validationException(join(", ", $validator->errors()->all()));
         }
 
         /* if there's a script, check that the script will return the right type .*/
         if (isset($this->data["script"])) {
             if ($this->recordType == null) {
-                throw new MMValidationException("Script on field '" . $this->data["name"] . "' can't be tested because the field doesn't belong to a record type.");
+                throw $this->validationException("Script can't be tested because the field doesn't belong to a record type.");
             }
             try {
                 $script = $this->getScript($this->recordType);
                 if ($script->type() != $this->data["type"]) {
-                    throw new MMValidationException("Script on field '" . $this->data["name"] . "' should return a '" . $this->data["type"] . "' but returned a " . $script->type());
+                    throw $this->validationException("Script should return a '" . $this->data["type"] . "' but returned a " . $script->type());
                 }
             } catch (ScriptException $e) {
-                throw new MMValidationException("Script on field '" . $this->data["name"] . "' has a problem: " . $e->getMessage(), 0, $e);
+                throw $this->validationException("Script has a problem: " . $e->getMessage(), 0, $e);
             }
         }
     }
@@ -126,6 +125,21 @@ abstract class Field
             'mode' => 'string|in:prefer_local,prefer_external,only_local,only_external',
             'script' => 'string'
         ];
+    }
+
+    /**
+     * Builds a nice exception with context.
+     * @param string $msg
+     * @return MMValidationException
+     */
+    protected function validationException($msg)
+    {
+        $prefix = "Validation failure in ";
+        if ($this->recordType) {
+            $prefix .= "record type \"" . $this->recordType->label . "\", ";
+        }
+        $prefix .= "field \"" . $this->data["name"] . "\": ";
+        return new MMValidationException($prefix . $msg);
     }
 
     /**
