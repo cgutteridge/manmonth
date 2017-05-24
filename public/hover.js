@@ -12,7 +12,7 @@ jQuery(document).ready(function () {
         jQuery('.programme_event').css('border', 'solid 1px green');
         return;
     }
-    jQuery('.mm_hover').map(function (i, x) {
+    jQuery('.mm-hover').map(function (i, x) {
         var cell = jQuery(x);
 
         var shownote_fn = function (event) {

@@ -4,9 +4,46 @@
 
 $(document).ready(function () {
 
+    $('.mm-report-wrapper').each( function(n,e) {
+        var rh = {};
+        rh.report = $(e);
+        rh.items = rh.report.find( ".mm-record-report-visual > div");
+        rh.currentText = rh.report.find(".mm-report-current-view");
+        rh.reveal = function(code){
+            this.items.each(function(n,e){
+                var visual = $(e);
+                if( visual.attr('data-mm-report-visual')==code ) {
+                    visual.show();
+                } else {
+                    visual.hide();
+                }
+            });
+        };
+        rh.report.find(".dropdown-menu li a").each(function(n,e) {
+            $(e).click( function () {
+                var link = $(this);
+                var code = link.attr( "data-mm-report-view" );
+                var desc = link.text();
+                rh.currentText.text(desc);
+                rh.report.find(".dropdown-menu li a .glyphicon").remove();
+                link.html( $('<span><span class="glyphicon glyphicon-ok"></span> '+ desc+'</span>'));
+                rh.reveal(code);
+                rh.items.each(function(n,e){
+                    var visual = $(e);
+                    if( visual.attr('data-mm-report-visual')==code ) {
+                        visual.show();
+                    } else {
+                        visual.hide();
+                    }
+                });
+            });
+        })
+        rh.reveal( 'absolute');
+    });
+
     /* filtered lists */
     $('.mm-filtered').each(function (n, e) {
-        element = $(e);
+        var element = $(e);
         var inputGroup = $('<div class="input-group"><span class="input-group-addon"><span class="glyphicon glyphicon-filter" aria-hidden="true"></span></span></div>');
         var filterInput = $('<input type="text" class="form-control" placeholder="Filter list" />');
         inputGroup.append(filterInput);

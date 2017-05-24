@@ -41,14 +41,14 @@
             @foreach( $rows as $row )
                 <tr>
                     @if( isset($row->_record))
-                        <td class="mm_record_report_icon">
+                        <td class="mm-record-report-icon">
                             <a href="@url($row->_record)"><span class="glyphicon glyphicon-eye-open"
                                                                 aria-hidden="true"></span></a>
                         </td>
                         <td></td>
                     @else
                         <td></td>
-                        <td class="mm_record_report_icon">
+                        <td class="mm-record-report-icon">
                             @can('create',$recordType)
                                 <a href="{{$row->_create}}"><span class="glyphicon glyphicon-plus-sign"
                                                                   aria-hidden="true"></span></a>

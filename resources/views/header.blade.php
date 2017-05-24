@@ -42,7 +42,7 @@
         </div><!-- /.container-fluid -->
     </nav>
     @if( array_key_exists("side",$nav))
-        <div class="mm_sidestatus mm_sidestatus_{{$nav['side']['status']}}">
+        <div class="mm-sidestatus mm_sidestatus_{{$nav['side']['status']}}">
             {{ $nav['side']['label'] }}
         </div>
     @endif
