@@ -12,6 +12,6 @@
                 aria-describedby="{{ $idPrefix }}_help"
                 @endif
                 placeholder="{{$placeholder}}"
-                value="{{$value}}"></textarea>
+        >{{$value}}</textarea>
     </td>
 </tr>
