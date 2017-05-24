@@ -53,10 +53,10 @@ abstract class MMModel extends Model
     protected
     function makeValidationException($validator)
     {
-        $msg = "Validation failure.";
+        $msg = "Validation failure on .";
         $errors = $validator->errors();
         foreach ($errors->getMessages() as $fieldName => $list) {
-            $msg .= " " . join(", ", $list);
+            $msg .= " $fieldName: " . join(". $fieldName: ", $list);
             /* commented out as it's a bit buggy. Sometimes fieldName seems to start one too high.
             $data = $validator->getData();
             $value = $data;

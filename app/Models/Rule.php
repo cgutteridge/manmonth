@@ -226,7 +226,8 @@ class Rule extends DocumentPart
 
     /**
      * @param string $actionName
-     * @return \App\MMAction\Action
+     * @return Action
+     * @throws Exception
      */
     public static function actionFactory($actionName)
     {
