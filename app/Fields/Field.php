@@ -254,7 +254,18 @@ abstract class Field
                 "name" => "external_local_key",
                 "type" => "string",
                 "label" => "External Data Local Key"
+            ],
+            [
+                "name" => "prefix",
+                "type" => "string",
+                "label" => "Prefix text"
+            ],
+            [
+                "name" => "suffix",
+                "type" => "string",
+                "label" => "Suffix text"
             ]
+
         ];
     }
 

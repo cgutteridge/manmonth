@@ -304,8 +304,11 @@ class Rule extends DocumentPart
         if (count($nextFocusObjectsSids) == 0) {
             return; // this route doesn't resolve to any contexts to run the rule in
         }
+        /** @var Record $nextThing */
         $nextThing = $this->documentRevision->records()->getQuery()->where('sid', '=', $nextFocusObjectsSids[0])->first();
+        /** @var string $baseNextTypeName */
         $baseNextTypeName = $nextThing->recordType->name;
+        /** @var string $nextTypeName */
         $nextTypeName = $baseNextTypeName;
         // in case we meet the same class twice, will fallback
         // to class, class2, class3, etc.
