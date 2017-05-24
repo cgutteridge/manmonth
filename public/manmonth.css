@@ -501,6 +501,10 @@ table.mm-record-data td {
     width: 100%;
 }
 
+.mm-record-report-visual > div {
+    display:none;
+}
+
 .mm-record-report-visual-breakdown td {
     padding: 1px 10px;
 }
