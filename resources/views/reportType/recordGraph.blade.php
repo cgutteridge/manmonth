@@ -35,7 +35,7 @@
 
     @if( $target > $total && $showFree )
         <div class="mm-loading mm-loading-free"
-             style="width: {{ (100*($target-$total)*$scale) }}%">
+             style="width: {{ (99*($target-$total)*$scale) }}%">
             <div class="mm-loading-inner"></div>
         </div>
     @endif
