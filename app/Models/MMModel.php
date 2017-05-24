@@ -53,7 +53,7 @@ abstract class MMModel extends Model
     protected
     function makeValidationException($validator)
     {
-        $msg = "Validation failure on .";
+        $msg = "Validation failure. ";
         $errors = $validator->errors();
         foreach ($errors->getMessages() as $fieldName => $list) {
             $msg .= " $fieldName: " . join(". $fieldName: ", $list);

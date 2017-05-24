@@ -243,7 +243,7 @@ class RecordType extends DocumentPart
             [
                 'title' => 'string',
                 'fields' => 'required|array',
-                'fields.*.type' => 'required|in:boolean,integer,decimal,string,option'
+                'fields.*.type' => 'required|in:boolean,integer,decimal,string,option,longtext'
             ]);
 
         if ($validator->fails()) {
