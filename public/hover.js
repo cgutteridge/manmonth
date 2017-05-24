@@ -51,8 +51,8 @@ jQuery(document).ready(function () {
             }
         };
 
-        cell.find(".mm_hover_target")
-            .mousemove(shownote_fn.bind(cell.find(".mm_hover_message")))
+        cell.find(".mm-hover-target")
+            .mousemove(shownote_fn.bind(cell.find(".mm-hover-message")))
             .mouseleave(function () {
                 jQuery('#hovernote').hide();
             })

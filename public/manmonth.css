@@ -521,7 +521,7 @@ table.mm-record-data td {
 
 /* REPORT GRAPH */
 
-.mm-hover:first-child .mm-loading {
+.mm-loading-bar > div:first-child > .mm-loading {
     border-left: solid 1px black;
 }
 

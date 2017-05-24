@@ -21,7 +21,7 @@ class ReportTypeController extends Controller
 
         $renderErrors = [];
         $reportData = [];
-
+        $unsortedRows = [];
         try {
             $report = $reportType->makeReport();
 
@@ -71,7 +71,8 @@ class ReportTypeController extends Controller
                         $categoryTotals[$category] += $loadItem["load"];
                     }
                 }
-                $reportData["rows"][] = [
+                $sortKey = strtoupper($this->titleMaker->title($record)) . "#" . $record->sid;
+                $unsortedRows[$sortKey] = [
                     "record" => $record,
                     "recordReport" => $recordReport,
                     "target" => $recordTarget,
@@ -84,6 +85,8 @@ class ReportTypeController extends Controller
         } catch (ReportingException $e) {
             $renderErrors [] = $e->getMessage();
         }
+        ksort($unsortedRows);
+        $reportData["rows"]=array_values($unsortedRows);
 
         return view('reportType.show', [
             "reportType" => $reportType,

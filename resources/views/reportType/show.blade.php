@@ -68,8 +68,8 @@
                             <th colspan="2">Mean:</th>
                             @foreach( $reportData['rows'][0]['recordReport']->getColumns() as $colName=>$colValue)
                                 <td class="mm-record-report-data">
-                                    @if( array_key_exists($colName,$view['means']) )
-                                        {{ sprintf("%2.2f",$view['means'][$colName]) }}
+                                    @if( array_key_exists($colName,$reportData['means']) )
+                                        {{ sprintf("%2.2f",$reportData['means'][$colName]) }}
                                     @endif
                                 </td>
                             @endforeach

@@ -1,6 +1,6 @@
 <div class="mm-hover">
-    <div class="mm_hover_target mm-loading"
-         style="width: {{ 100*$loading['load']*$scale }}%;
+    <div class="mm-hover-target mm-loading"
+         style="width: {{ 99*$loading['load']*$scale }}%;
          {{array_key_exists('background_color',$opts)?"background-color: ".$opts['background_color'].";":""}}
                  "
 
