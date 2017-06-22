@@ -374,6 +374,7 @@ table.mm-record-data td {
 
 .mm-record-stub > tbody > tr > td.mm-record-stub-action {
     background-color: #093263;
+    padding: 0;
 }
 
 .mm-record-stub > tbody > tr > td.mm-record-stub-action a {
@@ -494,6 +495,9 @@ table.mm-record-data td {
 .mm-record-report-icon {
     padding: 0 0.5em;
 }
+.mm-record-report-visual .mm-graph {
+    margin-top: 4px;
+}
 
 .mm-record-report-visual {
     border-left: solid 1px #eeeeee;
@@ -521,10 +525,16 @@ table.mm-record-data td {
 
 /* REPORT GRAPH */
 
+.mm-graph {
+}
+
 .mm-loading-bar > div:first-child > .mm-loading {
     border-left: solid 1px black;
 }
 
+/* do not add any padding to the outer loading (here) as
+   it messes up widths of the graph.
+ */
 .mm-loading {
     overflow: hidden;
     background-color: lightgray;
@@ -536,7 +546,6 @@ table.mm-record-data td {
     float: left;
     margin: 0;
     height: 25px;
-    padding-left: 3px;
 }
 
 .mm-hover-message {

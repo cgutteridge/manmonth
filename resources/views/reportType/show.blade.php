@@ -116,19 +116,24 @@
 
             <div class="panel-body">
                 <p>This is a list of every action triggered on every record.</p>
-                @foreach( $reportType->baseRecordType()->records() as $record)
+                    @foreach( $reportData['rows'] as $row )
+
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            @include( 'dataTable', ['data'=>$record->data ])
+                            @title($row['record'])
                         </div>
+                        <table>
+                            @include( 'dataTable', ['data'=>$row['record']->data ])
+                        </table>
                         <ol class="list-group">
-                            @foreach( $report->recordReports()[ $record->sid ]->getLog() as $log )
+                            @foreach( $row["recordReport"]->getLog() as $logEntry )
                                 <li class="list-group-item">
-                                    @include( "dataTable", [ "data"=>$log] )
+                                    @include( "dataTable", [ "data"=>$logEntry] )
                                 </li>
                             @endforeach
                         </ol>
                     </div>
+
                 @endforeach
             </div>
         </div>
