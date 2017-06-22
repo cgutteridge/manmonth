@@ -16,7 +16,6 @@ use Validator;
  * @property DocumentRevision documentRevision
  * @property int sid
  * @property RecordType recordType
- * @property int document_revision_id
  * @property string array
  * @property Collection forwardLinks
  * @property Collection backLinks
@@ -54,7 +53,7 @@ class Record extends DocumentPart
         if (!array_key_exists($relationCode, MMModel::$cache)) {
             /** @noinspection PhpUndefinedMethodInspection */
             MMModel::$cache[$relationCode] = $this->hasMany('App\Models\Link', 'subject_sid', 'sid')
-                ->where('document_revision_id', $this->document_revision_id);
+                ->where('document_revision_id', $this->documentRevision->id);
         }
         return MMModel::$cache[$relationCode];
     }
@@ -69,7 +68,7 @@ class Record extends DocumentPart
         if (!array_key_exists($relationCode, MMModel::$cache)) {
             /** @noinspection PhpUndefinedMethodInspection */
             MMModel::$cache[$relationCode] = $this->hasMany('App\Models\Link', 'object_sid', 'sid')
-                ->where('document_revision_id', $this->document_revision_id);
+                ->where('document_revision_id', $this->documentRevision->id);
         }
         return MMModel::$cache[$relationCode];
     }

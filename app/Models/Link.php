@@ -27,7 +27,7 @@ class Link extends DocumentPart
         if (!array_key_exists($relationCode, MMModel::$cache)) {
             /** @noinspection PhpUndefinedMethodInspection */
             MMModel::$cache[$relationCode] = $this->hasOne('App\Models\LinkType', 'sid', 'link_type_sid')
-                ->where('document_revision_id', $this->document_revision_id);
+                ->where('document_revision_id', $this->documentRevision->id);
         }
         return MMModel::$cache[$relationCode];
     }
@@ -40,7 +40,7 @@ class Link extends DocumentPart
         if (!array_key_exists($relationCode, MMModel::$cache)) {
             /** @noinspection PhpUndefinedMethodInspection */
             MMModel::$cache[$relationCode] = $this->hasOne('App\Models\Record', 'sid', 'subject_sid')
-                ->where('document_revision_id', $this->document_revision_id);
+                ->where('document_revision_id', $this->documentRevision->id);
         }
         return MMModel::$cache[$relationCode];
     }
@@ -54,7 +54,7 @@ class Link extends DocumentPart
         if (!array_key_exists($relationCode, MMModel::$cache)) {
             /** @noinspection PhpUndefinedMethodInspection */
             MMModel::$cache[$relationCode] = $this->hasOne('App\Models\Record', 'sid', 'object_sid')
-                ->where('document_revision_id', $this->document_revision_id);
+                ->where('document_revision_id', $this->documentRevision->id);
         }
         return MMModel::$cache[$relationCode];
     }
