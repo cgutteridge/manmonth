@@ -54,6 +54,7 @@
                         @endif
                         <th class="mm-report-header-data">Total</th>
                         <th class="mm-report-header-data">Target</th>
+                        <th class="mm-report-header-data">Ratio</th>
                         <th class="mm_report_header_graph"></th>
                     </tr>
                     </thead>

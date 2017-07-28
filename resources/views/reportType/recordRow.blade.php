@@ -17,6 +17,7 @@
     @endif
     <td class="mm-record-report-data">{{ $total }}</td>
     <td class="mm-record-report-data">{{ $target }}</td>
+    <td class="mm-record-report-data">{{ @sprintf("%.2f",$total/$target) }}</td>
     <td class="mm-record-report-visual">
         <div data-mm-report-visual="absolute">
             @include( 'reportType.recordGraph', [
