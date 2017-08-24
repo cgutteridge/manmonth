@@ -71,7 +71,7 @@ abstract class DocumentPart extends MMModel
      */
     public function isProtected()
     {
-        if (!array_key_exists('protected', $this->data)) {
+        if (is_array($this->data) && !array_key_exists('protected', $this->data)) {
             return false;
         }
         return $this->data['protected'] == true;
