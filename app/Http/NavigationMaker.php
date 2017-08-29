@@ -64,12 +64,10 @@ class NavigationMaker
         }
         /** @var LinkType $linkType */
         foreach ($documentRevision->linkTypes as $linkType) {
-            if (!$recordType->isProtected()) {
-                $browseItems [] = ["glyph" => "list",
-                    "label" => "LINK: " . $this->titleMaker->title($linkType->domain()) . "&rarr;" . $this->titleMaker->title($linkType) . "&rarr;" . $this->titleMaker->title($linkType->range()),
-                    "href" => $this->linkMaker->url($linkType, "links"),
-                    "allowed" => Auth::user()->can('view', $documentRevision)];
-            }
+            $browseItems [] = ["glyph" => "list",
+                "label" => "LINK: " . $this->titleMaker->title($linkType->domain()) . "&rarr;" . $this->titleMaker->title($linkType) . "&rarr;" . $this->titleMaker->title($linkType->range()),
+                "href" => $this->linkMaker->url($linkType, "links"),
+                "allowed" => Auth::user()->can('view', $documentRevision)];
             $schemaItems [] = ["glyph" => "cog",
                 "label" => "LINK: " . $this->titleMaker->title($linkType),
                 "href" => $this->linkMaker->url($linkType),
@@ -98,23 +96,40 @@ class NavigationMaker
         if ($documentRevision->status == 'draft') {
             $ritems [] = [
                 "glyph" => "circle-arrow-up",
-                "label" => "Publish Draft",
-                "href" => $this->linkMaker->url($documentRevision, "publish"),
-                "allowed" => Auth::user()->can('publish', $documentRevision->document)
+                "label" => "Commit draft and continue editing",
+                "href" => $this->linkMaker->url($documentRevision, "commit-and-continue"),
+                "allowed" => Auth::user()->can('commit', $documentRevision->document)
             ];
             $ritems [] = [
-                "label" => "Scrap Draft",
+                "glyph" => "circle-arrow-up",
+                "label" => "Commit draft",
+                "href" => $this->linkMaker->url($documentRevision, "commit"),
+                "allowed" => Auth::user()->can('commit', $documentRevision->document)
+            ];
+            if (Auth::user()->can('publish', $documentRevision->document)) {
+                // inside an if() as this requires commit AND publish
+                $ritems [] = [
+                    "glyph" => "circle-arrow-up",
+                    "label" => "Commit draft and publish it",
+                    "href" => $this->linkMaker->url($documentRevision, "commit-and-publish"),
+                    "allowed" => Auth::user()->can('commit', $documentRevision->document)
+                ];
+            }
+            $ritems [] = [
+                "label" => "Scrap draft",
                 "glyph" => "circle-arrow-down",
                 "href" => $this->linkMaker->url($documentRevision, "scrap"),
-                "allowed" => Auth::user()->can('scrap', $documentRevision->document)
+                "allowed" => Auth::user()->can('commit', $documentRevision->document)
             ];
+
             $ritems [] = [
                 "label" => "Configuration",
                 "glyph" => "cog",
                 "href" => $this->linkMaker->url($documentRevision->configRecord(), "edit"),
                 "allowed" => Auth::user()->can('edit', $documentRevision->configRecord())
             ];
-        } else {
+        }
+        if ($documentRevision->status != 'draft') {
             $ritems [] = [
                 "label" => "Configuration",
                 "glyph" => "cog",
@@ -145,13 +160,9 @@ class NavigationMaker
 
         $nav["side"] = [];
         switch ($documentRevision->status) {
-            case "current":
-                $nav["side"]["status"] = "current";
-                $nav["side"]["label"] = "This is the current revision";
-                break;
             case "scrap":
                 $nav["side"]["status"] = "scrap";
-                $nav["side"]["label"] = "This is a scrapped draft revision";
+                $nav["side"]["label"] = "This is a scrapped revision";
                 break;
             case "draft":
                 $nav["side"]["status"] = "draft";
@@ -159,7 +170,16 @@ class NavigationMaker
                 break;
             case "archive":
                 $nav["side"]["status"] = "archive";
-                $nav["side"]["label"] = "This is an archived revision";
+                $nav["side"]["label"] = "This is a committed revision";
+                if ($documentRevision->published) {
+                    $latestPublic = $documentRevision->document->latestPublishedRevision();
+                    $nav["side"]["label"] = "This is a published revision";
+
+                    if ($latestPublic != null && $documentRevision->id == $latestPublic->id) {
+                        $nav["side"]["status"] = "current";
+                        $nav["side"]["label"] = "This is the latest published revision";
+                    }
+                }
                 break;
             default:
                 throw new Exception("Unknown document status: " . $documentRevision->status);
@@ -183,30 +203,53 @@ class NavigationMaker
             "href" => $this->linkMaker->url($document)
         ];
         */
+        $docItems = [];
+        $docItems [] =
+            [
+                "glyph" => "file",
+                "label" => "Latest published revision",
+                "href" => $this->linkMaker->url($document, "latest-published"),
+                "allowed" => Auth::user()->can('view-published-latest', $document)
+            ];
+        $docItems [] =
+
+            [
+                "glyph" => "file",
+                "label" => "Latest revision",
+                "href" => $this->linkMaker->url($document, "latest"),
+                "allowed" => Auth::user()->can('view-archive', $document)
+            ];
+        $draft = $document->draftRevision();
+        if ($draft) {
+            $docItems [] =
+                [
+                    "glyph" => "file",
+                    "label" => "Draft revision",
+                    "href" => $this->linkMaker->url($document, "draft"),
+                    "allowed" => Auth::user()->can('view-draft', $document)
+                ];
+        } else {
+            $docItems [] =
+                [
+                    "glyph" => "file",
+                    "label" => "Create draft from latest revision",
+                    "href" => $this->linkMaker->url($document, "create-draft"),
+                    "allowed" => Auth::user()->can('commit', $document)
+                ];
+        }
+        $docItems [] =
+            [
+                "glyph" => "list",
+                "label" => "All revisions",
+                "href" => $this->linkMaker->url($document),
+                "allowed" => Auth::user()->can('view-archive', $document)
+            ];
+
         $nav["menus"] = [
             [
                 "label" => $document->name,
                 "glyph" => "file",
-                "items" => [
-                    [
-                        "glyph" => "file",
-                        "label" => "Current",
-                        "href" => $this->linkMaker->url($document, "current"),
-                        "allowed" => Auth::user()->can('view-current', $document)
-                    ],
-                    [
-                        "glyph" => "file",
-                        "label" => "Draft",
-                        "href" => $this->linkMaker->url($document, "draft"),
-                        "allowed" => Auth::user()->can('view-draft', $document)
-                    ],
-                    [
-                        "glyph" => "list",
-                        "label" => "All revisions",
-                        "href" => $this->linkMaker->url($document),
-                        "allowed" => Auth::user()->can('view-archive', $document)
-                    ]
-                ]
+                "items" => $docItems
             ]
         ];
         return $nav;
@@ -222,7 +265,7 @@ class NavigationMaker
         $nav["title"] = ["label" => ""];
         if (App::environment('prod')) {
             ; // do nothing
-        } elseif(App::environment('pprd') ) {
+        } elseif (App::environment('pprd')) {
             $nav["sitestatus"] = "Pre-production instance";
         } else {
             $nav["sitestatus"] = "Development instance";
@@ -232,6 +275,11 @@ class NavigationMaker
                 "label" => Auth::user()->name,
                 "glyph" => "user",
                 "items" => [
+                    [
+                        "label" => "Profile",
+                        "href" => "/profile",
+                        "glyph" => "user"
+                    ],
                     [
                         "label" => "Logout",
                         "href" => "/logout",

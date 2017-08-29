@@ -37,6 +37,7 @@
                         ])
         </div>
         <div data-mm-report-visual="targets">
+            {{--Might have an issue if there's no target?--}}
             @include( 'reportType.recordGraph', [
                        "showFree"=>true,
                        "showTarget"=>true,
@@ -45,10 +46,10 @@
                        "loadings"=>$loadings,
                        "units" => $units,
                        "scale" =>
-                        0 == 1/max( $recordReport->getLoadingTotal(), $recordReport->getLoadingTarget() ) ?
-                        1 :
-                        1/max( $recordReport->getLoadingTotal(), $recordReport->getLoadingTarget() )
-                       ,
+                                max($reportData["maxLoading"], $reportData["maxTarget"]) == 0 ?
+                                1 :
+                                ($reportData["maxTarget"]/$recordReport->getLoadingTarget()) / ($reportData["maxRatio"]*max($reportData["maxLoading"], $reportData["maxTarget"])),
+
                        "target" => $recordReport->getLoadingTarget(),
                        "total" => $recordReport->getLoadingTotal(),
                        "categories" => $reportData["categories"]

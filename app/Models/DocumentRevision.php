@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Collection;
  * @property Link[] links
  * @property LinkType[] linkTypes
  * @property Rule[] rules
+ * @property boolean published
  */
 class DocumentRevision extends MMModel
 {
@@ -208,19 +209,51 @@ class DocumentRevision extends MMModel
 
     // actions 
 
+
     /**
      * @throws Exception
      */
     public function publish()
     {
-        // can only publish if this is a draft
-        if ($this->status != "draft") {
-            throw new Exception("Can't publish a revision that is not a draft. status=" . $this->status);
+        if ($this->status != "archive") {
+            throw new Exception("Can't publish a revision that is not a commited to archive. status=" . $this->status);
         }
-        $oldRevision = $this->document->currentRevision();
-        $oldRevision->status = "archive";
-        $this->status = "current";
-        $oldRevision->save();
+        if ($this->published) {
+            throw new Exception("Revision is already published. Can't publish it again.");
+        }
+
+        $this->published = true;
+        $this->save();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function unpublish()
+    {
+        if ($this->status != "archive") {
+            throw new Exception("Can't unpublish a revision that is not a commited to archive. status=" . $this->status);
+        }
+        if (!$this->published) {
+            throw new Exception("Revision is already unpublished. Can't unpublish it again.");
+        }
+
+        $this->published = false;
+        $this->save();
+    }
+
+
+    /**
+     * @throws Exception
+     */
+    public function commit()
+    {
+        // can only commit if this is a draft
+        if ($this->status != "draft") {
+            throw new Exception("Can't commit a revision that is not a draft. status=" . $this->status);
+        }
+
+        $this->status = "archive";
         $this->save();
     }
 

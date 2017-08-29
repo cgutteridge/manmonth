@@ -1,4 +1,5 @@
 <?php
+
 use App\MMScript\Values\BooleanValue;
 use App\MMScript\Values\DecimalValue;
 
@@ -12,17 +13,16 @@ class MMScriptTest extends TestCase
 {
 
 
+    /* Tree Text */
+
+    // this just walks the code but that's better than nothing, right?
+
     function test_tree_text_code_kinda()
     {
         $script = new \App\MMScript("true & !false", $this->makeMockDocRev(), []);
         $script->textTree();
     }
 
-
-
-    /* Tree Text */
-
-    // this just walks the code but that's better than nothing, right?
 
     function makeMockDocRev()
     {
@@ -31,6 +31,11 @@ class MMScriptTest extends TestCase
         return $mock;
     }
 
+    function makeMockMMScript()
+    {
+        $mock = new \App\MMScript("'Mock Script'", $this->makeMockDocRev(), []);
+        return $mock;
+    }
 
     /* LITERAL */
 
@@ -94,7 +99,10 @@ class MMScriptTest extends TestCase
 
     function test_bogus_literal()
     {
-        $literal = new \App\MMScript\Ops\Literal(null, [0, "FISH", true]);
+
+        $literal = new \App\MMScript\Ops\Literal(
+            $this->makeMockMMScript(),
+            [0, "FISH", true]);
         $this->setExpectedException(\App\Exceptions\ScriptException::class);
         $literal->type();
     }
@@ -153,11 +161,12 @@ class MMScriptTest extends TestCase
 
     function test_adding_booleans_should_fail_in_runtime()
     {
+        $script = $this->makeMockMMScript();
         $addOp = new \App\MMScript\Ops\AddOp(
-            null,
+            $script,
             [0, "ADD"],
-            new \App\MMScript\Ops\Literal(null, [0, "BOOL", true]),
-            new \App\MMScript\Ops\Literal(null, [0, "BOOL", true]));
+            new \App\MMScript\Ops\Literal($script, [0, "BOOL", true]),
+            new \App\MMScript\Ops\Literal($script, [0, "BOOL", true]));
         $this->setExpectedException(\App\Exceptions\MMScriptRuntimeException::class);
         $addOp->execute([]);
     }
@@ -619,7 +628,6 @@ class MMScriptTest extends TestCase
         $this->assertEquals(true, $result->value);
         $this->assertInstanceOf(BooleanValue::class, $result);
     }
-
 
 
     /* UNARY MINUS */

@@ -15,11 +15,6 @@ class AlterTarget extends Action
     // readable title etc.
     public $params = [
         [
-            "name" => "target",
-            "type" => "string",
-            "required" => true,
-        ],
-        [
             "name" => "change",
             "type" => "decimal",
             "required" => true,
@@ -40,14 +35,12 @@ class AlterTarget extends Action
      */
     public function execute($recordReport, $rule, $context, $params)
     {
-        if (!$recordReport->hasLoadingTarget($params["target"])) {
-            throw new ReportingException("Attempt to alter uninitialised target '" . $params["target"] . "'");
-        }
         if (!isset($params["change"])) {
             throw new ReportingException("Attempt to alter target '" . $params["target"] . "' with null change");
         }
-        $value = $recordReport->getLoadingTarget($params["target"]) + $params["change"];
-        $recordReport->setLoadingTarget($params["target"], $value);
+        /** @var float $value */
+        $value = $recordReport->getLoadingTarget() * $params["factor"];
+        $recordReport->setLoadingTarget($value);
         $this->recordLog($recordReport, $params);
     }
 }

@@ -3,13 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\MMValidationException;
-use App\Models\Record;
 use App\Models\RecordType;
-use DB;
 use Exception;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 use Redirect;
-use Response;
 
 class RecordTypeFieldController extends Controller
 {

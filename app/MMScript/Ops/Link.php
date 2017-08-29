@@ -32,10 +32,10 @@ class Link extends BinaryOp
             return $this->recordType;
         }
         if ($this->left->type() != "record") {
-            throw new ScriptException("Left-value of a " . $this->opCode . " must be record not " . $this->right->type());
+            throw new ScriptException("Left-value of a " . $this->opCode . " must be 'record' not '" . $this->right->type() . "'");
         }
         if ($this->right->type() != "name") {
-            throw new ScriptException("Right-value of a " . $this->opCode . " must be name not " . $this->right->type());
+            throw new ScriptException("Right-value of a " . $this->opCode . " must be 'name' not '" . $this->right->type() . "'");
         }
 
         $leftType = $this->left->recordType();

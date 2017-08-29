@@ -37,7 +37,6 @@ abstract class DocumentPart extends MMModel
             $relationCode = 'DocumentRevision#' . $this->document_revision_id;
             if (!array_key_exists($relationCode, MMModel::$cache)) {
                 MMModel::$cache[$relationCode] = parent::getRelationValue($key);
-            } else {
             }
 
             return MMModel::$cache[$relationCode];

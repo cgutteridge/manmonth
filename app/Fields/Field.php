@@ -106,7 +106,7 @@ abstract class Field
                     throw $this->validationException("Script should return a '" . $this->data["type"] . "' but returned a " . $script->type());
                 }
             } catch (ScriptException $e) {
-                throw $this->validationException("Script has a problem: " . $e->getMessage(), 0, $e);
+                throw $this->validationException("Script has a problem: " . $e->getMessage());
             }
         }
     }
@@ -138,7 +138,11 @@ abstract class Field
         if ($this->recordType) {
             $prefix .= "record type \"" . $this->recordType->label . "\", ";
         }
-        $prefix .= "field \"" . $this->data["name"] . "\": ";
+        if (array_key_exists("name", $this->data)) {
+            $prefix .= "field \"" . $this->data["name"] . "\": ";
+        } else {
+            $prefix .= "field with no name defined: ";
+        }
         return new MMValidationException($prefix . $msg);
     }
 

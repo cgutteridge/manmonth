@@ -38,7 +38,6 @@ abstract class MMModel extends Model
         $relationCode = get_class($this) . "#" . $this->id . "->" . $key;
         if (!array_key_exists($relationCode, MMModel::$cache)) {
             MMModel::$cache[$relationCode] = parent::getRelationValue($key);
-        } else {
         }
         return MMModel::$cache[$relationCode];
     }

@@ -401,6 +401,7 @@ class FieldTest extends TestCase
     function test_self_validation_when_invalid2()
     {
         $field = App\Fields\Field::createFromData([
+            "name" => "testfield",
             "type" => "decimal",
             "default" => "fish",
             "min" => true
@@ -409,6 +410,18 @@ class FieldTest extends TestCase
         $field->validate();
     }
 
+    /* the field validation failed if the field has no name. */
+    function test_self_validation_when_invalid_and_no_fieldname()
+    {
+        // trigger an error on a field with no fieldname
+        $field = App\Fields\Field::createFromData([
+            "type" => "decimal",
+            "default" => "fish",
+            "min" => true
+        ]);
+        $this->setExpectedException(\App\Exceptions\MMValidationException::class);
+        $field->validate();
+    }
     /*
      * currently validation of self doesn't check for unrecognised additional terms
      *

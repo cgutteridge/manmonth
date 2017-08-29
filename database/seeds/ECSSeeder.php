@@ -345,7 +345,7 @@ class ECSSeeder extends Seeder
             ]]);
 
 
-        $draft->publish();
+        $draft->commit();
 
         $draft2 = $doc->createDraftRevision();
 
@@ -365,7 +365,6 @@ class ECSSeeder extends Seeder
         $editorRole->label = "Document Editor";
         $editorRole->save();
 
-        $editorRole->assign("view-current");
         $editorRole->assign("view-archive");
         $editorRole->assign("view-draft");
         $editorRole->assign("view-scrap");
@@ -396,7 +395,8 @@ class ECSSeeder extends Seeder
         $staffRole->label = "Staff";
         $staffRole->document()->associate($doc);
         $staffRole->save();
-        $staffRole->assign("view-current");
+        $staffRole->assign("view-published-latest");
+
 
 
         /*

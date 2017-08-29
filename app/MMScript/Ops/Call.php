@@ -61,6 +61,7 @@ class Call extends BinaryOp
             return null;
         }
         $func = $this->func();
+        // nb this next function call does nothing with paramTypes.
         return $func->recordType($this->paramTypes());
     }
 
