@@ -39,7 +39,12 @@
                     </div><!-- /.container-fluid -->
                 </nav>
 
-                <table class='mm-report'>
+                <!-- hacky. There should be a nicer way to add tablesorter. TODO -->
+                <script type="text/javascript" src="/tablesorter/jquery.tablesorter.js"></script>
+                <script type="text/javascript"> $(document).ready(function () {
+                        $("#mm1").tablesorter();
+                    }); </script>
+                <table class='mm-report' id='mm1'>
                     <thead>
                     <tr>
                         <th class="mm_report_header_icon"></th>
