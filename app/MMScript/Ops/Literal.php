@@ -18,7 +18,7 @@ class Literal extends Op
 {
     /**
      * @param $context
-     * @return BooleanValue|DecimalValue|IntegerValue|StringValue
+     * @return BooleanValue|DecimalValue|IntegerValue|StringValue|NullValue
      * @throws MMScriptRuntimeException
      */
     function execute($context)

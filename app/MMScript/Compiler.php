@@ -9,7 +9,11 @@
 namespace App\MMScript;
 
 use App\Exceptions\ParseException;
+use App\MMScript;
 
+/**
+ * @property MMScript $script
+ */
 class Compiler
 {
     protected $tokens; // a list of all the tokens as [ charoffset, codestring, value]

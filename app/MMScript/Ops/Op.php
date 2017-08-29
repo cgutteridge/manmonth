@@ -2,6 +2,7 @@
 
 namespace App\MMScript\Ops;
 
+use App\MMScript;
 use App\MMScript\Values\Value;
 use App\Models\RecordType;
 
@@ -11,33 +12,18 @@ use App\Models\RecordType;
  */
 abstract class Op
 {
-    /**
-     * @var int the offset into the script
-     */
     var $offset;
-    /**
-     * @var
-     */
     var $opCode;
-    /**
-     * @var
-     */
     var $value;
-    /**
-     * @var
-     */
     var $script;
-    /**
-     * @var
-     */
     protected $type;
 
     /**
      * Op constructor.
-     * @param $script
-     * @param $token
+     * @param MMScript $script
+     * @param array $token
      */
-    public function __construct($script, $token)
+    public function __construct(MMScript $script, $token)
     {
         $this->script = $script;
         $this->offset = $token[0];
@@ -63,6 +49,7 @@ abstract class Op
     }
 
     // might be needed if a function returns type 'record' later?
+
     /**
      * @return null|RecordType
      */

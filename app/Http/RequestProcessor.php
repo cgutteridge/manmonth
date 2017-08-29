@@ -12,6 +12,11 @@ namespace App\Http;
 use App\Models\RecordType;
 use Illuminate\Http\Request;
 
+/**
+ * @property Request request
+ * @property TitleMaker titleMaker
+ * @property bool old
+ */
 class RequestProcessor
 {
 
@@ -26,6 +31,7 @@ class RequestProcessor
     {
         $this->request = $request;
         $this->titleMaker = $titleMaker;
+        // old keeps track of if there *is* an old request or not
         $this->old = (count($request->old()) > 0);
     }
 

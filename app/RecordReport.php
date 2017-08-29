@@ -125,7 +125,7 @@ class RecordReport
     }
 
     /**
-     * @return array
+     * @return float
      */
     public function getLoadingTarget()
     {
@@ -133,7 +133,7 @@ class RecordReport
     }
 
     /**
-     * @param array $target
+     * @param float $target
      */
     public function setLoadingTarget($target)
     {
@@ -141,7 +141,7 @@ class RecordReport
     }
 
     /**
-     * @return array
+     * @return float
      */
     public function getLoadingTotal()
     {

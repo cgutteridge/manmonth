@@ -41,9 +41,8 @@ class LoadReport extends Command
             foreach ($recordReport->getColumns() as $key => $value) {
                 print "$key: $value\n";
             }
-            foreach ($recordReport->getLoadingTargets() as $key => $value) {
-                print "$key .. Target($value) .. Value(" . $recordReport->getLoadingTotal($key) . ")\n";
-            }
+            print "Loading target: " . $recordReport->getLoadingTarget() . "\n";
+            print "Loading total : " . $recordReport->getLoadingTotal() . "\n";
             print "Loadings:\n";
             foreach ($recordReport->getLoadings() as $target => $loadings) {
                 foreach ($loadings as $loading) {

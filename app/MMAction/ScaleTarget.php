@@ -38,6 +38,7 @@ class ScaleTarget extends Action
      */
     public function execute($recordReport, $rule, $context, $params)
     {
+        /** @var float $value */
         $value = $recordReport->getLoadingTarget() * $params["factor"];
         $recordReport->setLoadingTarget($value);
         $this->recordLog($recordReport, $params);

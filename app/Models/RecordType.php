@@ -326,7 +326,7 @@ class RecordType extends DocumentPart
 
     /**
      * Return the fields that describe the metadata of a recordType
-     * @return Field[]
+     * @return array[]
      */
     public function metaFieldDefinitions()
     {

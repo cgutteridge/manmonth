@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use Auth;
+use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -85,7 +86,7 @@ class DocumentController extends Controller
         $latest = $document->latestPublishedRevision();
         if (!$latest) {
             return Redirect::to($this->linkMaker->url($document))
-                ->withErrors("This document does not currently have a public revision.");;
+                ->withErrors("This document does not currently have a public revision.");
         }
         return Redirect::to($this->linkMaker->url($latest));
     }

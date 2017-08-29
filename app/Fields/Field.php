@@ -106,7 +106,7 @@ abstract class Field
                     throw $this->validationException("Script should return a '" . $this->data["type"] . "' but returned a " . $script->type());
                 }
             } catch (ScriptException $e) {
-                throw $this->validationException("Script has a problem: " . $e->getMessage(), 0, $e);
+                throw $this->validationException("Script has a problem: " . $e->getMessage());
             }
         }
     }
