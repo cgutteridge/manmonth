@@ -21,10 +21,10 @@ class Document extends MMModel
             throw new Exception("Save document before calling init()");
         }
 
-        /* create a basic current revision */
+        /* create a first revision in the archive */
         $rev = new DocumentRevision();
         $rev->document()->associate($this);
-        $rev->status = "current";
+        $rev->status = "archive";
         $rev->save();
 
         /* add a config record type */
@@ -45,7 +45,8 @@ class Document extends MMModel
     }
 
     /**
-     * This is a major workhorse function. It copies all the relevant data into a new revision.
+     * This is a major workhorse function. It copies all the relevant data, from the
+     * most recent item in the archive, into a new revision.
      * Rows get a new ID but maintain their 'sid' value and this is used for relationships.
      * @return DocumentRevision
      * @throws Exception
@@ -55,24 +56,24 @@ class Document extends MMModel
         // if there's already a draft throw an exception
         $draft = $this->draftRevision();
         if ($draft) {
-            throw new Exception("Already a draft, can't make another one.");
+            throw new Exception("A draft revision of this document already exists.");
         }
 
-        /** @var DocumentRevision $current */
-        $current = $this->currentRevision();
+        /** @var DocumentRevision $latest */
+        $latest = $this->latestRevision();
 
         /** @var DocumentRevision $draft */
-        $draft = $current->replicate();
+        $draft = $latest->replicate();
         $draft->status = "draft";
         $draft->save();
 
         $partLists = array(
-            $current->reportTypes,
-            $current->records,
-            $current->recordTypes,
-            $current->links,
-            $current->linkTypes,
-            $current->rules);
+            $latest->reportTypes,
+            $latest->records,
+            $latest->recordTypes,
+            $latest->links,
+            $latest->linkTypes,
+            $latest->rules);
         // reports are a document part but belong to a single revision
 
         foreach ($partLists as $partList) {
@@ -89,6 +90,7 @@ class Document extends MMModel
     }
 
     /**
+     * Return the draft revision, if there is one, otherwise null.
      * @return DocumentRevision|null
      */
     public function draftRevision()
@@ -115,17 +117,38 @@ class Document extends MMModel
      * @return DocumentRevision
      * @throws Exception
      */
-    public function currentRevision()
+    public function latestRevision()
     {
-        $relationCode = get_class($this) . "#" . $this->id . "->currentRevision";
+        $relationCode = get_class($this) . "#" . $this->id . "->latestRevision";
         if (!array_key_exists($relationCode, MMModel::$cache)) {
-            MMModel::$cache[$relationCode] = $this->revisions()->where('status', 'current')->first();
+            MMModel::$cache[$relationCode] = $this->revisions()
+                ->where('status', 'archive')
+                ->orderBy('id', 'desc')
+                ->first();
         }
         if (!MMModel::$cache[$relationCode]) {
-            throw new Exception("Document has no current revision. That should not happen, ever.");
+            throw new Exception("Document has no latest revision. That should not happen, ever.");
         }
         return MMModel::$cache[$relationCode];
     }
 
 
+    /**
+     * @return null|DocumentRevision
+     */
+    public function latestPublishedRevision()
+    {
+        $relationCode = get_class($this) . "#" . $this->id . "->latestPublishedRevision";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            MMModel::$cache[$relationCode] = $this->revisions()
+                ->where('status', 'archive')
+                ->where('published', true)
+                ->orderBy('id', 'desc')
+                ->first();
+        }
+        if (!MMModel::$cache[$relationCode]) {
+            return null;
+        }
+        return MMModel::$cache[$relationCode];
+    }
 }

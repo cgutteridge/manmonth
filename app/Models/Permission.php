@@ -20,7 +20,8 @@ class Permission extends Model
         $relationCode = "Permission->globalPermissions";
         if (!array_key_exists($relationCode, MMModel::$cache)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = Permission::where('global', 1)->orderBy('name', 'desc')->get();
+            MMModel::$cache[$relationCode] = Permission::where('global', 1)
+                ->orderBy('name', 'desc')->get();
         }
         return MMModel::$cache[$relationCode];
     }
@@ -30,7 +31,8 @@ class Permission extends Model
         $relationCode = "Permission->documentPermissions";
         if (!array_key_exists($relationCode, MMModel::$cache)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = Permission::where('global', 0)->orderBy('name', 'desc')->get();
+            MMModel::$cache[$relationCode] = Permission::where('global', 0)
+                ->orderBy('name', 'desc')->get();
         }
         return MMModel::$cache[$relationCode];
     }

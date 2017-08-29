@@ -11,15 +11,55 @@
             <h2 style="margin: 0">Revision Data</h2>
         </div>
         <div class="row panel-body">
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <h3>Metadata</h3>
                 <table class="mm-datatable">
                     @include( 'dataTable', [ "data"=>[
         "status"=>$documentRevision->status,
+        "published"=>$documentRevision->published?"Yes":"No",
         "created_at"=>$documentRevision->created_at,
         "updated_at"=>$documentRevision->updated_at,
-    ]])
+                    ]])
                 </table>
+                <br/>
+                <p>
+                    @if($documentRevision->status == 'archive')
+                        @can('publish',$documentRevision->document)
+                            @if( $documentRevision->published )
+                                <a type="button" class="btn btn-primary" href="@url($documentRevision,'unpublish')">
+                                    Unpublish revision
+                                </a>
+                            @else
+                                <a type="button" class="btn btn-primary" href="@url($documentRevision,'publish')">
+                                    Publish revision
+                                </a>
+                            @endif
+                        @endcan
+                    @endif
+                    @if($documentRevision->status == 'draft')
+                        @can('commit', $documentRevision->document)
+                            <a type="button" class="btn btn-primary"
+                               href="@url($documentRevision,'commit-and-continue')">
+                                Commit and make a new draft revision
+                            </a>
+                            <a type="button" class="btn btn-primary"
+                               href="@url($documentRevision,'commit')">
+                                Commit revision
+                            </a>
+                            <a type="button" class="btn btn-primary"
+                               href="@url($documentRevision,'scrap')">
+                                Scrap revision
+                            </a>
+                            @can('publish',$documentRevision->document)
+                                <a type="button" class="btn btn-primary"
+                                   href="@url($documentRevision,'commit-and-publish')">
+                                    Commit and publish revision
+                                </a>
+                            @endcan
+
+                        @endcan
+                    @endif
+                </p>
 
             </div>
             <div class="col-md-6">

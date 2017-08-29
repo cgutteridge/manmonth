@@ -23,14 +23,25 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('documents/{document}', 'DocumentController@show');
     Route::get('documents/create', 'DocumentController@create');
     Route::post('documents', 'DocumentController@store');
-    Route::get('documents/{document}/current', 'DocumentController@current');
+    Route::get('documents/{document}/latest-published', 'DocumentController@latestPublished');
+    Route::get('documents/{document}/latest', 'DocumentController@latest');
     Route::get('documents/{document}/draft', 'DocumentController@draft');
+    Route::get('documents/{document}/create-draft', 'DocumentController@makeDraftForm');
+    Route::post('documents/{document}/create-draft', 'DocumentController@makeDraft');
 
     Route::get('revisions/{documentRevision}', 'DocumentRevisionController@show');
     Route::get('revisions/{documentRevision}/scrap', 'DocumentRevisionController@scrapForm');
     Route::post('revisions/{documentRevision}/scrap', 'DocumentRevisionController@scrapAction');
+    Route::get('revisions/{documentRevision}/commit', 'DocumentRevisionController@commitForm');
+    Route::post('revisions/{documentRevision}/commit', 'DocumentRevisionController@commitAction');
+    Route::get('revisions/{documentRevision}/commit-and-publish', 'DocumentRevisionController@commitAndPublishForm');
+    Route::post('revisions/{documentRevision}/commit-and-publish', 'DocumentRevisionController@commitAndPublishAction');
+    Route::get('revisions/{documentRevision}/commit-and-continue', 'DocumentRevisionController@commitAndContinueForm');
+    Route::post('revisions/{documentRevision}/commit-and-continue', 'DocumentRevisionController@commitAndContinueAction');
     Route::get('revisions/{documentRevision}/publish', 'DocumentRevisionController@publishForm');
     Route::post('revisions/{documentRevision}/publish', 'DocumentRevisionController@publishAction');
+    Route::get('revisions/{documentRevision}/unpublish', 'DocumentRevisionController@unpublishForm');
+    Route::post('revisions/{documentRevision}/unpublish', 'DocumentRevisionController@unpublishAction');
 
     Route::get('record-types/{recordType}', 'RecordTypeController@show');
     Route::get('record-types/{recordType}/records', 'RecordTypeController@records');
@@ -68,6 +79,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('permissions', 'PermissionController@index');
 
+    Route::get('profile', 'UserController@profile');
 
 });
 

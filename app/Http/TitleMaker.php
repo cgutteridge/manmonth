@@ -23,6 +23,7 @@ use App\Models\RecordType;
 use App\Models\Report;
 use App\Models\ReportType;
 use App\Models\Rule;
+use App\Models\User;
 use Exception;
 
 class TitleMaker
@@ -37,13 +38,17 @@ class TitleMaker
     public function title($item, $mode = "default")
     {
         $title = null;
+        if (is_a($item, User::class)) {
+            /** @var Document $item */
+            $title = $item->name;
+        }
         if (is_a($item, Document::class)) {
             /** @var Document $item */
             $title = $item->name;
         }
         if (is_a($item, DocumentRevision::class)) {
             /** @var DocumentRevision $item */
-            $title = $item->document->title() . " rev #" . $item->id;
+            $title = $item->document->name . " rev #" . $item->id;
         }
         if (is_a($item, RecordType::class)) {
             /** @var RecordType $item */

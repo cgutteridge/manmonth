@@ -14,41 +14,38 @@
     </table>
 
     <div class="row" style="margin-top:1em">
-        @can("view-current",$document)
-            <div class="col-md-6">
-                <div class="panel panel-primary">
+        @can("view-draft",$document)
+            <div class="col-md-12">
+                <div class="panel panel-success">
                     <div class="panel-heading">
-                        Current Revision
+                        Draft revision
                     </div>
-                    <div class="row panel-body">
-                        @include( 'document.revisionList',[
-                        "document"=>$document,
-                        "showStatus"=>"current"])
+                    <div class="panel-body">
+                        @if($document->draftRevision())
+
+                            @include( 'document.revisionList',[
+                            "document"=>$document,
+                            "showStatus"=>"draft"])
+
+                        @else
+                            @can('commit', $document)
+                                <p>
+                                    <a type="button" class="btn btn-primary"
+                                       href="@url($document,'create-draft')">
+                                        Create new draft
+                                    </a>
+                                </p>
+                            @endcan
+                        @endif
                     </div>
                 </div>
             </div>
         @endcan
-        @can("view-draft",$document)
-            <div class="col-md-6">
-                @if($document->draftRevision())
-                    <div class="panel panel-success">
-                        <div class="panel-heading">
-                            Active Draft Revision
-                        </div>
-                        <div class="row panel-body">
-                            @include( 'document.revisionList',[
-                            "document"=>$document,
-                            "showStatus"=>"draft"])
-                        </div>
-                    </div>
-                @endif
-            </div>
-        @endcan
         @can("view-archive",$document)
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        Archived Revisions
+                        Committed revisions
                     </div>
                     <div class="row panel-body">
                         @include( 'document.revisionList',[
@@ -59,10 +56,10 @@
             </div>
         @endcan
         @can("view-scrap",$document)
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <div class="panel panel-danger">
                     <div class="panel-heading">
-                        Scrapped Revisions
+                        Scrapped revisions
                     </div>
                     <div class="row panel-body">
                         @include( 'document.revisionList',[

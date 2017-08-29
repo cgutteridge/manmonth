@@ -181,7 +181,7 @@ class DatabaseSeeder extends Seeder
             ]]);
 
 
-        $draft->publish();
+        $draft->commit();
 
         $draft2 = $doc->createDraftRevision();
 

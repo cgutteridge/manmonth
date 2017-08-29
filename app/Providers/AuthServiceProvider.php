@@ -77,7 +77,7 @@ class AuthServiceProvider extends ServiceProvider
          */
         $fn = function ($user, $docIndicator) {
             if (is_a($docIndicator, Document::class)) {
-                return $user->can("view-current", $docIndicator);
+                return $user->can("view-latest-published", $docIndicator);
             } elseif (is_a($docIndicator, DocumentRevision::class)) {
                 return $user->can("view-" . $docIndicator->status, $docIndicator->document);
             } else {

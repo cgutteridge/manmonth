@@ -3,7 +3,14 @@
         @if( $revision->status == $showStatus)
             <li>
                 <a href="@url( $revision )">
-                    @datetime( $revision->created_at )
+                    @if( $revision->published )
+                        <strong>
+                            @datetime( $revision->created_at )
+                            - published
+                        </strong>
+                    @else
+                        @datetime( $revision->created_at )
+                    @endif
                 </a>
             </li>
         @endif
