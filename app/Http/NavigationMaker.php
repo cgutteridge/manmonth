@@ -96,23 +96,40 @@ class NavigationMaker
         if ($documentRevision->status == 'draft') {
             $ritems [] = [
                 "glyph" => "circle-arrow-up",
-                "label" => "Publish Draft",
-                "href" => $this->linkMaker->url($documentRevision, "publish"),
-                "allowed" => Auth::user()->can('publish', $documentRevision->document)
+                "label" => "Commit draft and continue editing",
+                "href" => $this->linkMaker->url($documentRevision, "commit-and-continue"),
+                "allowed" => Auth::user()->can('commit', $documentRevision->document)
             ];
             $ritems [] = [
-                "label" => "Scrap Draft",
+                "glyph" => "circle-arrow-up",
+                "label" => "Commit draft",
+                "href" => $this->linkMaker->url($documentRevision, "commit"),
+                "allowed" => Auth::user()->can('commit', $documentRevision->document)
+            ];
+            if (Auth::user()->can('publish', $documentRevision->document)) {
+                // inside an if() as this requires commit AND publish
+                $ritems [] = [
+                    "glyph" => "circle-arrow-up",
+                    "label" => "Commit draft and publish it",
+                    "href" => $this->linkMaker->url($documentRevision, "commit-and-publish"),
+                    "allowed" => Auth::user()->can('commit', $documentRevision->document)
+                ];
+            }
+            $ritems [] = [
+                "label" => "Scrap draft",
                 "glyph" => "circle-arrow-down",
                 "href" => $this->linkMaker->url($documentRevision, "scrap"),
-                "allowed" => Auth::user()->can('scrap', $documentRevision->document)
+                "allowed" => Auth::user()->can('commit', $documentRevision->document)
             ];
+
             $ritems [] = [
                 "label" => "Configuration",
                 "glyph" => "cog",
                 "href" => $this->linkMaker->url($documentRevision->configRecord(), "edit"),
                 "allowed" => Auth::user()->can('edit', $documentRevision->configRecord())
             ];
-        } else {
+        }
+        if ($documentRevision->status != 'draft') {
             $ritems [] = [
                 "label" => "Configuration",
                 "glyph" => "cog",
