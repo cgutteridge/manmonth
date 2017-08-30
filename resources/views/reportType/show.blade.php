@@ -17,7 +17,7 @@
                     <div class="container-fluid">
 
                         <!-- Collect the nav links, forms, and other content for toggling -->
-                        <div class="collapse navbar-collapse" >
+                        <div class="collapse navbar-collapse">
                             <ul class="nav navbar-nav">
                                 <p class="navbar-text">View: </p>
                                 <li class="dropdown">
@@ -26,7 +26,8 @@
                                         <span class="mm-report-current-view">Graph with absolute scale</span>
                                         <span class="caret"></span></a>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#" data-mm-report-view="absolute"><span><span class="glyphicon glyphicon-ok"></span> Graph with absolute scale</a>
+                                        <li><a href="#" data-mm-report-view="absolute"><span><span
+                                                            class="glyphicon glyphicon-ok"></span> Graph with absolute scale</a>
                                         </li>
                                         <li><a href="#" data-mm-report-view="targets">Graph scaled by targets</a></li>
                                         <li><a href="#" data-mm-report-view="totals">Graph scaled by totals</a></li>
@@ -54,7 +55,9 @@
                         @endforeach
                         @if( count( $reportData["categories"])>1)
                             @foreach( $reportData["categories"] as $category=>$opts )
-                                <th class="mm-report-header-data">{{ array_key_exists('label',$opts)?$opts['label']:$category }}</th>
+                                @if( !array_key_exists('show_column',$opts) || $opts['show_column'] )
+                                    <th class="mm-report-header-data">{{ array_key_exists('label',$opts)?$opts['label']:$category }}</th>
+                                @endif
                             @endforeach
                         @endif
                         <th class="mm-report-header-data">Total</th>
@@ -122,7 +125,7 @@
 
             <div class="panel-body">
                 <p>This is a list of every action triggered on every record.</p>
-                    @foreach( $reportData['rows'] as $row )
+                @foreach( $reportData['rows'] as $row )
 
                     <div class="panel panel-default">
                         <div class="panel-heading">

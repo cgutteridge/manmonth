@@ -12,7 +12,10 @@
     @endforeach
     @if( count( $reportData["categories"])>1)
         @foreach( $reportData["categories"] as $category=>$opts )
-            <td class="mm-record-report-data">{{ $categoryTotals[$category] }}</td>
+            {{-- The default for show_column is true.  --}}
+            @if( !array_key_exists('show_column',$opts) || $opts['show_column'] )
+                <td class="mm-record-report-data">{{ $categoryTotals[$category] }}</td>
+            @endif
         @endforeach
     @endif
     <td class="mm-record-report-data">{{ $total }}</td>

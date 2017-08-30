@@ -37,6 +37,10 @@ class AddCategory extends Action
         [
             "name" => "text_color",
             "type" => "string",
+        ],
+        [
+            "name" => "show_column",
+            "type" => "boolean"
         ]
     ];
 

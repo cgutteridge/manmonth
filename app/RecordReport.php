@@ -230,6 +230,7 @@ class RecordReport
                              'background_color',
                              'text_color',
                              'description',
+                             'show_column',
                              'label'] as $param) {
                     $pkey = "category_" . $param . "_" . $category;
                     if (array_key_exists($pkey, $options)) {
