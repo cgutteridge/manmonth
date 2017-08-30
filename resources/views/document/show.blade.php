@@ -48,7 +48,7 @@
                     <div class="panel-heading">
                         Committed revisions
                     </div>
-                    <div class="row panel-body">
+                    <div class="panel-body">
                         @include( 'document.revisionList',[
                         "document"=>$document,
                         "showStatus"=>"archive"])
@@ -62,7 +62,7 @@
                     <div class="panel-heading">
                         Scrapped revisions
                     </div>
-                    <div class="row panel-body">
+                    <div class="panel-body">
                         @include( 'document.revisionList',[
                         "document"=>$document,
                         "showStatus"=>"scrap"])

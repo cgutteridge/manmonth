@@ -45,11 +45,21 @@
             </div>
         @endif
     </div>
-    @if( $showTarget )
+    @if( $showTarget && $target > 0 )
         <div class="mm-target-indicator-bar">
-            <div class="mm-target-indicator" style="width: {{ 99*$target*$scale }}%">
-                Target {{ $target }} {{$units}}
-            </div>
+            @if($target*$scale > 0.5 )
+                <div class="mm-target-indicator"
+                     style="width: {{ 99*$target*$scale }}%">
+                    Target {{ $target }} {{$units}}
+                </div>
+            @else
+                <div class="mm-target-indicator"
+                     style="width: {{ 99*$target*$scale }}%">&nbsp;
+                </div>
+                <div class="mm-target-indicator-text">
+                    Target {{ $target }} {{$units}}
+                </div>
+            @endif
         </div>
     @endif
 </div>
