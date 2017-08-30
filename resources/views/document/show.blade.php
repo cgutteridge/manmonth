@@ -1,3 +1,4 @@
+@inject("dateMaker","App\Http\DateMaker")
 @extends('page')
 
 @section('title')
@@ -8,8 +9,8 @@
     <table class="mm-datatable">
         @include( 'dataTable', [ "data"=>[
             "name"=>$document->name,
-            "created_at"=>$document->created_at,
-            "updated_at"=>$document->updated_at,
+            "created_at"=>$dateMaker->dateTime($document->created_at),
+            "updated_at"=>$dateMaker->dateTime($document->updated_at),
         ]])
     </table>
 

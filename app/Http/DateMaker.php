@@ -18,6 +18,6 @@ class DateMaker
      */
     function dateTime($date)
     {
-        return $date->format('m/d/Y H:i');
+        return $date->format('D d M Y, H:i');
     }
 }

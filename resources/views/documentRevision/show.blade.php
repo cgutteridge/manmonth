@@ -1,3 +1,4 @@
+@inject("dateMaker","App\Http\DateMaker")
 @extends('page')
 
 @section('title')
@@ -17,8 +18,8 @@
                     @include( 'dataTable', [ "data"=>[
         "status"=>$documentRevision->status,
         "published"=>$documentRevision->published?"Yes":"No",
-        "created_at"=>$documentRevision->created_at,
-        "updated_at"=>$documentRevision->updated_at,
+        "created_at"=>@$dateMaker->dateTime($documentRevision->created_at),
+        "updated_at"=>@$dateMaker->dateTime($documentRevision->updated_at),
                     ]])
                 </table>
                 <br/>
