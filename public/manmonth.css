@@ -24,6 +24,10 @@ footer.navbar {
     min-height: 25px;
 }
 
+.dropdown {
+    cursor: pointer;
+}
+
 /* end core bits */
 
 /* dev banners */
