@@ -7,8 +7,8 @@
             <a href="@url($record,'edit')"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></a>
         @endcan
     </td>
-    @foreach( $recordReport->getColumns() as $colName=>$colValue)
-        <td class="mm-record-report-data">{{ $colValue }}</td>
+    @foreach( $reportData["columns"] as $colName )
+        <td class="mm-record-report-data">{{ $columns[$colName] }}</td>
     @endforeach
     @if( count( $reportData["categories"])>1)
         @foreach( $reportData["categories"] as $category=>$opts )
@@ -27,15 +27,14 @@
                         "showFree"=>true,
                         "showTarget"=>true,
                         "record"=>$record,
-                        "recordReport"=>$recordReport,
                         "loadings"=>$loadings,
                         "units" => $units,
                         "scale" =>
                                 max($reportData["maxLoading"], $reportData["maxTarget"]) == 0 ?
                                 1 :
                                 1 / max($reportData["maxLoading"], $reportData["maxTarget"]),
-                        "target" => $recordReport->getLoadingTarget(),
-                        "total" => $recordReport->getLoadingTotal(),
+                        "target" => $target,
+                        "total" => $total,
                         "categories" => $reportData["categories"]
                         ])
         </div>
@@ -45,16 +44,15 @@
                        "showFree"=>true,
                        "showTarget"=>true,
                        "record"=>$record,
-                       "recordReport"=>$recordReport,
                        "loadings"=>$loadings,
                        "units" => $units,
                        "scale" =>
                                 max($reportData["maxLoading"], $reportData["maxTarget"]) == 0 ?
                                 1 :
-                                ($reportData["maxTarget"]/$recordReport->getLoadingTarget()) / ($reportData["maxRatio"]*max($reportData["maxLoading"], $reportData["maxTarget"])),
+                                ($reportData["maxTarget"]/$target) / ($reportData["maxRatio"]*max($reportData["maxLoading"], $reportData["maxTarget"])),
 
-                       "target" => $recordReport->getLoadingTarget(),
-                       "total" => $recordReport->getLoadingTotal(),
+                       "target" => $target,
+                       "total" => $total,
                        "categories" => $reportData["categories"]
                        ])
         </div>
@@ -63,12 +61,11 @@
                 "showFree"=>false,
                 "showTarget"=>false,
                 "record"=>$record,
-                "recordReport"=>$recordReport,
                 "loadings"=>$loadings,
                 "units" => $units,
-                "scale" => $recordReport->getLoadingTotal()==0 ? 1 : 1/$recordReport->getLoadingTotal(),
-                "target" => $recordReport->getLoadingTarget(),
-                "total" => $recordReport->getLoadingTotal(),
+                "scale" => $total==0 ? 1 : 1/$total,
+                "target" => $target,
+                "total" => $total,
                 "categories" => $reportData["categories"]
                 ])
         </div>

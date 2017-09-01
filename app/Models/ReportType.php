@@ -100,7 +100,10 @@ class ReportType extends DocumentPart
     function makeReport()
     {
         $records = $this->baseRecordType()->records();
-        $report = $this->documentRevision->makeReport(); // will be an object when I know what shape it is!
+        $report = new Report();
+        $report->documentRevision()->associate($this);
+        $report->report_type_sid = $this->sid;
+
         foreach ($records as $record) {
             try {
                 $recordReport = $this->recordReport($record);
@@ -110,6 +113,7 @@ class ReportType extends DocumentPart
             }
             $report->setRecordReport($record->sid, $recordReport);
         }
+
         return $report;
     }
 

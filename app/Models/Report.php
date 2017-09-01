@@ -11,9 +11,10 @@ namespace App\Models;
 use App\RecordReport;
 
 /**
+ * @property int report_type_sid
  * @property array data
  */
-class Report extends MMModel
+class Report extends DocumentPart
 {
     /**
      * @var bool
@@ -54,10 +55,19 @@ class Report extends MMModel
         return $this->belongsTo('App\Models\DocumentRevision');
     }
 
-    /*
-     * Return the maximum loading
-     * @return float
+    /**
+     * @return ReportType
      */
+    public function reportType()
+    {
+        $relationCode = get_class($this) . "#" . $this->id . "->reportType";
+        if (!array_key_exists($relationCode, MMModel::$cache)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            MMModel::$cache[$relationCode] = $this->hasOne('App\Models\ReportType', 'sid', 'report_type_sid')
+                ->where('document_revision_id', $this->documentRevision->id);
+        }
+        return MMModel::$cache[$relationCode];
+    }
 
     /**
      * Overrides the DocumentPart save method to turn all the document reports

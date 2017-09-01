@@ -19,6 +19,16 @@
                         <!-- Collect the nav links, forms, and other content for toggling -->
                         <div class="collapse navbar-collapse">
                             <ul class="nav navbar-nav">
+                                <a type="button" class="btn btn-primary"
+                                   href="@url($reportType,'export/summary/csv')">
+                                    <span class="glyphicon glyphicon-th-list"></span>
+                                    Export summary (CSV)
+                                </a>
+                                <a type="button" class="btn btn-primary"
+                                   href="@url($reportType,'export/full/csv')">
+                                    <span class="glyphicon glyphicon-th-list"></span>
+                                    Export full (CSV)
+                                </a>
                                 <p class="navbar-text">View: </p>
                                 <li class="dropdown">
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
@@ -44,13 +54,14 @@
                 <script type="text/javascript" src="/tablesorter/jquery.tablesorter.js"></script>
                 <script type="text/javascript"> $(document).ready(function () {
                         $("#mm1").tablesorter();
+                        $("#mm1 thead th").css('cursor','pointer');
                     }); </script>
                 <table class='mm-report' id='mm1'>
                     <thead>
                     <tr>
                         <th class="mm_report_header_icon"></th>
                         <th class="mm_report_header_icon"></th>
-                        @foreach( $reportData['rows'][0]['recordReport']->getColumns() as $colName=>$colValue)
+                        @foreach( $reportData['columns'] as $colName )
                             <th class="mm-report-header-data">{{ $colName }}</th>
                         @endforeach
                         @if( count( $reportData["categories"])>1)
@@ -75,7 +86,7 @@
                     @if( count($reportData['means']) )
                         <tr>
                             <th colspan="2">Mean:</th>
-                            @foreach( $reportData['rows'][0]['recordReport']->getColumns() as $colName=>$colValue)
+                            @foreach( $reportData['columns'] as $colName=>$colValue)
                                 <td class="mm-record-report-data">
                                     @if( array_key_exists($colName,$reportData['means']) )
                                         {{ sprintf("%2.2f",$reportData['means'][$colName]) }}
@@ -87,7 +98,7 @@
                     @if( count($reportData['totals']) )
                         <tr>
                             <th colspan="2">Total:</th>
-                            @foreach( $reportData['rows'][0]['recordReport']->getColumns() as $colName=>$colValue)
+                            @foreach( $reportData['columns'] as $colName=>$colValue)
                                 <td class="mm-record-report-data">
                                     @if( array_key_exists($colName,$reportData['totals']) )
                                         {{ $reportData['totals'][$colName] }}

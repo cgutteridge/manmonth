@@ -312,18 +312,6 @@ class DocumentRevision extends MMModel
     }
 
     /**
-     * Make a report but don't save it to the database.
-     *
-     * @return Report
-     */
-    public function makeReport()
-    {
-        $report = new Report();
-        $report->documentRevision()->associate($this);
-        return $report;
-    }
-
-    /**
      * @param string $name
      * @param RecordType $domain
      * @param RecordType $range

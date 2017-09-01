@@ -63,6 +63,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::delete('records/{record}', 'RecordController@delete');
 
     Route::get('report-types/{reportType}', 'ReportTypeController@show');
+    /* in future we may support plug-in style export formats. For now it's hard-wired to CSV, but we'll keep
+     * the "CSV" in the URL to leave room to expand.
+     */
+    Route::get('report-types/{reportType}/export/summary/csv', 'ReportTypeController@exportSummaryCsv');
+    Route::get('report-types/{reportType}/export/full/csv', 'ReportTypeController@exportFullCsv');
+
+
 
 // Route::get('rules/{rule}', 'RuleController@show');
 
