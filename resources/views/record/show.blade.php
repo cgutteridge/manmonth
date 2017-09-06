@@ -25,7 +25,6 @@
             ])
         </div>
     @endforeach
-    <br />
     @include("record.block",$recordBlock)
     <p>
         @can( 'edit', $record )
