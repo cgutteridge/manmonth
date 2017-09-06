@@ -6,7 +6,7 @@
 
 @section( 'content')
     @foreach( $reports as $rinfo )
-        <div style="margin-bottom: 0.5em">
+        <div>
             @include( 'reportType.recordGraph', [
             "showFree"=>true,
             "showTarget"=>true,
@@ -25,6 +25,7 @@
             ])
         </div>
     @endforeach
+    <br />
     @include("record.block",$recordBlock)
     <p>
         @can( 'edit', $record )
