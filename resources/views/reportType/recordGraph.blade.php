@@ -62,6 +62,8 @@
                     Target {{ $target }} {{$units}}
                 </div>
             @endif
+        @else
+            <div class="mm-target-indicator-text">&nbsp;</div>
         @endif
     </div>
 </div>
