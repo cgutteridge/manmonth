@@ -68,8 +68,24 @@ class DocumentController extends Controller
             return $this->latestPublished($document);
         }
 
+        $revisions = [
+            "draft"=>[],
+            "archive"=>[],
+            "scrap"=>[]
+        ];
+        $latestPublished = $document->latestPublishedRevision();
+        foreach( $document->revisions->reverse() as $revision ) {
+            $row = [];
+            $row['url'] = $this->linkMaker->url($revision);
+            $row['created_at'] = $revision->created_at;
+            $row['published'] = $revision->published;
+            $row['latest_published'] = $revision->id==$latestPublished->id;
+            $revisions[$revision->status][]=$row;
+        }
+
         return view('document.show', [
             'document' => $document,
+            'revisions' => $revisions,
             'nav' => $this->navigationMaker->documentNavigation($document)
         ]);
     }
@@ -100,8 +116,8 @@ class DocumentController extends Controller
     {
         $this->authorize('view-archive', $document);
 
-        $latestPublic = $document->latestRevision();
-        return Redirect::to($this->linkMaker->url($latestPublic));
+        $latestRevision = $document->latestRevision();
+        return Redirect::to($this->linkMaker->url($latestRevision));
     }
 
     /**

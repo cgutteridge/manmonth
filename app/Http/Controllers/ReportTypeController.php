@@ -85,7 +85,7 @@ class ReportTypeController extends Controller
         $headers = [
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Content-type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename='.$filename,
+            'Content-Disposition' => 'attachment; filename=' . $filename,
             'Expires' => '0',
             'Pragma' => 'public'
         ];
@@ -103,11 +103,11 @@ class ReportTypeController extends Controller
         $headings [] = "Total";
         $headings [] = "Target";
         $headings [] = "Ratio";
-        if( $mode == 'full' ) {
-            $headings []= "Load";
-            $headings []= "Load type";
-            $headings []= "Load description";
-            $headings []= "Load rule";
+        if ($mode == 'full') {
+            $headings [] = "Load";
+            $headings [] = "Load type";
+            $headings [] = "Load description";
+            $headings [] = "Load rule";
         }
 
         $rows = [];
@@ -128,14 +128,14 @@ class ReportTypeController extends Controller
             $row [] = $reportRow['target'];
             $row [] = sprintf("%.2f", $reportRow['total'] / $reportRow['target']);
 
-            if( $mode == 'full' ) {
-                foreach ( $reportRow['loadings'] as $loading) {
+            if ($mode == 'full' && count($reportRow['loadings'])) {
+                foreach ($reportRow['loadings'] as $loading) {
                     $subRow = $row;
-                    $subRow []= $loading['load'];
-                    $subRow []= $loading['category'];
-                    $subRow []= $loading['description'];
-                    $subRow []= $loading['rule_title'];
-                    $rows []= $subRow;
+                    $subRow [] = $loading['load'];
+                    $subRow [] = $loading['category'];
+                    $subRow [] = $loading['description'];
+                    $subRow [] = $loading['rule_title'];
+                    $rows [] = $subRow;
                 }
             } else {
                 $rows [] = $row;

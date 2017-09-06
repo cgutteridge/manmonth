@@ -22,9 +22,16 @@ class DocumentRevisionController extends Controller
     {
         /* TODO make sure this handles public and latest public */
         $this->authorize('view', $documentRevision);
+        $latestPublished = $documentRevision->document->latestPublishedRevision();
+        $latest = $documentRevision->document->latestRevision();
 
         return view('documentRevision.show', [
             "documentRevision" => $documentRevision,
+            "status" => $documentRevision->status,
+            "created_at" => $documentRevision->created_at,
+            "published" => $documentRevision->published,
+            "latest" => isset($latest) && $documentRevision->id == $latest->id,
+            "latest_published" => isset($latestPublished) && $documentRevision->id == $latestPublished->id,
             'nav' => $this->navigationMaker->documentRevisionNavigation($documentRevision)
         ]);
     }

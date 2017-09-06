@@ -22,11 +22,9 @@
                         Draft revision
                     </div>
                     <div class="panel-body">
-                        @if($document->draftRevision())
+                        @if(count($revisions['draft']))
 
-                            @include( 'document.revisionList',[
-                            "document"=>$document,
-                            "showStatus"=>"draft"])
+                            @include( 'document.revisionList',["revisions"=>$revisions['draft']])
 
                         @else
                             @can('commit', $document)
@@ -49,9 +47,7 @@
                         Committed revisions
                     </div>
                     <div class="panel-body">
-                        @include( 'document.revisionList',[
-                        "document"=>$document,
-                        "showStatus"=>"archive"])
+                        @include( 'document.revisionList',["revisions"=>$revisions['archive']])
                     </div>
                 </div>
             </div>
@@ -63,9 +59,7 @@
                         Scrapped revisions
                     </div>
                     <div class="panel-body">
-                        @include( 'document.revisionList',[
-                        "document"=>$document,
-                        "showStatus"=>"scrap"])
+                        @include( 'document.revisionList',["revisions"=>$revisions['scrap']])
                     </div>
                 </div>
             </div>
