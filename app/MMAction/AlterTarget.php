@@ -39,7 +39,7 @@ class AlterTarget extends Action
             throw new ReportingException("Attempt to alter target '" . $params["target"] . "' with null change");
         }
         /** @var float $value */
-        $value = $recordReport->getLoadingTarget() * $params["factor"];
+        $value = $recordReport->getLoadingTarget() + $params["value"];
         $recordReport->setLoadingTarget($value);
         $this->recordLog($recordReport, $params);
     }
