@@ -79,7 +79,7 @@ class DocumentController extends Controller
             $row['url'] = $this->linkMaker->url($revision);
             $row['created_at'] = $revision->created_at;
             $row['published'] = $revision->published;
-            $row['latest_published'] = $revision->id==$latestPublished->id;
+            $row['latest_published'] = isset($latestPublished)&&$revision->id==$latestPublished->id;
             $revisions[$revision->status][]=$row;
         }
 
