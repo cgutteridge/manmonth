@@ -1,6 +1,6 @@
 <div class="mm-graph">
     <div class="mm-target-bar">
-        @if( $total == $target )
+        @if( $total == $target && $target != 0)
             <div class="mm-target mm-target-alloc" style="width: {{ 99*$total*$scale }}%">
                 <div class="mm-target-inner">{{ $total }} {{$units}} allocated</div>
             </div>
@@ -18,9 +18,11 @@
             @endif
         @endif
         @if( $target < $total )
-            <div class="mm-target mm-target-alloc" style="width: {{ 99*$target*$scale }}%">
-                <div class="mm-target-inner">{{ $target }} {{$units}} meets target</div>
-            </div>
+            @if( $target > 0 )
+                <div class="mm-target mm-target-alloc" style="width: {{ 99*$target*$scale }}%">
+                    <div class="mm-target-inner">{{ $target }} {{$units}} meets target</div>
+                </div>
+            @endif
             <div class="mm-target mm-target-over" style="width: {{ 99*($total-$target)*$scale }}%">
                 <div class="mm-target-inner">{{ $total-$target }} {{$units}} overload</div>
             </div>
