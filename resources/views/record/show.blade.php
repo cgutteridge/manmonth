@@ -6,7 +6,7 @@
 
 @section( 'content')
     @foreach( $reports as $rinfo )
-        <div>
+        <div style="margin-bottom: 0.5em">
             @include( 'reportType.recordGraph', [
             "showFree"=>true,
             "showTarget"=>true,
