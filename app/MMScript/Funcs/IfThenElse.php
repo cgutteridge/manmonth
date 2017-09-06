@@ -19,7 +19,7 @@ class IfThenElse
             throw new CallException("if() expects first parameter to be boolean");
         }
         if ($types[1] != $types[2]) {
-            throw new CallException("if() expects second and third parameter to be exactly the same type. Got '" . $types[1] . "' and '" . $types[1] . "''");
+            throw new CallException("if() expects second and third parameter to be exactly the same type. Got '" . $types[1] . "' and '" . $types[2] . "''");
         }
         return $types[1];
     }
