@@ -198,7 +198,7 @@ class Report extends DocumentPart
                 $total = $recordReport->getLoadingTotal();
                 $target = $recordReport->getLoadingTarget();
 
-                $ratio = $total / $target;
+                $ratio = ($target==0)?1:($total / $target);
                 if ($ratio > $this->maxLoadingRatio) {
                     $this->maxLoadingRatio = $ratio;
                 }
