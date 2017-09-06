@@ -26,7 +26,7 @@
                         @elseif($published)
                             This revision has been published, but there is a more recent published revision.
                         @else
-                            This revision has been committed, but no made public.
+                            This revision has been committed, but not made public.
                         @endif
                     @else
                         This revision has an unknown status: '{{$status}}'.
