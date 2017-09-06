@@ -15,7 +15,7 @@
             "loadings"=>$rinfo["report"]->getLoadings(),
             "units" => $rinfo["report"]->getOption( "units"),
             "scale" =>
-                0 == 1/max( $rinfo["report"]->getLoadingTotal(), $rinfo["report"]->getLoadingTarget() ) ?
+                0==max($rinfo["report"]->getLoadingTotal(), $rinfo["report"]->getLoadingTarget())|| 0 == 1/max( $rinfo["report"]->getLoadingTotal(), $rinfo["report"]->getLoadingTarget() ) ?
                 1 :
                 1/max( $rinfo["report"]->getLoadingTotal(), $rinfo["report"]->getLoadingTarget() )
             ,
