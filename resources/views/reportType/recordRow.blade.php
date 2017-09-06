@@ -47,9 +47,9 @@
                        "loadings"=>$loadings,
                        "units" => $units,
                        "scale" =>
-                                max($reportData["maxLoading"], $reportData["maxTarget"]) == 0 ?
+                                $reportData["maxRatio"]==0||max($reportData["maxLoading"], $reportData["maxTarget"]) == 0 ?
                                 1 :
-                                ($reportData["maxTarget"]/($target?$target:1)) / ($reportData["maxRatio"]*max($reportData["maxLoading"], $reportData["maxTarget"])),
+                                ($reportData["maxTarget"]/($target==0?1:$target)) / ($reportData["maxRatio"]*max($reportData["maxLoading"], $reportData["maxTarget"])),
 
                        "target" => $target,
                        "total" => $total,
