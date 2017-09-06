@@ -49,7 +49,7 @@
                        "scale" =>
                                 max($reportData["maxLoading"], $reportData["maxTarget"]) == 0 ?
                                 1 :
-                                ($reportData["maxTarget"]/$target) / ($reportData["maxRatio"]*max($reportData["maxLoading"], $reportData["maxTarget"])),
+                                ($reportData["maxTarget"]/($target?$target:1)) / ($reportData["maxRatio"]*max($reportData["maxLoading"], $reportData["maxTarget"])),
 
                        "target" => $target,
                        "total" => $total,
