@@ -32,7 +32,7 @@ class RecordController extends Controller
             "record" => $record,
             "renderErrors" => $renderErrors,
             "returnTo" => $this->requestProcessor->returnURL(),
-            "nav" => $this->navigationMaker->documentRevisionNavigation($record->documentRevision)
+            "nav" => $this->navigationMaker->recordNavigation($record, "Delete")
         ]);
     }
 
@@ -102,7 +102,7 @@ class RecordController extends Controller
             "recordBlock" => $this->recordBlock($record, 'all', [], $this->linkMaker->url($record), true),
             "reports" => $reports,
             "renderErrors" => $renderErrors,
-            "nav" => $this->navigationMaker->documentRevisionNavigation($record->documentRevision)
+            "nav" => $this->navigationMaker->recordNavigation($record)
         ]);
     }
 
@@ -257,7 +257,7 @@ class RecordController extends Controller
             "idPrefix" => "",
             "returnTo" => $this->requestProcessor->returnURL(),
             "linkChanges" => $linkChanges,
-            "nav" => $this->navigationMaker->documentRevisionNavigation($record->documentRevision)
+            "nav" => $this->navigationMaker->recordNavigation($record, "Edit")
         ]);
     }
 

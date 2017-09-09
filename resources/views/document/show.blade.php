@@ -6,13 +6,13 @@
 @endsection
 @section( 'content')
 
-    <table class="mm-datatable">
-        @include( 'dataTable', [ "data"=>[
-            "name"=>$document->name,
-            "created_at"=>$dateMaker->dateTime($document->created_at),
-            "updated_at"=>$dateMaker->dateTime($document->updated_at),
-        ]])
-    </table>
+    {{--<table class="mm-datatable">--}}
+    {{--@include( 'dataTable', [ "data"=>[--}}
+    {{--"name"=>$document->name,--}}
+    {{--"created_at"=>$dateMaker->dateTime($document->created_at),--}}
+    {{--"updated_at"=>$dateMaker->dateTime($document->updated_at),--}}
+    {{--]])--}}
+    {{--</table>--}}
 
     <div class="row" style="margin-top:1em">
         @can("view-draft",$document)

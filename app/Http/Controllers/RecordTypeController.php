@@ -35,7 +35,7 @@ class RecordTypeController extends Controller
             "values" => $recordType->metaValues()
         ];
 
-        $pageinfo["nav"] = $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision);
+        $pageinfo["nav"] = $this->navigationMaker->recordTypeNavigation($recordType, "Schema");
         $pageinfo["hasExternalLink"] = $recordType->isLinkedToExternalData();
         if ($recordType->isLinkedToExternalData()) {
             $pageinfo["externalLink"] = [
@@ -85,7 +85,7 @@ class RecordTypeController extends Controller
         return view('recordType.records', [
             "recordType" => $recordType,
             "records" => $recordBlocks,
-            "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)]);
+            "nav" => $this->navigationMaker->recordTypeNavigation($recordType, "List records")]);
     }
 
     /**
@@ -155,7 +155,7 @@ class RecordTypeController extends Controller
             "maxSize" => $MAX_SIZE,
             "filters" => $this->requestProcessor->filters(),
             "importUrl" => $this->linkMaker->url($recordType, 'external-records-bulk-import', $this->requestProcessor->all()),
-            "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)]);
+            "nav" => $this->navigationMaker->recordTypeNavigation($recordType, "External records")]);
     }
 
     /**
@@ -267,7 +267,7 @@ class RecordTypeController extends Controller
             "importUrl" => $this->linkMaker->url($recordType, 'external-records-bulk-import'),
             "cancelUrl" => $this->linkMaker->url($recordType, 'external-records', $this->requestProcessor->all()),
             "importUrlParams" => $this->requestProcessor->all(),
-            "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)]);
+            "nav" => $this->navigationMaker->recordTypeNavigation($recordType, "Bulk import")]);
     }
 
 
@@ -363,8 +363,7 @@ class RecordTypeController extends Controller
             "idPrefix" => "",
             "returnTo" => $returnLink,
             "linkChanges" => $linkChanges,
-            "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)
-        ]);
+            "nav" => $this->navigationMaker->recordTypeNavigation($recordType, "Create")]);
     }
 
     /**
@@ -436,7 +435,7 @@ class RecordTypeController extends Controller
                 "values" => $recordType->metaValues()
             ],
             "returnTo" => $this->requestProcessor->returnURL(),
-            "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)
+            "nav" => $this->navigationMaker->recordTypeNavigation($recordType, "Edit")
         ]);
     }
 

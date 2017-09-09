@@ -13,6 +13,8 @@ use App;
 use App\Models\Document;
 use App\Models\DocumentRevision;
 use App\Models\LinkType;
+use App\Models\Record;
+use App\Models\RecordType;
 use Auth;
 use Exception;
 
@@ -29,11 +31,48 @@ class NavigationMaker
     }
 
     /**
+     * @param Record $record
+     * @param null|string $pageName
+     * @return array
+     */
+    public function recordNavigation(Record $record, $pageName = null)
+    {
+        $nav = $this->recordTypeNavigation($record->recordType);
+        $nav["breadcrumbs"][] = [
+            "label" => $this->titleMaker->title($record),
+            "href" => $this->linkMaker->url($record),
+        ];
+        if (!empty($pageName)) {
+            $nav["breadcrumbs"][] = ["label" => $pageName];
+        }
+        return $nav;
+    }
+
+    /**
+     * @param RecordType $recordType
+     * @param null|string $pageName
+     * @return array
+     */
+    public function recordTypeNavigation(RecordType $recordType, $pageName = null)
+    {
+        $nav = $this->documentRevisionNavigation($recordType->documentRevision);
+        $nav["breadcrumbs"][] = [
+            "label" => $this->titleMaker->title($recordType),
+            "href" => $this->linkMaker->url($recordType, "records"),
+        ];
+        if (!empty($pageName)) {
+            $nav["breadcrumbs"][] = ["label" => $pageName];
+        }
+        return $nav;
+    }
+
+    /**
      * @param DocumentRevision $documentRevision
+     * @param null|string $pageName
      * @return array
      * @throws Exception
      */
-    public function documentRevisionNavigation(DocumentRevision $documentRevision)
+    public function documentRevisionNavigation(DocumentRevision $documentRevision, $pageName = null)
     {
         $nav = $this->documentNavigation($documentRevision->document);
 
@@ -81,18 +120,7 @@ class NavigationMaker
             "href" => $this->linkMaker->url($documentRevision),
             "allowed" => Auth::user()->can('view', $documentRevision)
         ];
-        $ritems [] = [
-            "glyph" => "list",
-            "label" => "Browse",
-            "items" => $browseItems,
-            "allowed" => Auth::user()->can('view', $documentRevision)
-        ];
-        $ritems [] = [
-            "glyph" => "plus-sign",
-            "label" => "Create",
-            "items" => $createItems,
-            "allowed" => Auth::user()->can('create', $documentRevision)
-        ];
+
         if ($documentRevision->status == 'draft') {
             $ritems [] = [
                 "glyph" => "circle-arrow-up",
@@ -100,21 +128,22 @@ class NavigationMaker
                 "href" => $this->linkMaker->url($documentRevision, "commit-and-continue"),
                 "allowed" => Auth::user()->can('commit', $documentRevision->document)
             ];
+            if (Auth::user()->can('publish', $documentRevision->document)) {
+                // inside an if() as this requires commit AND publish
+                $ritems [] = [
+                    "glyph" => "circle-arrow-up",
+                    "label" => "Commit and publish draft",
+                    "href" => $this->linkMaker->url($documentRevision, "commit-and-publish"),
+                    "allowed" => Auth::user()->can('commit', $documentRevision->document)
+                ];
+            }
             $ritems [] = [
                 "glyph" => "circle-arrow-up",
                 "label" => "Commit draft",
                 "href" => $this->linkMaker->url($documentRevision, "commit"),
                 "allowed" => Auth::user()->can('commit', $documentRevision->document)
             ];
-            if (Auth::user()->can('publish', $documentRevision->document)) {
-                // inside an if() as this requires commit AND publish
-                $ritems [] = [
-                    "glyph" => "circle-arrow-up",
-                    "label" => "Commit draft and publish it",
-                    "href" => $this->linkMaker->url($documentRevision, "commit-and-publish"),
-                    "allowed" => Auth::user()->can('commit', $documentRevision->document)
-                ];
-            }
+
             $ritems [] = [
                 "label" => "Scrap draft",
                 "glyph" => "circle-arrow-down",
@@ -147,6 +176,17 @@ class NavigationMaker
             "label" => "Revision",
             "items" => $ritems];
 
+        $nav["menus"] [] = [
+            "label" => "Data",
+            "items" => $browseItems,
+            "allowed" => Auth::user()->can('view', $documentRevision)
+        ];
+        $nav["menus"] [] = [
+            "label" => "New",
+            "items" => $createItems,
+            "allowed" => Auth::user()->can('create', $documentRevision)
+        ];
+
         $reportItems = [];
         foreach ($documentRevision->reportTypes as $reportType) {
             $reportItems [] = [
@@ -159,42 +199,64 @@ class NavigationMaker
             "items" => $reportItems];
 
         $nav["side"] = [];
+        $crumb = "???";
         switch ($documentRevision->status) {
             case "scrap":
                 $nav["side"]["status"] = "scrap";
                 $nav["side"]["label"] = "This is a scrapped revision";
+                $crumb = "Scrapped";
                 break;
             case "draft":
                 $nav["side"]["status"] = "draft";
                 $nav["side"]["label"] = "This is the draft revision";
+                $crumb = "Draft";
                 break;
             case "archive":
                 $nav["side"]["status"] = "archive";
                 $nav["side"]["label"] = "This is a committed revision";
+                $crumb = "Committed";
+
                 if ($documentRevision->published) {
                     $latestPublic = $documentRevision->document->latestPublishedRevision();
                     $nav["side"]["label"] = "This is a published revision";
+                    $crumb = "Public";
 
                     if ($latestPublic != null && $documentRevision->id == $latestPublic->id) {
                         $nav["side"]["status"] = "current";
                         $nav["side"]["label"] = "This is the latest published revision";
+                        $crumb = "Latest Public";
                     }
                 }
                 break;
             default:
                 throw new Exception("Unknown document status: " . $documentRevision->status);
         }
-
+        if ($crumb == "Draft" || $crumb == "Latest Public") {
+            $nav["breadcrumbs"][] = [
+                "label" => $crumb,
+                "href" => $this->linkMaker->url($documentRevision)
+            ];
+        } else {
+            $nav["breadcrumbs"][] = ["label" => $crumb];
+            $nav["breadcrumbs"][] = [
+                "label" => "Revision #" . $documentRevision->id,
+                "href" => $this->linkMaker->url($documentRevision)
+            ];
+        }
+        if (!empty($pageName)) {
+            $nav["breadcrumbs"][] = ["label" => $pageName];
+        }
 
         return $nav;
     }
 
     /**
      * @param Document $document
+     * @param null|string $pageName
      * @return array
      */
     public
-    function documentNavigation(Document $document)
+    function documentNavigation(Document $document, $pageName = null)
     {
         $nav = $this->defaultNavigation();
         /*
@@ -252,14 +314,25 @@ class NavigationMaker
                 "items" => $docItems
             ]
         ];
+        $nav["breadcrumbs"] = [
+            [
+                "label" => $document->name,
+                "href" => $this->linkMaker->url($document)
+            ]
+        ];
+        if (!empty($pageName)) {
+            $nav["breadcrums"][] = ["label" => $pageName];
+        }
+
         return $nav;
     }
 
     /**
+     * @param null|string $pageName
      * @return array
      */
     public
-    function defaultNavigation()
+    function defaultNavigation($pageName = null)
     {
         $nav = [];
         $nav["title"] = ["label" => ""];
@@ -287,6 +360,11 @@ class NavigationMaker
                     ]
                 ]
             ];
+        }
+
+        $nav["breadcrumbs"] = [];
+        if (!empty($pageName)) {
+            $nav["breadcrumbs"][] = ["label" => $pageName];
         }
 
         return $nav;

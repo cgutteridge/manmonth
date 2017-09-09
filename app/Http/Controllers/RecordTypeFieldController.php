@@ -40,7 +40,7 @@ class RecordTypeFieldController extends Controller
                 "values" => $field->data
             ],
             "returnTo" => $this->requestProcessor->returnURL(),
-            "nav" => $this->navigationMaker->documentRevisionNavigation($recordType->documentRevision)
+            "nav" => $this->navigationMaker->recordTypeNavigation($recordType)
         ];
         return view('recordType.fieldEdit', $info);
     }

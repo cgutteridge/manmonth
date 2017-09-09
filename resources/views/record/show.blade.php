@@ -1,7 +1,7 @@
 @extends('page')
 
 @section('title')
-    View @title($record->recordType): @title($record)
+    @title($record)
 @endsection
 
 @section( 'content')
