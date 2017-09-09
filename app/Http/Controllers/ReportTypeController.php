@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\ReportingException;
-use App\Models\DocumentRevision;
 use App\Models\ReportType;
 use Illuminate\View\View;
 use Response;
@@ -27,7 +26,7 @@ class ReportTypeController extends Controller
         } catch (ReportingException $e) {
             return view('documentRevision.error', [
                 "documentRevision" => $reportType->documentRevision,
-                "renderErrors" => [$e->getMessage()],
+                "renderErrors" => ["Could not complete report: " . $e->getMessage()],
                 'nav' => $this->navigationMaker->documentRevisionNavigation($reportType->documentRevision)
             ]);
         }

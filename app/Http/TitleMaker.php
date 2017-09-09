@@ -66,7 +66,7 @@ class TitleMaker
             try {
                 $script = $item->recordType->titleScript();
             } catch (ScriptException $e) {
-                $title = "[* script failed: " . $e->getMessage() . " *]";
+                $title = "[* title script failed: " . $e->getMessage() . " *]";
             }
             if ($script) {
                 try {

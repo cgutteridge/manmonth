@@ -93,7 +93,7 @@ class RecordController extends Controller
                     "categories" => $recordReport->categories()
                 ];
             } catch (ReportingException $e) {
-                $renderErrors [] = $e->getMessage();
+                $renderErrors [] = "Could not render graph: " . $e->getMessage();
             }
         }
 

@@ -6,6 +6,7 @@ use App\Exceptions\MMValidationException;
 use App\Exceptions\ReportingException;
 use App\Http\TitleMaker;
 use App\RecordReport;
+use Exception;
 use Validator;
 
 /**
@@ -142,7 +143,7 @@ class ReportType extends DocumentPart
             /** @var Rule $rule */
             try {
                 $rule->apply($record, $recordReport);
-            } catch (ReportingException $e) {
+            } catch (Exception $e) {
                 $titleMaker = new TitleMaker();
                 throw new ReportingException("In rule " . $titleMaker->title($rule) . ": " . $e->getMessage(), 0, $e);
             }
