@@ -22,6 +22,7 @@
 
 <div class="container" style="margin-top: 50px">
     <div class="content">
+        @if(isset($nav))
         <div style="margin-top:2em">
             {{--Don't show the last breadcrumb.--}}
             @for($i=0;$i<count($nav['breadcrumbs'])-1;$i++)
@@ -35,6 +36,7 @@
                     &rarr;
                     @endfor
         </div>
+        @endif
         <h1 style='margin-top:0' class="title">@yield('title')</h1>
         @if ( (isset($errors) && count($errors) )||(isset($renderErrors) && count($renderErrors) ))
             <div class="alert alert-danger">
