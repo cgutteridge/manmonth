@@ -125,7 +125,11 @@ class ReportTypeController extends Controller
             }
             $row [] = $reportRow['total'];
             $row [] = $reportRow['target'];
-            $row [] = sprintf("%.2f", $reportRow['total'] / $reportRow['target']);
+            if ($reportRow['target'] > 0) {
+                $row [] = sprintf("%.2f", $reportRow['total'] / $reportRow['target']);
+            } else {
+                $row []= "";
+            }
 
             if ($mode == 'full' && count($reportRow['loadings'])) {
                 foreach ($reportRow['loadings'] as $loading) {
