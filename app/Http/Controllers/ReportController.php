@@ -39,6 +39,7 @@ class ReportController extends Controller
      *
      * @param Report $report
      * @return Response
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(Report $report)
     {

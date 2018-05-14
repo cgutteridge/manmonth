@@ -32,6 +32,7 @@ abstract class Action
 
     /**
      * AbstractAction constructor.
+     * @throws \Exception
      */
     public function __construct()
     {
@@ -46,7 +47,6 @@ abstract class Action
      * @param Rule $rule
      * @param array $context
      * @param array $params
-     * @return
      */
     public abstract function execute($recordReport, $rule, $context, $params);
 

@@ -36,6 +36,7 @@ class Record extends DocumentPart
     }
 
     /**
+     * NOT a laravel relation
      * @return RecordType
      */
     public function recordType()
@@ -95,6 +96,7 @@ class Record extends DocumentPart
     /**
      * @param string $fieldName
      * @return mixed
+     * @throws ScriptException
      */
     public function getExternal($fieldName)
     {
@@ -442,6 +444,7 @@ class Record extends DocumentPart
     /**
      * Reads the requested changes to links and checks they are valid.
      * @param array $linkChanges
+     * @throws MMValidationException
      */
     public function validateLinkChanges($linkChanges)
     {
@@ -611,6 +614,7 @@ class Record extends DocumentPart
 
     /**
      * @param array $linkChanges
+     * @throws MMValidationException
      */
     public function applyLinkChanges($linkChanges)
     {

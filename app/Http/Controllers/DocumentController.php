@@ -56,6 +56,7 @@ class DocumentController extends Controller
      * Display the specified resource.
      * @param Document $document
      * @return Response
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(Document $document)
     {
@@ -94,6 +95,7 @@ class DocumentController extends Controller
      * Display the specified resource.
      * @param Document $document
      * @return RedirectResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function latestPublished(Document $document)
     {
@@ -111,6 +113,7 @@ class DocumentController extends Controller
      * Display the specified resource.
      * @param Document $document
      * @return RedirectResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function latest(Document $document)
     {
@@ -124,6 +127,7 @@ class DocumentController extends Controller
      * Display the specified resource.
      * @param Document $document
      * @return RedirectResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function draft(Document $document)
     {
@@ -143,6 +147,8 @@ class DocumentController extends Controller
      *
      * @param Document $document
      * @return Response
+     * @throws \App\Exceptions\MMValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function makeDraftForm(Document $document)
     {
@@ -161,6 +167,7 @@ class DocumentController extends Controller
      *
      * @param Document $document
      * @return RedirectResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function makeDraft(Document $document)
     {

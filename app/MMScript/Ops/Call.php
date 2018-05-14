@@ -54,6 +54,7 @@ class Call extends BinaryOp
 
     /**
      * @return null|RecordType
+     * @throws ScriptException
      */
     function recordType()
     {
@@ -149,6 +150,7 @@ class Call extends BinaryOp
     /**
      * @param $context
      * @return Value
+     * @throws ScriptException
      */
     function execute($context)
     {

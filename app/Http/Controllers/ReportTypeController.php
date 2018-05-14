@@ -16,6 +16,8 @@ class ReportTypeController extends Controller
      *
      * @param ReportType $reportType
      * @return View
+     * @throws \App\Exceptions\MMValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(ReportType $reportType)
     {
@@ -41,6 +43,8 @@ class ReportTypeController extends Controller
     /**
      * @param ReportType $reportType
      * @return View|StreamedResponse
+     * @throws \App\Exceptions\MMValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function exportSummaryCsv(ReportType $reportType)
     {
@@ -52,6 +56,8 @@ class ReportTypeController extends Controller
     /**
      * @param ReportType $reportType
      * @return View|StreamedResponse
+     * @throws \App\Exceptions\MMValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function exportFullCsv(ReportType $reportType)
     {
@@ -65,6 +71,8 @@ class ReportTypeController extends Controller
      * @param ReportType $reportType
      * @param string $mode full or summary.
      * @return View|StreamedResponse
+     * @throws \App\Exceptions\MMValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function exportCsv(ReportType $reportType, $mode)
     {
@@ -161,6 +169,8 @@ class ReportTypeController extends Controller
      * reports don't know their report type, so we'll do it like this.
      * @param ReportType $reportType
      * @return array
+     * @throws ReportingException
+     * @throws \App\Exceptions\MMValidationException
      */
     protected function buildReportData(ReportType $reportType)
     {

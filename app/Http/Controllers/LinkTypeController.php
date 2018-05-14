@@ -20,6 +20,8 @@ class LinkTypeController extends Controller
      *
      * @param LinkType $linkType
      * @return Response
+     * @throws MMValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(LinkType $linkType)
     {
@@ -53,6 +55,7 @@ class LinkTypeController extends Controller
      *
      * @param LinkType $linkType
      * @return Response
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function links(LinkType $linkType)
     {
@@ -67,6 +70,7 @@ class LinkTypeController extends Controller
      * @param Request $request
      * @param LinkType $linkType
      * @return Response
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function createLink(Request $request, LinkType $linkType)
     {

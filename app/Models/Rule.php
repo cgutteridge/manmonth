@@ -200,6 +200,7 @@ class Rule extends DocumentPart
     /**
      * @param string $scriptText
      * @return MMScript
+     * @throws \App\Exceptions\ParseException
      */
     function script($scriptText)
     {
@@ -216,6 +217,7 @@ class Rule extends DocumentPart
     /**
      * Return the action associated with this rule.
      * @return Action
+     * @throws Exception
      */
     public function getAction()
     {
@@ -241,6 +243,7 @@ class Rule extends DocumentPart
     /**
      * @param Record $record
      * @param RecordReport $recordReport
+     * @throws Exception
      */
     public function apply($record, $recordReport)
     {

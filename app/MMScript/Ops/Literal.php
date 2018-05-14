@@ -20,6 +20,7 @@ class Literal extends Op
      * @param $context
      * @return BooleanValue|DecimalValue|IntegerValue|StringValue|NullValue
      * @throws MMScriptRuntimeException
+     * @throws ScriptException
      */
     function execute($context)
     {
@@ -58,6 +59,7 @@ class Literal extends Op
     /**
      * @param string $prefix
      * @return string
+     * @throws ScriptException
      */
     public function treeText($prefix = "")
     {

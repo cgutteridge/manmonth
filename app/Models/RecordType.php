@@ -111,6 +111,7 @@ class RecordType extends DocumentPart
      * @param array $forwardLinks
      * @param array $backLinks
      * @return Record
+     * @throws MMValidationException
      */
     public function createRecord($data = [], $forwardLinks = [], $backLinks = [])
     {
@@ -177,6 +178,7 @@ class RecordType extends DocumentPart
     /**
      * Return the fields that make up this recordType
      * @return Field[]
+     * @throws \Exception
      */
     public function fields()
     {
@@ -314,6 +316,7 @@ class RecordType extends DocumentPart
     /**
      * List of the metadata fields for this record type's properties.
      * @return Field[]
+     * @throws \Exception
      */
     public function metaFields()
     {

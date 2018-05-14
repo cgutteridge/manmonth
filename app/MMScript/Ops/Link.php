@@ -69,6 +69,7 @@ class Link extends BinaryOp
      * @param $context
      * @return RecordValue
      * @throws MMScriptRuntimeException
+     * @throws \App\Exceptions\MMValidationException
      */
     function execute($context)
     {

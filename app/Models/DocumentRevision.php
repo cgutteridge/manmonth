@@ -276,6 +276,7 @@ class DocumentRevision extends MMModel
      * @param RecordType $baseRecordType
      * @param array $data
      * @return ReportType
+     * @throws \App\Exceptions\MMValidationException
      */
     public function createReportType($name, $baseRecordType, $data)
     {
@@ -298,6 +299,7 @@ class DocumentRevision extends MMModel
      * @param $name
      * @param array $properties
      * @return RecordType
+     * @throws \App\Exceptions\MMValidationException
      */
     public function createRecordType($name, $properties)
     {
@@ -317,6 +319,7 @@ class DocumentRevision extends MMModel
      * @param RecordType $range
      * @param $properties
      * @return LinkType
+     * @throws \App\Exceptions\MMValidationException
      */
     public function createLinkType($name, $domain, $range, $properties)
     {

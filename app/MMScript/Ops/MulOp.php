@@ -17,6 +17,7 @@ class MulOp extends BinaryOp
      * @param array $context
      * @return DecimalValue|IntegerValue
      * @throws MMScriptRuntimeException
+     * @throws ScriptException
      */
     function execute($context)
     {

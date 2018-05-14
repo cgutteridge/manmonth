@@ -42,6 +42,7 @@ class PowOp extends BinaryOp
     /**
      * @param array $context
      * @return DecimalValue|IntegerValue
+     * @throws ScriptException
      */
     function execute($context)
     {

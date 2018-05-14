@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection ALL */
+
 /**
  * Created by PhpStorm.
  * User: cjg
@@ -34,6 +35,7 @@ class NavigationMaker
      * @param Record $record
      * @param null|string $pageName
      * @return array
+     * @throws App\Exceptions\MMValidationException
      */
     public function recordNavigation(Record $record, $pageName = null)
     {
@@ -52,6 +54,7 @@ class NavigationMaker
      * @param RecordType $recordType
      * @param null|string $pageName
      * @return array
+     * @throws App\Exceptions\MMValidationException
      */
     public function recordTypeNavigation(RecordType $recordType, $pageName = null)
     {
@@ -254,6 +257,7 @@ class NavigationMaker
      * @param Document $document
      * @param null|string $pageName
      * @return array
+     * @throws Exception
      */
     public
     function documentNavigation(Document $document, $pageName = null)
