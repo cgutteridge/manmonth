@@ -130,8 +130,10 @@ class Record extends DocumentPart
             return null;
         }
 
-
-        if (empty($this->recordType->external_table)) {
+        /* putting this in a variable first as empty() does strange things. */
+        /** @var string $external_table */
+        $external_table = $this->recordType->external_table;
+        if (empty($external_table)) {
             return null;
         }
         $localKeyValue = $this->getLocal($this->recordType->external_local_key);
