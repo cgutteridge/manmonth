@@ -12,6 +12,7 @@ class SetTarget extends Action
 {
     // has a name, to use in the rules
     public $name = 'set_target';
+    public $action_type = 'targets';
 
     // has some parameters with an ordered name & type and human
     // readable title etc.

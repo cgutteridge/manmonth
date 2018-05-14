@@ -17,6 +17,9 @@ abstract class Action
      */
     public $name;
 
+    public $action_type;
+
+
     /**
      * Has some parameters with an ordered name & type and human readable title etc.
      * @var array

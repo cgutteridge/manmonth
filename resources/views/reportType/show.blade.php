@@ -18,7 +18,7 @@
 
                         <!-- Collect the nav links, forms, and other content for toggling -->
                         <div class="collapse navbar-collapse">
-                            <ul class="nav navbar-nav">
+                            <div class="nav navbar-nav">
                                 <a type="button" class="btn btn-primary"
                                    href="@url($reportType,'export/summary/csv')">
                                     <span class="glyphicon glyphicon-th-list"></span>
@@ -36,7 +36,7 @@
                                         <span class="mm-report-current-view">Graph with absolute scale</span>
                                         <span class="caret"></span></a>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#" data-mm-report-view="absolute"><span><span
+                                        <li><a href="#" data-mm-report-view="absolute"><span
                                                             class="glyphicon glyphicon-ok"></span> Graph with absolute scale</a>
                                         </li>
                                         <li><a href="#" data-mm-report-view="targets">Graph scaled by targets</a></li>
@@ -45,7 +45,7 @@
                                         <li><a href="#" data-mm-report-view="none">Tabular data only</a></li>
                                     </ul>
                                 </li>
-                            </ul>
+                            </div>
                         </div><!-- /.navbar-collapse -->
                     </div><!-- /.container-fluid -->
                 </nav>
@@ -54,7 +54,7 @@
                 <script type="text/javascript" src="/tablesorter/jquery.tablesorter.js"></script>
                 <script type="text/javascript"> $(document).ready(function () {
                         $("#mm1").tablesorter();
-                        $("#mm1 thead th").css('cursor','pointer');
+                        $("#mm1 thead th").css('cursor', 'pointer');
                     }); </script>
                 <table class='mm-report' id='mm1'>
                     <thead>
@@ -115,17 +115,43 @@
     </div>
 
     <div class="panel panel-primary">
-        <div class="panel-heading"><b>Rules</b></div>
+        <div class="panel-heading"><b>Reporting Rules</b></div>
         <div class="panel-body">
-            @foreach( $reportType->rules() as $rule )
-                <div class="panel panel-info mm-record-block">
-                    <div class="panel-heading ">
-                        <b>Rule #{{ $rule->rank+1 }}</b>
-                    </div>
-                    <table class="table">
-                        @include( 'dataTable', ['data'=>$rule->data ])
-                    </table>
-                </div>
+            @foreach( $rulesSections as $section )
+                <h3>{{$section['label']}}</h3>
+                @foreach( $rulesData as $ruleData )
+                    @if( $ruleData['action_type']== $section['action_type'])
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><b>{{$ruleData['action']}}</b> - {{ $ruleData['title'] }}
+                                <small>(Rule #{{ $ruleData['number'] }})</small>
+                            </div>
+                            <div class="panel-body">
+                                <div>
+                                    <strong>Operates on:</strong>
+                                    @foreach( $ruleData['route'] as $rItem)
+                                        @if( $rItem['type']=='recordType')
+                                            <div class="mm-lozenge" title="{{$rItem['codename']}}">
+                                                <div style="font-weight: bold;">{{$rItem['title']}}</div>
+                                            </div>
+                                        @endif
+                                        @if( $rItem['type']=='link')
+                                            <div style="padding-bottom: 0px; display:inline-block; text-align:center; vertical-align: bottom; font-size:200%;"
+                                                 title="{{$rItem['title']}}">&rarr;
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                                @if( !empty($ruleData['trigger']))
+                                    <div><strong>Triggered if:</strong> <span
+                                                class="mm-code">{{$ruleData['trigger']}}</span></div>
+                                @endif
+                                @foreach( $ruleData['params'] as $key=>$value)
+                                    <div><strong>{{$key}}:</strong> <span class="mm-code">{{$value}}</span></div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                @endforeach
             @endforeach
         </div>
     </div>

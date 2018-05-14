@@ -10,6 +10,7 @@ class AssignLoad extends Action
 {
     // has a name, to use in the rules
     public $name = 'assign_load';
+    public $action_type = 'load';
 
     // has some parameters with an ordered name & type and human
     // readable title etc.
