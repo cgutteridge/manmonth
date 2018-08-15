@@ -67,11 +67,11 @@
                                href="@url($documentRevision,'commit-and-publish')">
                                 Commit and publish revision
                             </a>
-                            @endcan
+                        @endcan
 
-                            @endcan
-                            @endif
-                            </p>
+                    @endcan
+                @endif
+                </p>
 
             </div>
             <div class="col-md-6">

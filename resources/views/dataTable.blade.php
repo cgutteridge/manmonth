@@ -1,4 +1,5 @@
 @foreach( $data as $key=>$value )
+
     <tr>
         <th>{{$key}}:</th>
         <td style="width:100%">

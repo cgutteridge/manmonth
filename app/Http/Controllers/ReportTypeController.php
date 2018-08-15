@@ -54,7 +54,7 @@ class ReportTypeController extends Controller
             $ruleData["route"] [] = [
                 "type" => "recordType",
                 "title" => $this->titleMaker->title($reportType->baseRecordType()),
-                "codename" => $reportType->name
+                "codename" => $reportType->baseRecordType()->name
             ];
             if (!empty($rule->data["route"])) {
                 $contexts = $rule->abstractContext();
@@ -225,7 +225,6 @@ class ReportTypeController extends Controller
     protected function buildReportData(ReportType $reportType)
     {
         $report = $reportType->makeReport();
-
         $categories = [];
 
         foreach ($reportType->baseRecordType()->records() as $record) {

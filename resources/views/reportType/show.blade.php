@@ -131,12 +131,16 @@
                                     @foreach( $ruleData['route'] as $rItem)
                                         @if( $rItem['type']=='recordType')
                                             <div class="mm-lozenge" title="{{$rItem['codename']}}">
-                                                <div style="font-weight: bold;">{{$rItem['title']}}</div>
+                                                <div style="font-weight: normal;font-size:60%">{{$rItem['codename']}}</div>
+                                                <div style="font-weight: normal;">{{$rItem['title']}}</div>
                                             </div>
                                         @endif
                                         @if( $rItem['type']=='link')
-                                            <div style="padding-bottom: 0px; display:inline-block; text-align:center; vertical-align: bottom; font-size:200%;"
-                                                 title="{{$rItem['title']}}">&rarr;
+                                            <div style="padding-bottom: 0px; display:inline-block; text-align:center; vertical-align: middle; font-size:100%;"
+                                                 title="{{$rItem['title']}}">
+                                                &rarr;
+                                                {{$rItem['title']}}
+                                                &rarr;
                                             </div>
                                         @endif
                                     @endforeach
@@ -155,34 +159,5 @@
             @endforeach
         </div>
     </div>
-
-    @if(false)
-        <div class="panel panel-primary">
-            <div class="panel-heading"><b>Log</b></div>
-
-            <div class="panel-body">
-                <p>This is a list of every action triggered on every record.</p>
-                @foreach( $reportData['rows'] as $row )
-
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            @title($row['record'])
-                        </div>
-                        <table>
-                            @include( 'dataTable', ['data'=>$row['record']->data ])
-                        </table>
-                        <ol class="list-group">
-                            @foreach( $row["recordReport"]->getLog() as $logEntry )
-                                <li class="list-group-item">
-                                    @include( "dataTable", [ "data"=>$logEntry] )
-                                </li>
-                            @endforeach
-                        </ol>
-                    </div>
-
-                @endforeach
-            </div>
-        </div>
-    @endif
 
 @endsection

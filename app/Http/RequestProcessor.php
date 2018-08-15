@@ -56,6 +56,7 @@ class RequestProcessor
 
     /**
      * @param string $term
+     * term
      * @param string|null $otherwise
      * @return string
      */
