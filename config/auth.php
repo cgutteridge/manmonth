@@ -38,7 +38,7 @@ return [
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'ldap',
         ],
 
         'api' => [
@@ -74,6 +74,14 @@ return [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
+
+        'ldap' => [
+            'driver' => 'ldapEloquent',
+            'model' => App\Models\User::class,
+            'endpoint' => env('LDAP_ELOQUENT_ENDPOINT'),
+            'base_dn' => env('LDAP_ELOQUENT_BASE_DN')
+        ],
+
     ],
 
     /*

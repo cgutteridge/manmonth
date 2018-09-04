@@ -110,7 +110,12 @@ class Document extends MMModel
      */
     public function revisions()
     {
-        return $this->hasMany('App\Models\DocumentRevision');
+        return $this->hasMany(DocumentRevision::class);
+    }
+
+    public function roles()
+    {
+        return $this->hasMany( Role::class );
     }
 
     /**

@@ -70,7 +70,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('report-types/{reportType}/export/full/csv', 'ReportTypeController@exportFullCsv');
 
 
-
 // Route::get('rules/{rule}', 'RuleController@show');
 
     Route::get('link-types/{linkType}', 'LinkTypeController@show');
@@ -99,14 +98,14 @@ Route::auth();
 /*
  * Turn this on to debug SQL.
  */
-if (false) {
+if (App::environment('dev')) {
     \DB::listen(function ($sql) {
-        dump($sql->sql . " [" . join(", ", $sql->bindings) . "]");
+        Log::info($sql->sql . " [" . join(", ", $sql->bindings) . "]");
     });
 }
 
 /* turn this on to count SQL queries */
-if (false) {
+if (App::environment('dev')) {
     global $dbQueries;
     $dbQueries = 0;
     \DB::listen(function ($sql) {
@@ -115,7 +114,7 @@ if (false) {
     });
     register_shutdown_function(function () {
         global $dbQueries;
-        dump("SQL QUERIES: $dbQueries");
+        Log::info("SQL QUERIES: $dbQueries");
     });
 }
 
