@@ -19,10 +19,14 @@ class DocumentController extends Controller
      */
     public function index()
     {
-        $list = Document::all()->reverse();
+        $documents = Document::all();
+        $documents = $documents->filter(function ($document) {
+            return Auth::user()->can("view-published-latest", $document);
+        });
+        $documents = $documents->reverse();
 
         return view('document.index', [
-            "list" => $list,
+            "documents" => $documents,
             'nav' => $this->navigationMaker->defaultNavigation()
         ]);
     }
@@ -70,18 +74,18 @@ class DocumentController extends Controller
         }
 
         $revisions = [
-            "draft"=>[],
-            "archive"=>[],
-            "scrap"=>[]
+            "draft" => [],
+            "archive" => [],
+            "scrap" => []
         ];
         $latestPublished = $document->latestPublishedRevision();
-        foreach( $document->revisions->reverse() as $revision ) {
+        foreach ($document->revisions->reverse() as $revision) {
             $row = [];
             $row['url'] = $this->linkMaker->url($revision);
             $row['created_at'] = $revision->created_at;
             $row['published'] = $revision->published;
-            $row['latest_published'] = isset($latestPublished)&&$revision->id==$latestPublished->id;
-            $revisions[$revision->status][]=$row;
+            $row['latest_published'] = isset($latestPublished) && $revision->id == $latestPublished->id;
+            $revisions[$revision->status][] = $row;
         }
 
         return view('document.show', [

@@ -37,6 +37,24 @@ class User extends Authenticatable
     ];
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function extended()
+    {
+        return $this->hasOne(ExtendedUser::class, 'username', 'username');
+    }
+
+    /**
+     * Return the relationship to related roles for this use.
+     * Does not include roles from rules.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'role_user', 'user_username');
+    }
+
+    /**
      * True if this user has a role, without any limitation by a specific document
      * Used for roles that apply to the entire system.
      * @param Role|Collection $role
@@ -72,20 +90,48 @@ class User extends Authenticatable
     private $documentRoles = [];
 
     /**
-     * @param Document $document
-     * @return Collection mixed
+     * Return all roles for the user, including those from conditions
+     * With attached documents, if available
+     * @return array Role
      */
-    public function documentRoles($document)
+    public function allRoles()
+    {
+        $roles = [];
+        foreach ($this->roles()->with('document')->get() as $role) {
+            $roles[$role->id] = $role;
+        };
+        $roleConditions = RoleCondition::where('id', '>', 0)->with('role.document')->get();
+        foreach ($roleConditions as $roleCondition) {
+            if ($this->matchesCondition($roleCondition->condition)) {
+                $role = $roleCondition->role;
+                if ($role) {
+                    $roles[$role->id] = $role;
+                }
+            }
+        }
+
+        return $roles;
+    }
+
+    /**
+     * @param Document $document
+     * @return array Role
+     */
+    public
+    function documentRoles($document)
     {
         if (!array_key_exists($document->id, $this->documentRoles)) {
-            $matchedRoles = $this->roles()->where('document_id', $document->id)->get();
+            $matchedRoles = [];
+            foreach ($this->roles()->where('document_id', $document->id)->get() as $role) {
+                $matchedRoles[$role->id] = $role;
+            }
 
             // get roles based on rules
             $rolesWithConditions = $document->roles()->with('roleCondition')->get();
             foreach ($rolesWithConditions as $roleWithConditions) {
                 foreach ($roleWithConditions->roleCondition as $roleCondition) {
                     if ($this->matchesCondition($roleCondition->condition)) {
-                        $matchedRoles [] = $roleWithConditions;
+                        $matchedRoles[$roleWithConditions->id] = $roleWithConditions;
                         // no need to check other conditions for the same role if this matched
                         continue;
                     }
@@ -96,7 +142,8 @@ class User extends Authenticatable
         return $this->documentRoles[$document->id];
     }
 
-    public function matchesCondition(array $condition)
+    public
+    function matchesCondition(array $condition)
     {
         $extendedData = $this->extended->toArray();
         foreach ($condition as $key => $value) {
@@ -111,29 +158,13 @@ class User extends Authenticatable
         return true;
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function extended()
-    {
-        return $this->hasOne(ExtendedUser::class, 'username', 'username');
-    }
-
-    /**
-     * Return the relationship to related roles for this use.
-     * Does not include roles from rules.
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class, 'role_user', 'user_username');
-    }
 
     /**
      * @param string|Role $role
      * @return Model
      */
-    public function assign($role)
+    public
+    function assign($role)
     {
         if (is_string($role)) {
             $roleObj = Role::whereName($role)->firstOrFail();

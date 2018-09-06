@@ -82,7 +82,7 @@ class UserController extends Controller
         }
 
         $rolesInfo = [];
-        foreach ($user->roles as $role) {
+        foreach ($user->allRoles() as $role) {
             $document = $role->document;
             $id = "general";
             if ($document) {

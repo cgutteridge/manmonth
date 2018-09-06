@@ -6,7 +6,7 @@
 
 @section( 'content' )
 
-    @if( isset($roles) )
+    @if( isset($roles) && count($roles)>0 )
         <h2>Roles</h2>
         <ul>
             @foreach( $roles as $subject )
@@ -37,6 +37,8 @@
                 </li>
             @endforeach
         </ul>
+    @else
+        <p>You have no roles configured on this service.</p>
     @endif
 
 @endsection

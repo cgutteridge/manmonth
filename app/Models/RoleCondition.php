@@ -18,4 +18,7 @@ class RoleCondition extends Model
         "condition" => "array"
     ];
 
+    function role() {
+        return $this->belongsTo(Role::class );
+    }
 }
