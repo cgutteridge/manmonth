@@ -23,9 +23,7 @@
                     </div>
                     <div class="panel-body">
                         @if(count($revisions['draft']))
-
                             @include( 'document.revisionList',["revisions"=>$revisions['draft']])
-
                         @else
                             @can('commit', $document)
                                 <p>
@@ -40,18 +38,20 @@
                 </div>
             </div>
         @endcan
-        @can("view-archive",$document)
-            <div class="col-md-12">
-                <div class="panel panel-info">
-                    <div class="panel-heading">
-                        Committed revisions
-                    </div>
-                    <div class="panel-body">
+        <div class="col-md-12">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    Revisions
+                </div>
+                <div class="panel-body">
+                    @if(count($revisions['archive'] ))
                         @include( 'document.revisionList',["revisions"=>$revisions['archive']])
-                    </div>
+                    @else
+                        <p>You do not have permissions suitable to see any revisions.</p>
+                    @endif
                 </div>
             </div>
-        @endcan
+        </div>
         @can("view-scrap",$document)
             <div class="col-md-12">
                 <div class="panel panel-danger">

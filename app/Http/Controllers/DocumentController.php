@@ -21,7 +21,7 @@ class DocumentController extends Controller
     {
         $documents = Document::all();
         $documents = $documents->filter(function ($document) {
-            return Auth::user()->can("view-published-latest", $document);
+            return Auth::user()->can("view", $document);
         });
         $documents = $documents->reverse();
 
@@ -64,12 +64,13 @@ class DocumentController extends Controller
      */
     public function show(Document $document)
     {
-        $this->authorize('view-published-latest', $document);
+        $this->authorize('view', $document);
 
         if (!Auth::user()->can('view-draft', $document)
             && !Auth::user()->can('view-archive', $document)
+            && !Auth::user()->can('view-published', $document)
         ) {
-            // if we can only see the published revisions then redirect to the latest of those
+            // if we can only see the latest pubished revision then redirect to the latest of those
             return $this->latestPublished($document);
         }
 
@@ -80,12 +81,14 @@ class DocumentController extends Controller
         ];
         $latestPublished = $document->latestPublishedRevision();
         foreach ($document->revisions->reverse() as $revision) {
-            $row = [];
-            $row['url'] = $this->linkMaker->url($revision);
-            $row['created_at'] = $revision->created_at;
-            $row['published'] = $revision->published;
-            $row['latest_published'] = isset($latestPublished) && $revision->id == $latestPublished->id;
-            $revisions[$revision->status][] = $row;
+            if (Auth::user()->can('view', $revision)) {
+                $row = [];
+                $row['url'] = $this->linkMaker->url($revision);
+                $row['created_at'] = $revision->created_at;
+                $row['published'] = $revision->published;
+                $row['latest_published'] = isset($latestPublished) && $revision->id == $latestPublished->id;
+                $revisions[$revision->status][] = $row;
+            }
         }
 
         return view('document.show', [

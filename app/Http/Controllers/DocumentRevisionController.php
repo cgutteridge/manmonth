@@ -21,7 +21,6 @@ class DocumentRevisionController extends Controller
      */
     public function show(DocumentRevision $documentRevision)
     {
-        /* TODO make sure this handles public and latest public */
         $this->authorize('view', $documentRevision);
         $latestPublished = $documentRevision->document->latestPublishedRevision();
         $latest = $documentRevision->document->latestRevision();

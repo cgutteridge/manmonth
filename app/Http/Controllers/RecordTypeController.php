@@ -28,7 +28,6 @@ class RecordTypeController extends Controller
     public function show(RecordType $recordType)
     {
         $this->authorize('view', $recordType);
-
         $pageinfo = [];
         $pageinfo["recordType"] = $recordType;
 
