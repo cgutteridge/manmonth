@@ -190,7 +190,7 @@ class DocumentController extends Controller
 
         $draft = null;
         try {
-            $draft = $document->createDraftRevision();
+            $draft = $document->createDraftRevision(Auth::user());
         } catch (Exception $exception) {
             return Redirect::to($returnLink)
                 ->withErrors($exception->getMessage());

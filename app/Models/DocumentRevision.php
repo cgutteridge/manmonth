@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 /**
  * @property string status
  * @property Document document
+ * @property User user
  * @property Collection reportTypes
  * @property Collection records
  * @property int id
@@ -28,6 +29,14 @@ class DocumentRevision extends MMModel
     public function document()
     {
         return $this->belongsTo('App\Models\Document');
+    }
+
+    /**
+     * The user who created this revision.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user() {
+        return $this->belongsTo( User::class );
     }
 
     /**

@@ -55,6 +55,14 @@ class User extends Authenticatable
     }
 
     /**
+     * All revisions created by this user.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function documentRevisions() {
+        return $this->belongsToMany( DocumentRevision::class );
+    }
+
+    /**
      * True if this user has a role, without any limitation by a specific document
      * Used for roles that apply to the entire system.
      * @param Role|Collection $role

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DocumentRevision;
+use Auth;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -234,7 +235,7 @@ class DocumentRevisionController extends Controller
             $documentRevision,
             function (DocumentRevision $documentRevision) {
                 $documentRevision->commit();
-                $documentRevision->document->createDraftRevision();
+                $documentRevision->document->createDraftRevision(Auth::user());
             },
             "Revision committed and new draft created.",
             $this->linkMaker->url($documentRevision->document, 'draft')
