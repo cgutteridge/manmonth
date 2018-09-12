@@ -75,7 +75,9 @@ footer.navbar {
     padding: 3px;
     border: solid 1px #999;
 }
-
+.mm-datatable-headingrow th {
+    text-align: left;
+}
 .mm-datatable td {
     vertical-align: top;
     padding: 3px;
@@ -211,10 +213,17 @@ ul.mm-link-edit-list {
     text-align: right;
     padding: 0 0.5em 0.5em 0;
     vertical-align: top;
+    white-space: nowrap;;
 }
+
+.mm-form-fields th label {
+    padding: 6px 0px;
+}
+
 
 .mm-form-fields td {
     padding: 0 0 0.5em 0;
+    width: 100%;
 }
 
 /* end forms */
