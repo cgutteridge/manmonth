@@ -119,7 +119,7 @@ class NavigationMaker
         $ritems = [];
         $ritems [] = [
             "glyph" => "file",
-            "label" => "View Revision",
+            "label" => "View revision",
             "href" => $this->linkMaker->url($documentRevision),
             "allowed" => Auth::user()->can('view', $documentRevision)
         ];
@@ -127,31 +127,31 @@ class NavigationMaker
         if ($documentRevision->status == 'draft') {
             $ritems [] = [
                 "glyph" => "circle-arrow-up",
-                "label" => "Commit draft and continue editing",
+                "label" => "Commit and start new revision",
                 "href" => $this->linkMaker->url($documentRevision, "commit-and-continue"),
-                "allowed" => Auth::user()->can('commit', $documentRevision->document)
+                "allowed" => Auth::user()->can('commit-revision', $documentRevision)
             ];
             if (Auth::user()->can('publish', $documentRevision->document)) {
                 // inside an if() as this requires commit AND publish
                 $ritems [] = [
                     "glyph" => "circle-arrow-up",
-                    "label" => "Commit and publish draft",
+                    "label" => "Commit and publish revision",
                     "href" => $this->linkMaker->url($documentRevision, "commit-and-publish"),
-                    "allowed" => Auth::user()->can('commit', $documentRevision->document)
+                    "allowed" => Auth::user()->can('commit-revision', $documentRevision)
                 ];
             }
             $ritems [] = [
                 "glyph" => "circle-arrow-up",
-                "label" => "Commit draft",
+                "label" => "Commit revision",
                 "href" => $this->linkMaker->url($documentRevision, "commit"),
-                "allowed" => Auth::user()->can('commit', $documentRevision->document)
+                "allowed" => Auth::user()->can('commit-revision', $documentRevision)
             ];
 
             $ritems [] = [
-                "label" => "Scrap draft",
+                "label" => "Scrap revision",
                 "glyph" => "circle-arrow-down",
                 "href" => $this->linkMaker->url($documentRevision, "scrap"),
-                "allowed" => Auth::user()->can('commit', $documentRevision->document)
+                "allowed" => Auth::user()->can('commit-revision', $documentRevision)
             ];
 
             $ritems [] = [
@@ -227,14 +227,14 @@ class NavigationMaker
                     if ($latestPublic != null && $documentRevision->id == $latestPublic->id) {
                         $nav["side"]["status"] = "current";
                         $nav["side"]["label"] = "This is the latest published revision";
-                        $crumb = "Latest Public";
+                        $crumb = "Latest public";
                     }
                 }
                 break;
             default:
                 throw new Exception("Unknown document status: " . $documentRevision->status);
         }
-        if ($crumb == "Draft" || $crumb == "Latest Public") {
+        if ($crumb == "Draft" || $crumb == "Latest public") {
             $nav["breadcrumbs"][] = [
                 "label" => $crumb,
                 "href" => $this->linkMaker->url($documentRevision)
@@ -281,7 +281,7 @@ class NavigationMaker
 
             [
                 "glyph" => "file",
-                "label" => "Latest revision",
+                "label" => "Latest committed revision",
                 "href" => $this->linkMaker->url($document, "latest"),
                 "allowed" => Auth::user()->can('view-archive', $document)
             ];
@@ -298,7 +298,7 @@ class NavigationMaker
             $docItems [] =
                 [
                     "glyph" => "file",
-                    "label" => "Create draft from latest revision",
+                    "label" => "Start new revision",
                     "href" => $this->linkMaker->url($document, "create-draft"),
                     "allowed" => Auth::user()->can('commit', $document)
                 ];

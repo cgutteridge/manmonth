@@ -17,6 +17,7 @@ use Illuminate\Contracts\Auth\Access\Gate as GateContract;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use PDOException;
+use PhpParser\Comment\Doc;
 use Schema;
 
 class AuthServiceProvider extends ServiceProvider
@@ -78,7 +79,7 @@ class AuthServiceProvider extends ServiceProvider
          * @param Document|DocumentRevision|DocumentPart $docIndicator
          * @return boolean
          */
-        $fn = function ($user, $docIndicator) {
+        $fn = function (User $user, $docIndicator) {
             if (is_a($docIndicator, Document::class)) {
                 /** @var Document $document */
                 $document = $docIndicator;
@@ -142,13 +143,20 @@ class AuthServiceProvider extends ServiceProvider
          * @param DocumentPart $documentPart
          * @return boolean
          */
-        $fn = function ($user, $documentPart) {
+        $fn = function (User $user, $documentPart) {
             $documentRevision = $documentPart->documentRevision;
 
             // only things in draft revisions can be edited.
             if ($documentRevision->status != "draft") {
                 return false;
             }
+
+            // only revisions created by the current user can be edited
+            // (unless we have superusers later)
+            if( $documentRevision->user_username != $user->username ) {
+                return false;
+            }
+
             if (
                 is_a($documentPart, Link::class)
                 || is_a($documentPart, Record::class)
@@ -182,7 +190,7 @@ class AuthServiceProvider extends ServiceProvider
          * @param DocumentPart|DocumentRevision $thing
          * @return boolean
          */
-        $fn = function ($user, $thing) {
+        $fn = function (User $user, $thing) {
             if (is_a($thing, DocumentRevision::class)) {
                 $documentRevision = $thing;
             } else {
@@ -192,6 +200,13 @@ class AuthServiceProvider extends ServiceProvider
             if ($documentRevision->status != "draft") {
                 return false;
             }
+
+            // only revisions created by the current user can be edited
+            // (unless we have superusers later)
+            if( $documentRevision->user_username != $user->username ) {
+                return false;
+            }
+
             if (
                 is_a($thing, LinkType::class)
                 || is_a($thing, RecordType::class)
@@ -208,6 +223,27 @@ class AuthServiceProvider extends ServiceProvider
             }
         };
         $gate->define('create', $fn);
+
+        /**
+         * Can this user commit a specific revision?
+         * @param User $user
+         * @param DocumentRevision $documentRevision
+         * @return boolean
+         */
+        $fn = function (User $user, DocumentRevision $documentRevision) {
+            if( !$user->can( "commit", $documentRevision->document)) {
+                return false;
+            }
+            // only revisions created by the current user can be committed
+            // (unless we have superusers later)
+            if( $documentRevision->user_username != $user->username ) {
+                return false;
+            }
+
+            return true;
+        };
+        $gate->define('commit-revision', $fn);
+
     }
 
     protected

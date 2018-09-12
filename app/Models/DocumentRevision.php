@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Collection;
  * @property LinkType[] linkTypes
  * @property Rule[] rules
  * @property boolean published
+ * @property string user_username
+ * @property string comment
  */
 class DocumentRevision extends MMModel
 {
@@ -36,7 +38,7 @@ class DocumentRevision extends MMModel
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user() {
-        return $this->belongsTo( User::class );
+        return $this->belongsTo( User::class, "user_username", "username" );
     }
 
     /**

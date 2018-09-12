@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Fields\Field;
 use App\Models\DocumentRevision;
 use Auth;
 use Exception;
@@ -31,6 +32,8 @@ class DocumentRevisionController extends Controller
             "status" => $documentRevision->status,
             "created_at" => $documentRevision->created_at,
             "published" => $documentRevision->published,
+            "comment" => $documentRevision->comment,
+            "user" => ($documentRevision->user ? $documentRevision->user->name : null),
             "latest" => isset($latest) && $documentRevision->id == $latest->id,
             "latest_published" => isset($latestPublished) && $documentRevision->id == $latestPublished->id,
             'nav' => $this->navigationMaker->documentRevisionNavigation($documentRevision)
@@ -89,7 +92,12 @@ class DocumentRevisionController extends Controller
             'nav' => $this->navigationMaker->documentRevisionNavigation($documentRevision),
             "actionLabel" => "Publish",
             "subjectLabel" => $this->titleMaker->title($documentRevision),
-            "action" => $this->linkMaker->url($documentRevision, "publish")
+            "action" => $this->linkMaker->url($documentRevision, "publish"),
+            "formFields" => [
+                "idPrefix" => "",
+                "fields" => DocumentRevisionController::editableFields(),
+                "values" => $documentRevision->toArray(),
+            ]
         ]);
     }
 
@@ -108,6 +116,7 @@ class DocumentRevisionController extends Controller
             $documentRevision,
             function (DocumentRevision $documentRevision) {
                 $documentRevision->publish();
+                $this->setFieldsFromRequest($documentRevision);
             },
             "Revision published."
         );
@@ -123,13 +132,18 @@ class DocumentRevisionController extends Controller
      */
     public function commitForm(DocumentRevision $documentRevision)
     {
-        $this->authorize('commit', $documentRevision->document);
+        $this->authorize('commit-revision', $documentRevision);
 
         return view('confirmForm', [
             'nav' => $this->navigationMaker->documentRevisionNavigation($documentRevision),
             "actionLabel" => "Commit",
             "subjectLabel" => $this->titleMaker->title($documentRevision),
-            "action" => $this->linkMaker->url($documentRevision, "commit")
+            "action" => $this->linkMaker->url($documentRevision, "commit"),
+            "formFields" => [
+                "idPrefix" => "",
+                "fields" => DocumentRevisionController::editableFields(),
+                "values" => $documentRevision->toArray(),
+            ]
         ]);
     }
 
@@ -142,12 +156,13 @@ class DocumentRevisionController extends Controller
      */
     public function commitAction(DocumentRevision $documentRevision)
     {
-        $this->authorize('commit', $documentRevision->document);
+        $this->authorize('commit-revision', $documentRevision);
 
         return $this->genericAction(
             $documentRevision,
             function (DocumentRevision $documentRevision) {
                 $documentRevision->commit();
+                $this->setFieldsFromRequest($documentRevision);
             },
             "Revision committed."
         );
@@ -163,7 +178,7 @@ class DocumentRevisionController extends Controller
      */
     public function commitAndPublishForm(DocumentRevision $documentRevision)
     {
-        $this->authorize('commit', $documentRevision->document);
+        $this->authorize('commit-revision', $documentRevision);
         $this->authorize('publish', $documentRevision->document);
 
 
@@ -172,7 +187,12 @@ class DocumentRevisionController extends Controller
             "actionLabel" => "Commit and publish revision",
             "subjectLabel" => $this->titleMaker->title($documentRevision),
             "action" => $this->linkMaker->url($documentRevision, "commit-and-publish"),
-            $this->linkMaker->url($documentRevision->document)
+            "returnTo" => $this->linkMaker->url($documentRevision->document),
+            "formFields" => [
+                "idPrefix" => "",
+                "fields" => DocumentRevisionController::editableFields(),
+                "values" => $documentRevision->toArray(),
+            ]
         ]);
     }
 
@@ -185,7 +205,7 @@ class DocumentRevisionController extends Controller
      */
     public function commitAndPublishAction(DocumentRevision $documentRevision)
     {
-        $this->authorize('commit', $documentRevision->document);
+        $this->authorize('commit-revision', $documentRevision);
         $this->authorize('publish', $documentRevision->document);
 
         return $this->genericAction(
@@ -193,6 +213,7 @@ class DocumentRevisionController extends Controller
             function (DocumentRevision $documentRevision) {
                 $documentRevision->commit();
                 $documentRevision->publish();
+                $this->setFieldsFromRequest($documentRevision);
             },
             "Revision committed and published.",
             $this->linkMaker->url($documentRevision->document)
@@ -209,14 +230,19 @@ class DocumentRevisionController extends Controller
      */
     public function commitAndContinueForm(DocumentRevision $documentRevision)
     {
-        $this->authorize('commit', $documentRevision->document);
+        $this->authorize('commit-revision', $documentRevision);
 
         return view('confirmForm', [
             'nav' => $this->navigationMaker->documentRevisionNavigation($documentRevision),
             "actionLabel" => "Commit and make a new draft revision",
             "subjectLabel" => $this->titleMaker->title($documentRevision),
             "action" => $this->linkMaker->url($documentRevision, "commit-and-continue"),
-            $this->linkMaker->url($documentRevision->document)
+            "returnTo"=>$this->linkMaker->url($documentRevision->document),
+            "formFields" => [
+                "idPrefix" => "",
+                "fields" => DocumentRevisionController::editableFields(),
+                "values" => $documentRevision->toArray(),
+            ]
         ]);
     }
 
@@ -229,13 +255,15 @@ class DocumentRevisionController extends Controller
      */
     public function commitAndContinueAction(DocumentRevision $documentRevision)
     {
-        $this->authorize('commit', $documentRevision->document);
+        $this->authorize('commit-revision', $documentRevision);
 
         return $this->genericAction(
             $documentRevision,
             function (DocumentRevision $documentRevision) {
                 $documentRevision->commit();
-                $documentRevision->document->createDraftRevision(Auth::user());
+                $this->setFieldsFromRequest($documentRevision);
+                $newRevision = $documentRevision->document->createDraftRevision(Auth::user());
+                $this->setFieldsFromRequest($newRevision);
             },
             "Revision committed and new draft created.",
             $this->linkMaker->url($documentRevision->document, 'draft')
@@ -259,7 +287,12 @@ class DocumentRevisionController extends Controller
             'nav' => $this->navigationMaker->documentRevisionNavigation($documentRevision),
             "actionLabel" => "Unpublish",
             "subjectLabel" => $this->titleMaker->title($documentRevision),
-            "action" => $this->linkMaker->url($documentRevision, "unpublish")
+            "action" => $this->linkMaker->url($documentRevision, "unpublish"),
+            "formFields" => [
+                "idPrefix" => "",
+                "fields" => DocumentRevisionController::editableFields(),
+                "values" => $documentRevision->toArray(),
+            ]
         ]);
     }
 
@@ -278,6 +311,7 @@ class DocumentRevisionController extends Controller
             $documentRevision,
             function (DocumentRevision $documentRevision) {
                 $documentRevision->unpublish();
+                $this->setFieldsFromRequest($documentRevision);
             },
             "Revision unpublished.",
             $this->linkMaker->url($documentRevision->document)
@@ -294,7 +328,7 @@ class DocumentRevisionController extends Controller
      */
     public function scrapForm(DocumentRevision $documentRevision)
     {
-        $this->authorize('commit', $documentRevision->document);
+        $this->authorize('commit-revision', $documentRevision);
 
         return view('confirmForm', [
             'nav' => $this->navigationMaker->documentRevisionNavigation($documentRevision),
@@ -303,7 +337,12 @@ class DocumentRevisionController extends Controller
             "action" => $this->linkMaker->url(
                 $documentRevision,
                 "scrap"
-            )
+            ),
+            "formFields" => [
+                "idPrefix" => "",
+                "fields" => DocumentRevisionController::editableFields(),
+                "values" => $documentRevision->toArray(),
+            ]
         ]);
     }
 
@@ -317,16 +356,44 @@ class DocumentRevisionController extends Controller
      */
     public function scrapAction(Request $request, DocumentRevision $documentRevision)
     {
-        $this->authorize('commit', $documentRevision->document);
+        $this->authorize('commit-revision', $documentRevision);
 
         return $this->genericAction(
             $documentRevision,
             function (DocumentRevision $documentRevision) {
                 $documentRevision->scrap();
+                $this->setFieldsFromRequest($documentRevision);
             },
             "Revision scrapped.",
             $this->linkMaker->url($documentRevision->document)
         );
-
     }
+
+
+    /**
+     * Read the fields from the form and apply them. This should mirror editableFields()
+     * @param DocumentRevision $documentRevision
+     */
+    public function setFieldsFromRequest(DocumentRevision $documentRevision)
+    {
+        $documentRevision->comment = $this->requestProcessor->get("comment");
+        $documentRevision->save();
+    }
+
+    /**
+     * Returns fields that can be edited on a revision.
+     * @return array
+     */
+    public static function editableFields()
+    {
+        try {
+            return [Field::createFromData([
+                "type" => "string",
+                "name" => "comment",
+                "label" => "Comment"])];
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
 }

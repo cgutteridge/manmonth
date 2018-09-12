@@ -75,7 +75,9 @@ footer.navbar {
     padding: 3px;
     border: solid 1px #999;
 }
-
+.mm-datatable-headingrow th {
+    text-align: left;
+}
 .mm-datatable td {
     vertical-align: top;
     padding: 3px;

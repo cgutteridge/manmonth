@@ -67,7 +67,6 @@ class Document extends MMModel
         $draft->status = "draft";
         $draft->user()->associate($user);
         $draft->save();
-dump( $draft);
         $partLists = array(
             $latest->reportTypes,
             $latest->records,

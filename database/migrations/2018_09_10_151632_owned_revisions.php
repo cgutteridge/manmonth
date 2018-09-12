@@ -18,7 +18,8 @@ class OwnedRevisions extends Migration
             throw new Exception("Please commit ".$drafts->count()." draft revisions before this migration.");
         }
         Schema::table('document_revisions', function (Blueprint $table) {
-            $table->integer('user_id')->unsigned();
+            $table->string('user_username');
+            $table->text('comment' );
         });
     }
 
@@ -30,7 +31,8 @@ class OwnedRevisions extends Migration
     public function down()
     {
         Schema::table('document_revisions', function (Blueprint $table) {
-            $table->dropColumn('user_id');
+            $table->dropColumn('user_username');
+            $table->dropColumn('comment');
         });
     }
 }
