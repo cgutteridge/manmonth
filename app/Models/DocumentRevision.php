@@ -22,8 +22,6 @@ use Illuminate\Database\Eloquent\Collection;
  */
 class DocumentRevision extends MMModel
 {
-    static $cache = [];
-
     /**
      * The relationship to the document this is a revision of.
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -37,8 +35,9 @@ class DocumentRevision extends MMModel
      * The user who created this revision.
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function user() {
-        return $this->belongsTo( User::class, "user_username", "username" );
+    public function user()
+    {
+        return $this->belongsTo(User::class, "user_username", "username");
     }
 
     /**
@@ -89,12 +88,12 @@ class DocumentRevision extends MMModel
      */
     public function reportTypeByName($name)
     {
-        $relationCode = get_class($this) . "#" . $this->id . "->reportType/$name";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->reportTypes()->where('name', $name)->first();
+        foreach ($this->reportTypes as $reportType) {
+            if ($reportType->name == $name) {
+                return $reportType;
+            }
         }
-        return MMModel::$cache[$relationCode];
+        return null;
     }
 
     /**
@@ -112,12 +111,12 @@ class DocumentRevision extends MMModel
      */
     public function reportType($sid)
     {
-        $relationCode = get_class($this) . "#" . $this->id . "->reportType/sid/$sid";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->reportTypes()->where('sid', $sid)->first();
+        foreach ($this->reportTypes as $reportType) {
+            if ($reportType->sid == $sid) {
+                return $reportType;
+            }
         }
-        return MMModel::$cache[$relationCode];
+        return null;
     }
 
     /**
@@ -149,12 +148,12 @@ class DocumentRevision extends MMModel
      */
     public function recordTypeByName($name)
     {
-        $relationCode = get_class($this) . "#" . $this->id . "->recordType/name/$name";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->recordTypes()->where('name', $name)->first();
+        foreach ($this->recordTypes as $recordType) {
+            if ($recordType->name == $name) {
+                return $recordType;
+            }
         }
-        return MMModel::$cache[$relationCode];
+        return null;
     }
 
     /**
@@ -172,12 +171,12 @@ class DocumentRevision extends MMModel
      */
     public function recordType($sid)
     {
-        $relationCode = get_class($this) . "#" . $this->id . "->recordType/sid/$sid";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->recordTypes()->where('sid', $sid)->first();
+        foreach ($this->recordTypes as $recordType) {
+            if ($recordType->sid == $sid) {
+                return $recordType;
+            }
         }
-        return MMModel::$cache[$relationCode];
+        return null;
     }
 
     /**
@@ -186,12 +185,12 @@ class DocumentRevision extends MMModel
      */
     public function linkTypeByName($name)
     {
-        $relationCode = get_class($this) . "#" . $this->id . "->linkType/$name";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->linkTypes()->where('name', $name)->first();
+        foreach ($this->linkTypes as $linkType) {
+            if ($linkType->name == $name) {
+                return $linkType;
+            }
         }
-        return MMModel::$cache[$relationCode];
+        return null;
     }
 
     /**
@@ -209,12 +208,12 @@ class DocumentRevision extends MMModel
      */
     public function linkType($linkTypeSid)
     {
-        $relationCode = get_class($this) . "#" . $this->id . "->linkType/$linkTypeSid";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->linkTypes()->where("sid", (int)$linkTypeSid)->first();
+        foreach ($this->linkTypes as $linkType) {
+            if ($linkType->sid == $linkTypeSid) {
+                return $linkType;
+            }
         }
-        return MMModel::$cache[$relationCode];
+        return null;
     }
 
 

@@ -83,7 +83,7 @@ class DocumentController extends Controller
             "archive" => [],
             "scrap" => []
         ];
-        foreach ($document->revisions->reverse() as $revision) {
+        foreach ($document->revisions()->with( ["user","document"])->get()->reverse() as $revision) {
             if (Auth::user()->can('view', $revision)) {
                 $row = [];
                 $row['url'] = $this->linkMaker->url($revision);
