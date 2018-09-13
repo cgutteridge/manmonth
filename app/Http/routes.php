@@ -100,7 +100,14 @@ Route::auth();
  */
 if (App::environment('dev')) {
     \DB::listen(function ($sql) {
-        Log::info($sql->sql . " [" . join(", ", $sql->bindings) . "]");
+        $context = "?";
+        foreach(debug_backtrace() as $stackFrame ) {
+            if( isset($stackFrame["file"]) && preg_match( "/\/app\//", $stackFrame["file"])) {
+                $context = $stackFrame["file"]." line ".$stackFrame["line"]." function ".$stackFrame["function"]."()";
+                break;
+            }
+        }
+        Log::info($sql->sql . " [" . join(", ", $sql->bindings) . "] - $context");
     });
 }
 
