@@ -14,56 +14,67 @@
     {{--]])--}}
     {{--</table>--}}
 
-    <div class="row" style="margin-top:1em">
-        @can("view-draft",$document)
-            <div class="col-md-12">
-                <div class="panel panel-success">
-                    <div class="panel-heading">
-                        Draft revision
-                    </div>
-                    <div class="panel-body">
-                        @if(count($revisions['draft']))
-                            @include( 'document.revisionList',["revisions"=>$revisions['draft']])
-                        @else
-                            @can('commit', $document)
-                                <p>
-                                    <a type="button" class="btn btn-primary"
-                                       href="@url($document,'create-draft')">
-                                        Create new draft
-                                    </a>
-                                </p>
-                            @endcan
-                        @endif
-                    </div>
-                </div>
+
+    <div class="col-md-12">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                Revisions
             </div>
-        @endcan
+            <div class="panel-body">
+                @can('commit', $document)
+                    @if($draftStatus=="none")
+                        <p>
+                            <a type="button" class="btn btn-primary"
+                               href="@url($document,'create-draft')">
+                                Start new revision
+                            </a>
+                        </p>
+                    @elseif( $draftStatus=="mine" )
+                        <p>You have a revision of this document checked-out to edit. Nobody else will be able to edit
+                            until you commit or scrap your revision.</p>
+                    @else
+                        <p>This document is being edited by {{$draftOwner}}. You won't be able to modify it until they commit or scrap their revision.</p>
+                    @endif
+                @endcan
+
+                @if(0==count($revisions['archive'])+count($revisions['draft']))
+                    <p>You do not have permissions suitable to see any revisions.</p>
+                @else
+                    <table class="mm-datatable">
+                        <tr class="mm-datatable-headingrow">
+                            <th>Timestamp</th>
+                            <th>Status</th>
+                            <th>Owner</th>
+                            <th>Comment</th>
+                        </tr>
+                        @include( 'document.revisionList',["revisions"=>$revisions['draft']])
+                        @include( 'document.revisionList',["revisions"=>$revisions['archive']])
+                    </table>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    @if(count($revisions['scrap'])>0)
         <div class="col-md-12">
-            <div class="panel panel-info">
+            <div class="panel panel-danger">
                 <div class="panel-heading">
-                    Revisions
+                    Scrapped revisions
                 </div>
                 <div class="panel-body">
-                    @if(count($revisions['archive'] ))
-                        @include( 'document.revisionList',["revisions"=>$revisions['archive']])
-                    @else
-                        <p>You do not have permissions suitable to see any revisions.</p>
-                    @endif
+                    <table class="mm-datatable">
+                        <tr class="mm-datatable-headingrow">
+                            <th>Timestamp</th>
+                            <th>Status</th>
+                            <th>Owner</th>
+                            <th>Comment</th>
+                        </tr>
+                        @include( 'document.revisionList',["revisions"=>$revisions['scrap']])
+                    </table>
                 </div>
             </div>
         </div>
-        @can("view-scrap",$document)
-            <div class="col-md-12">
-                <div class="panel panel-danger">
-                    <div class="panel-heading">
-                        Scrapped revisions
-                    </div>
-                    <div class="panel-body">
-                        @include( 'document.revisionList',["revisions"=>$revisions['scrap']])
-                    </div>
-                </div>
-            </div>
-        @endcan
-    </div>
+        @endif
+        </div>
 
 @endsection

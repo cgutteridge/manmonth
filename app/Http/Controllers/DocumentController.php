@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Fields\Field;
 use App\Models\Document;
 use Auth;
 use Exception;
@@ -74,12 +75,14 @@ class DocumentController extends Controller
             return $this->latestPublished($document);
         }
 
+        $latestPublished = $document->latestPublishedRevision();
+        $draft = $document->draftRevision();
+
         $revisions = [
             "draft" => [],
             "archive" => [],
             "scrap" => []
         ];
-        $latestPublished = $document->latestPublishedRevision();
         foreach ($document->revisions->reverse() as $revision) {
             if (Auth::user()->can('view', $revision)) {
                 $row = [];
@@ -87,15 +90,31 @@ class DocumentController extends Controller
                 $row['created_at'] = $revision->created_at;
                 $row['published'] = $revision->published;
                 $row['latest_published'] = isset($latestPublished) && $revision->id == $latestPublished->id;
+                $row['status'] = $revision->status;
+                $row['comment'] = $revision->comment;
+                if ($revision->user) {
+                    $row['user'] = $revision->user->name;
+                }
                 $revisions[$revision->status][] = $row;
             }
         }
 
+        $draftStatus = "none";
+        $draftOwner = "";
+        if (isset($draft)) {
+            if ($draft->user_username == Auth::user()->username) {
+                $draftStatus = "mine";
+            } else {
+                $draftStatus = "not-mine";
+            }
+            $draftOwner = $draft->user->name;
+        }
         return view('document.show', [
             'document' => $document,
             'revisions' => $revisions,
-            'nav' => $this->navigationMaker->documentNavigation($document)
-        ]);
+            'draftStatus' => $draftStatus,
+            'draftOwner' => $draftOwner,
+            'nav' => $this->navigationMaker->documentNavigation($document)]);
     }
 
     /**
@@ -104,7 +123,8 @@ class DocumentController extends Controller
      * @return RedirectResponse
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function latestPublished(Document $document)
+    public
+    function latestPublished(Document $document)
     {
         $this->authorize('view-published-latest', $document);
 
@@ -122,7 +142,8 @@ class DocumentController extends Controller
      * @return RedirectResponse
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function latest(Document $document)
+    public
+    function latest(Document $document)
     {
         $this->authorize('view-archive', $document);
 
@@ -136,7 +157,8 @@ class DocumentController extends Controller
      * @return RedirectResponse
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function draft(Document $document)
+    public
+    function draft(Document $document)
     {
         $this->authorize('view-draft', $document);
 
@@ -157,15 +179,19 @@ class DocumentController extends Controller
      * @throws \App\Exceptions\MMValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function makeDraftForm(Document $document)
+    public
+    function makeDraftForm(Document $document)
     {
         $this->authorize('publish', $document);
-
         return view('confirmForm', [
             'nav' => $this->navigationMaker->documentNavigation($document),
-            "actionLabel" => "Make new draft based on latest revision",
+            "actionLabel" => "Start new revision",
             "subjectLabel" => $this->titleMaker->title($document),
-            "action" => $this->linkMaker->url($document, "create-draft")
+            "action" => $this->linkMaker->url($document, "create-draft"),
+            "formFields" => [
+                "idPrefix" => "",
+                "fields" => DocumentRevisionController::editableFields(),
+            ]
         ]);
     }
 
@@ -176,7 +202,8 @@ class DocumentController extends Controller
      * @return RedirectResponse
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function makeDraft(Document $document)
+    public
+    function makeDraft(Document $document)
     {
         $this->authorize('publish', $document);
 
@@ -190,7 +217,11 @@ class DocumentController extends Controller
 
         $draft = null;
         try {
-            $draft = $document->createDraftRevision();
+            $draft = $document->createDraftRevision(Auth::user());
+            // this code is duplicated in DocumentRevisionCOntroller
+            $comment = $this->requestProcessor->get("comment");
+            $draft->comment = $comment;
+            $draft->save();
         } catch (Exception $exception) {
             return Redirect::to($returnLink)
                 ->withErrors($exception->getMessage());

@@ -55,6 +55,16 @@ class User extends Authenticatable
     }
 
     /**
+     * All revisions created by this user.
+     * TODO: Check keys are correct
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function documentRevisions()
+    {
+        return $this->belongsToMany(DocumentRevision::class);
+    }
+
+    /**
      * True if this user has a role, without any limitation by a specific document
      * Used for roles that apply to the entire system.
      * @param Role|Collection $role
@@ -75,7 +85,7 @@ class User extends Authenticatable
      * @param Document $document
      * @return bool
      */
-    public function hasDocumentRole($role, $document)
+    public function hasDocumentRole($role, Document $document)
     {
         /*
         if (is_string($role)) {
@@ -118,7 +128,7 @@ class User extends Authenticatable
      * @return array Role
      */
     public
-    function documentRoles($document)
+    function documentRoles(Document $document)
     {
         if (!array_key_exists($document->id, $this->documentRoles)) {
             $matchedRoles = [];
