@@ -65,6 +65,7 @@ class Document extends MMModel
         /** @var DocumentRevision $draft */
         $draft = $latest->replicate();
         $draft->status = "draft";
+        $draft->published = false;
         $draft->user()->associate($user);
         $draft->save();
         $partLists = array(
