@@ -45,35 +45,32 @@ class RefactorCompoundKeys2 extends Migration
         });
         dump('records');
         \App\Models\Record::chunk(1000, function ($records) use ($map) {
+            dump('record chunk');
             foreach ($records as $record) {
-                dump('record chunk');
                 $record->record_type_id = $map["recordType"][$record->document_revision_id][$record->record_type_sid];
                 $record->save();
             }
         });
 
         \App\Models\ReportType::chunk(1000, function ($report_types) use ($map) {
+            dump('report-tpye chunk');
             foreach ($report_types as $report_type) {
-                dump('report-tpye chunk');
-
                 $report_type->base_record_type_id = $map["recordType"][$report_type->document_revision_id][$report_type->base_record_type_sid];
                 $report_type->save();
             }
         });
 
         \App\Models\Report::chunk(1000, function ($reports) use ($map) {
+            dump('report chunk');
             foreach ($reports as $report) {
-                dump('report chunk');
-
-                $report->report_type_id = $map["reportType"][$report->document_revision_id][$report->report_type_sid];
-                $report->save();
+		// there shouldn't be any saved reports
+                $report->delete();
             }
         });
 
         \App\Models\Rule::chunk(1000, function ($rules) use ($map) {
+            dump('rule chunk');
             foreach ($rules as $rule) {
-                dump('rule chunk');
-
                 $rule->report_type_id = $map["reportType"][$rule->document_revision_id][$rule->report_type_sid];
                 $rule->save();
             }
