@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property string name
@@ -13,10 +16,45 @@ class Role extends Model
 {
     public $timestamps = false;
 
+    /*************************************
+     * RELATIONSHIPS
+     *************************************/
+
+    /**
+     * @return BelongsTo
+     */
     public function document()
     {
         return $this->belongsTo(Document::class);
     }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function roleCondition()
+    {
+        return $this->hasMany(RoleCondition::class);
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
+    }
+
+    /*************************************
+     * ACTIONS FUNCTIONS
+     *************************************/
 
     /**
      * @param Permission|string $permission
@@ -32,19 +70,4 @@ class Role extends Model
         return $this->permissions()->save($permission);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function permissions()
-    {
-        return $this->belongsToMany(Permission::class);
-    }
-
-    public function roleCondition() {
-        return $this->hasMany(RoleCondition::class);
-    }
-
-    public function users() {
-        return $this->belongsToMany(User::class);
-    }
 }

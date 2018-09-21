@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
@@ -36,8 +38,12 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
+    /*************************************
+     * RELATIONSHIPS
+     *************************************/
+
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return HasOne
      */
     public function extended()
     {
@@ -47,7 +53,7 @@ class User extends Authenticatable
     /**
      * Return the relationship to related roles for this use.
      * Does not include roles from rules.
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function roles()
     {
@@ -57,12 +63,16 @@ class User extends Authenticatable
     /**
      * All revisions created by this user.
      * TODO: Check keys are correct
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function documentRevisions()
     {
         return $this->belongsToMany(DocumentRevision::class);
     }
+
+    /*************************************
+     * READ FUNCTIONS
+     *************************************/
 
     /**
      * True if this user has a role, without any limitation by a specific document
@@ -127,8 +137,7 @@ class User extends Authenticatable
      * @param Document $document
      * @return array Role
      */
-    public
-    function documentRoles(Document $document)
+    public function documentRoles(Document $document)
     {
         if (!array_key_exists($document->id, $this->documentRoles)) {
             $matchedRoles = [];
@@ -152,8 +161,7 @@ class User extends Authenticatable
         return $this->documentRoles[$document->id];
     }
 
-    public
-    function matchesCondition(array $condition)
+    public function matchesCondition(array $condition)
     {
         $extendedData = $this->extended->toArray();
         foreach ($condition as $key => $value) {
@@ -168,13 +176,15 @@ class User extends Authenticatable
         return true;
     }
 
+    /*************************************
+     * ACTION FUNCTIONS
+     *************************************/
 
     /**
      * @param string|Role $role
      * @return Model
      */
-    public
-    function assign($role)
+    public function assign($role)
     {
         if (is_string($role)) {
             $roleObj = Role::whereName($role)->firstOrFail();
@@ -184,6 +194,5 @@ class User extends Authenticatable
         // it's a Role object then.
         return $this->roles()->save($role);
     }
-
 
 }

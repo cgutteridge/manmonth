@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int sid
@@ -17,15 +18,22 @@ abstract class DocumentPart extends MMModel
     ];
     protected $document_revision_id;
 
+    /*************************************
+     * RELATIONSHIPS
+     *************************************/
 
     /**
      * Relationship to the document revision this belongs to
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function documentRevision()
     {
-        return $this->belongsTo('App\Models\DocumentRevision');
+        return $this->belongsTo(DocumentRevision::class);
     }
+
+    /*************************************
+     * READ FUNCTIONS
+     *************************************/
 
     /**
      * @param string $key
@@ -43,6 +51,22 @@ abstract class DocumentPart extends MMModel
         }
 
         return parent::__get($key);
+    }
+
+    /*************************************
+     * ACTION FUNCTIONS
+     *************************************/
+
+    /**
+     * Return true if create is blocked on this type.
+     * @return bool
+     */
+    public function isProtected()
+    {
+        if (is_array($this->data) && !array_key_exists('protected', $this->data)) {
+            return false;
+        }
+        return $this->data['protected'] == true;
     }
 
     /**
@@ -64,17 +88,7 @@ abstract class DocumentPart extends MMModel
         return $saved;
     }
 
-    /**
-     * Return true if create is blocked on this type.
-     * @return bool
-     */
-    public function isProtected()
-    {
-        if (is_array($this->data) && !array_key_exists('protected', $this->data)) {
-            return false;
-        }
-        return $this->data['protected'] == true;
-    }
+
 }
 
 

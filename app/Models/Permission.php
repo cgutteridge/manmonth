@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * @property string name
@@ -14,6 +15,22 @@ use Illuminate\Database\Eloquent\Model;
 class Permission extends Model
 {
     public $timestamps = false;
+
+    /*************************************
+     * RELATIONSHIPS
+     *************************************/
+
+    /**
+     * @return BelongsToMany
+     */
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    /*************************************
+     * READ FUNCTIONS
+     *************************************/
 
     public static function globalPermissions()
     {
@@ -37,8 +54,5 @@ class Permission extends Model
         return MMModel::$cache[$relationCode];
     }
 
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class);
-    }
+
 }

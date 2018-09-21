@@ -10,6 +10,7 @@ namespace App\Models;
 
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RoleCondition extends Model
 {
@@ -18,6 +19,13 @@ class RoleCondition extends Model
         "condition" => "array"
     ];
 
+    /*************************************
+     * RELATIONSHIPS
+     *************************************/
+
+    /**
+     * @return BelongsTo
+     */
     function role() {
         return $this->belongsTo(Role::class );
     }

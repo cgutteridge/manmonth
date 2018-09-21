@@ -31,6 +31,16 @@ class LinkType extends DocumentPart
         'range_min' => 0
     );
 
+    /*************************************
+     * RELATIONSHIPS
+     *************************************/
+
+    // none
+
+    /*************************************
+     * READ FUNCTIONS
+     *************************************/
+
     /**
      * @return RecordType
      */
@@ -62,34 +72,9 @@ class LinkType extends DocumentPart
 
     /**
      * @param $subject
-     * @param $object
-     * @return Link
      * @throws MMValidationException
      */
-    public
-    function createLink($subject, $object)
-    {
-        $this->validateLinkSubject($subject);
-        $this->validateLinkObject($object);
-
-        $link = new Link();
-        $link->documentRevision()->associate($this->documentRevision);
-        $link->link_type_sid = $this->sid;
-        $link->subject_sid = $subject->sid;
-        $link->object_sid = $object->sid;
-
-        $this->validate();
-        $link->save();
-
-        return $link;
-    }
-
-    /**
-     * @param $subject
-     * @throws MMValidationException
-     */
-    public
-    function validateLinkSubject($subject)
+    public function validateLinkSubject($subject)
     {
     }
 
@@ -97,16 +82,14 @@ class LinkType extends DocumentPart
      * @param $object
      * @throws MMValidationException
      */
-    public
-    function validateLinkObject($object)
+    public function validateLinkObject($object)
     {
     }
 
     /**
      * @throws MMValidationException
      */
-    public
-    function validate()
+    public function validate()
     {
         $validator = Validator::make(
             [
@@ -164,12 +147,15 @@ class LinkType extends DocumentPart
 
     }
 
+    /*************************************
+     * ACTION FUNCTIONS
+     *************************************/
+
     /**
      * Update this LinkType from values in the data
      * @param array $properties
      */
-    public
-    function setProperties($properties)
+    public function setProperties($properties)
     {
         // defaults to zero if empty or null is passed in, but not
         // if it's not set. Fun for testing! Much varied null. Wow!

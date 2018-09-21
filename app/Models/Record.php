@@ -27,6 +27,17 @@ class Record extends DocumentPart
     private $external;
     private $external_loaded = false;
 
+    /*************************************
+     * RELATIONSHIPS
+     *************************************/
+
+    // none!
+
+
+    /*************************************
+     * READ FUNCTIONS
+     *************************************/
+
     public function __get($key)
     {
         if ($key == 'recordType') {
@@ -83,7 +94,10 @@ class Record extends DocumentPart
         return $this->data;
     }
 
-
+    /**
+     * @return array
+     * @throws Exception
+     */
     public function externalValues()
     {
         $values = [];
@@ -96,7 +110,6 @@ class Record extends DocumentPart
     /**
      * @param string $fieldName
      * @return mixed
-     * @throws ScriptException
      */
     public function getExternal($fieldName)
     {
@@ -168,7 +181,6 @@ class Record extends DocumentPart
      * than return a default value
      * @param string $fieldName
      * @return mixed
-     * @throws ScriptException
      */
     public function getLocal($fieldName)
     {
@@ -315,7 +327,6 @@ class Record extends DocumentPart
         return $r;
     }
 
-
     /**
      * @throws MMValidationException
      */
@@ -430,20 +441,6 @@ class Record extends DocumentPart
     }
 
     /**
-     * @param array $update
-     */
-    public function updateData(array $update)
-    {
-        $data = $this->data;
-        foreach ($update as $key => $value) {
-            if ($value !== null) {
-                $data[$key] = $value;
-            }
-        }
-        $this->data = $data;
-    }
-
-    /**
      * Reads the requested changes to links and checks they are valid.
      * @param array $linkChanges
      * @throws MMValidationException
@@ -459,7 +456,6 @@ class Record extends DocumentPart
             $this->_validateLinkChanges($linkType, $changes, false);
         }
     }
-
 
     /**
      * @param LinkType $linkType
@@ -615,6 +611,66 @@ class Record extends DocumentPart
     }
 
     /**
+     * @return array
+     */
+    public function reasonsThisCantBeErased()
+    {
+        // find all reasons not to continue.
+        // get all records that would be deleted
+        $recordsToDelete = $this->getDependentRecords();
+        $linksToDelete = new Collection();
+        /** @var Record $record */
+        foreach ($recordsToDelete as $record) {
+            foreach ($record->forwardLinks as $link) {
+                $linksToDelete->put($link->sid, $link);
+            }
+            foreach ($record->backLinks as $link) {
+                $linksToDelete->put($link->sid, $link);
+            }
+        }
+        $errors = [];
+        return $errors;
+    }
+
+    /**
+     * Return a collection containing this record and any records dependent on it.
+     * @param null|Collection $collected built up over recursion to prevent loops
+     * @return Collection
+     */
+    public function getDependentRecords($collected = null)
+    {
+        if ($collected != null) {
+            if ($collected->contains($this->sid)) {
+                return $collected;
+            }
+        } else {
+            $collected = new Collection();
+        }
+        $collected->put($this->sid, $this);
+
+        foreach ($this->forwardLinks as $link) {
+            $linkType = $link->linkType;
+            if ($linkType->range_type != 'dependent') {
+                continue;
+            }
+            $link->objectRecord->getDependentRecords($collected);
+        }
+
+        foreach ($this->backLinks as $link) {
+            $linkType = $link->linkType;
+            if ($linkType->domain_type != 'dependent') {
+                continue;
+            }
+            $link->subjectRecord->getDependentRecords($collected);
+        }
+        return $collected;
+    }
+
+    /*************************************
+     * ACTION FUNCTIONS
+     *************************************/
+
+    /**
      * @param array $linkChanges
      * @throws MMValidationException
      */
@@ -629,7 +685,6 @@ class Record extends DocumentPart
             $this->_applyLinkChanges($linkType, $changes, false);
         }
     }
-
 
     /**
      * @param LinkType $linkType
@@ -733,59 +788,16 @@ class Record extends DocumentPart
     }
 
     /**
-     * @return array
+     * @param array $update
      */
-    public function reasonsThisCantBeErased()
+    public function updateData(array $update)
     {
-        // find all reasons not to continue.
-        // get all records that would be deleted
-        $recordsToDelete = $this->getDependentRecords();
-        $linksToDelete = new Collection();
-        /** @var Record $record */
-        foreach ($recordsToDelete as $record) {
-            foreach ($record->forwardLinks as $link) {
-                $linksToDelete->put($link->sid, $link);
-            }
-            foreach ($record->backLinks as $link) {
-                $linksToDelete->put($link->sid, $link);
+        $data = $this->data;
+        foreach ($update as $key => $value) {
+            if ($value !== null) {
+                $data[$key] = $value;
             }
         }
-        $errors = [];
-        return $errors;
+        $this->data = $data;
     }
-
-    /**
-     * Return a collection containing this record and any records dependent on it.
-     * @param null|Collection $collected built up over recursion to prevent loops
-     * @return Collection
-     */
-    public function getDependentRecords($collected = null)
-    {
-        if ($collected != null) {
-            if ($collected->contains($this->sid)) {
-                return $collected;
-            }
-        } else {
-            $collected = new Collection();
-        }
-        $collected->put($this->sid, $this);
-
-        foreach ($this->forwardLinks as $link) {
-            $linkType = $link->linkType;
-            if ($linkType->range_type != 'dependent') {
-                continue;
-            }
-            $link->objectRecord->getDependentRecords($collected);
-        }
-
-        foreach ($this->backLinks as $link) {
-            $linkType = $link->linkType;
-            if ($linkType->domain_type != 'dependent') {
-                continue;
-            }
-            $link->subjectRecord->getDependentRecords($collected);
-        }
-        return $collected;
-    }
-
 }

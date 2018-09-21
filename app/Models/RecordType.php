@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use App\Exceptions\MMValidationException;
+use App\Exceptions\ParseException;
 use App\Exceptions\ScriptException;
 use App\Fields\Field;
 use App\MMScript;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Validator;
@@ -30,6 +32,16 @@ class RecordType extends DocumentPart
      */
     var $fieldsCache;
     var $titleScript;
+
+    /*************************************
+     * RELATIONSHIPS
+     *************************************/
+
+    // none!
+
+    /*************************************
+     * READ FUNCTIONS
+     *************************************/
 
     /**
      * @return Relation
@@ -104,6 +116,206 @@ class RecordType extends DocumentPart
     }
 
     /**
+     * @param string $name
+     * @return Field|null
+     * @throws Exception
+     */
+    public function field($name)
+    {
+        foreach ($this->fields() as $field) {
+            if ($field->data["name"] == $name) {
+                return $field;
+            }
+        }
+        return null; // no such field
+    }
+
+    /**
+     * Return the fields that make up this recordType
+     * @return Field[]
+     * @throws Exception
+     */
+    public function fields()
+    {
+        if (!$this->fieldsCache) {
+            $this->fieldsCache = [];
+            foreach ($this->data["fields"] as $fieldData) {
+                $this->fieldsCache [] = Field::createFromData($fieldData, $this);
+            }
+        }
+        return $this->fieldsCache;
+    }
+
+    /**
+     * @throws MMValidationException
+     */
+    public function validate()
+    {
+        $validator = Validator::make(
+            ['name' => $this->name],
+            ['name' => 'required|codename|max:255']);
+
+        if ($validator->fails()) {
+            throw $this->makeValidationException($validator);
+        }
+
+        $validator = Validator::make(
+            $this->data,
+            [
+                'title' => 'string',
+                'fields' => 'required|array',
+                'fields.*.type' => 'required|in:boolean,integer,decimal,string,option,longtext'
+            ]);
+
+        if ($validator->fails()) {
+            throw $this->makeValidationException($validator);
+        }
+        foreach ($this->fields() as $field) {
+            $field->validate();
+        }
+
+        try {
+            $script = $this->titleScript();
+        } catch (ScriptException $e) {
+            throw new MMValidationException("Error in title script: " . $e->getMessage(), 0, $e);
+        }
+        if (isset($script)) {
+            if ($script->type() != "string") {
+                throw new MMValidationException("If a record type has a title it should be an MMScript which returns a string. This returned a " . $script->type());
+            }
+        }
+
+    }
+
+    /**
+     * Compiles the title script, if any, for this recordtype
+     * @return MMScript
+     * @throws ParseException
+     */
+    function titleScript()
+    {
+        if (isset($this->titleScript)) {
+            return $this->titleScript;
+        }
+        if (!isset($this->title_script) || trim($this->title_script) == "") {
+            return null;
+        }
+        $this->titleScript = new MMScript(
+            $this->title_script,
+            $this->documentRevision,
+            ["record" => $this, "config" => $this->documentRevision->configRecordType()]);
+        return $this->titleScript;
+    }
+
+    /**
+     * List of the metadata fields for this record type's properties.
+     * @return Field[]
+     * @throws Exception
+     */
+    public function metaFields()
+    {
+        $metaFields = [];
+        foreach ($this->metaFieldDefinitions() as $fieldData) {
+            $metaFields[] = Field::createFromData($fieldData);
+        }
+        return $metaFields;
+    }
+
+    /**
+     * Return the fields that describe the metadata of a recordType
+     * @return array[]
+     */
+    public function metaFieldDefinitions()
+    {
+        return [
+            [
+                "name" => "name",
+                "required" => true,
+                "type" => "string",
+                "label" => "Code name",
+                "editable" => false,
+            ],
+            [
+                "name" => "label",
+                "type" => "string",
+                "label" => "Label"
+            ],
+            [
+                "name" => "title_script",
+                "type" => "string",
+                "label" => "Title script",
+            ],
+            [
+                "name" => "external_table",
+                "type" => "string",
+                "label" => "External Data Table"
+            ],
+            [
+                "name" => "external_key",
+                "type" => "string",
+                "label" => "External Data Key"
+            ],
+            [
+                "name" => "external_local_key",
+                "type" => "string",
+                "label" => "External Data Local Key"
+            ],
+        ];
+    }
+
+    /**
+     * Return an array of the columns in the primary linked external database table.
+     * Incuding the key column.
+     * But not columns linked to other tables.
+     * @return array
+     * @throws Exception
+     */
+    public function externalColumns()
+    {
+        if( !isset( $this->external_table )){
+            return [];
+        }
+        $external_fields = [];
+        $external_fields[] = $this->external_key;
+        foreach ($this->fields() as $field) {
+            if (array_key_exists('external_column', $field->data)
+                && !empty($field->data['external_column'])
+                && empty($field->data['external_table'])
+            ) {
+                $external_fields[] = $field->data['external_column'];
+            }   
+        }
+        return $external_fields;
+    }
+
+    /**
+     * This function indicates if there is a linked external
+     * data table that can be used to create new records from.
+     * @return bool
+     */
+    public function isLinkedToExternalData()
+    {
+        if( empty( $this->external_table)) {
+            return false;
+        }
+        return true;
+    }
+
+    public function metaValues()
+    {
+        $metavalues = [];
+        foreach ($this->metaFields() as $field) {
+            $name = $field->data["name"];
+            $metavalues[$name] = $this->$name;
+        }
+        return $metavalues;
+    }
+
+    /*************************************
+     * ACTION FUNCTIONS
+     *************************************/
+
+    /**
      * Data to create the record. Should supply data and all 1:n and n:1 links.
      * may supply other links but this is not requred.
      * 1:1 links are not yet supported.
@@ -162,36 +374,6 @@ class RecordType extends DocumentPart
     }
 
     /**
-     * @param string $name
-     * @return Field|null
-     */
-    public function field($name)
-    {
-        foreach ($this->fields() as $field) {
-            if ($field->data["name"] == $name) {
-                return $field;
-            }
-        }
-        return null; // no such field
-    }
-
-    /**
-     * Return the fields that make up this recordType
-     * @return Field[]
-     * @throws \Exception
-     */
-    public function fields()
-    {
-        if (!$this->fieldsCache) {
-            $this->fieldsCache = [];
-            foreach ($this->data["fields"] as $fieldData) {
-                $this->fieldsCache [] = Field::createFromData($fieldData, $this);
-            }
-        }
-        return $this->fieldsCache;
-    }
-
-    /**
      * @param array $fields
      */
     public function setFields($fields)
@@ -226,70 +408,10 @@ class RecordType extends DocumentPart
         $this->fieldsCache=null;
     }
 
-
-    /**
-     * @throws MMValidationException
-     */
-    public function validate()
-    {
-        $validator = Validator::make(
-            ['name' => $this->name],
-            ['name' => 'required|codename|max:255']);
-
-        if ($validator->fails()) {
-            throw $this->makeValidationException($validator);
-        }
-
-        $validator = Validator::make(
-            $this->data,
-            [
-                'title' => 'string',
-                'fields' => 'required|array',
-                'fields.*.type' => 'required|in:boolean,integer,decimal,string,option,longtext'
-            ]);
-
-        if ($validator->fails()) {
-            throw $this->makeValidationException($validator);
-        }
-        foreach ($this->fields() as $field) {
-            $field->validate();
-        }
-
-        try {
-            $script = $this->titleScript();
-        } catch (ScriptException $e) {
-            throw new MMValidationException("Error in title script: " . $e->getMessage(), 0, $e);
-        }
-        if (isset($script)) {
-            if ($script->type() != "string") {
-                throw new MMValidationException("If a record type has a title it should be an MMScript which returns a string. This returned a " . $script->type());
-            }
-        }
-
-    }
-
-    /**
-     * Compiles the title script, if any, for this recordtype
-     * @return MMScript
-     */
-    function titleScript()
-    {
-        if (isset($this->titleScript)) {
-            return $this->titleScript;
-        }
-        if (!isset($this->title_script) || trim($this->title_script) == "") {
-            return null;
-        }
-        $this->titleScript = new MMScript(
-            $this->title_script,
-            $this->documentRevision,
-            ["record" => $this, "config" => $this->documentRevision->configRecordType()]);
-        return $this->titleScript;
-    }
-
     /**
      * Update this recordType from values in the data
      * @param array $properties
+     * @throws Exception
      */
     public function setProperties($properties)
     {
@@ -301,6 +423,7 @@ class RecordType extends DocumentPart
 
     /**
      * @param array $update
+     * @throws Exception
      */
     public function updateValues(array $update)
     {
@@ -313,108 +436,6 @@ class RecordType extends DocumentPart
         }
     }
 
-    /**
-     * List of the metadata fields for this record type's properties.
-     * @return Field[]
-     * @throws \Exception
-     */
-    public function metaFields()
-    {
-        $metaFields = [];
-        foreach ($this->metaFieldDefinitions() as $fieldData) {
-            $metaFields[] = Field::createFromData($fieldData);
-        }
-        return $metaFields;
-    }
-
-    /**
-     * Return the fields that describe the metadata of a recordType
-     * @return array[]
-     */
-    public function metaFieldDefinitions()
-    {
-        return [
-            [
-                "name" => "name",
-                "required" => true,
-                "type" => "string",
-                "label" => "Code name",
-                "editable" => false,
-            ],
-            [
-                "name" => "label",
-                "type" => "string",
-                "label" => "Label"
-            ],
-            [
-                "name" => "title_script",
-                "type" => "string",
-                "label" => "Title script",
-            ],
-            [
-                "name" => "external_table",
-                "type" => "string",
-                "label" => "External Data Table"
-            ],
-            [
-                "name" => "external_key",
-                "type" => "string",
-                "label" => "External Data Key"
-            ],
-            [
-                "name" => "external_local_key",
-                "type" => "string",
-                "label" => "External Data Local Key"
-            ],
-        ];
-    }
-
-    /**
-     * Return an array of the columns in the primary linked external database table.
-     * Incuding the key column.
-     * But not columns linked to other tables.
-     * @return array
-     */
-    public function externalColumns()
-    {
-        if( !isset( $this->external_table )){
-            return [];
-        }
-        $external_fields = [];
-        $external_fields[] = $this->external_key;
-        foreach ($this->fields() as $field) {
-            if (array_key_exists('external_column', $field->data)
-                && !empty($field->data['external_column'])
-                && empty($field->data['external_table'])
-            ) {
-                $external_fields[] = $field->data['external_column'];
-            }   
-        }
-        return $external_fields;
-    }
-
-    /**
-     * This function indicates if there is a linked external
-     * data table that can be used to create new records from.
-     * @return bool
-     */
-    public function isLinkedToExternalData()
-    {
-        if( empty( $this->external_table)) {
-            return false;
-        }
-        return true;
-    }
-
-    public function metaValues()
-    {
-        $metavalues = [];
-        foreach ($this->metaFields() as $field) {
-            $name = $field->data["name"];
-            $metavalues[$name] = $this->$name;
-        }
-        return $metavalues;
-    }
 }
 
 

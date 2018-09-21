@@ -18,6 +18,16 @@ use App\Http\TitleMaker;
  */
 class Link extends DocumentPart
 {
+    /*************************************
+     * RELATIONSHIPS
+     *************************************/
+
+    // none!
+
+    /*************************************
+     * READ FUNCTIONS
+     *************************************/
+
     /**
      * @return LinkType
      */
@@ -124,6 +134,12 @@ class Link extends DocumentPart
         }
     }
 
+
+    /*************************************
+     * ACTION FUNCTIONS
+     *************************************/
+
+    // none!
 }
 
 

@@ -15,10 +15,15 @@ use Illuminate\Validation\Validator;
 /**
  * All out models always have an id field
  * @property int id
+ * @property DocumentRevision documentRevision
  */
 abstract class MMModel extends Model
 {
     static $cache = [];
+
+    /*************************************
+     * READ FUNCTIONS
+     *************************************/
 
     /**
      * Dynamically retrieve relations on the model.
@@ -33,7 +38,6 @@ abstract class MMModel extends Model
             return parent::getRelationValue($key);
         }
 
-
         /* cache the same select from different instances of the same db object */
         $relationCode = get_class($this) . "#" . $this->id . "->" . $key;
         if (!array_key_exists($relationCode, MMModel::$cache)) {
@@ -42,6 +46,9 @@ abstract class MMModel extends Model
         return MMModel::$cache[$relationCode];
     }
 
+    /*************************************
+     * HELPER FUNCTIONS
+     *************************************/
 
     /**
      * Helper function.
@@ -49,8 +56,7 @@ abstract class MMModel extends Model
      * @param Validator $validator
      * @return MMValidationException
      */
-    protected
-    function makeValidationException($validator)
+    protected function makeValidationException($validator)
     {
         $msg = "Validation failure. ";
         $errors = $validator->errors();

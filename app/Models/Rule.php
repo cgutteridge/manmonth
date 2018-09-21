@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Exceptions\MMValidationException;
+use App\Exceptions\ParseException;
 use App\Fields\Field;
 use App\MMAction\Action;
 use App\MMAction\AddCategory;
@@ -53,8 +54,19 @@ class Rule extends DocumentPart
     protected $abstractContext;
     protected $abstractContextOrder;
 
+    /*************************************
+     * RELATIONSHIPS
+     *************************************/
+
+    // none!
+
+    /*************************************
+     * READ FUNCTIONS
+     *************************************/
+
     /**
-     * @throws MMValidationException,Exception
+     * @throws MMValidationException ,Exception
+     * @throws ParseException
      */
     public function validate()
     {
@@ -217,7 +229,7 @@ class Rule extends DocumentPart
     /**
      * @param string $scriptText
      * @return MMScript
-     * @throws \App\Exceptions\ParseException
+     * @throws ParseException
      */
     function script($scriptText)
     {
@@ -349,6 +361,7 @@ class Rule extends DocumentPart
     /**
      * @param RecordReport $recordReport
      * @param array $context
+     * @throws ParseException
      */
     private function applyToContext($recordReport, $context)
     {

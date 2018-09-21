@@ -9,6 +9,7 @@
 namespace App\Models;
 
 use App\RecordReport;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int report_type_sid
@@ -46,14 +47,16 @@ class Report extends DocumentPart
      */
     private $maxLoadingRatio;
 
-    /**
-     * Relation to DocumentRevision
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function documentRevision()
-    {
-        return $this->belongsTo('App\Models\DocumentRevision');
-    }
+    /*************************************
+     * RELATIONSHIPS
+     *************************************/
+
+    // none!
+
+
+    /*************************************
+     * READ FUNCTIONS
+     *************************************/
 
     /**
      * @return ReportType
@@ -67,23 +70,6 @@ class Report extends DocumentPart
                 ->where('document_revision_id', $this->documentRevision->id);
         }
         return MMModel::$cache[$relationCode];
-    }
-
-    /**
-     * Overrides the DocumentPart save method to turn all the document reports
-     * into a datastructure and assigning it the the data field which casts
-     * it into encoded json.
-     * @param array $options
-     * @return bool
-     */
-    public function save(array $options = [])
-    {
-        $data = ["records" => []];
-        foreach ($this->recordReports() as $id => $report) {
-            $data["records"][$id] = $report->toData();
-        }
-        $this->data = $data;
-        return parent::save($options);
     }
 
     /**
@@ -198,7 +184,7 @@ class Report extends DocumentPart
                 $total = $recordReport->getLoadingTotal();
                 $target = $recordReport->getLoadingTarget();
 
-                $ratio = ($target==0)?1:($total / $target);
+                $ratio = ($target == 0) ? 1 : ($total / $target);
                 if ($ratio > $this->maxLoadingRatio) {
                     $this->maxLoadingRatio = $ratio;
                 }
@@ -216,6 +202,10 @@ class Report extends DocumentPart
         return $this->recordReports()[$sid];
     }
 
+    /*************************************
+     * ACTION FUNCTIONS
+     *************************************/
+
     /**
      * @param int $recordSid
      * @param RecordReport $recordReport
@@ -228,6 +218,23 @@ class Report extends DocumentPart
         $this->maxLoadingRatio = null;
         $this->columnMeans = null;
         $this->columnTotals = null;
+    }
+
+    /**
+     * Overrides the DocumentPart save method to turn all the document reports
+     * into a datastructure and assigning it the the data field which casts
+     * it into encoded json.
+     * @param array $options
+     * @return bool
+     */
+    public function save(array $options = [])
+    {
+        $data = ["records" => []];
+        foreach ($this->recordReports() as $id => $report) {
+            $data["records"][$id] = $report->toData();
+        }
+        $this->data = $data;
+        return parent::save($options);
     }
 
 

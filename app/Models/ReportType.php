@@ -18,12 +18,21 @@ use Validator;
  */
 class ReportType extends DocumentPart
 {
+    /*************************************
+     * RELATIONSHIPS
+     *************************************/
+
+    // none!
+
+    /*************************************
+     * READ FUNCTIONS
+     *************************************/
+
     /**
      * @throws MMValidationException
      */
     public function validateName()
     {
-
         $validator = Validator::make(
             ['name' => $this->name],
             ['name' => 'required|alpha_dash|min:2|max:255']);
@@ -38,7 +47,6 @@ class ReportType extends DocumentPart
      */
     public function validateData()
     {
-
         $validator = Validator::make(
             $this->data,
             ['title' => 'required']
@@ -47,34 +55,6 @@ class ReportType extends DocumentPart
         if ($validator->fails()) {
             throw new MMValidationException("Validation fail in reportType.data: " . implode(", ", $validator->errors()->all()));
         }
-    }
-
-    /**
-     * @param array $data
-     * @return Rule
-     * @throws MMValidationException
-     */
-    public function createRule($data)
-    {
-
-        // all OK, let's make this rule
-        $rank = 0;
-        /** @noinspection PhpUndefinedMethodInspection */
-        $lastrule = $this->rules()->sortByDesc('id')->first();
-        if ($lastrule) {
-            $rank = $lastrule->rank + 1;
-        }
-
-        $rule = new Rule();
-        $rule->documentRevision()->associate($this->documentRevision);
-        $rule->rank = $rank;
-        $rule->report_type_sid = $this->sid;
-        $rule->data = $data;
-
-        $rule->validate();
-        $rule->save();
-
-        return $rule;
     }
 
     /**
@@ -151,6 +131,38 @@ class ReportType extends DocumentPart
             }
         }
         return $recordReport;
+    }
+
+    /*************************************
+     * ACTION FUNCTIONS
+     *************************************/
+
+    /**
+     * @param array $data
+     * @return Rule
+     * @throws MMValidationException
+     */
+    public function createRule($data)
+    {
+
+        // all OK, let's make this rule
+        $rank = 0;
+        /** @noinspection PhpUndefinedMethodInspection */
+        $lastrule = $this->rules()->sortByDesc('id')->first();
+        if ($lastrule) {
+            $rank = $lastrule->rank + 1;
+        }
+
+        $rule = new Rule();
+        $rule->documentRevision()->associate($this->documentRevision);
+        $rule->rank = $rank;
+        $rule->report_type_sid = $this->sid;
+        $rule->data = $data;
+
+        $rule->validate();
+        $rule->save();
+
+        return $rule;
     }
 
 }

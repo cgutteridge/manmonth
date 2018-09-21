@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property string status
@@ -22,23 +24,86 @@ use Illuminate\Database\Eloquent\Collection;
  */
 class DocumentRevision extends MMModel
 {
+    /*************************************
+     * RELATIONSHIPS
+     *************************************/
+
     /**
      * The relationship to the document this is a revision of.
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function document()
     {
-        return $this->belongsTo('App\Models\Document');
+        return $this->belongsTo(Document::class);
     }
 
     /**
      * The user who created this revision.
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function user()
     {
         return $this->belongsTo(User::class, "user_username", "username");
     }
+
+    /**
+     * The relationship to the records in this revision.
+     * @return HasMany
+     */
+    public function records()
+    {
+        return $this->hasMany(Record::class);
+    }
+
+    /**
+     * The relationship to the links in this revision.
+     * @return HasMany
+     */
+    public function links()
+    {
+        return $this->hasMany(Link::class);
+    }
+
+    /**
+     * Kinda the relationship but with order added.
+     * Needs more thought.
+     * @return HasMany
+     */
+    public function rules()
+    {
+        return $this->hasMany(Rule::class);
+    }
+
+    /**
+     * The relationship to the report types in this revision.
+     * @return HasMany
+     */
+    public function reportTypes()
+    {
+        return $this->hasMany(ReportType::class);
+    }
+
+    /**
+     * The relationship to the record types in this revision.
+     * @return HasMany
+     */
+    public function recordTypes()
+    {
+        return $this->hasMany(RecordType::class);
+    }
+
+    /**
+     * The relationship to the link types in this revision.
+     * @return HasMany
+     */
+    public function linkTypes()
+    {
+        return $this->hasMany(LinkType::class);
+    }
+
+    /*************************************
+     * READ FUNCTIONS
+     *************************************/
 
     /**
      * @param int $recordSid
@@ -55,34 +120,6 @@ class DocumentRevision extends MMModel
     }
 
     /**
-     * The relationship to the records in this revision.
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function records()
-    {
-        return $this->hasMany('App\Models\Record');
-    }
-
-    /**
-     * The relationship to the links in this revision.
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function links()
-    {
-        return $this->hasMany('App\Models\Link');
-    }
-
-    /**
-     * Kinda the relationship but with order added.
-     * Needs more thought.
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function rules()
-    {
-        return $this->hasMany('App\Models\Rule');
-    }
-
-    /**
      * @param string $name
      * @return ReportType
      */
@@ -94,15 +131,6 @@ class DocumentRevision extends MMModel
             }
         }
         return null;
-    }
-
-    /**
-     * The relationship to the report types in this revision.
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function reportTypes()
-    {
-        return $this->hasMany('App\Models\ReportType');
     }
 
     /**
@@ -157,15 +185,6 @@ class DocumentRevision extends MMModel
     }
 
     /**
-     * The relationship to the record types in this revision.
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function recordTypes()
-    {
-        return $this->hasMany('App\Models\RecordType');
-    }
-
-    /**
      * @param int $sid
      * @return RecordType|null
      */
@@ -194,15 +213,6 @@ class DocumentRevision extends MMModel
     }
 
     /**
-     * The relationship to the link types in this revision.
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function linkTypes()
-    {
-        return $this->hasMany('App\Models\LinkType');
-    }
-
-    /**
      * @param $linkTypeSid
      * @return LinkType|null
      */
@@ -216,9 +226,9 @@ class DocumentRevision extends MMModel
         return null;
     }
 
-
-    // actions 
-
+    /*************************************
+     * ACTION FUNCTIONS
+     *************************************/
 
     /**
      * @throws Exception
@@ -252,7 +262,6 @@ class DocumentRevision extends MMModel
         $this->save();
     }
 
-
     /**
      * @throws Exception
      */
@@ -279,7 +288,6 @@ class DocumentRevision extends MMModel
         $this->status = "scrap";
         $this->save();
     }
-
 
     /**
      * @param string $name
