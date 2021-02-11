@@ -21,9 +21,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property boolean published
  * @property string user_username
  * @property string comment
+ * @property mixed created_at
  */
 class DocumentRevision extends MMModel
 {
+    protected $with = ['user', 'reportTypes', 'recordTypes', 'linkTypes', 'document'];
+    protected $configRecord;
+
     /*************************************
      * RELATIONSHIPS
      *************************************/
@@ -106,71 +110,6 @@ class DocumentRevision extends MMModel
      *************************************/
 
     /**
-     * @param int $recordSid
-     * @return Record
-     */
-    public function record($recordSid)
-    {
-        $relationCode = get_class($this) . "#" . $this->id . "->record/$recordSid";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->records()->where("sid", (int)$recordSid)->first();
-        }
-        return MMModel::$cache[$relationCode];
-    }
-
-    /**
-     * @param string $name
-     * @return ReportType
-     */
-    public function reportTypeByName($name)
-    {
-        foreach ($this->reportTypes as $reportType) {
-            if ($reportType->name == $name) {
-                return $reportType;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * @param int $sid
-     * @return ReportType|null
-     */
-    public function reportType($sid)
-    {
-        foreach ($this->reportTypes as $reportType) {
-            if ($reportType->sid == $sid) {
-                return $reportType;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Return the configuration record
-     * @return Record
-     */
-    public function configRecord()
-    {
-        $relationCode = get_class($this) . "#" . $this->id . "->configRecord";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->configRecordType()->records()->first();
-        }
-        return MMModel::$cache[$relationCode];
-    }
-
-    /**
-     * Return the configuration schema
-     * @return RecordType
-     */
-    public function configRecordType()
-    {
-        return $this->recordTypeByName('config');
-    }
-
-    /**
      * @param string $name
      * @return RecordType|null
      */
@@ -178,20 +117,6 @@ class DocumentRevision extends MMModel
     {
         foreach ($this->recordTypes as $recordType) {
             if ($recordType->name == $name) {
-                return $recordType;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * @param int $sid
-     * @return RecordType|null
-     */
-    public function recordType($sid)
-    {
-        foreach ($this->recordTypes as $recordType) {
-            if ($recordType->sid == $sid) {
                 return $recordType;
             }
         }
@@ -213,17 +138,51 @@ class DocumentRevision extends MMModel
     }
 
     /**
-     * @param $linkTypeSid
-     * @return LinkType|null
+     * @param string $name
+     * @return ReportType
      */
-    public function linkType($linkTypeSid)
+    public function reportTypeByName($name)
     {
-        foreach ($this->linkTypes as $linkType) {
-            if ($linkType->sid == $linkTypeSid) {
-                return $linkType;
+        foreach ($this->reportTypes as $reportType) {
+            if ($reportType->name == $name) {
+                return $reportType;
             }
         }
         return null;
+    }
+
+    /**
+     * @param int $id
+     * @return Record
+     */
+    public function record($id)
+    {
+        dd('test if this is used');
+        if (isset($this->records)) {
+            return $this->records[$id];
+        }
+        return $this->records->where("id", $id)->first();
+    }
+
+    /**
+     * Return the configuration record
+     * @return Record
+     */
+    public function configRecord()
+    {
+        if (!isset($this->configRecord)) {
+            $this->configRecord = $this->configRecordType()->records->first();
+        }
+        return $this->configRecord;
+    }
+
+    /**
+     * Return the configuration schema
+     * @return RecordType
+     */
+    public function configRecordType()
+    {
+        return $this->recordTypeByName('config');
     }
 
     /*************************************
@@ -302,7 +261,7 @@ class DocumentRevision extends MMModel
 
         $report_type = new ReportType();
         $report_type->documentRevision()->associate($this);
-        $report_type->base_record_type_sid = $baseRecordType->sid;
+        $report_type->baseRecordType()->associate($baseRecordType);
         $report_type->name = $name;
         $report_type->data = $data;
 
@@ -343,9 +302,9 @@ class DocumentRevision extends MMModel
     {
         $link_type = new LinkType();
         $link_type->documentRevision()->associate($this);
+        $link_type->domain()->associate($this);
+        $link_type->range()->associate($this);
         $link_type->name = $name;
-        $link_type->domain_sid = $domain->sid;
-        $link_type->range_sid = $range->sid;
         $link_type->setProperties($properties);
 
         // these take exception if there's an issue

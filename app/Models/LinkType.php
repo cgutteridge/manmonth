@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Exceptions\MMValidationException;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Validator;
 
 /**
@@ -14,14 +15,16 @@ use Validator;
  * @property string label
  * @property mixed inverse_label
  * @property int sid
- * @property int domain_sid
- * @property int range_sid
+ * @property int domain_id
+ * @property int range_id
  * @property int domain_min
  * @property int domain_max
  * @property int range_min
  * @property int range_max
  * @property string|null domain_type NULL, "component", "dependent"
  * @property string|null range_type NULL, "component", "dependent"
+ * @property RecordType domain
+ * @property RecordType range
  */
 class LinkType extends DocumentPart
 {
@@ -31,44 +34,36 @@ class LinkType extends DocumentPart
         'range_min' => 0
     );
 
+    protected $with = ['domain', 'range'];
+
     /*************************************
      * RELATIONSHIPS
      *************************************/
 
-    // none
+    /**
+     * @return HasOne
+     */
+    public function domain()
+    {
+        return $this->hasOne(RecordType::class, "id", "domain_id");
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function range()
+    {
+        return $this->hasOne(RecordType::class, "id", "range_id");
+    }
+
+    public function links()
+    {
+        return $this->hasMany(Link::class);
+    }
 
     /*************************************
      * READ FUNCTIONS
      *************************************/
-
-    /**
-     * @return RecordType
-     */
-    public function domain()
-    {
-        return $this->documentRevision->recordType($this->domain_sid);
-    }
-
-    /**
-     * @return RecordType
-     */
-    public function range()
-    {
-        return $this->documentRevision->recordType($this->range_sid);
-    }
-
-    /**
-     * @return Collection List of Record models
-     */
-    public function links()
-    {
-        $relationCode = get_class($this) . "#" . $this->id . "->links";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->documentRevision->links()->where("link_type_sid", $this->sid);
-        }
-        return MMModel::$cache[$relationCode];
-    }
 
     /**
      * @param $subject

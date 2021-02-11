@@ -12,7 +12,8 @@ use App\RecordReport;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @property int report_type_sid
+ * @property int report_type_id
+ * @property ReportType $reportType
  * @property array data
  */
 class Report extends DocumentPart
@@ -51,26 +52,18 @@ class Report extends DocumentPart
      * RELATIONSHIPS
      *************************************/
 
-    // none!
+    /**
+     * @return BelongsTo
+     */
+    public function reportType()
+    {
+        return $this->belongsTo(ReportType::class);
+    }
 
 
     /*************************************
      * READ FUNCTIONS
      *************************************/
-
-    /**
-     * @return ReportType
-     */
-    public function reportType()
-    {
-        $relationCode = get_class($this) . "#" . $this->id . "->reportType";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->hasOne('App\Models\ReportType', 'sid', 'report_type_sid')
-                ->where('document_revision_id', $this->documentRevision->id);
-        }
-        return MMModel::$cache[$relationCode];
-    }
 
     /**
      * @return RecordReport[]
@@ -80,9 +73,9 @@ class Report extends DocumentPart
         if (!isset($this->recordReportsCache)) {
             $this->recordReportsCache = [];
             if ($this->data !== null) {
-                foreach ($this->data["records"] as $sid => $recordReportData) {
+                foreach ($this->data["records"] as $id => $recordReportData) {
                     $recordReport = new RecordReport($recordReportData);
-                    $this->recordReportsCache[$sid] = $recordReport;
+                    $this->recordReportsCache[$id] = $recordReport;
                 }
             }
         }
@@ -194,12 +187,12 @@ class Report extends DocumentPart
     }
 
     /**
-     * @param integer $sid
+     * @param integer $id
      * @return RecordReport
      */
-    public function recordReport($sid)
+    public function recordReport($id)
     {
-        return $this->recordReports()[$sid];
+        return $this->recordReports()[$id];
     }
 
     /*************************************
@@ -207,12 +200,12 @@ class Report extends DocumentPart
      *************************************/
 
     /**
-     * @param int $recordSid
+     * @param int $recordID
      * @param RecordReport $recordReport
      */
-    public function setRecordReport($recordSid, $recordReport)
+    public function setRecordReport($recordID, $recordReport)
     {
-        $this->recordReportsCache[$recordSid] = $recordReport;
+        $this->recordReportsCache[$recordID] = $recordReport;
         // force cached values to decache
         $this->maxLoading = null;
         $this->maxLoadingRatio = null;

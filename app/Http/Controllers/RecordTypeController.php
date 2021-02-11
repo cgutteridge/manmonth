@@ -7,9 +7,11 @@ use App\Models\Record;
 use App\Models\RecordType;
 use DB;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
+use Log;
 use Redirect;
 use View;
 
@@ -23,7 +25,7 @@ class RecordTypeController extends Controller
      * @param RecordType $recordType
      * @return Response
      * @throws MMValidationException
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function show(RecordType $recordType)
     {
@@ -55,6 +57,7 @@ class RecordTypeController extends Controller
                 "values" => $field->data
             ];
         }
+
         return view('recordType.show', $pageinfo);
     }
 
@@ -66,17 +69,17 @@ class RecordTypeController extends Controller
      * @return Response
      * @throws MMValidationException
      * @throws \App\Exceptions\ScriptException
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function records(RecordController $recordController, RecordType $recordType)
     {
         $this->authorize('view', $recordType);
 
         $recordBlocks = [];
-        foreach ($recordType->records() as $record) {
+        foreach ($recordType->records as $record) {
             # create a sort key. Add ID to the end so we don't lose items with the
             # same name.
-            $sortKey = strtoupper($this->titleMaker->title($record)) . "#" . $record->sid;
+            $sortKey = strtoupper($this->titleMaker->title($record)) . "#" . $record->id;
             $recordBlocks[$sortKey] = [
                 "data" => $recordController->recordDataBlock($record),
                 "links" => [],
@@ -98,7 +101,7 @@ class RecordTypeController extends Controller
      * @param RecordType $recordType
      * @return Response
      * @throws MMValidationException
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function externalRecords(RecordType $recordType)
     {
@@ -169,6 +172,7 @@ class RecordTypeController extends Controller
      * @return array
      * Returns a list of issues that would prevent the bulk importer
      * working on this record type.
+     * @throws Exception
      */
     private function externalRecordsIssues(RecordType $recordType)
     {
@@ -184,6 +188,7 @@ class RecordTypeController extends Controller
     /**
      * @param RecordType $recordType
      * @return Builder
+     * @throws Exception
      */
     private function externalRecordsFilteredTable(RecordType $recordType)
     {
@@ -228,7 +233,7 @@ class RecordTypeController extends Controller
      * @param RecordType $recordType
      * @return Response
      * @throws MMValidationException
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function bulkImportConfirm(RecordType $recordType)
     {
@@ -284,7 +289,7 @@ class RecordTypeController extends Controller
      *
      * @param RecordType $recordType
      * @return RedirectResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function bulkImport(RecordType $recordType)
     {
@@ -322,7 +327,7 @@ class RecordTypeController extends Controller
 
                 $record = new Record();
                 $record->documentRevision()->associate($recordType->documentRevision);
-                $record->record_type_sid = $recordType->sid;
+                $record->record_type_id = $recordType->id;
                 # force the $key to be a string not an integer
                 $dataChanges = [$recordType->external_local_key => "$key"];
 
@@ -353,7 +358,7 @@ class RecordTypeController extends Controller
      * @param RecordType $recordType
      * @return Response
      * @throws MMValidationException
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function createRecord(RecordType $recordType)
     {
@@ -366,7 +371,7 @@ class RecordTypeController extends Controller
 
         $record = new Record();
         $record->documentRevision()->associate($recordType->documentRevision);
-        $record->record_type_sid = $recordType->sid;
+        $record->recordType()->associate( $recordType->id );
         $record->updateData($dataChanges);
 
         return view('record.create', [
@@ -402,7 +407,7 @@ class RecordTypeController extends Controller
 
         $record = new Record();
         $record->documentRevision()->associate($recordType->documentRevision);
-        $record->record_type_sid = $recordType->sid;
+        $record->recordType()->associate( $recordType );
         $record->updateData($dataChanges);
         try {
             // validate changes to fields
@@ -431,7 +436,7 @@ class RecordTypeController extends Controller
      * @param RecordType $recordType
      * @return View
      * @throws MMValidationException
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function edit(RecordType $recordType)
     {

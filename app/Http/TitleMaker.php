@@ -90,8 +90,8 @@ class TitleMaker
             if ($mode == 'long') {
                 // forward link title with names of from and two recordtypes
                 $shortName = $this->title($item);
-                $from = $this->title($item->domain());
-                $to = $this->title($item->range());
+                $from = $this->title($item->domain);
+                $to = $this->title($item->range);
                 $title = "$from $shortName $to";
             } elseif
             ($mode == 'inverse'

@@ -228,7 +228,7 @@ class ReportTypeController extends Controller
         $categories = [];
 
         foreach ($reportType->baseRecordType()->records() as $record) {
-            $recordReport = $report->recordReport($record->sid);
+            $recordReport = $report->recordReport($record->id);
 
             // if this is slow it could just run on the first recordreport?
             $recordCategories = $recordReport->categories();
@@ -261,7 +261,7 @@ class ReportTypeController extends Controller
         ];
         $unsortedRows = [];
         foreach ($reportType->baseRecordType()->records() as $record) {
-            $recordReport = $report->recordReport($record->sid);
+            $recordReport = $report->recordReport($record->id);
 
             $recordTarget = $recordReport->getLoadingTarget();
             $recordTotal = $recordReport->getLoadingTotal();
@@ -280,7 +280,7 @@ class ReportTypeController extends Controller
                     $categoryTotals[$category] += $loadItem["load"];
                 }
             }
-            $sortKey = strtoupper($this->titleMaker->title($record)) . "#" . $record->sid;
+            $sortKey = strtoupper($this->titleMaker->title($record)) . "#" . $record->id;
             $unsortedRows[$sortKey] = [
                 "record" => $record,
                 "target" => $recordTarget,

@@ -9,6 +9,7 @@
 namespace App\Http;
 
 // singleton for getting data from web forms
+use App\Models\Record;
 use App\Models\RecordType;
 use Illuminate\Http\Request;
 
@@ -148,14 +149,17 @@ class RequestProcessor
         $gets = $this->all();
         foreach ($gets as $key => $value) {
             if (preg_match('/^' . $idPrefix . 'remove_(\d+)$/', $key, $bits) && $value) {
-                $sid = $bits[1];
-                $result["remove"][$sid] = true;
+                $id = $bits[1];
+                $result["remove"][$id] = true;
             }
             if (preg_match('/^' . $idPrefix . 'add_(\d+)$/', $key, $bits) && $value) {
-                $sid = $bits[1];
-                $record = $recordType->record($sid);
+                $id = $bits[1];
+                // get the record and ensure it's the right type.
+                $record = Record::where( 'id',$id )
+                    ->where( 'record_type_id', $recordType->id)
+                    ->first();
                 if ($record) {
-                    $result["add"][$sid] = $this->titleMaker->title($record);
+                    $result["add"][$id] = $this->titleMaker->title($record);
                     # could give a warning if record is NULL
                 }
             }

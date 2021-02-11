@@ -57,7 +57,7 @@
             @foreach( $recordType->forwardLinkTypes as $linkType )
                 <li>
                     @include("cardinality",["min"=>$linkType->domain_min,"max"=>$linkType->domain_max])
-                    @link($linkType) relation linking to @link($linkType->range())
+                    @link($linkType) relation linking to @link($linkType->range)
                 </li>
             @endforeach
         </ul>
@@ -72,7 +72,7 @@
                 <li>
                     @include("cardinality",["min"=>$linkType->range_min,"max"=>$linkType->range_max])
                     <a href="@url($linkType)">@title($linkType,"inverse")</a> relation linking
-                    from @link($linkType->domain())
+                    from @link($linkType->domain)
                 </li>
             @endforeach
         </ul>
@@ -86,7 +86,7 @@
             @foreach( $recordType->reportTypes() as $reportType )
                 <li>
                     @link($reportType) (runs
-                    on @link($reportType->baseRecordType()), {{$reportType->rules()->count()}} rule(s))
+                    on @link($reportType->baseRecordType), {{$reportType->rules->count()}} rule(s))
                 </li>
             @endforeach
         </ul>

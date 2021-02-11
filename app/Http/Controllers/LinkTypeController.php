@@ -29,13 +29,13 @@ class LinkTypeController extends Controller
 
         $data = [
             "Links from" => [
-                "Record type" => $this->titleMaker->title($linkType->domain()),
+                "Record type" => $this->titleMaker->title($linkType->domain),
                 "Connection type" => $linkType->domain_type,
                 "Minimum links" => $linkType->domain_min,
                 "Maximum links" => ($linkType->domain_max == 0 ? "Unrestricted" : $linkType->domain_max)
             ],
             "Links to" => [
-                "Record type" => $this->titleMaker->title($linkType->range()),
+                "Record type" => $this->titleMaker->title($linkType->range),
                 "Connection type" => $linkType->range_type,
                 "Minimum links" => $linkType->range_min,
                 "Maximum links" => ($linkType->range_max == 0 ? "Unrestricted" : $linkType->range_max)
@@ -77,15 +77,15 @@ class LinkTypeController extends Controller
         $this->authorize('create', $linkType);
         $link = new Link();
         $link->documentRevision()->associate($linkType->documentRevision);
-        $link->link_type_sid = $linkType->sid;
+        $link->link_type_id = $linkType->id;
         $data = $this->requestProcessor->fromLinkRequest();
         $mmReturn = $this->requestProcessor->returnURL();
 
         if (isset($data["subject"])) {
-            $link->subject_sid = $data["subject"];
+            $link->subject_id = $data["subject"];
         }
         if (isset($data["object"])) {
-            $link->object_sid = $data["object"];
+            $link->object_id = $data["object"];
         }
         return view('link.create', [
             "link" => $link,
@@ -116,13 +116,13 @@ class LinkTypeController extends Controller
 
         $link = new Link();
         $link->documentRevision()->associate($linkType->documentRevision);
-        $link->link_type_sid = $linkType->sid;
+        $link->link_type_id = $linkType->id;
         $data = $this->requestProcessor->fromLinkRequest();
         if (isset($data["subject"])) {
-            $link->subject_sid = $data["subject"];
+            $link->subject_id = $data["subject"];
         }
         if (isset($data["object"])) {
-            $link->object_sid = $data["object"];
+            $link->object_id = $data["object"];
         }
 
         try {

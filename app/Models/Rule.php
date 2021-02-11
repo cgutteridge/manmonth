@@ -17,6 +17,7 @@ use App\MMScript;
 use App\RecordReport;
 use DB;
 use Exception;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Validator;
 
 /** @noinspection PhpUndefinedClassInspection */
@@ -25,7 +26,8 @@ use Validator;
  * Class Rule
  * @property DocumentRevision documentRevision
  * @property int rank
- * @property int report_type_sid
+ * @property int report_type_id
+ * @property ReportType reportType
  * @property array data
  * @property int document_revision_id
  * @package App\Models
@@ -58,7 +60,13 @@ class Rule extends DocumentPart
      * RELATIONSHIPS
      *************************************/
 
-    // none!
+    /**
+     * @return BelongsTo
+     */
+    public function reportType()
+    {
+        return $this->belongsTo(ReportType::class);
+    }
 
     /*************************************
      * READ FUNCTIONS
@@ -151,7 +159,7 @@ class Rule extends DocumentPart
         $this->abstractContextOrder = [];
         $this->abstractContext['config'] = $this->documentRevision->configRecordType();
 
-        $baseRecordType = $this->reportType()->baseRecordType();
+        $baseRecordType = $this->reportType->baseRecordType;
         $this->abstractContext[$baseRecordType->name] = $baseRecordType;
         // add all the other objects in the route
         $iterativeRecordType = $baseRecordType;
@@ -175,16 +183,16 @@ class Rule extends DocumentPart
 
             if ($fwd) {
                 // check the domain of this link is the right recordtype
-                if ($linkType->domain_sid != $iterativeRecordType->sid) {
+                if ($linkType->domain_id != $iterativeRecordType->id) {
                     throw new Exception("Domain of $linkName is not " . $iterativeRecordType->name);
                 }
-                $iterativeRecordType = $linkType->range();
+                $iterativeRecordType = $linkType->range;
             } else {
                 // backlink, so check range, set type to domain
-                if ($linkType->range_sid != $iterativeRecordType->sid) {
+                if ($linkType->range_id != $iterativeRecordType->id) {
                     throw new Exception("Range of $linkName is not " . $iterativeRecordType->name);
                 }
-                $iterativeRecordType = $linkType->domain();
+                $iterativeRecordType = $linkType->domain;
             }
 
             $name = $iterativeRecordType->name;
@@ -215,15 +223,6 @@ class Rule extends DocumentPart
         }
 
         return $this->abstractContextOrder;
-    }
-
-    /**
-     *
-     * @return ReportType
-     */
-    public function reportType()
-    {
-        return $this->documentRevision->reportType($this->report_type_sid);
     }
 
     /**
@@ -277,7 +276,7 @@ class Rule extends DocumentPart
     public function apply($record, $recordReport)
     {
         $context = [];
-        $baseRecordType = $this->reportType()->baseRecordType();
+        $baseRecordType = $this->reportType->baseRecordType;
         $context['config'] = $this->documentRevision->configRecord();
         $context[$baseRecordType->name] = $record;
         $route = [];
@@ -298,6 +297,7 @@ class Rule extends DocumentPart
      */
     private function applyToRoute($recordReport, $context, $route, $focusObject)
     {
+        dd("SIDS");
         if (sizeof($route) == 0) {
             $this->applyToContext($recordReport, $context);
             return;

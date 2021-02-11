@@ -26,7 +26,8 @@ class RoleCondition extends Model
     /**
      * @return BelongsTo
      */
-    function role() {
-        return $this->belongsTo(Role::class );
+    function role()
+    {
+        return $this->belongsTo(Role::class);
     }
 }

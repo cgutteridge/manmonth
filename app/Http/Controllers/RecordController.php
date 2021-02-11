@@ -150,12 +150,12 @@ class RecordController extends Controller
                         // a forward link means the target will have a backlink
                         // to this record.
                         $link["createLink"] = $this->linkMaker->url($linkType->range(), "create-record", [
-                            "link_bck_" . $linkType->sid . "_add_" . $record->sid => 1,
+                            "link_bck_" . $linkType->id . "_add_" . $record->id => 1,
                             "_mmreturn" => $returnURL
                         ]);
                     } else {
                         $link["createLink"] = $this->linkMaker->url($linkType, "create-link", [
-                            "subject" => $record->sid,
+                            "subject" => $record->id,
                             "_mmreturn" => $returnURL
                         ]);
                     }
@@ -179,12 +179,12 @@ class RecordController extends Controller
                         // to this record.
                         // link_fwd_2_add_12
                         $link["createLink"] = $this->linkMaker->url($linkType->domain(), "create-record", [
-                            "link_fwd_" . $linkType->sid . "_add_" . $record->sid => 1,
+                            "link_fwd_" . $linkType->id . "_add_" . $record->id => 1,
                             "_mmreturn" => $returnURL
                         ]);
                     } else {
                         $link["createLink"] = $this->linkMaker->url($linkType, "create-link", [
-                            "object" => $record->sid,
+                            "object" => $record->id,
                             "_mmreturn" => $returnURL
                         ]);
                     }

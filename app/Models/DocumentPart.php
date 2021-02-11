@@ -35,23 +35,6 @@ abstract class DocumentPart extends MMModel
      * READ FUNCTIONS
      *************************************/
 
-    /**
-     * @param string $key
-     * @return mixed
-     */
-    public function __get($key)
-    {
-        if ($key == 'documentRevision') {
-            $relationCode = 'DocumentRevision#' . $this->document_revision_id;
-            if (!array_key_exists($relationCode, MMModel::$cache)) {
-                MMModel::$cache[$relationCode] = parent::getRelationValue($key);
-            }
-
-            return MMModel::$cache[$relationCode];
-        }
-
-        return parent::__get($key);
-    }
 
     /*************************************
      * ACTION FUNCTIONS

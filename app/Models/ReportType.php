@@ -3,15 +3,20 @@
 namespace App\Models;
 
 use App\Exceptions\MMValidationException;
+use App\Exceptions\ParseException;
 use App\Exceptions\ReportingException;
 use App\Http\TitleMaker;
 use App\RecordReport;
 use Exception;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Validator;
 
 /**
- * @property int base_record_type_sid
+ * @property int base_record_type_id
  * @property DocumentRevision documentRevision
+ * @property Collection rules
+ * @property RecordType baseRecordType
  * @property string name
  * @property int sid
  * @property array data
@@ -22,7 +27,23 @@ class ReportType extends DocumentPart
      * RELATIONSHIPS
      *************************************/
 
-    // none!
+    /**
+     * @return HasMany
+     */
+    public function rules()
+    {
+        return $this->hasMany( Rule::class )->sortBy( 'rank' );
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function baseRecordType()
+    {
+        return $this->hasOne( RecordType::class,"base_record_type_id" );
+    }
+
+
 
     /*************************************
      * READ FUNCTIONS
@@ -58,22 +79,6 @@ class ReportType extends DocumentPart
     }
 
     /**
-     * @return array[Rule]
-     */
-    public function rules()
-    {
-        $relationCode = get_class($this) . "#" . $this->id . "->rules";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->documentRevision->rules()
-                ->where("report_type_sid", $this->sid)
-                ->orderBy('rank')
-                ->get();
-        }
-        return MMModel::$cache[$relationCode];
-    }
-
-    /**
      * Run this report type on the current document revision and produce a report object.
      * Doesn't save the object.
      * @return Report
@@ -85,7 +90,7 @@ class ReportType extends DocumentPart
         $records = $this->baseRecordType()->records();
         $report = new Report();
         $report->documentRevision()->associate($this);
-        $report->report_type_sid = $this->sid;
+        $report->report_type_id = $this->id;
 
         foreach ($records as $record) {
             try {
@@ -100,15 +105,6 @@ class ReportType extends DocumentPart
         return $report;
     }
 
-    /**
-     * note that this is NOT a laravel relation
-     * @return RecordType
-     */
-    public function baseRecordType()
-    {
-        return $this->documentRevision->recordType($this->base_record_type_sid);
-    }
-
     /*
      * for each rule get all possible contexts based on this record and the rule type 'route'
      * then apply the rule.
@@ -120,7 +116,7 @@ class ReportType extends DocumentPart
     function recordReport($record)
     {
         $recordReport = new RecordReport();
-        foreach ($this->rules() as $rule) {
+        foreach ($this->rules as $rule) {
             // apply this rule to every possible context based on the route
             /** @var Rule $rule */
             try {
@@ -141,14 +137,14 @@ class ReportType extends DocumentPart
      * @param array $data
      * @return Rule
      * @throws MMValidationException
+     * @throws ParseException
      */
     public function createRule($data)
     {
 
         // all OK, let's make this rule
         $rank = 0;
-        /** @noinspection PhpUndefinedMethodInspection */
-        $lastrule = $this->rules()->sortByDesc('id')->first();
+        $lastrule = $this->rules->last();
         if ($lastrule) {
             $rank = $lastrule->rank + 1;
         }
@@ -156,7 +152,7 @@ class ReportType extends DocumentPart
         $rule = new Rule();
         $rule->documentRevision()->associate($this->documentRevision);
         $rule->rank = $rank;
-        $rule->report_type_sid = $this->sid;
+        $rule->report_type_id = $this->id;
         $rule->data = $data;
 
         $rule->validate();

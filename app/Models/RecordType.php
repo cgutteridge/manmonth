@@ -9,6 +9,7 @@ use App\Fields\Field;
 use App\MMScript;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Validator;
 
@@ -37,83 +38,32 @@ class RecordType extends DocumentPart
      * RELATIONSHIPS
      *************************************/
 
-    // none!
+    /**
+     * @return HasMany
+     */
+    public function records()
+    {
+        return $this->hasMany( Record::class );
+    }
+
+    public function forwardLinkTypes()
+    {
+        return $this->hasMany( LinkType::class, 'domain_id' );
+    }
+    public function backLinkTypes()
+    {
+        return $this->hasMany( LinkType::class, 'range_id' );
+    }
+
+    public function reportTypes()
+    {
+        return $this->hasMany( ReportType::class );
+    }
+
 
     /*************************************
      * READ FUNCTIONS
      *************************************/
-
-    /**
-     * @return Relation
-     */
-    public function forwardLinkTypes()
-    {
-        $relationCode = get_class($this) . "#" . $this->id . "->forwardLinkTypes";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->documentRevision->linkTypes()
-                ->where("domain_sid", $this->sid);
-        }
-        return MMModel::$cache[$relationCode];
-    }
-
-    /**
-     * @return Relation
-     */
-    public function backLinkTypes()
-    {
-        $relationCode = get_class($this) . "#" . $this->id . "->backLinkTypes";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->documentRevision->linkTypes()
-                ->where("range_sid", $this->sid);
-        }
-        return MMModel::$cache[$relationCode];
-    }
-
-    /**
-     * @param int $recordSid
-     * @return Record
-     */
-    public function record($recordSid)
-    {
-        # TODO canidate for a more generic cache code for record from sid.
-        $relationCode = get_class($this) . "#" . $this->id . "->record/$recordSid";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->documentRevision->records()
-                ->where("record_type_sid", $this->sid)
-                ->where("sid", (int)$recordSid)->first();
-        }
-        return MMModel::$cache[$relationCode];
-    }
-
-    /**
-     * @return Record[]
-     */
-    public function records()
-    {
-        $relationCode = get_class($this) . "#" . $this->id . "->records";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->documentRevision->records()->where("record_type_sid", $this->sid)->get();
-        }
-        return MMModel::$cache[$relationCode];
-    }
-
-    /**
-     * @return ReportType[]
-     */
-    public function reportTypes()
-    {
-        $relationCode = get_class($this) . "#" . $this->id . "->reportTypes";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->documentRevision->reportTypes()
-                ->where("base_record_type_sid", $this->sid)->get();
-        }
-        return MMModel::$cache[$relationCode];
-    }
 
     /**
      * @param string $name
@@ -346,7 +296,7 @@ class RecordType extends DocumentPart
         $record = new Record();
         $record->data = $data;
         $record->documentRevision()->associate($this->documentRevision);
-        $record->record_type_sid = $this->sid;
+        $record->record_type_id = $this->id;
         $record->validate();
         $record->validateWithForwardLinks($forwardLinks);
         $record->validateWithBackLinks($backLinks);

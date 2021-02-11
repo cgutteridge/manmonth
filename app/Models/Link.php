@@ -4,16 +4,17 @@ namespace App\Models;
 
 use App\Exceptions\MMValidationException;
 use App\Http\TitleMaker;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class Link
  * @property int document_revision_id
- * @property int link_type_sid
- * @property int subject_sid
- * @property int object_sid
+ * @property int link_type_id
+ * @property int subject_id
+ * @property int object_id
  * @property Record subjectRecord
- * @property LinkType linkType
  * @property Record objectRecord
+ * @property LinkType linkType
  * @package App\Models
  */
 class Link extends DocumentPart
@@ -22,52 +23,34 @@ class Link extends DocumentPart
      * RELATIONSHIPS
      *************************************/
 
-    // none!
+    /**
+     * @return BelongsTo
+     */
+    public function linkType()
+    {
+        return $this->belongsTo(LinkType::class);
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function subjectRecord()
+    {
+        return $this->belongsTo(Record::class, 'id', 'subject_id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function objectRecord()
+    {
+        return $this->belongsTo(Record::class, 'id', 'subject_id');
+    }
+
 
     /*************************************
      * READ FUNCTIONS
      *************************************/
-
-    /**
-     * @return LinkType
-     */
-    public function linkType()
-    {
-        $relationCode = get_class($this) . "#" . $this->id . "->linkType";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->hasOne('App\Models\LinkType', 'sid', 'link_type_sid')
-                ->where('document_revision_id', $this->documentRevision->id);
-        }
-        return MMModel::$cache[$relationCode];
-    }
-    /**
-     * @return Record
-     */
-    public function subjectRecord()
-    {
-        $relationCode = get_class($this) . "#" . $this->id . "->subjectRecord";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->hasOne('App\Models\Record', 'sid', 'subject_sid')
-                ->where('document_revision_id', $this->documentRevision->id);
-        }
-        return MMModel::$cache[$relationCode];
-    }
-
-    /**
-     * @return Record
-     */
-    public function objectRecord()
-    {
-        $relationCode = get_class($this) . "#" . $this->id . "->objectRecord";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->hasOne('App\Models\Record', 'sid', 'object_sid')
-                ->where('document_revision_id', $this->documentRevision->id);
-        }
-        return MMModel::$cache[$relationCode];
-    }
 
     /**
      * @throws MMValidationException
@@ -93,12 +76,12 @@ class Link extends DocumentPart
             if ($peer->id == $this->id) {
                 continue;
             }
-            if ($peer->link_type_sid != $this->link_type_sid) {
+            if ($peer->link_type_id != $this->link_type_id) {
                 continue;
             }
             $forwardCount++;
-            if ($peer->subject_sid == $this->subject_sid
-                && $peer->object_sid == $this->object_sid
+            if ($peer->subject_id == $this->subject_id
+                && $peer->object_id == $this->object_id
             ) {
                 throw new MMValidationException("Link already exists");
             }
@@ -107,7 +90,7 @@ class Link extends DocumentPart
             if ($peer->id == $this->id) {
                 continue;
             }
-            if ($peer->link_type_sid != $this->link_type_sid) {
+            if ($peer->link_type_id != $this->link_type_id) {
                 continue;
             }
             $backCount++;
@@ -126,11 +109,11 @@ class Link extends DocumentPart
             throw new MMValidationException("Too many links of this type on object $backCount/" . $this->linkType->domain_max);
         }
 
-        if ($this->subjectRecord->record_type_sid != $this->linkType->domain_sid) {
-            throw new MMValidationException("Subject of link should be a " . $titleMaker->title($this->linkType->domain()));
+        if ($this->subjectRecord->record_type_id != $this->linkType->domain_id) {
+            throw new MMValidationException("Subject of link should be a " . $titleMaker->title($this->linkType->domain));
         }
-        if ($this->objectRecord->record_type_sid != $this->linkType->range_sid) {
-            throw new MMValidationException("Target of link should be a " . $titleMaker->title($this->linkType->range()));
+        if ($this->objectRecord->record_type_id != $this->linkType->range_id) {
+            throw new MMValidationException("Target of link should be a " . $titleMaker->title($this->linkType->range));
         }
     }
 

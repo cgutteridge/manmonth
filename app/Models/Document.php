@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @property int id
  * @property string name
+ * @property DocumentRevision draftRevision
+ * @property DocumentRevision latestRevision
+ * @property DocumentRevision latestPublishedRevision
  */
 class Document extends MMModel
 {
@@ -32,42 +35,21 @@ class Document extends MMModel
         return $this->hasMany(Role::class);
     }
 
-    /*************************************
-     * READ FUNCTIONS
-     *************************************/
-
     /**
      * Return the draft revision, if there is one, otherwise null.
      * @return DocumentRevision|null
      */
     public function draftRevision()
     {
-        $relationCode = get_class($this) . "#" . $this->id . "->draftRevision";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->revisions()->where('status', 'draft')->first();
-        }
-
-        return MMModel::$cache[$relationCode];
+        return $this->hasOne(DocumentRevision::class)->where( 'status','draft')->orderBy('id');
     }
 
     /**
-     * @return DocumentRevision
-     * @throws Exception
+     * @return HasOne
      */
     public function latestRevision()
     {
-        $relationCode = get_class($this) . "#" . $this->id . "->latestRevision";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            MMModel::$cache[$relationCode] = $this->revisions()
-                ->where('status', 'archive')
-                ->orderBy('id', 'desc')
-                ->first();
-        }
-        if (!MMModel::$cache[$relationCode]) {
-            throw new Exception("Document has no latest revision. That should not happen, ever.");
-        }
-        return MMModel::$cache[$relationCode];
+        return $this->hasOne(DocumentRevision::class)->where( 'status','archive')->orderBy('id');
     }
 
     /**
@@ -75,19 +57,15 @@ class Document extends MMModel
      */
     public function latestPublishedRevision()
     {
-        $relationCode = get_class($this) . "#" . $this->id . "->latestPublishedRevision";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            MMModel::$cache[$relationCode] = $this->revisions()
-                ->where('status', 'archive')
-                ->where('published', true)
-                ->orderBy('id', 'desc')
-                ->first();
-        }
-        if (!MMModel::$cache[$relationCode]) {
-            return null;
-        }
-        return MMModel::$cache[$relationCode];
+        return $this->hasOne(DocumentRevision::class)
+            ->where( 'status','archive')->where('published',1)->orderBy('id');
     }
+
+    /*************************************
+     * READ FUNCTIONS
+     *************************************/
+
+
 
     /*************************************
      * ACTION FUNCTIONS
@@ -106,9 +84,9 @@ class Document extends MMModel
 
         $link = new Link();
         $link->documentRevision()->associate($this->documentRevision);
-        $link->link_type_sid = $this->sid;
-        $link->subject_sid = $subject->sid;
-        $link->object_sid = $object->sid;
+        $link->link_type_id = $this->id;
+        $link->subject_id = $subject->id;
+        $link->object_id = $object->id;
 
         $this->validate();
         $link->save();
@@ -163,26 +141,23 @@ class Document extends MMModel
         die("this really needs updating before releasing to make the IDs work right");
 
         // if there's already a draft throw an exception
-        $draft = $this->draftRevision();
-        if ($draft) {
+        if ($this->draftRevision) {
             throw new Exception("A draft revision of this document already exists.");
         }
-        /** @var DocumentRevision $latest */
-        $latest = $this->latestRevision();
 
         /** @var DocumentRevision $draft */
-        $draft = $latest->replicate();
+        $draft = $this->latestRevision->replicate();
         $draft->status = "draft";
         $draft->published = false;
         $draft->user()->associate($user);
         $draft->save();
         $partLists = array(
-            $latest->reportTypes,
-            $latest->records,
-            $latest->recordTypes,
-            $latest->links,
-            $latest->linkTypes,
-            $latest->rules);
+            $this->latestRevision->reportTypes,
+            $this->latestRevision->records,
+            $this->latestRevision->recordTypes,
+            $this->latestRevision->links,
+            $this->latestRevision->linkTypes,
+            $this->latestRevision->rules);
         // reports are a document part but belong to a single revision
 
         foreach ($partLists as $partList) {

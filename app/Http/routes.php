@@ -101,26 +101,41 @@ Route::auth();
 if (App::environment('dev')) {
     \DB::listen(function ($sql) {
         $context = "?";
-        foreach(debug_backtrace() as $stackFrame ) {
-            if( isset($stackFrame["file"]) && preg_match( "/\/app\//", $stackFrame["file"])) {
-                $context = $stackFrame["file"]." line ".$stackFrame["line"]." function ".$stackFrame["function"]."()";
+        foreach (debug_backtrace() as $stackFrame) {
+            if (isset($stackFrame["file"]) && preg_match("/\/app\//", $stackFrame["file"])) {
+                $context = $stackFrame["file"] . " line " . $stackFrame["line"] . " function " . $stackFrame["function"] . "()";
                 break;
             }
         }
-        Log::info($sql->sql . " [" . join(", ", $sql->bindings) . "] - $context");
+        $msg = $sql->sql . " [" . join(", ", $sql->bindings) . "]";
+        Log::info("$msg - $context");
     });
 }
 
 /* turn this on to count SQL queries */
 if (App::environment('dev')) {
+    global $sqlScore;
     global $dbQueries;
+    $sqlScore = [];
     $dbQueries = 0;
     \DB::listen(function ($sql) {
+        global $sqlScore;
         global $dbQueries;
         ++$dbQueries;
+        $msg = $sql->sql . " [" . join(", ", $sql->bindings) . "]";
+        if (!array_key_exists($msg, $sqlScore)) {
+            $sqlScore[$msg] = 0;
+        }
+        $sqlScore[$msg]++;
     });
     register_shutdown_function(function () {
+        global $sqlScore;
         global $dbQueries;
+        foreach ($sqlScore as $msg => $score) {
+            if ($score > 1) {
+                Log::info("REP[$score]: $msg");
+            }
+        }
         Log::info("SQL QUERIES: $dbQueries");
     });
 }

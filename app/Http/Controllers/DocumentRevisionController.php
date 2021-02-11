@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\MMValidationException;
 use App\Fields\Field;
 use App\Models\DocumentRevision;
 use Auth;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -19,13 +21,13 @@ class DocumentRevisionController extends Controller
      *
      * @param DocumentRevision $documentRevision
      * @return Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function show(DocumentRevision $documentRevision)
     {
         $this->authorize('view', $documentRevision);
-        $latestPublished = $documentRevision->document->latestPublishedRevision();
-        $latest = $documentRevision->document->latestRevision();
+        $latestPublished = $documentRevision->document->latestPublishedRevision;
+        $latest = $documentRevision->document->latestRevision;
 
         return view('documentRevision.show', [
             "documentRevision" => $documentRevision,
@@ -81,8 +83,8 @@ class DocumentRevisionController extends Controller
      *
      * @param DocumentRevision $documentRevision
      * @return Response
-     * @throws \App\Exceptions\MMValidationException
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws MMValidationException
+     * @throws AuthorizationException
      */
     public function publishForm(DocumentRevision $documentRevision)
     {
@@ -106,7 +108,7 @@ class DocumentRevisionController extends Controller
      *
      * @param DocumentRevision $documentRevision
      * @return RedirectResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function publishAction(DocumentRevision $documentRevision)
     {
@@ -127,8 +129,8 @@ class DocumentRevisionController extends Controller
      *
      * @param DocumentRevision $documentRevision
      * @return Response
-     * @throws \App\Exceptions\MMValidationException
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws MMValidationException
+     * @throws AuthorizationException
      */
     public function commitForm(DocumentRevision $documentRevision)
     {
@@ -152,7 +154,7 @@ class DocumentRevisionController extends Controller
      *
      * @param DocumentRevision $documentRevision
      * @return RedirectResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function commitAction(DocumentRevision $documentRevision)
     {
@@ -173,8 +175,8 @@ class DocumentRevisionController extends Controller
      *
      * @param DocumentRevision $documentRevision
      * @return Response
-     * @throws \App\Exceptions\MMValidationException
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws MMValidationException
+     * @throws AuthorizationException
      */
     public function commitAndPublishForm(DocumentRevision $documentRevision)
     {
@@ -201,7 +203,7 @@ class DocumentRevisionController extends Controller
      *
      * @param DocumentRevision $documentRevision
      * @return RedirectResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function commitAndPublishAction(DocumentRevision $documentRevision)
     {
@@ -225,8 +227,8 @@ class DocumentRevisionController extends Controller
      *
      * @param DocumentRevision $documentRevision
      * @return Response
-     * @throws \App\Exceptions\MMValidationException
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws MMValidationException
+     * @throws AuthorizationException
      */
     public function commitAndContinueForm(DocumentRevision $documentRevision)
     {
@@ -251,7 +253,7 @@ class DocumentRevisionController extends Controller
      *
      * @param DocumentRevision $documentRevision
      * @return RedirectResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function commitAndContinueAction(DocumentRevision $documentRevision)
     {
@@ -276,8 +278,8 @@ class DocumentRevisionController extends Controller
      *
      * @param DocumentRevision $documentRevision
      * @return Response
-     * @throws \App\Exceptions\MMValidationException
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws MMValidationException
+     * @throws AuthorizationException
      */
     public function unpublishForm(DocumentRevision $documentRevision)
     {
@@ -301,7 +303,7 @@ class DocumentRevisionController extends Controller
      *
      * @param DocumentRevision $documentRevision
      * @return RedirectResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function unpublishAction(DocumentRevision $documentRevision)
     {
@@ -323,8 +325,8 @@ class DocumentRevisionController extends Controller
      *
      * @param DocumentRevision $documentRevision
      * @return Response
-     * @throws \App\Exceptions\MMValidationException
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws MMValidationException
+     * @throws AuthorizationException
      */
     public function scrapForm(DocumentRevision $documentRevision)
     {
@@ -352,7 +354,7 @@ class DocumentRevisionController extends Controller
      * @param Request $request
      * @param DocumentRevision $documentRevision
      * @return RedirectResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function scrapAction(Request $request, DocumentRevision $documentRevision)
     {

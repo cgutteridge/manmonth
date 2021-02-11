@@ -10,6 +10,8 @@ use App\MMScript\Values\Value;
 use DB;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Validator;
 
 /**
@@ -19,7 +21,9 @@ use Validator;
  * @property string array
  * @property Collection forwardLinks
  * @property Collection backLinks
- * @property int record_type_sid
+ * @property int record_type_id
+ * @property int subject_id
+ * @property int object_id
  * @property array data
  */
 class Record extends DocumentPart
@@ -31,59 +35,33 @@ class Record extends DocumentPart
      * RELATIONSHIPS
      *************************************/
 
-    // none!
+    /**
+     * @return BelongsTo
+     */
+    public function recordType()
+    {
+        return $this->belongsTo(RecordType::class);
+    }
 
+    /**
+     * @return HasMany
+     */
+    public function forwardLinks()
+    {
+        return $this->hasMany(Link::class, 'subject_id');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function backLinks()
+    {
+        return $this->hasMany(Link::class, 'object_id');
+    }
 
     /*************************************
      * READ FUNCTIONS
      *************************************/
-
-    public function __get($key)
-    {
-        if ($key == 'recordType') {
-            return $this->recordType();
-        }
-        return parent::__get($key);
-    }
-
-    /**
-     * NOT a laravel relation
-     * @return RecordType
-     */
-    public function recordType()
-    {
-        return $this->documentRevision->recordType($this->record_type_sid);
-    }
-
-    /**
-     * Access via parameter
-     * @return Collection (list of Link)
-     */
-    public function forwardLinks()
-    {
-        $relationCode = get_class($this) . "#" . $this->id . "->forwardLinks";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->hasMany('App\Models\Link', 'subject_sid', 'sid')
-                ->where('document_revision_id', $this->documentRevision->id);
-        }
-        return MMModel::$cache[$relationCode];
-    }
-
-    /**
-     * Access via parameter
-     * @return Collection (list of Link)
-     */
-    public function backLinks()
-    {
-        $relationCode = get_class($this) . "#" . $this->id . "->backLinks";
-        if (!array_key_exists($relationCode, MMModel::$cache)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            MMModel::$cache[$relationCode] = $this->hasMany('App\Models\Link', 'object_sid', 'sid')
-                ->where('document_revision_id', $this->documentRevision->id);
-        }
-        return MMModel::$cache[$relationCode];
-    }
 
     /**
      * Return an array of the local values of fields
@@ -110,6 +88,7 @@ class Record extends DocumentPart
     /**
      * @param string $fieldName
      * @return mixed
+     * @throws Exception
      */
     public function getExternal($fieldName)
     {
@@ -181,6 +160,7 @@ class Record extends DocumentPart
      * than return a default value
      * @param string $fieldName
      * @return mixed
+     * @throws Exception
      */
     public function getLocal($fieldName)
     {
@@ -249,6 +229,7 @@ class Record extends DocumentPart
     /**
      * @param string $fieldName
      * @return mixed
+     * @throws Exception
      */
     public function getDefault($fieldName)
     {
@@ -260,7 +241,7 @@ class Record extends DocumentPart
     }
 
     /**
-     * Return the source for a field's data.
+     * Return the source for the given field's data.
      * @param string $fieldName
      * @return string
      * @throws Exception
@@ -468,8 +449,8 @@ class Record extends DocumentPart
         if ($isForwards) {
             // forward
             $linkedRecords = $this->forwardLinkedRecords($linkType);
-            $targetRecordTypeSid = $linkType->range_sid;
-            $targetRecordType = $linkType->range();
+            $targetRecordTypeId = $linkType->range_id;
+            $targetRecordType = $linkType->range;
             $from_min = $linkType->domain_min;
             $from_max = $linkType->domain_max;
             $to_min = $linkType->range_min;
@@ -477,8 +458,8 @@ class Record extends DocumentPart
         } else {
             // backwards
             $linkedRecords = $this->backLinkedRecords($linkType);
-            $targetRecordTypeSid = $linkType->domain_sid;
-            $targetRecordType = $linkType->domain();
+            $targetRecordTypeId = $linkType->domain_id;
+            $targetRecordType = $linkType->domain;
             $from_min = $linkType->range_min;
             $from_max = $linkType->range_max;
             $to_min = $linkType->domain_min;
@@ -492,9 +473,9 @@ class Record extends DocumentPart
         $resultingLinkedRecordsInverseRecords = [];
         /** @var Record $linkedRecord */
         foreach ($linkedRecords as $linkedRecord) {
-            $resultingLinkedRecords[$linkedRecord->sid] = true;
+            $resultingLinkedRecords[$linkedRecord->id] = true;
 
-            $resultingLinkedRecordsInverseRecords[$linkedRecord->sid] = [];
+            $resultingLinkedRecordsInverseRecords[$linkedRecord->id] = [];
             if ($isForwards) {
                 // forward (nb. opposite of direction of main link)
                 $inverseLinkedRecords = $linkedRecord->backLinkedRecords($linkType);
@@ -503,7 +484,7 @@ class Record extends DocumentPart
                 $inverseLinkedRecords = $linkedRecord->forwardLinkedRecords($linkType);
             }
             foreach ($inverseLinkedRecords as $inverseLinkedRecord) {
-                $resultingLinkedRecordsInverseRecords[$linkedRecord->sid][$inverseLinkedRecord->sid] = true;
+                $resultingLinkedRecordsInverseRecords[$linkedRecord->id][$inverseLinkedRecord->id] = true;
             }
         }
 
@@ -512,13 +493,13 @@ class Record extends DocumentPart
             if (
                 !array_key_exists($remove, $resultingLinkedRecordsInverseRecords)
                 ||
-                !array_key_exists($this->sid, $resultingLinkedRecordsInverseRecords[$remove])
+                !array_key_exists($this->id, $resultingLinkedRecordsInverseRecords[$remove])
             ) {
                 // this warning seems a little strict and could cause issues if two people worked
                 // on the system at once, but better to have it for now and relax it later if it's an issue
                 throw new MMValidationException("Attempting to remove a link which does not exist.");
             }
-            unset($resultingLinkedRecordsInverseRecords[$remove][$this->sid]);
+            unset($resultingLinkedRecordsInverseRecords[$remove][$this->id]);
             unset($resultingLinkedRecords[$remove]);
         }
 
@@ -526,10 +507,10 @@ class Record extends DocumentPart
         foreach ($linkChanges["add"] as $add => $title) {
             /** @var Record $otherRecord */
             $otherRecord = $this->documentRevision->record($add);
-            if ($otherRecord->record_type_sid != $targetRecordTypeSid) {
+            if ($otherRecord->record_type_id != $targetRecordTypeId) {
                 throw new MMValidationException("Attempting to link record of wrong type for the link type.");
             }
-            $resultingLinkedRecordsInverseRecords[$add][$this->sid] = true;
+            $resultingLinkedRecordsInverseRecords[$add][$this->id] = true;
             $resultingLinkedRecords[$add] = true;
         }
 
@@ -547,9 +528,9 @@ class Record extends DocumentPart
         }
 
         // check cardinality of linked records
-        foreach ($resultingLinkedRecordsInverseRecords as $linkedRecordSID => $inverseLinks) {
+        foreach ($resultingLinkedRecordsInverseRecords as $linkedRecordID => $inverseLinks) {
             $to_n = count($inverseLinks);
-            $otherRecord = $this->documentRevision->record($linkedRecordSID);
+            $otherRecord = $this->documentRevision->record($linkedRecordID);
             $otherRecordTitle = $titleMaker->title($otherRecord);
             if ($to_n < $from_min) {
                 throw new MMValidationException("Change would result in $to_n $linkTypeName links on linked $targetRecordTypeName record '$otherRecordTitle'; below the minimum of $to_min");
@@ -622,10 +603,10 @@ class Record extends DocumentPart
         /** @var Record $record */
         foreach ($recordsToDelete as $record) {
             foreach ($record->forwardLinks as $link) {
-                $linksToDelete->put($link->sid, $link);
+                $linksToDelete->put($link->id, $link);
             }
             foreach ($record->backLinks as $link) {
-                $linksToDelete->put($link->sid, $link);
+                $linksToDelete->put($link->id, $link);
             }
         }
         $errors = [];
@@ -640,13 +621,13 @@ class Record extends DocumentPart
     public function getDependentRecords($collected = null)
     {
         if ($collected != null) {
-            if ($collected->contains($this->sid)) {
+            if ($collected->contains($this->id)) {
                 return $collected;
             }
         } else {
             $collected = new Collection();
         }
-        $collected->put($this->sid, $this);
+        $collected->put($this->id, $this);
 
         foreach ($this->forwardLinks as $link) {
             $linkType = $link->linkType;
@@ -676,11 +657,11 @@ class Record extends DocumentPart
      */
     public function applyLinkChanges($linkChanges)
     {
-        foreach ($linkChanges["fwd"] as $sid => $changes) {
+        foreach ($linkChanges["fwd"] as $id => $changes) {
             $linkType = $this->documentRevision->linkType($sid);
             $this->_applyLinkChanges($linkType, $changes, true);
         }
-        foreach ($linkChanges["bck"] as $sid => $changes) {
+        foreach ($linkChanges["bck"] as $id => $changes) {
             $linkType = $this->documentRevision->linkType($sid);
             $this->_applyLinkChanges($linkType, $changes, false);
         }
@@ -700,27 +681,27 @@ class Record extends DocumentPart
         if ($isForwards) {
             // fowards
             $linkedRecords = $this->forwardLinkedRecords($linkType);
-            $targetRecordTypeSid = $linkType->range_sid;
+            $targetRecordTypeID = $linkType->range_id;
             $links = $this->forwardLinks;
         } else {
             // backwards
             $linkedRecords = $this->backLinkedRecords($linkType);
-            $targetRecordTypeSid = $linkType->domain_sid;
+            $targetRecordTypeID = $linkType->domain_id;
             $links = $this->backLinks;
         }
         // find all the links of this type FROM this records, so we can check we don't add one
         // that already exists.
         $alreadyLinkedRecords = [];
         foreach ($linkedRecords as $linkedRecord) {
-            $alreadyLinkedRecords[$linkedRecord->sid] = true;
+            $alreadyLinkedRecords[$linkedRecord->id] = true;
         }
         foreach ($linkChanges["remove"] as $remove => $flag) {
             /** @var Link $link */
             foreach ($links as $link) {
-                if ($link->link_type_sid == $linkType->sid) {
+                if ($link->link_type_id == $linkType->id) {
                     // link is of right type
-                    if (($isForwards && $link->object_sid == $remove)
-                        || (!$isForwards && $link->subject_sid = $remove)
+                    if (($isForwards && $link->object_id == $remove)
+                        || (!$isForwards && $link->subject_id = $remove)
                     ) {
                         $link->delete();
                     }
@@ -734,19 +715,19 @@ class Record extends DocumentPart
                 continue;
             }
             $otherRecord = $this->documentRevision->record($add);
-            if ($otherRecord->record_type_sid != $targetRecordTypeSid) {
+            if ($otherRecord->record_type_id != $targetRecordTypeID) {
                 throw new MMValidationException("Attempting to link record of wrong type for the link type.");
             }
 
             $link = new Link();
             $link->documentRevision()->associate($linkType->documentRevision);
-            $link->link_type_sid = $linkType->sid;
+            $link->link_type_id = $linkType->id;
             if ($isForwards) {
-                $link->subject_sid = $this->sid;
-                $link->object_sid = $add;
+                $link->subject_id = $this->id;
+                $link->object_id = $add;
             } else {
-                $link->subject_sid = $add;
-                $link->object_sid = $this->sid;
+                $link->subject_id = $add;
+                $link->object_id = $this->id;
             }
 
             $link->save();
@@ -770,10 +751,10 @@ class Record extends DocumentPart
         /** @var Record $record */
         foreach ($recordsToDelete as $record) {
             foreach ($record->forwardLinks as $link) {
-                $linksToDelete->put($link->sid, $link);
+                $linksToDelete->put($link->id, $link);
             }
             foreach ($record->backLinks as $link) {
-                $linksToDelete->put($link->sid, $link);
+                $linksToDelete->put($link->id, $link);
             }
         }
         $result = true;

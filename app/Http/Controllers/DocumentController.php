@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\MMValidationException;
 use App\Fields\Field;
 use App\Models\Document;
 use Auth;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -61,7 +63,7 @@ class DocumentController extends Controller
      * Display the specified resource.
      * @param Document $document
      * @return Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function show(Document $document)
     {
@@ -75,21 +77,18 @@ class DocumentController extends Controller
             return $this->latestPublished($document);
         }
 
-        $latestPublished = $document->latestPublishedRevision();
-        $draft = $document->draftRevision();
-
         $revisions = [
             "draft" => [],
             "archive" => [],
             "scrap" => []
         ];
-        foreach ($document->revisions()->with( ["user","document"])->get()->reverse() as $revision) {
+        foreach ($document->revisions()->get()->reverse() as $revision) {
             if (Auth::user()->can('view', $revision)) {
                 $row = [];
                 $row['url'] = $this->linkMaker->url($revision);
                 $row['created_at'] = $revision->created_at;
                 $row['published'] = $revision->published;
-                $row['latest_published'] = isset($latestPublished) && $revision->id == $latestPublished->id;
+                $row['latest_published'] = isset($latestPublished) && $revision->id == $document->latestPublishedRevision->id;
                 $row['status'] = $revision->status;
                 $row['comment'] = $revision->comment;
                 if ($revision->user) {
@@ -121,7 +120,7 @@ class DocumentController extends Controller
      * Display the specified resource.
      * @param Document $document
      * @return RedirectResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public
     function latestPublished(Document $document)
@@ -140,7 +139,7 @@ class DocumentController extends Controller
      * Display the specified resource.
      * @param Document $document
      * @return RedirectResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public
     function latest(Document $document)
@@ -155,7 +154,7 @@ class DocumentController extends Controller
      * Display the specified resource.
      * @param Document $document
      * @return RedirectResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public
     function draft(Document $document)
@@ -176,11 +175,10 @@ class DocumentController extends Controller
      *
      * @param Document $document
      * @return Response
-     * @throws \App\Exceptions\MMValidationException
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws MMValidationException
+     * @throws AuthorizationException
      */
-    public
-    function makeDraftForm(Document $document)
+    public function makeDraftForm(Document $document)
     {
         $this->authorize('publish', $document);
         return view('confirmForm', [
@@ -200,10 +198,9 @@ class DocumentController extends Controller
      *
      * @param Document $document
      * @return RedirectResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public
-    function makeDraft(Document $document)
+    public function makeDraft(Document $document)
     {
         $this->authorize('publish', $document);
 
