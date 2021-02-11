@@ -20,6 +20,7 @@ class MMScript
      * @param $text
      * @param $docRev
      * @param RecordType[] $context array of named recordTypes
+     * @throws Exceptions\ParseException
      */
     public function __construct($text, $docRev, $context)
     {

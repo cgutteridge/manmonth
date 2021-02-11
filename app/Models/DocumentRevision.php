@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 /**
  * @property string status
  * @property Document document
+ * @property User user
  * @property Collection reportTypes
  * @property Collection records
  * @property int id
@@ -16,6 +17,8 @@ use Illuminate\Database\Eloquent\Collection;
  * @property LinkType[] linkTypes
  * @property Rule[] rules
  * @property boolean published
+ * @property string user_username
+ * @property string comment
  */
 class DocumentRevision extends MMModel
 {
@@ -28,6 +31,14 @@ class DocumentRevision extends MMModel
     public function document()
     {
         return $this->belongsTo('App\Models\Document');
+    }
+
+    /**
+     * The user who created this revision.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user() {
+        return $this->belongsTo( User::class, "user_username", "username" );
     }
 
     /**
@@ -276,6 +287,7 @@ class DocumentRevision extends MMModel
      * @param RecordType $baseRecordType
      * @param array $data
      * @return ReportType
+     * @throws \App\Exceptions\MMValidationException
      */
     public function createReportType($name, $baseRecordType, $data)
     {
@@ -298,6 +310,7 @@ class DocumentRevision extends MMModel
      * @param $name
      * @param array $properties
      * @return RecordType
+     * @throws \App\Exceptions\MMValidationException
      */
     public function createRecordType($name, $properties)
     {
@@ -317,6 +330,7 @@ class DocumentRevision extends MMModel
      * @param RecordType $range
      * @param $properties
      * @return LinkType
+     * @throws \App\Exceptions\MMValidationException
      */
     public function createLinkType($name, $domain, $range, $properties)
     {

@@ -26,6 +26,7 @@ class LoadReport extends Command
      * Execute the console command.
      *
      * @return mixed
+     * @throws \App\Exceptions\ReportingException
      */
     public function handle()
     {

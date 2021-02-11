@@ -28,6 +28,21 @@ footer.navbar {
     cursor: pointer;
 }
 
+.mm-code {
+    font-family: monospace;
+}
+
+.mm-lozenge {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 3px 0;
+    background-color: #ccc;
+    border: solid 1px #999;
+    padding: 1px 10px;
+    border-radius: 10px;
+    text-align: center;
+}
+
 /* end core bits */
 
 /* dev banners */
@@ -60,7 +75,9 @@ footer.navbar {
     padding: 3px;
     border: solid 1px #999;
 }
-
+.mm-datatable-headingrow th {
+    text-align: left;
+}
 .mm-datatable td {
     vertical-align: top;
     padding: 3px;
@@ -196,10 +213,17 @@ ul.mm-link-edit-list {
     text-align: right;
     padding: 0 0.5em 0.5em 0;
     vertical-align: top;
+    white-space: nowrap;;
 }
+
+.mm-form-fields th label {
+    padding: 6px 0px;
+}
+
 
 .mm-form-fields td {
     padding: 0 0 0.5em 0;
+    width: 100%;
 }
 
 /* end forms */
@@ -313,7 +337,7 @@ table.mm-record-data tr:last-child th {
 }
 
 table.mm-record > thead > tr > th.mm-record-action {
-    padding: 0px;
+    padding: 0;
     width: 40px;
     background-color: #093263;
 }
@@ -651,7 +675,7 @@ table.mm-record-data td {
 .mm-target-inner {
     white-space: nowrap;
     display: inline-block;
-    padding: 0px 4px;
+    padding: 0 4px;
     height: 24px;
 }
 

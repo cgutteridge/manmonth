@@ -1,15 +1,30 @@
 <ul>
     @foreach($revisions as $revision)
-        <li>
-            <a href="{{ $revision["url"] }}">
-                @if( $revision['latest_published'])
-                    <strong>@datetime( $revision['created_at'] ) - latest published</strong>
-                @elseif( $revision['published'])
-                    <strong>@datetime( $revision['created_at'] ) - published</strong>
-                @else
+        <tr style="{{ (( $revision['latest_published'] || $revision['published'] ) ? "font-weight:bold;" : "") }}">
+            <td>
+                <a href="{{ $revision["url"] }}">
                     @datetime( $revision['created_at'] )
+                </a>
+            </td>
+            <td>
+                @if( $revision['latest_published'])
+                    Latest published
+                @elseif( $revision['published'])
+                    Published
+                    @else
+                    {{ ucfirst( $revision['status'] ) }}
                 @endif
-            </a>
-        </li>
+            </td>
+            <td>
+                @if( !empty($revision['user']))
+                    {{ $revision['user'] }}
+                @endif
+            </td>
+            <td>
+                @if( !empty($revision['comment']))
+                    {{ $revision['comment'] }}
+                @endif
+            </td>
+        </tr>
     @endforeach
 </ul>

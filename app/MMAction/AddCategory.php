@@ -13,6 +13,7 @@ class AddCategory extends Action
 {
     // has a name, to use in the rules
     public $name = 'add_category';
+    public $action_type = 'categories';
 
     // has some parameters with an ordered name & type and human
     // readable title etc.

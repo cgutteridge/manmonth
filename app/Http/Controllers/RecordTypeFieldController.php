@@ -17,6 +17,8 @@ class RecordTypeFieldController extends Controller
      * @param RecordType $recordType
      * @param string $fieldName
      * @return View
+     * @throws MMValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(RecordType $recordType, $fieldName)
     {

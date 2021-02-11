@@ -52,6 +52,7 @@ class ReportType extends DocumentPart
     /**
      * @param array $data
      * @return Rule
+     * @throws MMValidationException
      */
     public function createRule($data)
     {
@@ -96,6 +97,7 @@ class ReportType extends DocumentPart
      * Run this report type on the current document revision and produce a report object.
      * Doesn't save the object.
      * @return Report
+     * @throws MMValidationException
      * @throws ReportingException
      */
     function makeReport()

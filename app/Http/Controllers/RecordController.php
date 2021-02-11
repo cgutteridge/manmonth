@@ -20,6 +20,8 @@ class RecordController extends Controller
      *
      * @param Record $record
      * @return View
+     * @throws MMValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function deleteForm(Record $record)
     {
@@ -77,6 +79,9 @@ class RecordController extends Controller
      *
      * @param Record $record
      * @return View
+     * @throws MMValidationException
+     * @throws \App\Exceptions\ScriptException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(Record $record)
     {
@@ -113,6 +118,8 @@ class RecordController extends Controller
      * @param string $returnURL
      * @param bool $swimLanes if true add linked objects in swim lanes style view
      * @return array
+     * @throws MMValidationException
+     * @throws \App\Exceptions\ScriptException
      */
     private function recordBlock(Record $record, $followLink, $seen, $returnURL, $swimLanes = false)
     {
@@ -193,6 +200,8 @@ class RecordController extends Controller
      * Turn a record into a data structure to render with the block template.
      * @param Record $record
      * @return array
+     * @throws MMValidationException
+     * @throws \App\Exceptions\ScriptException
      */
     public function recordDataBlock($record)
     {
@@ -242,6 +251,8 @@ class RecordController extends Controller
      *
      * @param Record $record
      * @return View
+     * @throws MMValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(Record $record)
     {

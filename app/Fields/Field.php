@@ -174,6 +174,7 @@ abstract class Field
     /**
      * List of the metadata fields for this field's properties.
      * @return Field[]
+     * @throws Exception
      */
     public function metaFields()
     {

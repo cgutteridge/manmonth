@@ -12,11 +12,17 @@
         </div>
         <div class="row panel-body">
             <div class="col-md-12">
+                @if( isset($comment))
+                    <p>{{$comment}}</p>
+                @endif
                 <p>
                     @if($status=='scrap')
                         This revision has been scrapped.
                     @elseif( $status=='draft')
                         This is the current draft revision.
+                        @if( $user )
+                            Checked out by {{ $user }}.
+                        @endif
                     @elseif( $status=='archive')
                         @if($latest)
                             This is the most recent revision.
@@ -33,7 +39,7 @@
                     @endif
                 </p>
                 <p>
-                    Created @datetime( $created_at )
+                    Created @datetime( $created_at ).
                 </p>
                 @if($documentRevision->status == 'archive')
                     @can('publish',$documentRevision->document)
@@ -49,30 +55,29 @@
                     @endcan
                 @endif
                 @if($documentRevision->status == 'draft')
-                    @can('commit', $documentRevision->document)
-                        <a type="button" class="btn btn-primary"
-                           href="@url($documentRevision,'commit-and-continue')">
-                            Commit and make a new draft revision
-                        </a>
-                        <a type="button" class="btn btn-primary"
-                           href="@url($documentRevision,'commit')">
-                            Commit revision
-                        </a>
-                        <a type="button" class="btn btn-primary"
-                           href="@url($documentRevision,'scrap')">
-                            Scrap revision
-                        </a>
-                        @can('publish',$documentRevision->document)
+                    @can('commit-revision', $documentRevision )
+                        <p>
                             <a type="button" class="btn btn-primary"
-                               href="@url($documentRevision,'commit-and-publish')">
-                                Commit and publish revision
+                               href="@url($documentRevision,'commit-and-continue')">
+                                Commit and make a new draft revision
                             </a>
+                            <a type="button" class="btn btn-primary"
+                               href="@url($documentRevision,'commit')">
+                                Commit revision
+                            </a>
+                            <a type="button" class="btn btn-primary"
+                               href="@url($documentRevision,'scrap')">
+                                Scrap revision
+                            </a>
+                            @can('publish',$documentRevision->document)
+                                <a type="button" class="btn btn-primary"
+                                   href="@url($documentRevision,'commit-and-publish')">
+                                    Commit and publish revision
+                                </a>
                             @endcan
-
-                            @endcan
-                            @endif
-                            </p>
-
+                        </p>
+                    @endcan
+                @endif
             </div>
             <div class="col-md-6">
                 <h3>Records</h3>

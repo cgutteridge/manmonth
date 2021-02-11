@@ -56,6 +56,7 @@ class RequestProcessor
 
     /**
      * @param string $term
+     * term
      * @param string|null $otherwise
      * @return string
      */
@@ -139,6 +140,7 @@ class RequestProcessor
      * @param RecordType $recordType
      * @param string $idPrefix
      * @return array
+     * @throws \App\Exceptions\MMValidationException
      */
     public function fromLinkFieldRequest(RecordType $recordType, $idPrefix = "")
     {

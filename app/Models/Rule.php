@@ -51,6 +51,7 @@ class Rule extends DocumentPart
     static protected $actionCache;
     protected $scripts = [];
     protected $abstractContext;
+    protected $abstractContextOrder;
 
     /**
      * @throws MMValidationException,Exception
@@ -135,6 +136,7 @@ class Rule extends DocumentPart
         }
 
         $this->abstractContext = [];
+        $this->abstractContextOrder = [];
         $this->abstractContext['config'] = $this->documentRevision->configRecordType();
 
         $baseRecordType = $this->reportType()->baseRecordType();
@@ -183,9 +185,24 @@ class Rule extends DocumentPart
                 $i++;
             }
             $this->abstractContext[$name] = $iterativeRecordType;
+            $this->abstractContextOrder [] = $name;
         }
 
         return $this->abstractContext;
+    }
+
+    /**
+     * @return string[]
+     * @throws Exception
+     */
+    function abstractContextOrder()
+    {
+        if (!isset($this->abstractContextOrder)) {
+            // force abstractContextOrder to cache
+            $this->abstractContext();
+        }
+
+        return $this->abstractContextOrder;
     }
 
     /**
@@ -200,6 +217,7 @@ class Rule extends DocumentPart
     /**
      * @param string $scriptText
      * @return MMScript
+     * @throws \App\Exceptions\ParseException
      */
     function script($scriptText)
     {
@@ -216,6 +234,7 @@ class Rule extends DocumentPart
     /**
      * Return the action associated with this rule.
      * @return Action
+     * @throws Exception
      */
     public function getAction()
     {
@@ -232,8 +251,8 @@ class Rule extends DocumentPart
     public static function actionFactory($actionName)
     {
         $actions = self::actions();
-        if( !array_key_exists($actionName, $actions)){
-            throw new Exception("Rule has unknown action: \"".$actionName."\"");
+        if (!array_key_exists($actionName, $actions)) {
+            throw new Exception("Rule has unknown action: \"" . $actionName . "\"");
         }
         return $actions[$actionName];
     }
@@ -241,6 +260,7 @@ class Rule extends DocumentPart
     /**
      * @param Record $record
      * @param RecordReport $recordReport
+     * @throws Exception
      */
     public function apply($record, $recordReport)
     {

@@ -48,25 +48,26 @@ class Document extends MMModel
      * This is a major workhorse function. It copies all the relevant data, from the
      * most recent item in the archive, into a new revision.
      * Rows get a new ID but maintain their 'sid' value and this is used for relationships.
+     * @param User $user
      * @return DocumentRevision
      * @throws Exception
      */
-    public function createDraftRevision()
+    public function createDraftRevision(User $user)
     {
         // if there's already a draft throw an exception
         $draft = $this->draftRevision();
         if ($draft) {
             throw new Exception("A draft revision of this document already exists.");
         }
-
         /** @var DocumentRevision $latest */
         $latest = $this->latestRevision();
 
         /** @var DocumentRevision $draft */
         $draft = $latest->replicate();
         $draft->status = "draft";
+        $draft->published = false;
+        $draft->user()->associate($user);
         $draft->save();
-
         $partLists = array(
             $latest->reportTypes,
             $latest->records,
@@ -110,7 +111,12 @@ class Document extends MMModel
      */
     public function revisions()
     {
-        return $this->hasMany('App\Models\DocumentRevision');
+        return $this->hasMany(DocumentRevision::class);
+    }
+
+    public function roles()
+    {
+        return $this->hasMany( Role::class );
     }
 
     /**

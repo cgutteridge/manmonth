@@ -1,15 +1,17 @@
 @extends('page')
 
-@section('title','List Documents')
+@section('title','Available documents')
 
 @section( 'content')
-    <ul>
-        @foreach( $list as $document )
-            @can( 'view-published-latest', $document)
+    @if($documents->count() > 0 )
+        <ul>
+            @foreach( $documents as $document )
                 <li>
                     @link( $document ), Created @datetime($document->created_at).
                 </li>
-            @endcan
-        @endforeach
-    </ul>
+            @endforeach
+        </ul>
+    @else
+        <p>You do not have the permissions required to see any documents on this service.</p>
+    @endif
 @endsection

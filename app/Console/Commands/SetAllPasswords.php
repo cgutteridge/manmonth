@@ -35,6 +35,7 @@ class SetAllPasswords extends Command
      * Execute the console command.
      *
      * @return mixed
+     * @throws \Exception
      */
     public function handle()
     {

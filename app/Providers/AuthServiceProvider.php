@@ -17,6 +17,7 @@ use Illuminate\Contracts\Auth\Access\Gate as GateContract;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use PDOException;
+use PhpParser\Comment\Doc;
 use Schema;
 
 class AuthServiceProvider extends ServiceProvider
@@ -70,22 +71,66 @@ class AuthServiceProvider extends ServiceProvider
 
         /* GENERIC VIEW PERMISSION */
 
+        // works out for this item ($docIndicator) what permission means we can see
+        // it. Generally view-draft or whatnot.
+
         /**
          * @param User $user
          * @param Document|DocumentRevision|DocumentPart $docIndicator
          * @return boolean
          */
-        $fn = function ($user, $docIndicator) {
+        $fn = function (User $user, $docIndicator) {
             if (is_a($docIndicator, Document::class)) {
-                return $user->can("view-latest-published", $docIndicator);
-            } elseif (is_a($docIndicator, DocumentRevision::class)) {
-                return $user->can("view-" . $docIndicator->status, $docIndicator->document);
-            } else {
-                // All DocumentParts have same view permission (currently) as
-                // the documentRevision to which they are attached.
-                $docRev = $docIndicator->documentRevision;
-                return $user->can("view-" . $docRev->status, $docRev->document);
+                /** @var Document $document */
+                $document = $docIndicator;
+                // any of these permissions let you see the document.
+                if ($user->can("view-published-latest", $document)) {
+                    return true;
+                };
+                if ($user->can("view-published", $document)) {
+                    return true;
+                };
+                if ($user->can("view-archive", $document)) {
+                    return true;
+                };
+                return false;
             }
+
+            if (is_a($docIndicator, DocumentRevision::class) || is_a($docIndicator, DocumentPart::class)) {
+                // we treat a document part as if it were the document revision it's attached to
+                // this might get more nuanced in a later version
+                /** @var DocumentRevision $docRev */
+                if (is_a($docIndicator, DocumentRevision::class)) {
+                    $docRev = $docIndicator;
+                } else {
+                    // must be a doc part then. We can get the document revision from that.
+                    /** @var DocumentPart $docPart */
+                    $docPart = $docIndicator;
+                    /** @var DocumentRevision $docRev */
+                    $docRev = $docPart->documentRevision;
+                }
+
+                // the easy version is if the user can see any revision for of this type
+                if ($user->can("view-" . $docRev->status, $docRev->document)) {
+                    return true;
+                }
+
+                // otherwise we need to work out if they can see it as view-published or view-published-latest
+                if ($docRev->published) {
+                    if ($user->can("view-published", $docRev->document)) {
+                        return true;
+                    }
+                    // last chance. If they can view the latest published, and this is the latest published revision
+                    $latestPublishedRevision = $docRev->document->latestPublishedRevision();
+                    if (isset($latestPublishedRevision) && $docRev->id = $latestPublishedRevision->id) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            // This should never happen!
+            throw new \Exception("Tried to see if we can view a " . $docIndicator . " whiich wasn't any of the types we understand");
         };
         $gate->define('view', $fn);
 
@@ -98,13 +143,20 @@ class AuthServiceProvider extends ServiceProvider
          * @param DocumentPart $documentPart
          * @return boolean
          */
-        $fn = function ($user, $documentPart) {
+        $fn = function (User $user, $documentPart) {
             $documentRevision = $documentPart->documentRevision;
 
             // only things in draft revisions can be edited.
             if ($documentRevision->status != "draft") {
                 return false;
             }
+
+            // only revisions created by the current user can be edited
+            // (unless we have superusers later)
+            if( $documentRevision->user_username != $user->username ) {
+                return false;
+            }
+
             if (
                 is_a($documentPart, Link::class)
                 || is_a($documentPart, Record::class)
@@ -138,7 +190,7 @@ class AuthServiceProvider extends ServiceProvider
          * @param DocumentPart|DocumentRevision $thing
          * @return boolean
          */
-        $fn = function ($user, $thing) {
+        $fn = function (User $user, $thing) {
             if (is_a($thing, DocumentRevision::class)) {
                 $documentRevision = $thing;
             } else {
@@ -148,6 +200,13 @@ class AuthServiceProvider extends ServiceProvider
             if ($documentRevision->status != "draft") {
                 return false;
             }
+
+            // only revisions created by the current user can be edited
+            // (unless we have superusers later)
+            if( $documentRevision->user_username != $user->username ) {
+                return false;
+            }
+
             if (
                 is_a($thing, LinkType::class)
                 || is_a($thing, RecordType::class)
@@ -164,17 +223,38 @@ class AuthServiceProvider extends ServiceProvider
             }
         };
         $gate->define('create', $fn);
+
+        /**
+         * Can this user commit a specific revision?
+         * @param User $user
+         * @param DocumentRevision $documentRevision
+         * @return boolean
+         */
+        $fn = function (User $user, DocumentRevision $documentRevision) {
+            if( !$user->can( "commit", $documentRevision->document)) {
+                return false;
+            }
+            // only revisions created by the current user can be committed
+            // (unless we have superusers later)
+            if( $documentRevision->user_username != $user->username ) {
+                return false;
+            }
+
+            return true;
+        };
+        $gate->define('commit-revision', $fn);
+
     }
 
-    protected function getPermissions()
+    protected
+    function getPermissions()
     {
         try {
             // If the DB is not yet setup, we can't get any permissions!
             if (!Schema::hasTable('permissions')) {
                 return new Collection();
             }
-        }
-        catch( PDOException $exception ) {
+        } catch (PDOException $exception) {
             // If we can't even find out if there's a permissions table
             // then there's no permissions!
             return new Collection();

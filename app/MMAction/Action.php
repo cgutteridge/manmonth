@@ -17,6 +17,9 @@ abstract class Action
      */
     public $name;
 
+    public $action_type;
+
+
     /**
      * Has some parameters with an ordered name & type and human readable title etc.
      * @var array
@@ -32,6 +35,7 @@ abstract class Action
 
     /**
      * AbstractAction constructor.
+     * @throws \Exception
      */
     public function __construct()
     {
@@ -46,7 +50,6 @@ abstract class Action
      * @param Rule $rule
      * @param array $context
      * @param array $params
-     * @return
      */
     public abstract function execute($recordReport, $rule, $context, $params);
 

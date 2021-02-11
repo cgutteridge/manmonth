@@ -33,6 +33,7 @@ class FieldOf extends BinaryOp
     /**
      * @param $context
      * @return Value
+     * @throws \Exception
      */
     function execute($context)
     {

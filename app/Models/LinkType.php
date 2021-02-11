@@ -64,6 +64,7 @@ class LinkType extends DocumentPart
      * @param $subject
      * @param $object
      * @return Link
+     * @throws MMValidationException
      */
     public
     function createLink($subject, $object)

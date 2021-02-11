@@ -55,6 +55,7 @@ class UserController extends Controller
      * Display the specified resource.
      * @param User $user
      * @return Response
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(User $user)
     {
@@ -69,6 +70,7 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      * @return RedirectResponse
+     * @throws \App\Exceptions\MMValidationException
      */
     public function profile()
     {
@@ -80,7 +82,7 @@ class UserController extends Controller
         }
 
         $rolesInfo = [];
-        foreach ($user->roles as $role) {
+        foreach ($user->allRoles() as $role) {
             $document = $role->document;
             $id = "general";
             if ($document) {

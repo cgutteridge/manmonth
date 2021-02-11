@@ -4,7 +4,6 @@ namespace App\MMScript\Ops;
 
 use App\Exceptions\MMScriptRuntimeException;
 use App\MMScript;
-use App\MMScript\Values\NullValue;
 
 # list of expressions
 /**
@@ -54,7 +53,7 @@ class ExpList extends Op
 
     /**
      * @param array $context
-     * @return NullValue
+     * @return void
      * @throws MMScriptRuntimeException
      */
     function execute($context)

@@ -22,11 +22,12 @@ class RecordTypeController extends Controller
      *
      * @param RecordType $recordType
      * @return Response
+     * @throws MMValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(RecordType $recordType)
     {
         $this->authorize('view', $recordType);
-
         $pageinfo = [];
         $pageinfo["recordType"] = $recordType;
 
@@ -63,6 +64,9 @@ class RecordTypeController extends Controller
      * @param RecordController $recordController
      * @param RecordType $recordType
      * @return Response
+     * @throws MMValidationException
+     * @throws \App\Exceptions\ScriptException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function records(RecordController $recordController, RecordType $recordType)
     {
@@ -93,6 +97,8 @@ class RecordTypeController extends Controller
      *
      * @param RecordType $recordType
      * @return Response
+     * @throws MMValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function externalRecords(RecordType $recordType)
     {
@@ -221,6 +227,8 @@ class RecordTypeController extends Controller
      *
      * @param RecordType $recordType
      * @return Response
+     * @throws MMValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function bulkImportConfirm(RecordType $recordType)
     {
@@ -275,7 +283,8 @@ class RecordTypeController extends Controller
      * Actually do a bulk import.
      *
      * @param RecordType $recordType
-     * @return Response
+     * @return RedirectResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function bulkImport(RecordType $recordType)
     {
@@ -343,6 +352,8 @@ class RecordTypeController extends Controller
      *
      * @param RecordType $recordType
      * @return Response
+     * @throws MMValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function createRecord(RecordType $recordType)
     {
@@ -419,6 +430,8 @@ class RecordTypeController extends Controller
      *
      * @param RecordType $recordType
      * @return View
+     * @throws MMValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(RecordType $recordType)
     {

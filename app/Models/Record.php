@@ -36,6 +36,7 @@ class Record extends DocumentPart
     }
 
     /**
+     * NOT a laravel relation
      * @return RecordType
      */
     public function recordType()
@@ -95,6 +96,7 @@ class Record extends DocumentPart
     /**
      * @param string $fieldName
      * @return mixed
+     * @throws ScriptException
      */
     public function getExternal($fieldName)
     {
@@ -128,8 +130,10 @@ class Record extends DocumentPart
             return null;
         }
 
-
-        if (empty($this->recordType->external_table)) {
+        /* putting this in a variable first as empty() does strange things. */
+        /** @var string $external_table */
+        $external_table = $this->recordType->external_table;
+        if (empty($external_table)) {
             return null;
         }
         $localKeyValue = $this->getLocal($this->recordType->external_local_key);
@@ -442,6 +446,7 @@ class Record extends DocumentPart
     /**
      * Reads the requested changes to links and checks they are valid.
      * @param array $linkChanges
+     * @throws MMValidationException
      */
     public function validateLinkChanges($linkChanges)
     {
@@ -611,6 +616,7 @@ class Record extends DocumentPart
 
     /**
      * @param array $linkChanges
+     * @throws MMValidationException
      */
     public function applyLinkChanges($linkChanges)
     {
