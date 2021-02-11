@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
         Commands\SetAllPasswords::class,
         Commands\Munge::class,
         Commands\LoadReport::class,
+        Commands\CreateImportedTable::class,
     ];
 
     /**
