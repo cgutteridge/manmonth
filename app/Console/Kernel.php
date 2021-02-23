@@ -19,6 +19,10 @@ class Kernel extends ConsoleKernel
         Commands\Munge::class,
         Commands\LoadReport::class,
         Commands\CreateImportedTable::class,
+        Commands\GrantRole::class,
+        Commands\RevokeRole::class,
+        Commands\ListRoles::class,
+        Commands\ListDocuments::class,
     ];
 
     /**
