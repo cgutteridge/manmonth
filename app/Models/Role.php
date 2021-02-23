@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string name
  * @property string label
  * @property Document document
+ * @method static where(string $string, string $string1)
  */
 class Role extends Model
 {
