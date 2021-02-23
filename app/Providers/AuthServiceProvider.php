@@ -17,7 +17,6 @@ use Illuminate\Contracts\Auth\Access\Gate as GateContract;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use PDOException;
-use PhpParser\Comment\Doc;
 use Schema;
 
 class AuthServiceProvider extends ServiceProvider
@@ -81,6 +80,9 @@ class AuthServiceProvider extends ServiceProvider
          */
         $fn = function (User $user, $docIndicator) {
             if (is_a($docIndicator, Document::class)) {
+                if ($user->can("full-document-admin")) {
+                    return true;
+                }
                 /** @var Document $document */
                 $document = $docIndicator;
                 // any of these permissions let you see the document.
@@ -99,6 +101,9 @@ class AuthServiceProvider extends ServiceProvider
             if (is_a($docIndicator, DocumentRevision::class) || is_a($docIndicator, DocumentPart::class)) {
                 // we treat a document part as if it were the document revision it's attached to
                 // this might get more nuanced in a later version
+                if ($user->can("full-document-admin")) {
+                    return true;
+                }
                 /** @var DocumentRevision $docRev */
                 if (is_a($docIndicator, DocumentRevision::class)) {
                     $docRev = $docIndicator;
@@ -144,6 +149,9 @@ class AuthServiceProvider extends ServiceProvider
          * @return boolean
          */
         $fn = function (User $user, $documentPart) {
+            if ($user->can("full-document-admin")) {
+                return true;
+            }
             $documentRevision = $documentPart->documentRevision;
 
             // only things in draft revisions can be edited.
@@ -153,7 +161,7 @@ class AuthServiceProvider extends ServiceProvider
 
             // only revisions created by the current user can be edited
             // (unless we have superusers later)
-            if( $documentRevision->user_username != $user->username ) {
+            if ($documentRevision->user_username != $user->username) {
                 return false;
             }
 
@@ -191,6 +199,9 @@ class AuthServiceProvider extends ServiceProvider
          * @return boolean
          */
         $fn = function (User $user, $thing) {
+            if ($user->can("full-document-admin")) {
+                return true;
+            }
             if (is_a($thing, DocumentRevision::class)) {
                 $documentRevision = $thing;
             } else {
@@ -231,12 +242,15 @@ class AuthServiceProvider extends ServiceProvider
          * @return boolean
          */
         $fn = function (User $user, DocumentRevision $documentRevision) {
-            if( !$user->can( "commit", $documentRevision->document)) {
+            if ($user->can("full-document-admin")) {
+                return true;
+            }
+            if (!$user->can("commit", $documentRevision->document)) {
                 return false;
             }
             // only revisions created by the current user can be committed
             // (unless we have superusers later)
-            if( $documentRevision->user_username != $user->username ) {
+            if ($documentRevision->user_username != $user->username) {
                 return false;
             }
 
