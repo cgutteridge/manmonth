@@ -60,6 +60,9 @@ class AuthServiceProvider extends ServiceProvider
                  */
                 $fn =
                     function ($user, $document) use ($permission) {
+                        if ($user->can("full-document-admin")) {
+                            return true;
+                        }
                         return $user->hasDocumentRole($permission->roles, $document);
                     };
                 $gate->define($permission->name, $fn);
@@ -80,6 +83,7 @@ class AuthServiceProvider extends ServiceProvider
          */
         $fn = function (User $user, $docIndicator) {
             if (is_a($docIndicator, Document::class)) {
+
                 if ($user->can("full-document-admin")) {
                     return true;
                 }

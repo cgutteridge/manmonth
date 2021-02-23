@@ -6,9 +6,12 @@ use App\Fields\Field;
 use App\Models\Document;
 use Auth;
 use Exception;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\View\View;
 use Redirect;
 
 class DocumentController extends Controller
@@ -16,7 +19,7 @@ class DocumentController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return Response
+     * @return Factory|Application|Response|View
      */
     public function index()
     {
@@ -35,7 +38,7 @@ class DocumentController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return Response
+     * @return Factory|Application|Response|View
      */
     public function create()
     {
@@ -47,8 +50,8 @@ class DocumentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  Request $request
-     * @return Response
+     * @param Request $request
+     * @return Factory|Application|Response|View
      */
     public function store(Request $request)
     {
@@ -60,13 +63,12 @@ class DocumentController extends Controller
     /**
      * Display the specified resource.
      * @param Document $document
-     * @return Response
+     * @return Factory|Application|RedirectResponse|Response|View
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(Document $document)
     {
         $this->authorize('view', $document);
-
         if (!Auth::user()->can('view-draft', $document)
             && !Auth::user()->can('view-archive', $document)
             && !Auth::user()->can('view-published', $document)
@@ -175,7 +177,7 @@ class DocumentController extends Controller
      * Show the form for making a new draft revision
      *
      * @param Document $document
-     * @return Response
+     * @return Factory|Application|Response|View
      * @throws \App\Exceptions\MMValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
@@ -230,6 +232,83 @@ class DocumentController extends Controller
         // apply changes to links
         return Redirect::to($this->linkMaker->url($draft))
             ->with("message", "Created new draft from latest revision");
+    }
+
+    /**
+     * Show the form for making a clone
+     *
+     * @param Document $document
+     * @return Factory|Application|Response|View
+     * @throws \App\Exceptions\MMValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public
+    function makeCloneForm(Document $document)
+    {
+        $this->authorize('full-document-admin', $document);
+        return view('confirmForm', [
+            'nav' => $this->navigationMaker->documentNavigation($document),
+            "actionLabel" => "Clone this document",
+            "subjectLabel" => $this->titleMaker->title($document),
+            "action" => $this->linkMaker->url($document, "create-clone"),
+            "formFields" => [
+                "idPrefix" => "",
+                "fields" => DocumentController::editableFields(),
+            ],
+            "values" => ["name" => "Copy of " . $document->name],
+        ]);
+    }
+
+    /**
+     * Process the form for a new draft revision
+     *
+     * @param Document $document
+     * @return RedirectResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public
+    function makeClone(Document $document)
+    {
+        $this->authorize('full-document-admin');
+
+        $action = $this->requestProcessor->get("_mmaction", "");
+        $returnLink = $this->requestProcessor->returnURL($this->linkMaker->url($document));
+
+        if ($action == "cancel") {
+            return Redirect::to($returnLink);
+        }
+        // if action is not cancel it's treated as confirmation
+
+        $draft = null;
+        try {
+            $clone = $document->duplicate(Auth::user());
+            // this code is duplicated in DocumentRevisionCOntroller
+            $name = $this->requestProcessor->get("name");
+            $clone->name = $name;
+            $clone->save();
+        } catch (Exception $exception) {
+            return Redirect::to($returnLink)
+                ->withErrors($exception->getMessage());
+        }
+
+        // redirect to the latest revision on the clone document
+        return Redirect::to($this->linkMaker->url($clone));
+    }
+
+    /**
+     * Returns fields that can be edited on a document.
+     * @return array
+     */
+    public static function editableFields()
+    {
+        try {
+            return [Field::createFromData([
+                "type" => "string",
+                "name" => "name",
+                "label" => "Name"])];
+        } catch (Exception $e) {
+            return [];
+        }
     }
 
 }

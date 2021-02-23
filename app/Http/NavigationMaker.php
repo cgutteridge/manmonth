@@ -310,6 +310,13 @@ class NavigationMaker
                 "href" => $this->linkMaker->url($document),
                 "allowed" => Auth::user()->can('view-archive', $document)
             ];
+        $docItems [] =
+            [
+                "glyph" => "list",
+                "label" => "Clone document",
+                "href" => $this->linkMaker->url($document, "create-clone"),
+                "allowed" => Auth::user()->can('full-document-admin', $document)
+            ];
 
         $nav["menus"] = [
             [

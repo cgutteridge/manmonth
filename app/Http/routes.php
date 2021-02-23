@@ -28,6 +28,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('documents/{document}/draft', 'DocumentController@draft');
     Route::get('documents/{document}/create-draft', 'DocumentController@makeDraftForm');
     Route::post('documents/{document}/create-draft', 'DocumentController@makeDraft');
+    Route::get('documents/{document}/create-clone', 'DocumentController@makeCloneForm');
+    Route::post('documents/{document}/create-clone', 'DocumentController@makeClone');
 
     Route::get('revisions/{documentRevision}', 'DocumentRevisionController@show');
     Route::get('revisions/{documentRevision}/scrap', 'DocumentRevisionController@scrapForm');

@@ -61,33 +61,63 @@ class Document extends MMModel
         }
         /** @var DocumentRevision $latest */
         $latest = $this->latestRevision();
-
         /** @var DocumentRevision $draft */
         $draft = $latest->replicate();
         $draft->status = "draft";
         $draft->published = false;
         $draft->user()->associate($user);
         $draft->save();
-        $partLists = array(
-            $latest->reportTypes,
-            $latest->records,
-            $latest->recordTypes,
-            $latest->links,
-            $latest->linkTypes,
-            $latest->rules);
-        // reports are a document part but belong to a single revision
+        $draft->replicatePartsFrom($latest);
 
-        foreach ($partLists as $partList) {
-            /** @var DocumentPart $part */
-            foreach ($partList as $part) {
-                /** @var DocumentPart $newPart */
-                $newPart = $part->replicate();
-                $newPart->documentRevision()->associate($draft);
-                $newPart->save();
+        return $draft;
+    }
+
+    /**
+     * This function makes a copy of the document and copies the last non-draft revision
+     * most recent item in the archive, into a new revision.
+     * Rows get a new ID but maintain their 'sid' value and this is used for relationships.
+     * @param User $user
+     * @return DocumentRevision
+     * @throws Exception
+     */
+    public function duplicate(User $user)
+    {
+        $new_doc = $this->replicate();
+        $new_doc->save();
+
+        /** @var DocumentRevision $latest */
+        $latest = $this->latestRevision();
+
+        /** @var DocumentRevision $new_doc_first_docrev */
+        $new_doc_first_docrev = $latest->replicate();
+        $new_doc_first_docrev->status = "archive";
+        $new_doc_first_docrev->published = false;
+        $new_doc_first_docrev->comment = "Duplicated from doc #" . $this->id . " rev #" . $latest->id . " \"" . $this->name . "\"";
+        $new_doc_first_docrev->user()->associate($user);
+        $new_doc_first_docrev->document()->associate($new_doc);
+        $new_doc_first_docrev->save();
+        $new_doc_first_docrev->replicatePartsFrom($latest);
+
+        // duplicate permissions
+        foreach ($this->roles as $role) {
+            /** @var Role $new_role */
+            $new_role = $role->replicate();
+            $new_role->document()->associate($new_doc);
+            $new_role->save();
+            foreach ($role->permissions as $permission) {
+                $new_role->permissions()->save($permission);
+            }
+            foreach ($role->users as $user) {
+                $new_role->users()->save($user);
+            }
+            foreach ($role->roleConditions as $condition) {
+                $new_condition = $condition->replicate();
+                $new_condition->role()->associate($new_role);
+                $new_condition->save();
             }
         }
 
-        return $draft;
+        return $new_doc;
     }
 
     /**

@@ -348,4 +348,29 @@ class DocumentRevision extends MMModel
         return $link_type;
     }
 
+    /**
+     * @param DocumentRevision $source
+     */
+    public function replicatePartsFrom($source)
+    {
+
+        $partLists = array(
+            $source->reportTypes,
+            $source->records,
+            $source->recordTypes,
+            $source->links,
+            $source->linkTypes,
+            $source->rules);
+        // reports are a document part but belong to a single revision
+
+        foreach ($partLists as $partList) {
+            /** @var DocumentPart $part */
+            foreach ($partList as $part) {
+                /** @var DocumentPart $newPart */
+                $newPart = $part->replicate();
+                $newPart->documentRevision()->associate($this);
+                $newPart->save();
+            }
+        }
+    }
 }
