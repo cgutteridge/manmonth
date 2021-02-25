@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Fields\Field;
 use App\Models\Document;
 use Auth;
 use Exception;
@@ -192,7 +191,7 @@ class DocumentController extends Controller
             "action" => $this->linkMaker->url($document, "create-draft"),
             "formFields" => [
                 "idPrefix" => "",
-                "fields" => DocumentRevisionController::editableFields(),
+                "fields" => DocumentRevision::editableFields(),
             ]
         ]);
     }
@@ -253,7 +252,7 @@ class DocumentController extends Controller
             "action" => $this->linkMaker->url($document, "create-clone"),
             "formFields" => [
                 "idPrefix" => "",
-                "fields" => DocumentController::editableFields(),
+                "fields" => Document::editableFields(),
             ],
             "values" => ["name" => "Copy of " . $document->name],
         ]);
@@ -293,22 +292,6 @@ class DocumentController extends Controller
 
         // redirect to the latest revision on the clone document
         return Redirect::to($this->linkMaker->url($clone));
-    }
-
-    /**
-     * Returns fields that can be edited on a document.
-     * @return array
-     */
-    public static function editableFields()
-    {
-        try {
-            return [Field::createFromData([
-                "type" => "string",
-                "name" => "name",
-                "label" => "Name"])];
-        } catch (Exception $e) {
-            return [];
-        }
     }
 
 }

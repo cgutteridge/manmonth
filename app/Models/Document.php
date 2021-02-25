@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Fields\Field;
 use Exception;
 
 /**
@@ -186,5 +187,22 @@ class Document extends MMModel
             return null;
         }
         return MMModel::$cache[$relationCode];
+    }
+
+
+    /**
+     * Returns fields that can be edited on a document.
+     * @return array
+     */
+    public static function editableFields()
+    {
+        try {
+            return [Field::createFromData([
+                "type" => "string",
+                "name" => "name",
+                "label" => "Name"])];
+        } catch (Exception $e) {
+            return [];
+        }
     }
 }

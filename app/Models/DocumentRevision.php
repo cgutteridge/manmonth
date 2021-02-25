@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Fields\Field;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -371,6 +372,23 @@ class DocumentRevision extends MMModel
                 $newPart->documentRevision()->associate($this);
                 $newPart->save();
             }
+        }
+    }
+
+
+    /**
+     * Returns fields that can be edited on a revision.
+     * @return array
+     */
+    public static function editableFields()
+    {
+        try {
+            return [Field::createFromData([
+                "type" => "string",
+                "name" => "comment",
+                "label" => "Comment"])];
+        } catch (Exception $e) {
+            return [];
         }
     }
 }

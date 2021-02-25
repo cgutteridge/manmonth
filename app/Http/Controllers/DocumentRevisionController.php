@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Fields\Field;
 use App\Models\DocumentRevision;
 use Auth;
 use Exception;
@@ -95,7 +94,7 @@ class DocumentRevisionController extends Controller
             "action" => $this->linkMaker->url($documentRevision, "publish"),
             "formFields" => [
                 "idPrefix" => "",
-                "fields" => DocumentRevisionController::editableFields(),
+                "fields" => DocumentRevision::editableFields(),
                 "values" => $documentRevision->toArray(),
             ]
         ]);
@@ -141,7 +140,7 @@ class DocumentRevisionController extends Controller
             "action" => $this->linkMaker->url($documentRevision, "commit"),
             "formFields" => [
                 "idPrefix" => "",
-                "fields" => DocumentRevisionController::editableFields(),
+                "fields" => DocumentRevision::editableFields(),
                 "values" => $documentRevision->toArray(),
             ]
         ]);
@@ -190,7 +189,7 @@ class DocumentRevisionController extends Controller
             "returnTo" => $this->linkMaker->url($documentRevision->document),
             "formFields" => [
                 "idPrefix" => "",
-                "fields" => DocumentRevisionController::editableFields(),
+                "fields" => DocumentRevision::editableFields(),
                 "values" => $documentRevision->toArray(),
             ]
         ]);
@@ -240,7 +239,7 @@ class DocumentRevisionController extends Controller
             "returnTo"=>$this->linkMaker->url($documentRevision->document),
             "formFields" => [
                 "idPrefix" => "",
-                "fields" => DocumentRevisionController::editableFields(),
+                "fields" => DocumentRevision::editableFields(),
                 "values" => $documentRevision->toArray(),
             ]
         ]);
@@ -290,7 +289,7 @@ class DocumentRevisionController extends Controller
             "action" => $this->linkMaker->url($documentRevision, "unpublish"),
             "formFields" => [
                 "idPrefix" => "",
-                "fields" => DocumentRevisionController::editableFields(),
+                "fields" => DocumentRevision::editableFields(),
                 "values" => $documentRevision->toArray(),
             ]
         ]);
@@ -340,7 +339,7 @@ class DocumentRevisionController extends Controller
             ),
             "formFields" => [
                 "idPrefix" => "",
-                "fields" => DocumentRevisionController::editableFields(),
+                "fields" => DocumentRevision::editableFields(),
                 "values" => $documentRevision->toArray(),
             ]
         ]);
@@ -380,20 +379,5 @@ class DocumentRevisionController extends Controller
         $documentRevision->save();
     }
 
-    /**
-     * Returns fields that can be edited on a revision.
-     * @return array
-     */
-    public static function editableFields()
-    {
-        try {
-            return [Field::createFromData([
-                "type" => "string",
-                "name" => "comment",
-                "label" => "Comment"])];
-        } catch (Exception $e) {
-            return [];
-        }
-    }
 
 }

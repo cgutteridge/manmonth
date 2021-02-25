@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Document;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Console\Command;
@@ -43,23 +44,33 @@ class GrantRole extends Command
         $rolename = $this->argument('rolename');
         $documentid = $this->argument('documentid');
 
-        $user = User::where('username', $username)->first();
+        $user = User::find($username);
         if (!$user) {
             $this->error("No such user: '$username'");
             return 1;
         }
 
         if ($documentid) {
+            $document = Document::find($documentid);
+            if (!$document) {
+                $this->error("No such document: '$documentid'");
+                return 1;
+            }
             $new_role = Role::where('document_id', $documentid)->where('name', $rolename)->first();
             if (!$new_role) {
-                $this->error("No such role");
+                $roleNames = [];
+                $roles = $document->roles;
+                foreach ($roles as $role) {
+                    $roleNames [] = $role->name;
+                }
+                $this->error("No such role '$rolename' on document $documentid \"" . $document->name . "\".\n Valid options: " . join(", ", $roleNames) . ".");
                 return 1;
             }
         } else {
             // a global role
             $new_role = Role::whereNull('document_id')->where('name', $rolename)->first();
             if (!$new_role) {
-                $this->error("No such role");
+                $this->error("No such global role '$rolename'.");
                 return 1;
             }
         }
@@ -68,11 +79,12 @@ class GrantRole extends Command
         foreach ($user->roles as $user_role) {
             if ($user_role->id == $new_role->id) {
                 $this->warn("User already has that role");
-                return;
+                return 0;
             }
         }
 
         // OK the user doesn't already have the role, so add it
         $user->roles()->attach($new_role);
+        return 0;
     }
 }

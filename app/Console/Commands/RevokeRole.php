@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Document;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Console\Command;
@@ -43,16 +44,26 @@ class RevokeRole extends Command
         $rolename = $this->argument('rolename');
         $documentid = $this->argument('documentid');
 
-        $user = User::where('username', $username)->first();
+        $user = User::find($username);
         if (!$user) {
             $this->error("No such user: '$username'");
             return 1;
         }
 
         if ($documentid) {
+            $document = Document::find($documentid);
+            if (!$document) {
+                $this->error("No such document: '$documentid'");
+                return 1;
+            }
             $doomed_role = Role::where('document_id', $documentid)->where('name', $rolename)->first();
             if (!$doomed_role) {
-                $this->error("No such role");
+                $roleNames = [];
+                $roles = $document->roles;
+                foreach ($roles as $role) {
+                    $roleNames [] = $role->name;
+                }
+                $this->error("No such role '$rolename' on document $documentid \"" . $document->name . "\".\n Valid options: " . join(", ", $roleNames) . ".");
                 return 1;
             }
         } else {
