@@ -153,6 +153,163 @@ class ReportType extends DocumentPart
         return $recordReport;
     }
 
+    /**
+     * Later on this function should probably take a report, but for now
+     * reports don't know their report type, so we'll do it like this.
+     * I'm not 100% sure that this belongs in the Model, but I need the same function usable
+     * from Console & HTTP interfaces to export CSV
+     * @return array
+     * @throws ReportingException
+     * @throws \App\Exceptions\MMValidationException
+     */
+    public function buildReportData()
+    {
+        $report = $this->makeReport();
+        $categories = [];
+
+        foreach ($this->baseRecordType()->records() as $record) {
+            $recordReport = $report->recordReport($record->sid);
+
+            // if this is slow it could just run on the first recordreport?
+            $recordCategories = $recordReport->categories();
+            foreach ($recordCategories as $category => $opts) {
+                foreach ($opts as $param => $value) {
+                    $categories[$category][$param] = $value;
+                }
+            }
+
+            // implicit categories
+            $loadings = $recordReport->getLoadings();
+            foreach ($loadings as $loadItem) {
+                if (array_key_exists("category", $loadItem)) {
+                    $categories[$loadItem['category']]['exists'] = true;
+                }
+            }
+        }
+        $categoryBase = [];
+        foreach ($categories as $category => $options) {
+            $categoryBase[$category] = 0;
+        }
+        $reportData = [
+            "categories" => $categories,
+            "means" => $report->columnMeans(),
+            "totals" => $report->columnTotals(),
+            "maxLoading" => $report->maxLoading(),
+            "maxTarget" => $report->maxTarget(),
+            "maxRatio" => $report->maxLoadingRatio(),
+            "rows" => []
+        ];
+        $unsortedRows = [];
+        $titleMaker = new TitleMaker();
+        foreach ($this->baseRecordType()->records() as $record) {
+            $recordReport = $report->recordReport($record->sid);
+
+            $recordTarget = $recordReport->getLoadingTarget();
+            $recordTotal = $recordReport->getLoadingTotal();
+            $loadings = $recordReport->getLoadings();
+            $categoryTotals = $categoryBase;
+
+            $columns = $recordReport->getColumns();
+            if (!array_key_exists("columns", $reportData)) {
+                // do this on the first row in the loop.
+                $reportData["columns"] = array_keys($columns);
+            }
+
+            foreach ($loadings as $loadItem) {
+                if (array_key_exists("category", $loadItem)) {
+                    $category = $loadItem["category"];
+                    $categoryTotals[$category] += $loadItem["load"];
+                }
+            }
+            $sortKey = strtoupper($titleMaker->title($record)) . "#" . $record->sid;
+            $unsortedRows[$sortKey] = [
+                "record" => $record,
+                "target" => $recordTarget,
+                "total" => $recordTotal,
+                "loadings" => $loadings,
+                "units" => $recordReport->getOption("units"),
+                "categoryTotals" => $categoryTotals,
+                "columns" => $columns,
+            ];
+        }
+        ksort($unsortedRows);
+        $reportData["rows"] = array_values($unsortedRows);
+        if (!array_key_exists("columns", $reportData)) {
+            // if there's no rows then columns could be undefined which could cause bother later
+            $reportData['columns'] = [];
+        }
+        return $reportData;
+    }
+
+    /**
+     * Return the data from a buildReportData as simple tabular data suitable for CSV export
+     * @param string $mode
+     * @return void
+     * @throws MMValidationException
+     * @throws ReportingException
+     */
+    public function buildTabularReportData($mode = 'summary')
+    {
+        $reportData = $this->buildReportData($this);
+
+        $headings = [];
+        foreach ($reportData['columns'] as $colName) {
+            $headings [] = $colName;
+        }
+        foreach ($reportData["categories"] as $category => $opts) {
+            if (!array_key_exists('show_column', $opts) || $opts['show_column']) {
+                $headings [] = array_key_exists('label', $opts) ? $opts['label'] : $category;
+            }
+        }
+
+        $headings [] = "Total";
+        $headings [] = "Target";
+        $headings [] = "Ratio";
+        if ($mode == 'full') {
+            $headings [] = "Load";
+            $headings [] = "Load type";
+            $headings [] = "Load description";
+            $headings [] = "Load rule";
+        }
+
+        $rows = [];
+        $rows [] = $headings;
+
+        foreach ($reportData['rows'] as $reportRow) {
+            $row = [];
+            foreach ($reportData['columns'] as $colName) {
+                $row [] = $reportRow['columns'][$colName];
+            }
+            foreach ($reportData["categories"] as $category => $opts) {
+                if (!array_key_exists('show_column', $opts) || $opts['show_column']) {
+                    $row [] = $reportRow['categoryTotals'][$category];
+                }
+            }
+            $row [] = $reportRow['total'];
+            $row [] = $reportRow['target'];
+            if ($reportRow['target'] > 0) {
+                $row [] = sprintf("%.2f", $reportRow['total'] / $reportRow['target']);
+            } else {
+                $row [] = "";
+            }
+
+            if ($mode == 'full' && count($reportRow['loadings'])) {
+                foreach ($reportRow['loadings'] as $loading) {
+                    $subRow = $row;
+                    $subRow [] = $loading['load'];
+                    $subRow [] = $loading['category'];
+                    $subRow [] = $loading['description'];
+                    $subRow [] = $loading['rule_title'];
+                    $rows [] = $subRow;
+                }
+            } else {
+                $rows [] = $row;
+            }
+        }
+        return $rows;
+    }
+
+
 }
 
 

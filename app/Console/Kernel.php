@@ -19,6 +19,8 @@ class Kernel extends ConsoleKernel
         Commands\Munge::class,
         Commands\LoadReport::class,
         Commands\CreateImportedTable::class,
+        Commands\ListReportTypes::class,
+        Commands\ExportReport::class,
     ];
 
     /**
